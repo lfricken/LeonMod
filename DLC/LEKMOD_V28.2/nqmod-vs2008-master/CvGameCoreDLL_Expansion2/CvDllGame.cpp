@@ -116,7 +116,7 @@ void CvDllGame::ChangeNumGameTurnActive(int iChange, const char* why)
 	if(why != NULL && strlen(why) > 0)
 		strWhy = why;
 
-	m_pGame->changeNumGameTurnActive(iChange, strWhy);
+	//m_pGame->logNumGameTurnActive(iChange, strWhy);
 }
 //------------------------------------------------------------------------------
 int CvDllGame::CountHumanPlayersAlive() const

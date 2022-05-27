@@ -485,6 +485,57 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CvPlotExtraYields.cpp" />
+    <ClCompile Include="CvCompetition.cpp" />
+    <ClCompile Include="CvExtraHelp.cpp" />
+    <ClCompile Include="CvLuaArea.cpp">
+      <Filter>Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="CvLuaArgsHandle.cpp">
+      <Filter>Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="CvLuaCity.cpp">
+      <Filter>Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="CvLuaDeal.cpp">
+      <Filter>Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="CvLuaEnums.cpp">
+      <Filter>Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="CvLuaFractal.cpp">
+      <Filter>Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="CvLuaGame.cpp">
+      <Filter>Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="CvLuaGameInfo.cpp">
+      <Filter>Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="CvLuaLeague.cpp">
+      <Filter>Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="CvLuaMap.cpp">
+      <Filter>Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="CvLuaPlayer.cpp">
+      <Filter>Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="CvLuaPlot.cpp">
+      <Filter>Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="CvLuaSupport.cpp">
+      <Filter>Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="CvLuaTeam.cpp">
+      <Filter>Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="CvLuaTeamTech.cpp">
+      <Filter>Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="CvLuaUnit.cpp">
+      <Filter>Lua</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDllWrap.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Lua\CvLuaArea.h">
@@ -1011,6 +1062,62 @@
     </ClInclude>
     <ClInclude Include="..\CvGameCoreDLLUtil\include\CvEnums.h" />
     <ClInclude Include="..\FirePlace\include\FireWorks\FFastVector.h" />
+    <ClInclude Include="CvCompetition.h" />
+    <ClInclude Include="CvLuaArea.h">
+      <Filter>Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="CvLuaArgsHandle.h">
+      <Filter>Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="CvLuaCity.h">
+      <Filter>Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="CvLuaDeal.h">
+      <Filter>Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="CvLuaEnums.h">
+      <Filter>Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="CvLuaFractal.h">
+      <Filter>Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="CvLuaGame.h">
+      <Filter>Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="CvLuaGameInfo.h">
+      <Filter>Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="CvLuaLeague.h">
+      <Filter>Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="CvLuaMap.h">
+      <Filter>Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="CvLuaPlayer.h">
+      <Filter>Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="CvLuaPlot.h">
+      <Filter>Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="CvLuaScopedIndirectInstance.h">
+      <Filter>Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="CvLuaScopedInstance.h">
+      <Filter>Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="CvLuaSupport.h">
+      <Filter>Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="CvLuaTeam.h">
+      <Filter>Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="CvLuaTeamTech.h">
+      <Filter>Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="CvLuaUnit.h">
+      <Filter>Lua</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDllWrap.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="CvGameCoreDLL.rc" />

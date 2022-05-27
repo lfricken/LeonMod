@@ -168,6 +168,7 @@ template<class T> inline T FastMin(const T& _Left, const T& _Right) { return (_D
 #include "CvCityConnections.h"
 #include "CvAdvisorCounsel.h"
 #include "CvAdvisorRecommender.h"
+#include "CvDllWrap.h"
 
 using namespace fastdelegate;
 

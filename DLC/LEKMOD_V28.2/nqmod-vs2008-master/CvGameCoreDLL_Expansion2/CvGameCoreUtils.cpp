@@ -1537,3 +1537,12 @@ bool IsGUIDEmpty(const GUID& kGUID)
 {
 	return kGUID.Data1 == 0 && kGUID.Data2 == 0 && kGUID.Data3 == 0 && *(INT32*)&kGUID.Data4[0] == 0 && *(INT32*)&kGUID.Data4[4] == 0;
 }
+void netMessageDebug(int type, string x)
+{
+	if (type == NET_MESSAGE_MOVES && false)
+		NET_MESSAGE_DEBUG_OSTR_ALWAYS(x);
+	if (type == NET_MESSAGE_PLAYER_EVENTS && true)
+		NET_MESSAGE_DEBUG_OSTR_ALWAYS(x);
+	if (type == NET_MESSAGE_PUBLISHES && true)
+		NET_MESSAGE_DEBUG_OSTR_ALWAYS(x);
+}

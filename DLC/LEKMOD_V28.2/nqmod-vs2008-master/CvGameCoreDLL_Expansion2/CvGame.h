@@ -223,7 +223,11 @@ public:
 #ifdef AUI_GAME_BETTER_HYBRID_MODE
 	bool isNoPlayerActive() const;
 #endif
-	void changeNumGameTurnActive(int iChange, const std::string& why);
+	// writes to the debug log
+	// strangely this is called in a lot of places that suggest
+	// that it once set the player turn active, possibly the change
+	// caused this to introduce a glitch?
+	void logNumGameTurnActive(int iChange, const std::string& why);
 
 	int getNumCities() const;
 	int getNumCivCities() const;
@@ -246,6 +250,7 @@ public:
 	int getInitWonders() const;
 	void initScoreCalculation();
 
+	// true if this player is being controlled by an AI even if they started human
 	int getAIAutoPlay();
 	void setAIAutoPlay(int iNewValue, PlayerTypes eReturnPlayer);
 	void changeAIAutoPlay(int iChange);

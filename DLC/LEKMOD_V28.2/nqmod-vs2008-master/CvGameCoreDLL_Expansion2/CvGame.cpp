@@ -1730,8 +1730,9 @@ void CvGame::CheckPlayerTurnDeactivate()
 					if(!(kPlayer.hasBusyUnitOrCity()))
 					{
 						bAutoMovesComplete = true;
-
-						NET_MESSAGE_DEBUG_OSTR_ALWAYS("CheckPlayerTurnDeactivate() : auto-moves complete for " << kPlayer.getName());
+						//stringstream ss;
+						//ss << "CheckPlayerTurnDeactivate() : auto-moves complete for " << string(kPlayer.getName());
+						//netMessageDebug(NET_MESSAGE_PLAYER_EVENTS, ss.str());
 					}
 					else if(gDLL->HasReceivedTurnComplete(kPlayer.GetID()))
 					{
@@ -1817,7 +1818,7 @@ void CvGame::CheckPlayerTurnDeactivate()
 								else
 								{
 									// KWG: This doesn't actually do anything other than print to the debug log
-									changeNumGameTurnActive(1, std::string("Because the diplo screen is blocking I am bumping this up for player ") + getName());
+									//logNumGameTurnActive(1, std::string("Because the diplo screen is blocking I am bumping this up for player ") + getName());
 								}
 							}
 						}
@@ -5164,9 +5165,7 @@ bool CvGame::isNoPlayerActive() const
 	return true;
 }
 #endif
-
-//	--------------------------------------------------------------------------------
-void CvGame::changeNumGameTurnActive(int iChange, const std::string& why)
+void CvGame::logNumGameTurnActive(int iChange, const std::string& why)
 {
 	char changeBuf[8] = {0};
 	char activeBuf[8] = {0};
@@ -9158,7 +9157,9 @@ void CvGame::updateMoves()
 					{
 						if(!player.hasBusyUnitUpdatesRemaining())
 						{
-							NET_MESSAGE_DEBUG_OSTR_ALWAYS("Received turn complete for player "  << player.GetID() << " " << player.getName() << " but there is a busy unit. Forcing the turn to advance");
+							//stringstream ss;
+							//ss << "Received turn complete for player " << player.GetID() << " " << player.getName() << " but there is a busy unit. Forcing the turn to advance";
+							//netMessageDebug(NET_MESSAGE_PLAYER_EVENTS, ss.str());
 							player.setEndTurn(true);
 						}
 					}
