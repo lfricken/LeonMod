@@ -2401,10 +2401,48 @@ CvGlobals& CvGlobals::getInstance()
 {
 	return gGlobals;
 }
+int CvGlobals::getPOLICY_NUM_FOR_IDEOLOGY() const
+{
+	return 21;
+}
+// grow or shrink city tourism impact
+float CvGlobals::getTOURISM_CITY_PERCENT_ADJUST() const
+{
+	return 0.65f;
+}
+// grow or shrink city tourism impact
+int CvGlobals::getTOURISM_FROM_CITY_CULTURE_PER_POLICY() const
+{
+	return 1;
+}
+// how many more cities does the capital count for when calculating tourism adjustment
+float CvGlobals::getTOURISM_CITY_CAPITAL_ADJUST() const
+{
+	return 6.0f;
+}
+// How much extra "policies" does each policy cost once you get ideology
+float CvGlobals::getPOLICY_INCREASE_LATE_GAME() const
+{
+	return 0.5f;
+}
+// how much stuff the great scientist gives
+int CvGlobals::getGREAT_SCIENTIST_AMOUNT() const
+{
+	return 100;
+}
+float CvGlobals::getSCIENCE_CATCHUP_DIFF() const
+{
+	return 12.0f;
+}
+float CvGlobals::getSCIENCE_CATCHUP_DIFF_NONE() const
+{
+	return 1.0f;
+}
+
 // [0, 1] Number of turns DONE as a percentage of max turns 
 float CvGlobals::getPercentTurnsDone()
 {
-	return (float)this->getGamePointer()->getGameTurn() / (float)this->getGamePointer()->getMaxTurns();
+	return max(0.0f, (float)this->getGamePointer()->getGameTurn() / (float)this->getGamePointer()->getMaxTurns());
 }
 // max turns in an online speed game
 float CvGlobals::onlineSpeedMaxTurns()
@@ -2416,9 +2454,32 @@ float CvGlobals::onePerOnlineSpeedTurn()
 {
 	return getPercentTurnsDone() * onlineSpeedMaxTurns();
 }
-int CvGlobals::rand(int maxInclusive, string log)
+unsigned long CvGlobals::getFakeSeed(const int x, const int y, const int other)
 {
-	return this->getGame().getJonRandNum(maxInclusive + 1, log.c_str());
+	// these magic numbers are arbitrary prime numbers which help reduce
+	// the odds a seed collision (repeating a seed even though some variables changed)
+	unsigned long seed = 4339;
+	if (m_game != NULL)
+	{
+		seed *= getGame().countCivPlayersEverAlive();
+		for (int i = 0; i < MAX_CIV_PLAYERS; ++i)
+		{
+			if (GET_PLAYER((PlayerTypes)i).isEverAlive())
+				seed += (i * 157 * GET_PLAYER((PlayerTypes)i).getCivilizationInfo().GetID());
+			else
+				seed += i * 947;
+		}
+		seed += getGame().getMaxTurns() * 349;
+		seed += getGame().getGameTurn() * 6047;
+	}
+	seed += x * 2557;
+	seed += y * 7901;
+	seed += other * 227;
+	return seed;
+}
+int CvGlobals::rand(int maxInclusive, string log, const CvPlot* plot, const unsigned long other)
+{
+	return this->getGame().getJonRandNum(maxInclusive + 1, log.c_str(), plot, other);
 }
 float CvGlobals::turnsToPercentage(float start, float end)
 {

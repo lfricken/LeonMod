@@ -51,6 +51,7 @@ struct TradeConnection
 	int m_aiOriginYields[NUM_YIELD_TYPES];
 	int m_aiDestYields[NUM_YIELD_TYPES];
 
+	bool isPathStillValid() const;
 #ifdef AUI_EXPLICIT_DESTRUCTION
 	~TradeConnection()
 	{
@@ -279,6 +280,7 @@ public:
 	int GetTradeConnectionDomainValueModifierTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield);
 	int GetTradeConnectionRiverValueModifierTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer);
 	int GetTradeConnectionValueTimes100 (const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer);
+	int GetTradeConnectionValueExtra(const TradeConnection& kTradeConnection, const YieldTypes eYieldType, const bool bIsOwner) const;
 #endif
 	void UpdateTradeConnectionValues (void); // updates the all the values for the trade routes that go to and from this player
 

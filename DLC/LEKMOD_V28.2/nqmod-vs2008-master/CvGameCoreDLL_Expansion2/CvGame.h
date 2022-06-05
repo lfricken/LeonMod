@@ -450,13 +450,21 @@ public:
 	CvRandom& getMapRand();
 	int getMapRandNum(int iNum, const char* pszLog);
 
-	CvRandom& getJonRand();
-	int getJonRandNum(int iNum, const char* pszLog);
+	const CvRandom& getJonRand();
+	CvRandom& getJonRandUnsafe();
+	int getJonRandNum(unsigned short usMaxExclusive, const char* pszLog, const CvPlot* plot, const unsigned long other) const;
+	// not const because MakeDelegate / FastDelegate3 gets upset
+	int getJonRandNumExtraSafe(unsigned short usMaxExclusive, const char* pszLog, const unsigned long other) const;
 #ifdef AUI_BINOM_RNG
 	int getJonRandNumBinom(int iNum, const char* pszLog);
 #endif
-	int getJonRandNumVA(int iNum, const char* pszLog, ...);
-	int getAsyncRandNum(int iNum, const char* pszLog);
+	int getJonRandNumVA(unsigned short usMaxExclusive, const char* pszLog, ...);
+	int getAsyncRandNum(unsigned short usMaxExclusive, const char* pszLog, unsigned long extraSeed);
+
+	// a random player (major civ) that has ever been alive
+	PlayerTypes GetRandomMajorPlayer(const int extraSeed, const PlayerTypes eRemove = NO_PLAYER) const;
+	// a random player that has ever been alive
+	PlayerTypes GetRandomPlayer(const int extraSeed, const PlayerTypes eRemove = NO_PLAYER) const;
 
 	int calculateSyncChecksum();
 	int calculateOptionsChecksum();
@@ -744,6 +752,7 @@ protected:
 
 	std::vector<CvString> m_aszDestroyedCities;
 	std::vector<CvString> m_aszGreatPeopleBorn;
+	vector<PlayerTypes> m_playersEverAlive;
 
 	FFreeListTrashArray<VoteSelectionData> m_voteSelections;
 	FFreeListTrashArray<VoteTriggeredData> m_votesTriggered;
@@ -849,7 +858,6 @@ protected:
 	void doUpdateCacheOnTurn();
 
 	void CheckPlayerTurnDeactivate();
-
 	void PopulateDigSite(CvPlot& kPlot, EraTypes eEra, GreatWorkArtifactClass eArtifact);
 	void SpawnArchaeologySitesHistorically();
 

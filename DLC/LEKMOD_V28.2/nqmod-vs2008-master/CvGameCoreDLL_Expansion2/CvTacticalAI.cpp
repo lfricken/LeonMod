@@ -1288,7 +1288,7 @@ void CvTacticalAI::EstablishBarbarianPriorities()
 		if (iPriority >= 0)
 		{
 			// Finally, add a random die roll to each priority
-			iPriority += GC.getGame().getJonRandNum(GC.getAI_TACTICAL_MOVE_PRIORITY_RANDOMNESS(), "Tactical AI Move Priority");
+			iPriority += GC.getGame().getJonRandNum(GC.getAI_TACTICAL_MOVE_PRIORITY_RANDOMNESS(), "Tactical AI Move Priority", NULL, m_pPlayer->GetID() + 1000 * iI);
 
 			// Store off this move and priority
 			CvTacticalMove move;

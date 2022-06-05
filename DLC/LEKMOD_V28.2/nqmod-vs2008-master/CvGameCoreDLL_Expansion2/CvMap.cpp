@@ -861,7 +861,7 @@ CvPlot* CvMap::syncRandPlot(int iFlags, int iArea, int iMinUnitDistance, int iTi
 	while(iCount < iTimeout)
 	{
 		iCount++;
-		pTestPlot = plotCheckInvalid(GC.getGame().getJonRandNum(getGridWidth(), "Rand Plot Width"), GC.getGame().getJonRandNum(getGridHeight(), "Rand Plot Height"));
+		pTestPlot = plotCheckInvalid(GC.getGame().getJonRandNum(getGridWidth(), "Rand Plot Width", NULL, 9 + iCount * 23 + 1542 * iMinUnitDistance), GC.getGame().getJonRandNum(getGridHeight(), "Rand Plot Height", NULL, iCount + 1000 * iMinUnitDistance));
 
 		CvAssertMsg(pTestPlot != NULL, "TestPlot is not assigned a valid value");
 
@@ -1372,7 +1372,7 @@ int CvMap::getRandomResourceQuantity(ResourceTypes eIndex)
 
 	CvAssertMsg(iNumRands > 0, "Resource should have at least 1 Quantity type to choose from")
 
-	int iRand = GC.getGame().getJonRandNum(iNumRands, "Picking from random Resource Quantity types");
+	int iRand = GC.getGame().getJonRandNum(iNumRands, "Picking from random Resource Quantity types", NULL, eIndex + iNumRands);
 
 	return thisResourceInfo->getResourceQuantityType(iRand);
 }
@@ -1886,7 +1886,7 @@ void CvMap::DoPlaceNaturalWonders()
 	{
 		iCount++;
 
-		iPlotRand = GC.getGame().getJonRandNum(iNumMapPlots, "Randomly Placing Natural Wonders");
+		iPlotRand = GC.getGame().getJonRandNum(iNumMapPlots, "Randomly Placing Natural Wonders", NULL, iCount);
 
 		pRandPlot = plotByIndex(iPlotRand);
 

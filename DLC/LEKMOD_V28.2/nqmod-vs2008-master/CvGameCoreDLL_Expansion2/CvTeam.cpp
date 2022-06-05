@@ -2051,7 +2051,7 @@ TeamTypes CvTeam::GetTeamVotingForInDiplo() const
 			CvAssertMsg(iNumAtTop <= veVoteCandidates.size(), "Should not have more top vote candidates than there are total candidates. Please send Anton your save file and version.");
 			if (iNumAtTop > 0 && iNumAtTop <= veVoteCandidates.size())
 			{
-				RandomNumberDelegate randFn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
+				RandomNumberDelegate randFn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNumExtraSafe);
 				eVoteTeam = veVoteCandidates.ChooseFromTopChoices(iNumAtTop, &randFn, "Tie for most favored other team to vote for. Rolling to choose.");
 			}
 		}

@@ -6580,7 +6580,7 @@ void CvLeague::DoProjectReward(PlayerTypes ePlayer, LeagueProjectTypes eLeaguePr
 void CvLeague::UpdateName()
 {
 	// Roll for a new name type
-	int iRoll = GC.getGame().getJonRandNum(GC.getNumLeagueNameInfos(), "Rolling for league name variation");
+	int iRoll = GC.getGame().getJonRandNum(GC.getNumLeagueNameInfos(), "Rolling for league name variation", NULL, 981147);
 	CvLeagueNameEntry* pInfo = GC.getLeagueNameInfo((LeagueNameTypes)iRoll);
 	if (pInfo)
 	{
@@ -9268,7 +9268,7 @@ void CvLeagueAI::AllocateVotes(CvLeague* pLeague)
 		CvWeightedVector<VoteConsideration, 4, false> vVotesAllocated;
 		for (int i = 0; i < iVotes; i++)
 		{
-			RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
+			RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNumExtraSafe);
 			VoteConsideration chosen = vConsiderations.ChooseByWeight(&fcn, "Choosing a vote to allocate");
 
 			if (chosen.bEnact)
@@ -10744,7 +10744,7 @@ void CvLeagueAI::AllocateProposals(CvLeague* pLeague)
 			}
 		}
 
-		RandomNumberDelegate fn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
+		RandomNumberDelegate fn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNumExtraSafe);
 		ProposalConsideration proposal = vConsiderations.ChooseFromTopChoices(MIN(vConsiderations.size(), LeagueHelpers::AI_CHOOSE_PROPOSAL_FROM_TOP), &fn, "Choosing proposal from top choices");
 		if (proposal.bEnact)
 		{

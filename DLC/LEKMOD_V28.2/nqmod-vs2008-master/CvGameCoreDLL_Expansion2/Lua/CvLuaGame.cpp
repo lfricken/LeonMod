@@ -1525,7 +1525,9 @@ int CvLuaGame::lRand(lua_State* L)
 {
 	const int max_num = luaL_checkinteger(L, 1);
 	const char* strLog = luaL_checkstring(L, 2);
-	const int rand_val = GetInstance()->getJonRand().get(max_num, strLog);
+
+	unsigned long fakeSeed = GC.getFakeSeed();
+	const int rand_val = GetInstance()->getJonRand().getSafe(max_num, fakeSeed);
 
 	lua_pushinteger(L, rand_val);
 	return 1;

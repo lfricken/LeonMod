@@ -353,7 +353,7 @@ BuildingTypes CvWonderProductionAI::ChooseWonder(bool bUseAsyncRandom, bool bAdj
 	}
 	else
 	{
-		fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
+		fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNumExtraSafe);
 	}
 
 	// Reset list of all the possible wonders
@@ -520,7 +520,7 @@ BuildingTypes CvWonderProductionAI::ChooseWonderForGreatEngineer(bool bUseAsyncR
 	}
 	else
 	{
-		fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
+		fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNumExtraSafe);
 	}
 
 	// Reset list of all the possible wonders

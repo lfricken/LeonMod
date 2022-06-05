@@ -471,7 +471,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	{
 		if(iNameOffset == -1)
 		{
-			iNameOffset = GC.getGame().getJonRandNum(iNumNames, "Unit name selection");
+			iNameOffset = getFakeRandUnit(iNumNames, "Unit name selection", NULL, 13);
 		}
 	
 #ifdef AUI_WARNING_FIXES
@@ -874,6 +874,12 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 
 	// always grant some friendly lands modifier
 	changeFriendlyLandsModifier(+15);
+}
+int CvUnit::getFakeRandUnit(const int max, string log, const CvPlot* plot, const int other) const
+{
+	if (plot == NULL)
+		plot = this->plot();
+	return GC.getGame().getJonRandNum(max, log.c_str(), plot, GetID());
 }
 
 //	--------------------------------------------------------------------------------
@@ -3578,11 +3584,11 @@ int CvUnit::getCombatDamage(int iStrength, int iOpponentStrength, int iCurrentDa
 			int iAverageDamage = iDamage + (GC.getATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE() / 2);
 			int iSigma = GC.getATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE() / 6;
 			int iMaxRoll = iSigma*iSigma * 4 + 1;
-			iRoll = iAverageDamage + GC.getGame().getJonRandNumBinom(iMaxRoll, "Unit Combat Damage") - (iMaxRoll / 2) - iDamage;
+			iRoll = iAverageDamage + getFakeRandUnitBinom(iMaxRoll, "Unit Combat Damage") - (iMaxRoll / 2) - iDamage;
 		}
 		else
 #endif
-		iRoll = /*400*/ GC.getGame().getJonRandNum(GC.getATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), "Unit Combat Damage");
+		iRoll = /*400*/ getFakeRandUnit(GC.getATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), "Unit Combat Damage", NULL, iStrength);
 
 #ifndef NQM_COMBAT_RNG_USE_BINOM_RNG_OPTION
 		iRoll *= iDamageRatio;
@@ -5933,7 +5939,7 @@ void CvUnit::DoAttrition()
 		if(isEnemy(pPlot->getTeam(), pPlot) && getEnemyDamageChance() > 0 && getEnemyDamage() > 0)
 #endif
 		{
-			if(GC.getGame().getJonRandNum(100, "Enemy Territory Damage Chance") < getEnemyDamageChance())
+			if(getFakeRandUnit(100, "Enemy Territory Damage Chance", NULL, 12) < getEnemyDamageChance())
 			{
 				strAppendText =  GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_ATTRITION");
 				changeDamage(getEnemyDamage(), NO_PLAYER, 0.0, &strAppendText);
@@ -5941,7 +5947,7 @@ void CvUnit::DoAttrition()
 		}
 		else if(getNeutralDamageChance() > 0 && getNeutralDamage() > 0)
 		{
-			if(GC.getGame().getJonRandNum(100, "Neutral Territory Damage Chance") < getNeutralDamageChance())
+			if(getFakeRandUnit(100, "Neutral Territory Damage Chance", NULL, 19) < getNeutralDamageChance())
 			{
 				strAppendText =  GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_ATTRITION");
 				changeDamage(getNeutralDamage(), NO_PLAYER, 0.0, &strAppendText);
@@ -7605,8 +7611,8 @@ bool CvUnit::pillage()
 				int iPillageGold = 0;
 
 				// TODO: add scripting support for "doPillageGold"
-				iPillageGold = GC.getGame().getJonRandNum(pkImprovement->GetPillageGold(), "Pillage Gold 1");
-				iPillageGold += GC.getGame().getJonRandNum(pkImprovement->GetPillageGold(), "Pillage Gold 2");
+				iPillageGold = getFakeRandUnit(pkImprovement->GetPillageGold(), "Pillage Gold 1", NULL, 129);
+				iPillageGold += getFakeRandUnit(pkImprovement->GetPillageGold(), "Pillage Gold 2", NULL, 938);
 				iPillageGold += (getPillageChange() * iPillageGold) / 100;
 
 				if(iPillageGold > 0)
@@ -8531,7 +8537,7 @@ bool CvUnit::canDiscover(const CvPlot* /*pPlot*/, bool bTestVisible) const
 //	--------------------------------------------------------------------------------
 int CvUnit::getDiscoverAmount()
 {
-	return 40;
+	return GC.getGREAT_SCIENTIST_AMOUNT();
 	//int iValue = 0;
 	//CvPlot* pPlot = plot();
 	//if(canDiscover(pPlot))
@@ -12930,7 +12936,7 @@ int CvUnit::GetAirCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bInc
 	{
 		int possibleBonusDamage = /*300*/ GC.getRANGE_ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE();
 		if (bIncludeRand) // find random damage
-			randBonusDamage = GC.getGame().getJonRandNum(possibleBonusDamage, "Unit Ranged Combat Damage") / 100;
+			randBonusDamage = getFakeRandUnit(possibleBonusDamage, "Unit Ranged Combat Damage", NULL, 825) / 100;
 		else // find average bonus damage
 			randBonusDamage = possibleBonusDamage / 100.0f / 2.0f;
 	}
@@ -13015,11 +13021,11 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 			int iAverageDamage = iAttackerDamage + (GC.getRANGE_ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE() / 2);
 			int iSigma = GC.getRANGE_ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE() / 6;
 			int iMaxRoll = iSigma*iSigma * 4 + 1;
-			iAttackerRoll = iAverageDamage + GC.getGame().getJonRandNumBinom(iMaxRoll, "Unit Ranged Combat Damage") - (iMaxRoll / 2) - iAverageDamage;
+			iAttackerRoll = iAverageDamage + getFakeRandUnitBinom(iMaxRoll, "Unit Ranged Combat Damage") - (iMaxRoll / 2) - iAverageDamage;
 		}
 		else
 #endif
-		iAttackerRoll = /*300*/ GC.getGame().getJonRandNum(GC.getRANGE_ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), "Unit Ranged Combat Damage");
+		iAttackerRoll = /*300*/ getFakeRandUnit(GC.getRANGE_ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), "Unit Ranged Combat Damage", NULL, 321);
 #ifndef NQM_COMBAT_RNG_USE_BINOM_RNG_OPTION
 		iAttackerRoll *= iAttackerDamageRatio;
 		iAttackerRoll /= 100;
@@ -13083,11 +13089,11 @@ int CvUnit::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand
 			int iAverageDamage = iDefenderDamage + (GC.getAIR_STRIKE_SAME_STRENGTH_POSSIBLE_EXTRA_DEFENSE_DAMAGE() / 2);
 			int iSigma = GC.getAIR_STRIKE_SAME_STRENGTH_POSSIBLE_EXTRA_DEFENSE_DAMAGE() / 6;
 			int iMaxRoll = iSigma*iSigma * 4 + 1;
-			iDefenderRoll = iAverageDamage + GC.getGame().getJonRandNumBinom(iMaxRoll, "Unit Air Strike Combat Damage") - (iMaxRoll / 2) - iAverageDamage;
+			iDefenderRoll = iAverageDamage + getFakeRandUnitBinom(iMaxRoll, "Unit Air Strike Combat Damage") - (iMaxRoll / 2) - iAverageDamage;
 		}
 		else
 #endif
-		iDefenderRoll = /*200*/ GC.getGame().getJonRandNum(GC.getAIR_STRIKE_SAME_STRENGTH_POSSIBLE_EXTRA_DEFENSE_DAMAGE(), "Unit Air Strike Combat Damage");
+		iDefenderRoll = /*200*/ getFakeRandUnit(GC.getAIR_STRIKE_SAME_STRENGTH_POSSIBLE_EXTRA_DEFENSE_DAMAGE(), "Unit Air Strike Combat Damage", NULL, iDefenderDamage);
 #ifndef NQM_COMBAT_RNG_USE_BINOM_RNG_OPTION
 		iDefenderRoll *= iDefenderDamageRatio;
 		iDefenderRoll /= GC.getMAX_HIT_POINTS();
@@ -13192,7 +13198,7 @@ CvUnit* CvUnit::WasMissileIntercepted(const CvPlot& interceptPlot) const
 						int interceptOdds = pLoopUnit->getMissileIntercept();
 						if (interceptOdds > 0)
 						{
-							int roll = GC.getGame().getJonRandNum(100 + 1, "Missile Intercept");
+							int roll = getFakeRandUnit(100 + 1, "Missile Intercept", pLoopUnit->plot(), unitIdx + 981357 * iI);
 							if (roll <= interceptOdds)
 							{
 								return pLoopUnit;
@@ -13280,7 +13286,7 @@ int CvUnit::GetInterceptorCount(const CvPlot& interceptPlot, CvUnit* pkDefender 
 int CvUnit::GetInterceptionDamage(const CvUnit* pAttacker, bool bIncludeRand) const
 {
 	float damage = /*30*/ GC.getINTERCEPTION_SAME_STRENGTH_MIN_DAMAGE(); // base damage
-	float randomBonusDamage = GC.getGame().getJonRandNum(/*10*/GC.getINTERCEPTION_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), "Interception Combat Damage");
+	float randomBonusDamage = getFakeRandUnit(/*10*/GC.getINTERCEPTION_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), "Interception Combat Damage", NULL, 834);
 	return damage + randomBonusDamage;
 //
 //	int iAttackerStrength = pAttacker->GetMaxRangedCombatStrength(this, /*pCity*/ NULL, true, /*bForRangedAttack*/ false);
@@ -13319,11 +13325,11 @@ int CvUnit::GetInterceptionDamage(const CvUnit* pAttacker, bool bIncludeRand) co
 //			int iAverageDamage = iInterceptorDamage + (GC.getINTERCEPTION_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE() / 2);
 //			int iSigma = GC.getINTERCEPTION_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE() / 6;
 //			int iMaxRoll = iSigma*iSigma * 4 + 1;
-//			iInterceptorRoll = iAverageDamage + GC.getGame().getJonRandNumBinom(iMaxRoll, "Interception Combat Damage") - (iMaxRoll / 2) - iInterceptorDamage;
+//			iInterceptorRoll = iAverageDamage + getFakeRandUnitBinom(iMaxRoll, "Interception Combat Damage") - (iMaxRoll / 2) - iInterceptorDamage;
 //		}
 //		else
 //#endif
-//		iInterceptorRoll = /*300*/ GC.getGame().getJonRandNum(GC.getINTERCEPTION_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), "Interception Combat Damage");
+//		iInterceptorRoll = /*300*/ getFakeRandUnit(GC.getINTERCEPTION_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), "Interception Combat Damage");
 //#ifndef NQM_COMBAT_RNG_USE_BINOM_RNG_OPTION
 //		iInterceptorRoll *= iInterceptorDamageRatio;
 //		iInterceptorRoll /= GC.getMAX_HIT_POINTS();
@@ -23067,7 +23073,7 @@ bool CvUnit::CanWithdrawFromMelee(CvUnit& attacker)
 
 	iWithdrawChance += (GC.getWITHDRAW_MOD_BLOCKED_TILE() * iBlockedHexes);
 
-	int iRoll = GC.getGame().getJonRandNum(100, "Withdraw from Melee attempt");
+	int iRoll = getFakeRandUnit(100, "Withdraw from Melee attempt", NULL, 920);
 
 	return iRoll < iWithdrawChance;
 }
@@ -23079,7 +23085,7 @@ bool CvUnit::DoWithdrawFromMelee(CvUnit& attacker)
 	CvPlot* pAttackerFromPlot = attacker.plot();
 	DirectionTypes eAttackDirection = directionXY(pAttackerFromPlot, plot());
 
-	int iRightOrLeftBias = (GC.getGame().getJonRandNum(100, "right or left bias") < 50) ? 1 : -1;
+	int iRightOrLeftBias = (getFakeRandUnit(100, "right or left bias", NULL, 64) < 50) ? 1 : -1;
 	int iBiases[5] = {0,-1,1,-2,2};
 	int x = plot()->getX();
 	int y = plot()->getY();
@@ -23154,7 +23160,7 @@ bool CvUnit::DoFallBackFromMelee(CvUnit& attacker)
 	CvPlot* pAttackerFromPlot = attacker.plot();
 	DirectionTypes eAttackDirection = directionXY(pAttackerFromPlot, plot());
 
-	int iRightOrLeftBias = (GC.getGame().getJonRandNum(100, "right or left bias") < 50) ? 1 : -1;
+	int iRightOrLeftBias = (getFakeRandUnit(100, "right or left bias", NULL, 23) < 50) ? 1 : -1;
 	int iBiases[5] = {0,-1,1,-2,2};
 	int x = plot()->getX();
 	int y = plot()->getY();
@@ -23867,7 +23873,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 
 	if(iValue > 0)
 	{
-		iValue += GC.getGame().getJonRandNum(15, "AI Promote");
+		iValue += getFakeRandUnit(15, "AI Promote", NULL, iValue);
 	}
 
 	return iValue;

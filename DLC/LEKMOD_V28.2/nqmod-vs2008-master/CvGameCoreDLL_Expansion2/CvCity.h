@@ -278,7 +278,8 @@ public:
 	void processProcess(ProcessTypes eProcess, int iChange);
 	void processSpecialist(SpecialistTypes eSpecialist, int iChange);
 
-	void UpdateReligion(ReligionTypes eNewMajority);
+	void UpdateReligion(const ReligionTypes eNewMajority);
+	void UpdateReligionSpecialistBenefits(const ReligionTypes eNewMajority);
 
 	int GetCultureFromSpecialist(SpecialistTypes eSpecialist) const;
 
@@ -1101,6 +1102,7 @@ protected:
 
 	bool m_bOwedCultureBuilding;
 
+	mutable ReligionTypes m_eOldMajority;
 	mutable FFastSmallFixedList< OrderData, 25, true, c_eCiv5GameplayDLL > m_orderQueue;
 
 	vector<SCityExtraYields> m_yieldChanges; //[NUM_YIELD_TYPES]

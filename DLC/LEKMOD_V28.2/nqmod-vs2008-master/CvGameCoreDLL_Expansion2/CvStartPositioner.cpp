@@ -152,7 +152,7 @@ void CvStartPositioner::RankPlayerStartOrder()
 				{
 					playerRank.m_iRank *= 10;
 				}
-				playerRank.m_iRank += GC.getGame().getJonRandNum(10, "Player Start Plot Draft Order");
+				playerRank.m_iRank += GC.getGame().getJonRandNum(10, "Player Start Plot Draft Order", NULL, iI);
 				m_PlayerOrder.push_back(playerRank);
 			}
 		}

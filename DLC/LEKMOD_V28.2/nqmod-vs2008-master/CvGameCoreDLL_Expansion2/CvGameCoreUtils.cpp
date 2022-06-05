@@ -888,7 +888,7 @@ bool isPickableName(const char* szName)
 	return true;
 }
 
-void shuffleArray(int* piShuffle, int iNum, CvRandom& rand)
+void shuffleArray(int* piShuffle, int iNum, const CvRandom& rand)
 {
 	int iI, iJ;
 
@@ -899,7 +899,7 @@ void shuffleArray(int* piShuffle, int iNum, CvRandom& rand)
 
 	for(iI = 0; iI < iNum; iI++)
 	{
-		iJ = (rand.get(iNum - iI, NULL) + iI);
+		iJ = (rand.getSafe(iNum - iI, GC.getFakeSeed(iNum) + iI) + iI);
 
 		if(iI != iJ)
 		{

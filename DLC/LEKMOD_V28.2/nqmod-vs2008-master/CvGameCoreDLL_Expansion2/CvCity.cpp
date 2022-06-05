@@ -3850,7 +3850,7 @@ void CvCity::DoPickResourceDemanded(bool bCurrentResourceInvalid)
 
 	do
 	{
-		iVectorIndex = GC.getGame().getJonRandNum(veValidLuxuryResources.size(), "Picking random Luxury for City to demand.");
+		iVectorIndex = GC.getGame().getJonRandNum(veValidLuxuryResources.size(), "Picking random Luxury for City to demand.", NULL, iNumAttempts);
 		eResource = (ResourceTypes) veValidLuxuryResources[iVectorIndex];
 		bResourceValid = true;
 
@@ -6780,7 +6780,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 
 				if (validPlotCount > 0)
 				{
-					int iIndex = GC.getGame().getJonRandNum(validPlotCount, "Mali Treasury random plot selection");
+					int iIndex = GC.getGame().getJonRandNum(validPlotCount, "Mali Treasury random plot selection", NULL, (int)eBuilding);
 					CvPlot* pPlot = GetCityCitizens()->GetCityPlotFromIndex(validPlotList[iIndex]);
 
 					ResourceTypes eResourceGold = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_GOLD", true);
@@ -6837,7 +6837,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					{
 						const char* resourceName = "";
 						int resourceID;
-						int iRoll = GC.getGame().getJonRandNum(iTotalWeight, "Rolling for Mali Treasury resource type");
+						int iRoll = GC.getGame().getJonRandNum(iTotalWeight, "Rolling for Mali Treasury resource type", NULL, (int)eBuilding);
 						if (iRoll < iSilverWeight)
 						{
 							pPlot->setResourceType(eResourceSilver, 1);
@@ -7106,7 +7106,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					int iNumNames = pkUnitEntry->GetNumUnitNames();
 					if (iNumUnitCreated < iNumNames)
 					{
-						int iNameOffset = GC.getGame().getJonRandNum(iNumNames, "Unit name selection");
+						int iNameOffset = GC.getGame().getJonRandNum(iNumNames, "Unit name selection", NULL, (int)eBuilding);
 						int iI;
 						for (iI = 0; iI < iNumNames; iI++)
 						{
@@ -7520,6 +7520,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 	}
 
 	UpdateReligion(GetCityReligions()->GetReligiousMajority());
+	//UpdateBuildingYields(); // done in UpdateReligion
 
 	owningPlayer.DoUpdateHappiness();
 
@@ -7582,6 +7583,8 @@ void CvCity::processSpecialist(SpecialistTypes eSpecialist, int iChange)
 /// Process the majority religion changing for a city
 void CvCity::UpdateReligion(ReligionTypes eNewMajority)
 {
+	m_eOldMajority = eNewMajority;
+
 	updateYield();
 
 	// Reset city level yields
@@ -7616,8 +7619,6 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority)
 			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eNewMajority, getOwner());
 			if(pReligion)
 			{
-				int iFollowers = GetCityReligions()->GetNumFollowers(eNewMajority);
-
 				int iReligionYieldChange = pReligion->m_Beliefs.GetCityYieldChange(getPopulation(), (YieldTypes)iYield);
 				BeliefTypes eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
 				if (eSecondaryPantheon != NO_BELIEF && getPopulation() >= GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetMinPopulation())
@@ -7661,83 +7662,42 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority)
 					}
 				}
 				
-				if (GetCityCitizens()->GetTotalSpecialistCount() > 0)
-				{
-					switch(iYield)
-					{
-					case YIELD_CULTURE:
-						ChangeJONSCulturePerTurnFromReligion(pReligion->m_Beliefs.GetYieldChangeAnySpecialist((YieldTypes)iYield));
-						break;
-					case YIELD_FAITH:
-						ChangeFaithPerTurnFromReligion(pReligion->m_Beliefs.GetYieldChangeAnySpecialist((YieldTypes)iYield));
-						break;
-					default:
-						ChangeBaseYieldRateFromReligion((YieldTypes)iYield, pReligion->m_Beliefs.GetYieldChangeAnySpecialist((YieldTypes)iYield));
-						break;
-					}
-				}
-
-				// Buildings
-//#ifdef AUI_WARNING_FIXES
-//				for (uint jJ = 0; jJ < GC.getNumBuildingClassInfos(); jJ++)
-//#else
-//				for(int jJ = 0; jJ < GC.getNumBuildingClassInfos(); jJ++)
-//#endif
-//				{
-//					BuildingClassTypes eBuildingClass = (BuildingClassTypes)jJ;
-//
-//					CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-//					if(!pkBuildingClassInfo)
-//					{
-//						continue;
-//					}
-//
-//					CvCivilizationInfo& playerCivilizationInfo = getCivilizationInfo();
-//					BuildingTypes eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings(eBuildingClass);
-//
-//					if(eBuilding != NO_BUILDING)
-//					{
-//						if(GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-//						{
-//							int iYieldFromBuilding = pReligion->m_Beliefs.GetBuildingClassYieldChange(eBuildingClass, (YieldTypes)iYield, iFollowers);
-//
-//							if (isWorldWonderClass(*pkBuildingClassInfo))
-//							{
-//								iYieldFromBuilding += pReligion->m_Beliefs.GetYieldChangeWorldWonder((YieldTypes)iYield);
-//							}
-//
-//#ifdef NQ_CHEAT_SACRED_SITES_AFFECTS_GOLD
-//							if (iYield == YIELD_GOLD || iYield == YIELD_FAITH) // and now also faith ... man this is getting ugly
-//							{
-//								CvBuildingEntry *pkEntry = GC.getBuildingInfo(eBuilding);
-//								if (pkEntry && pkEntry->GetFaithCost() > 0 && pkEntry->IsUnlockedByBelief() && pkEntry->GetProductionCost() == -1)
-//								{
-//									iYieldFromBuilding += pReligion->m_Beliefs.GetFaithBuildingTourism(); // ... super ugly...
-//								}
-//							} // ... may Google forgive my eSoul...
-//#endif
-//							switch(iYield)
-//							{
-//							case YIELD_CULTURE:
-//								ChangeJONSCulturePerTurnFromReligion(iYieldFromBuilding);
-//								break;
-//							case YIELD_FAITH:
-//								ChangeFaithPerTurnFromReligion(iYieldFromBuilding);
-//								break;
-//							default:
-//								ChangeBaseYieldRateFromReligion((YieldTypes)iYield, iYieldFromBuilding);
-//								break;
-//							}
-//						}
-//					}
-//				}
 			}
 		}
 	}
 
+	UpdateReligionSpecialistBenefits(m_eOldMajority);
+
 	UpdateBuildingYields();
 
 	GET_PLAYER(getOwner()).UpdateReligion();
+}
+void CvCity::UpdateReligionSpecialistBenefits(const ReligionTypes eNewMajority)
+{
+	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eNewMajority, getOwner());
+	const CvCityCitizens* pCitizens = GetCityCitizens();
+	if (pReligion != NULL && pCitizens != NULL)
+	{
+		for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+		{
+			const YieldTypes eYield = (YieldTypes)iYield;
+			if (pCitizens->GetTotalSpecialistCount() > 0)
+			{
+				switch (eYield)
+				{
+				case YIELD_CULTURE:
+					ChangeJONSCulturePerTurnFromReligion(pReligion->m_Beliefs.GetYieldChangeAnySpecialist(eYield));
+					break;
+				case YIELD_FAITH:
+					ChangeFaithPerTurnFromReligion(pReligion->m_Beliefs.GetYieldChangeAnySpecialist(eYield));
+					break;
+				default:
+					ChangeBaseYieldRateFromReligion(eYield, pReligion->m_Beliefs.GetYieldChangeAnySpecialist(eYield));
+					break;
+				}
+			}
+		}
+	}
 }
 
 //	--------------------------------------------------------------------------------
@@ -9008,6 +8968,7 @@ int CvCity::GetBaseJONSCulturePerTurn() const
 	iCulturePerTurn += GetJONSCulturePerTurnFromTraits();
 	iCulturePerTurn += GetJONSCulturePerTurnFromReligion();
 	iCulturePerTurn += GetJONSCulturePerTurnFromLeagues();
+	iCulturePerTurn += GC.round(GetTradeYieldModifier(YIELD_CULTURE) / 100.0);
 
 	return iCulturePerTurn;
 }
@@ -11290,6 +11251,8 @@ void CvCity::UpdateBuildingYields()
 		const int oldYieldRate = getYieldRateModifier(eYield);
 		changeYieldRateModifier(eYield, newYieldRate - oldYieldRate);
 	}
+
+	GetCityBuildings()->UpdateTotalBaseBuildingMaintenance();
 }
 
 //	--------------------------------------------------------------------------------
@@ -12613,7 +12576,7 @@ CvPlot* CvCity::GetNextBuyablePlot(void)
 #endif
 	if(iListLength > 0)
 	{
-		int iPickedIndex = GC.getGame().getJonRandNum(iListLength, "GetNextBuyablePlot picker");
+		int iPickedIndex = GC.getGame().getJonRandNum(iListLength, "GetNextBuyablePlot picker", plot(), iListLength);
 		pPickedPlot = GC.getMap().plotByIndex(aiPlotList[iPickedIndex]);
 	}
 
@@ -15861,7 +15824,7 @@ void CvCity::doMeltdown()
 		{
 			if(pkBuildingInfo->GetNukeExplosionRand() != 0)
 			{
-				if(GC.getGame().getJonRandNum(pkBuildingInfo->GetNukeExplosionRand(), "Meltdown!!!") == 0)
+				if(GC.getGame().getJonRandNum(pkBuildingInfo->GetNukeExplosionRand(), "Meltdown!!!", NULL, iI) == 0)
 				{
 					if(m_pCityBuildings->GetNumRealBuilding((BuildingTypes)iI) > 0)
 					{
@@ -17087,7 +17050,7 @@ int CvCity::rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncl
 		}
 		else
 #endif
-		iAttackerRoll = GC.getGame().getJonRandNum(/*300*/ GC.getRANGE_ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), "City Ranged Attack Damage");
+		iAttackerRoll = GC.getGame().getJonRandNum(/*300*/ GC.getRANGE_ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), "City Ranged Attack Damage", pDefender->plot(), iAttackerStrength * iDefenderStrength);
 	}
 	else
 	{
@@ -17142,7 +17105,7 @@ int CvCity::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand
 		}
 		else
 #endif
-		iDefenderRoll = /*200*/ GC.getGame().getJonRandNum(GC.getAIR_STRIKE_SAME_STRENGTH_POSSIBLE_EXTRA_DEFENSE_DAMAGE(), "Unit Air Strike Combat Damage");
+		iDefenderRoll = /*200*/ GC.getGame().getJonRandNum(GC.getAIR_STRIKE_SAME_STRENGTH_POSSIBLE_EXTRA_DEFENSE_DAMAGE(), "Unit Air Strike Combat Damage", plot(), iAttackerStrength * iDefenderStrength);
 #ifndef NQM_COMBAT_RNG_USE_BINOM_RNG_OPTION
 		iDefenderRoll *= iDefenderDamageRatio;
 		iDefenderRoll /= GetMaxHitPoints();

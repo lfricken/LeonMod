@@ -5455,7 +5455,7 @@ CvPlot* CvHomelandAI::FindPatrolTarget(CvUnit* pUnit)
 #ifdef AUI_HOMELAND_FIND_PATROL_TARGET_DESIRES_BORDER_AND_ROUTE_AND_CIVILIAN_GUARD
 						iValueBonus = 0;
 #endif
-						iValue = (1 + GC.getGame().getJonRandNum(10000, "AI Patrol"));
+						iValue = (1 + GC.getGame().getJonRandNum(10000, "AI Patrol", pUnit->plot(), iI));
 
 						// Prefer wandering in our own territory
 						if(pAdjacentPlot->getOwner() == pUnit->getOwner())

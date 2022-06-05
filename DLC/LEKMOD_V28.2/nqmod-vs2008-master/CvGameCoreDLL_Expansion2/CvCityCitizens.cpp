@@ -3225,7 +3225,7 @@ void CvCityCitizens::DoAddSpecialistToBuilding(BuildingTypes eBuilding, bool bFo
 		}
 
 		GetCity()->processSpecialist(eSpecialist, 1);
-		GetCity()->UpdateReligion(GetCity()->GetCityReligions()->GetReligiousMajority());
+		GetCity()->UpdateReligionSpecialistBenefits(GetCity()->GetCityReligions()->GetReligiousMajority());
 
 		ChangeNumUnassignedCitizens(-1);
 
@@ -3272,7 +3272,7 @@ void CvCityCitizens::DoRemoveSpecialistFromBuilding(BuildingTypes eBuilding, boo
 		}
 
 		GetCity()->processSpecialist(eSpecialist, -1);
-		GetCity()->UpdateReligion(GetCity()->GetCityReligions()->GetReligiousMajority());
+		GetCity()->UpdateReligionSpecialistBenefits(GetCity()->GetCityReligions()->GetReligiousMajority());
 
 		// Do we kill this population or reassign him?
 		if(bEliminatePopulation)

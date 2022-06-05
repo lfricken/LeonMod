@@ -2485,7 +2485,7 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 	int iChance = GC.getRELIGION_BASE_CHANCE_PROPHET_SPAWN();
 	iChance += (iFaith - iCost);
 
-	int iRand = GC.getGame().getJonRandNum(100, "Religion: spawn Great Prophet roll.");
+	int iRand = GC.getGame().getJonRandNum(100, "Religion: spawn Great Prophet roll.", NULL, kPlayer.GetID());
 	if(iRand >= iChance)
 	{
 		return false;
@@ -4963,7 +4963,7 @@ BeliefTypes CvReligionAI::ChoosePantheonBelief()
 	// Choose from weighted vector
 	beliefChoices.SortItems();
 	int iNumChoices = MIN(beliefChoices.size(),3);   // Throw out two-thirds of the choices -- this was way too loose as choices way down were being selected now only top 3
-	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
+	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNumExtraSafe);
 	BeliefTypes rtnValue = beliefChoices.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing belief from Top Choices");
 	LogBeliefChoices(beliefChoices, rtnValue);
 
@@ -5002,7 +5002,7 @@ BeliefTypes CvReligionAI::ChooseFounderBelief()
 	// Choose from weighted vector
 	beliefChoices.SortItems();
 	int iNumChoices = MIN(beliefChoices.size(),3);   // this was way too loose as choices way down were being selected now only top 3
-	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
+	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNumExtraSafe);
 	BeliefTypes rtnValue = beliefChoices.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing belief from Top Choices");
 	LogBeliefChoices(beliefChoices, rtnValue);
 
@@ -5041,7 +5041,7 @@ BeliefTypes CvReligionAI::ChooseFollowerBelief()
 	// Choose from weighted vector
 	beliefChoices.SortItems();
 	int iNumChoices = MIN(beliefChoices.size(),3);   // this was way too loose as choices way down were being selected now only top 3
-	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
+	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNumExtraSafe);
 	BeliefTypes rtnValue = beliefChoices.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing belief from Top Choices");
 	LogBeliefChoices(beliefChoices, rtnValue);
 
@@ -5080,7 +5080,7 @@ BeliefTypes CvReligionAI::ChooseEnhancerBelief()
 	// Choose from weighted vector
 	beliefChoices.SortItems();
 	int iNumChoices = MIN(beliefChoices.size(),3);   // this was way too loose as choices way down were being selected now only top 3
-	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
+	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNumExtraSafe);
 	BeliefTypes rtnValue = beliefChoices.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing belief from Top Choices");
 	LogBeliefChoices(beliefChoices, rtnValue);
 
@@ -5122,7 +5122,7 @@ BeliefTypes CvReligionAI::ChooseBonusBelief(int iExcludeBelief1, int iExcludeBel
 	// Choose from weighted vector
 	beliefChoices.SortItems();
 	int iNumChoices = MIN(beliefChoices.size(),3);   // this was way too loose as choices way down were being selected now only top 3
-	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
+	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNumExtraSafe);
 	BeliefTypes rtnValue = beliefChoices.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing belief from Top Choices");
 	LogBeliefChoices(beliefChoices, rtnValue);
 
@@ -5161,7 +5161,7 @@ BeliefTypes CvReligionAI::ChooseReformationBelief()
 	// Choose from weighted vector
 	beliefChoices.SortItems();
 	int iNumChoices = MIN(beliefChoices.size(),3);   // this was way too loose as choices way down were being selected now only top 3
-	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
+	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNumExtraSafe);
 	BeliefTypes rtnValue = beliefChoices.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing belief from Top Choices");
 	LogBeliefChoices(beliefChoices, rtnValue);
 

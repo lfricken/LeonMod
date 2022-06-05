@@ -183,7 +183,7 @@ TechTypes CvTechAI::ChooseNextTech(CvPlayer *pPlayer, bool bFreeTech)
 	// Use the synchronous random number generate
 	// Asynchronous one would be:
 	//	fcn = MakeDelegate (&GC.getGame(), &CvGame::getAsyncRandNum);
-	fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
+	fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNumExtraSafe);
 
 	// Create a new vector holding only techs we can currently research
 	m_ResearchableTechs.clear();

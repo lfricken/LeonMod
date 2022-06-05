@@ -307,7 +307,8 @@ public:
 	}
 
 	bool isFriendlyCity(const CvUnit& kUnit, bool bCheckImprovement) const;
-	bool IsFriendlyTerritory(PlayerTypes ePlayer) const;
+	bool isFriendlyCity(const PlayerTypes ePlayer) const;
+	bool IsFriendlyTerritory(const PlayerTypes ePlayer) const;
 
 	bool isBeingWorked() const;
 
@@ -349,6 +350,7 @@ public:
 
 	bool isValidDomainForLocation(const CvUnit& unit) const;
 	bool isValidDomainForAction(const CvUnit& unit) const;
+	bool isValidDomain(const DomainTypes eDomain, const PlayerTypes ePlayer) const;
 
 
 	inline int getX() const
@@ -457,6 +459,17 @@ public:
 	{
 		return (PlotTypes)m_ePlotType == PLOT_OCEAN;
 	};
+	// true if land units could consider this a water tile for passage
+	// could be a city, so you can't necessarily stop on it
+	bool CanBeUsedAsWater(const PlayerTypes ePlayer) const
+	{
+		return  isWater() || isLake() || IsAllowsSailLand(ePlayer) || isFriendlyCity(ePlayer);
+	};
+	// true if land units could consider this a land tile
+	bool CanBeUsedAsLand() const
+	{
+		return !isWater() || IsAllowsWalkWater();
+	};
 	bool isHills()          const
 	{
 		return (PlotTypes)m_ePlotType == PLOT_HILLS;
@@ -508,7 +521,7 @@ public:
 	vector<const CvUnit*> CvPlot::getAllUnitsConst() const;
 
 	bool isEnemyUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibility, bool bIgnoreBarbs) const;
-	vector<CvUnit*> GetAdjacentEnemyMilitaryUnits(const TeamTypes eMyTeam, const DomainTypes eDomain, const bool ignoreBarbs = false) const;
+	vector<CvUnit*> GetAdjacentEnemyMilitaryUnits(const TeamTypes eMyTeam, const DomainTypes eDomain = NO_DOMAIN, const bool ignoreBarbs = false) const;
 
 	bool isRoughGround() const
 	{

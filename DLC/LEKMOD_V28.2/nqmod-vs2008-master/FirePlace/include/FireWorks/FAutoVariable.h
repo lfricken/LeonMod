@@ -338,8 +338,10 @@ bool FAutoVariable<ObjectType, ContainerType>::compare(FDataStream & otherValue)
 #if !defined(FINAL_RELEASE)
 	m_remoteValue = compareWith;
 #endif
-
-	return m_value == compareWith;
+	if (m_value == compareWith)
+		return true;
+	else
+		return false;
 }
 
 //---------------------------------------------------------------------------------------

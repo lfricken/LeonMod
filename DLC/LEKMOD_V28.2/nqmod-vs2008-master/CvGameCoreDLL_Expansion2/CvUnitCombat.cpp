@@ -310,7 +310,7 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		}
 		else if(iAttackerTotalDamageInflicted >= iMaxHP && kAttacker.IsCaptureDefeatedEnemy() && kAttacker.AreUnitsOfSameType(*pkDefender))
 		{
-			int iCaptureRoll = GC.getGame().getJonRandNum(100, "Capture Enemy Roll");
+			int iCaptureRoll = kAttacker.getFakeRandUnit(100, "Capture Enemy Roll", NULL, 57);
 
 			if (iCaptureRoll < kAttacker.GetCaptureChance(pkDefender))
 			{
@@ -2778,7 +2778,7 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(uint uiParentEventID, const CvCom
 							CvFeatureInfo* pkFeatureInfo = GC.getFeatureInfo(pLoopPlot->getFeatureType());
 							if(pkFeatureInfo && !pkFeatureInfo->isNukeImmune())
 							{
-								if(pLoopPlot == pkTargetPlot || GC.getGame().getJonRandNum(100, "Nuke Fallout") < GC.getNUKE_FALLOUT_PROB())
+								if(pLoopPlot == pkTargetPlot || pkAttacker->getFakeRandUnit(100, "Nuke Fallout", pLoopPlot, 84) < GC.getNUKE_FALLOUT_PROB())
 								{
 									if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
 									{
@@ -2790,7 +2790,7 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(uint uiParentEventID, const CvCom
 						}
 						else
 						{
-							if(pLoopPlot == pkTargetPlot || GC.getGame().getJonRandNum(100, "Nuke Fallout") < GC.getNUKE_FALLOUT_PROB())
+							if(pLoopPlot == pkTargetPlot || GC.getGame().getJonRandNum(100, "Nuke Fallout", pLoopPlot, 23) < GC.getNUKE_FALLOUT_PROB())
 							{
 								if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
 								{

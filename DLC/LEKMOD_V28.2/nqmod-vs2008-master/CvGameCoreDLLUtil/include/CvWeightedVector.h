@@ -8,7 +8,7 @@
 #include "FFastVector.h"
 
 // Functor for random number callback routine
-typedef fastdelegate::FastDelegate2<int, const char *, int> RandomNumberDelegate;
+typedef fastdelegate::FastDelegate3<unsigned short, const char *, unsigned long, int> RandomNumberDelegate;
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:     CvWeightedVector
@@ -186,7 +186,7 @@ public:
 		int iChoice;
 
 		// Based on the number of elements we have, pick one at random
-		iChoice = (*rndFcn)(m_pItems.size(), szRollName);
+		iChoice = (*rndFcn)(m_pItems.size(), szRollName, m_pItems.size());
 		WeightedElement elem = m_pItems[iChoice];
 
 		return elem.m_Element;
@@ -199,7 +199,7 @@ public:
 		int iChoice;
 
 		// Random roll up to total weight
-		iChoice = (*rndFcn)(GetTotalWeight(), szRollName);
+		iChoice = (*rndFcn)(GetTotalWeight(), szRollName, GetTotalWeight());
 
 		// Loop through until we find the item that is in the range for this roll
 		for (unsigned int i = 0; i < m_pItems.size(); i++)
@@ -240,7 +240,7 @@ public:
 		}
 
 		// Random roll up to total weight
-		iChoice = (*rndFcn)(iTotalTopChoicesWeight, szRollName);
+		iChoice = (*rndFcn)(iTotalTopChoicesWeight, szRollName, iNumChoices);
 
 		// Find out which element was chosen
 		for (i = 0; i < iNumChoices; i++)

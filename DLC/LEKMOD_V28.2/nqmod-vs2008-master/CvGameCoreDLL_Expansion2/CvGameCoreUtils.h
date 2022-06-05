@@ -467,7 +467,7 @@ int baseYieldToSymbol(int iNumYieldTypes, int iYieldStack);
 
 bool isPickableName(const char* szName);
 
-void shuffleArray(int* piShuffle, int iNum, CvRandom& rand);
+void shuffleArray(int* piShuffle, int iNum, const CvRandom& rand);
 
 int getTurnMonthForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar, GameSpeedTypes eSpeed);
 int getTurnYearForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar, GameSpeedTypes eSpeed);

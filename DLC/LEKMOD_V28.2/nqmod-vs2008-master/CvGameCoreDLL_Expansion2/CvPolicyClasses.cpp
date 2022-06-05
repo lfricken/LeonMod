@@ -3583,8 +3583,8 @@ int CvPlayerPolicies::GetPolicyModifierForCityCount() const
 /// How much will the next policy cost?
 int CvPlayerPolicies::GetNextPolicyCost()
 {
-	const float policyAdoptionIncrease = (100.f + 20.f) / 100.f;
-	int iNumPolicies = GetNumPoliciesOwned();
+	const double policyAdoptionIncrease = (100.f + 20.f) / 100.f;
+	double iNumPolicies = GetNumPoliciesOwned();
 
 	// Reduce count by however many free Policies we've had in this game
 	iNumPolicies -= (m_pPlayer->GetNumFreePoliciesEver() - m_pPlayer->GetNumFreePolicies() - m_pPlayer->GetNumFreeTenets());
@@ -3595,11 +3595,22 @@ int CvPlayerPolicies::GetNextPolicyCost()
 	//	iNumPolicies += (GetNumPolicyBranchesUnlocked() - 1);
 	//}
 
-	int iCost = 0;
-	iCost += ((float)iNumPolicies / policyAdoptionIncrease * /*7*/ GC.getPOLICY_COST_INCREASE_TO_BE_EXPONENTED());
+	// wolframalpha.com
+	// y=floor((((x / s * v)^o) + 25)*(1 + ((c - 1) * 0.1))*0.5*0.9/s) where x=Range[0,30,1] o=2.01 v=3 c=1 s=1.2
+
+	const int increaseThreshold = 1 + GC.getPOLICY_NUM_FOR_IDEOLOGY();
+	if (iNumPolicies >= increaseThreshold)
+	{
+		const double numPoliciesOver = iNumPolicies - increaseThreshold;
+		// each policy will actually count for more than just 1 policy increase
+		iNumPolicies += numPoliciesOver * GC.getPOLICY_INCREASE_LATE_GAME();
+	}
+
+	double iCost = 0;
+	iCost += ((double)iNumPolicies / policyAdoptionIncrease * /*3*/ GC.getPOLICY_COST_INCREASE_TO_BE_EXPONENTED());
 
 	// Exponential cost scaling
-	iCost = (int) pow((double) iCost, (double) /*1.70*/ GC.getPOLICY_COST_EXPONENT());
+	iCost = pow((double)iCost, /*2.01*/(double)GC.getPOLICY_COST_EXPONENT());
 
 	// Base cost that doesn't get exponent-ed
 	iCost += /*25*/ GC.getBASE_POLICY_COST();
@@ -3622,12 +3633,12 @@ int CvPlayerPolicies::GetNextPolicyCost()
 
 	iCost *= GC.getPOLICY_COST_MULTIPLIER();
 
-	// Make the number nice and even
-	int iDivisor = /*5*/ GC.getPOLICY_COST_VISIBLE_DIVISOR();
-	iCost /= iDivisor;
-	iCost *= iDivisor;
+	//// Make the number nice and even
+	//int iDivisor = /*5*/ GC.getPOLICY_COST_VISIBLE_DIVISOR();
+	//iCost /= iDivisor;
+	//iCost *= iDivisor;
 
-	return iCost / policyAdoptionIncrease;
+	return int(0.5 + (iCost / policyAdoptionIncrease));
 }
 
 /// Can we adopt this policy?
@@ -4772,8 +4783,8 @@ bool CvPlayerPolicies::IsTimeToChooseIdeology() const
 	//}
 
 	// have adopted enough policies?
-	const int numPoliciesForIdeology = 20;
-	if (GetNumPoliciesOwned() > numPoliciesForIdeology)
+	GC.getPOLICY_WEIGHT_PROPAGATION_PERCENT();
+	if (GetNumPoliciesOwned() >= GC.getPOLICY_NUM_FOR_IDEOLOGY())
 	{
 		return true;
 	}

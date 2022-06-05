@@ -22,12 +22,8 @@
 
 // how many policies are needed before tourism starts happening
 const int numPolicyThreshold = 0;
-// each policy will increase tourism by this percent
-const int percentagePerPolicy = 1;
 // we will stop increasing due to policies at this value
 const int maxPolicyTourismPercentage = 100;
-// how many more cities does the capital count for when calculating tourism adjustment
-const int capitalCityAdditionalFactor = 6;
 
 //=====================================
 // CvGreatWork
@@ -2839,7 +2835,7 @@ double CvPlayerCulture::GetTourismModifierGoldenAgeT100(const PlayerTypes eOther
 
 	if (m_pPlayer->isGoldenAge())
 	{
-		modT100 += 15;
+		modT100 += 9;
 		modT100 += m_pPlayer->GetPlayerTraits()->GetGoldenAgeTourismModifier();
 	}
 
@@ -2863,11 +2859,11 @@ double CvPlayerCulture::GetTourismModifierHappinessT100(const PlayerTypes eOther
 float CvPlayerCulture::GetTourismModifierCityCount(const PlayerTypes eOtherPlayer) const
 {
 	// Mod for City Count
-	const int themCities = GET_PLAYER(eOtherPlayer).GetMaxEffectiveCities(true);
-	const int usCities = m_pPlayer->GetMaxEffectiveCities(true);
-	const float factor = (float)(themCities + capitalCityAdditionalFactor) / (float)(usCities + capitalCityAdditionalFactor);
-	const int t100 = GC.toPercentT100(factor);
-	return (GC.toFactor(t100) + 1.f) / 2.f;
+	const float themCities = GET_PLAYER(eOtherPlayer).GetMaxEffectiveCities(true);
+	const float usCities = m_pPlayer->GetMaxEffectiveCities(true);
+	const float factor = (float)(themCities + GC.getTOURISM_CITY_CAPITAL_ADJUST()) / (float)(usCities + GC.getTOURISM_CITY_CAPITAL_ADJUST());
+	const float t100 = GC.toPercentT100(factor);
+	return GC.toFactor(t100 * GC.getTOURISM_CITY_PERCENT_ADJUST());
 }
 
 int CvPlayerCulture::GetTourismModifierCityCountT100(const PlayerTypes eOtherPlayer) const
@@ -2948,7 +2944,7 @@ CvString CvPlayerCulture::GetOurTourism_Tooltip() const
 	{	// EXPLAIN tourism from culture
 		stringstream s;
 		s << "Each policy will cause +";
-		s << percentagePerPolicy;
+		s << GC.getTOURISM_FROM_CITY_CULTURE_PER_POLICY();
 		s << "% of city [ICON_CULTURE] Culture to be added to {TXT_KEY_CULTURAL_INFLUENCE}";
 		tooltip += s.str().c_str();
 	}
@@ -3059,7 +3055,7 @@ int CvPlayerCulture::GetTourismFromCulturePercentT100() const
 {
 	const int numPoliciesPast = max(0, m_pPlayer->GetNumPolicies() - numPolicyThreshold);
 
-	return min(maxPolicyTourismPercentage, (numPoliciesPast * percentagePerPolicy));
+	return min(maxPolicyTourismPercentage, (numPoliciesPast * GC.getTOURISM_FROM_CITY_CULTURE_PER_POLICY()));
 }
 
 float CvPlayerCulture::GetInfluencePercent(PlayerTypes ePlayer) const
@@ -4651,6 +4647,8 @@ int CvCityCulture::GetBaseTourismBeforeModifiers() const
 		}
 	}
 
+	iBase += GET_PLAYER(m_pCity->getOwner()).GetTrade()->GetTradeValuesAtCityTimes100(m_pCity, YIELD_TOURISM) / 100;
+
 	// already handled in base yield calculation
 	// more building tourism after certain techs
 	// Some buildings are marked with EnhancedYieldTech and TechEnhancedTourism
@@ -4835,6 +4833,11 @@ CvString CvCityCulture::GetTourismTooltip()
 		szRtnValue += GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_RELIGIOUS_ART", iReligiousArtTourism);
 	}
 
+	{
+		szRtnValue += spacing;
+		const int iTradeYield = GET_PLAYER(m_pCity->getOwner()).GetTrade()->GetTradeValuesAtCityTimes100(m_pCity, YIELD_TOURISM) / 100;
+		szRtnValue += GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_TRADE_ROUTES", iTradeYield);
+	}
 
 	// Tech enhanced Tourism
 	//int techEnhancedTourism = 0;

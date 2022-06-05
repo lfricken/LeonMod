@@ -103,16 +103,12 @@ void CvDllRandom::CopyFrom(ICvRandom1* pOther)
 //------------------------------------------------------------------------------
 unsigned short CvDllRandom::Get(unsigned short usNum, const char* pszLog)
 {
-#if defined(AUI_USE_SFMT_RNG) || defined(AUI_WARNING_FIXES)
-	return (unsigned short)m_pRandom->get(usNum, pszLog);
-#else
-	return m_pRandom->get(usNum, pszLog);
-#endif
+	return m_pRandom->get(usNum, usNum, pszLog);
 }
 //------------------------------------------------------------------------------
 float CvDllRandom::GetFloat()
 {
-	return m_pRandom->getFloat();
+	return m_pRandom->getFloatSafe(GC.getFakeSeed());
 }
 //------------------------------------------------------------------------------
 unsigned long CvDllRandom::GetSeed() const

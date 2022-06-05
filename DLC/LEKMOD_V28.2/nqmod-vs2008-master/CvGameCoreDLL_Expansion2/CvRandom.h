@@ -39,17 +39,17 @@ public:
 	void reset(unsigned long ulSeed = 0);
 #endif
 
-#if defined(AUI_USE_SFMT_RNG) || defined(AUI_WARNING_FIXES)
-	unsigned int get(unsigned int uiNum, const char* pszLog = NULL);  //  Returns value from 0 to num-1 inclusive.
-#else
-	unsigned short get(unsigned short usNum, const char* pszLog = NULL);  //  Returns value from 0 to num-1 inclusive.
-#endif
+	// Will cause the random number generator to mutate.
+	static const unsigned long MutateSeed = 0;
+	unsigned short getSafe(unsigned short usNum, const unsigned long extraSeed) const;
+	unsigned short get(unsigned short usNum, unsigned long extraSeed, const char* pszLog = NULL);  //  Returns value from 0 to num-1 inclusive.
 
 #ifdef AUI_BINOM_RNG
 	unsigned int getBinom(unsigned int uiNum, const char* pszLog = NULL); // Returns value from 0 to num-1 inclusive in binomial distribution
 #endif
 
-	float getFloat();
+	//float getFloat(const unsigned long extraSeed);
+	float getFloatSafe(const unsigned long extraSeed) const;
 
 #ifdef AUI_USE_SFMT_RNG
 	void reseed(unsigned int uiNewSeed);

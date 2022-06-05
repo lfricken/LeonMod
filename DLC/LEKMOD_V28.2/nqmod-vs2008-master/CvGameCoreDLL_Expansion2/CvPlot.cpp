@@ -502,7 +502,7 @@ void CvPlot::doImprovement()
 					{
 						if(thisImprovementInfo->GetImprovementResourceDiscoverRand(iI) > 0)
 						{
-							if(GC.getGame().getJonRandNum(thisImprovementInfo->GetImprovementResourceDiscoverRand(iI), "Resource Discovery") == 0)
+							if(GC.getGame().getJonRandNum(thisImprovementInfo->GetImprovementResourceDiscoverRand(iI), "Resource Discovery", this, iI) == 0)
 							{
 								iResourceNum = GC.getMap().getRandomResourceQuantity((ResourceTypes)iI);
 								setResourceType((ResourceTypes)iI, iResourceNum);
@@ -3446,10 +3446,10 @@ int CvPlot::MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, int 
 //	--------------------------------------------------------------------------------
 bool CvPlot::IsAllowsWalkWater() const
 {
-	ImprovementTypes eImprovement = getImprovementType();
-	if (eImprovement != NO_IMPROVEMENT)
+	const ImprovementTypes eImprovement = getImprovementType();
+	if (eImprovement != NO_IMPROVEMENT && !IsImprovementPillaged())
 	{
-		CvImprovementEntry *pkEntry = GC.getImprovementInfo(eImprovement);
+		const CvImprovementEntry* pkEntry = GC.getImprovementInfo(eImprovement);
 		if (pkEntry)
 			return pkEntry->IsAllowsWalkWater();
 	}
@@ -3461,54 +3461,53 @@ bool CvPlot::IsEnemyTerritory(const PlayerTypes ePlayer) const
 	const TeamTypes ePlotOwnerTeam = getTeam();
 
 	// no closed borders
-	if (ePlotOwnerTeam != NO_TEAM) // noteam is open borders
+	if (ePlotOwnerTeam == NO_TEAM) // noteam is open borders
 	{
-		if (ePlotOwnerTeam != ePlayerTeam) // different team
+		return false;
+	}
+	else
+	{
+		if (ePlotOwnerTeam == ePlayerTeam)
 		{
-			if (!GET_TEAM(ePlotOwnerTeam).IsAllowsOpenBordersToTeam(ePlayerTeam)) // closed borders
-				return true;
+			return false;
 		}
-		else if (!GET_PLAYER(ePlayer).isMinorCiv()) // player is not minor civ
+		else // different team
 		{
-			const CvTeam& ownerTeam = GET_TEAM(ePlotOwnerTeam);
-			if (ownerTeam.isMinorCiv()) // owner is minor civ
-			{
-				if (!GET_PLAYER(ownerTeam.getLeaderID()).GetMinorCivAI()->IsPlayerHasOpenBorders(ePlayer)) // closed borders
-				{
-					return true;
-				}
-			}
+			return !IsFriendlyTerritory(ePlayer);
 		}
 	}
-
 	return false;
 }
 // --------------------------------------------------------------------------------- // from Izy
 bool CvPlot::IsAllowsSailLand(PlayerTypes ePlayer) const
 {
-	TeamTypes ePlayerTeam = GET_PLAYER(ePlayer).getTeam();
-	TeamTypes ePlotOwnerTeam = getTeam();
-
-	// no closed borders
-	if (IsEnemyTerritory(ePlayer))
-		return false;
-
-	// adjacent enemy units stop canal usage
-	bool bAnyNearbyEnemyUnits = isEnemyUnit(ePlayer, true, false, false) || GetAdjacentEnemyMilitaryUnits(ePlayerTeam, NO_DOMAIN).size() != 0;
-	if (bAnyNearbyEnemyUnits)
-		return false;
-
 	// allow travel through rivers
-	//if (isRiver()) // how do we prevent river hoping?
+	// WARNING, THIS CODE WOULD NEED REFACTOR TO CONSIDER BELOW ENEMY STUFF
+	//if (isRiver()) // how do we prevent river hopping?
 	//	return true;
 
+	// TODO should we check city here?
+
 	// allow travel through special improvements
-    ImprovementTypes eImprovement = getImprovementType();
-    if (eImprovement != NO_IMPROVEMENT)
+    const ImprovementTypes eImprovement = getImprovementType();
+    if (eImprovement != NO_IMPROVEMENT && !IsImprovementPillaged())
     {
-        CvImprovementEntry *pkEntry = GC.getImprovementInfo(eImprovement);
-        if (pkEntry)
-            return pkEntry->IsAllowsSailLand();
+        const CvImprovementEntry *pkEntry = GC.getImprovementInfo(eImprovement);
+		if (pkEntry && pkEntry->IsAllowsSailLand())
+		{
+			// no closed borders
+			if (IsEnemyTerritory(ePlayer))
+				return false;
+
+			const TeamTypes ePlayerTeam = GET_PLAYER(ePlayer).getTeam();
+			// adjacent enemy units stop canal usage
+			const bool bAnyNearbyEnemyUnits = isEnemyUnit(ePlayer, true, false, false) || GetAdjacentEnemyMilitaryUnits(ePlayerTeam).size() != 0;
+			if (bAnyNearbyEnemyUnits)
+				return false;
+
+			// improvement allows it
+			return true;
+		}
     }
 
 	// disallow by default
@@ -4290,34 +4289,20 @@ void CvPlot::removeGoody()
 //	--------------------------------------------------------------------------------
 bool CvPlot::isFriendlyCity(const CvUnit& kUnit, bool) const
 {
-	if(!getPlotCity())
-	{
-		return false;
-	}
-
 	TeamTypes ePlotTeam = getTeam();
-
-	if(NO_TEAM != ePlotTeam)
-	{
-		TeamTypes eTeam = GET_PLAYER(kUnit.getCombatOwner(ePlotTeam, *this)).getTeam();
-
-		if(eTeam == ePlotTeam)
-		{
-			return true;
-		}
-
-		if(GET_TEAM(ePlotTeam).IsAllowsOpenBordersToTeam(eTeam))
-		{
-			return true;
-		}
-	}
-
-	return false;
+	return isFriendlyCity(kUnit.getCombatOwner(ePlotTeam, *this));
+}
+//	--------------------------------------------------------------------------------
+bool CvPlot::isFriendlyCity(const PlayerTypes ePlayer) const
+{
+	const bool isCity = getPlotCity() != NULL;
+	const bool isFriendly = IsFriendlyTerritory(ePlayer);
+	return isCity && isFriendly;
 }
 
 //	--------------------------------------------------------------------------------
 /// Is this a plot that's friendly to our team? (owned by us or someone we have Open Borders with)
-bool CvPlot::IsFriendlyTerritory(PlayerTypes ePlayer) const
+bool CvPlot::IsFriendlyTerritory(const PlayerTypes ePlayer) const
 {
 	// No friendly territory for barbs!
 	if(GET_PLAYER(ePlayer).isBarbarian())
@@ -5028,23 +5013,17 @@ bool CvPlot::isValidDomainForLocation(const CvUnit& unit) const
 	return isCity();
 }
 
-
-//	--------------------------------------------------------------------------------
-bool CvPlot::isValidDomainForAction(const CvUnit& unit) const
+bool CvPlot::isValidDomain(const DomainTypes eDomain, const PlayerTypes ePlayer) const
 {
-	switch(unit.getDomainType())
+	switch (eDomain)
 	{
 	case DOMAIN_SEA:
-		  return (isWater() || unit.canMoveAllTerrain() || IsAllowsSailLand(unit.getOwner()));
-		break;
-
-	case DOMAIN_AIR:
-		return CanHoldThisAircraft(&unit); // TODO Check improvement type
+		return CanBeUsedAsWater(ePlayer);
 		break;
 
 	case DOMAIN_LAND:
 	case DOMAIN_IMMOBILE:
-		return (!isWater() || unit.IsHoveringUnit() || unit.canMoveAllTerrain() || unit.isEmbarked() || IsAllowsWalkWater());
+		return CanBeUsedAsLand();
 		break;
 
 	default:
@@ -5053,6 +5032,40 @@ bool CvPlot::isValidDomainForAction(const CvUnit& unit) const
 	}
 
 	return false;
+}
+
+//	--------------------------------------------------------------------------------
+bool CvPlot::isValidDomainForAction(const CvUnit& unit) const
+{
+	const DomainTypes eDomain = unit.getDomainType();
+	if (isValidDomain(eDomain, unit.getOwner()))
+	{
+		return true;
+	}
+	else
+	{
+		switch (eDomain)
+		{
+		case DOMAIN_SEA:
+			return (unit.canMoveAllTerrain());
+			break;
+
+		case DOMAIN_AIR:
+			return CanHoldThisAircraft(&unit);
+			break;
+
+		case DOMAIN_LAND:
+		case DOMAIN_IMMOBILE:
+			return (unit.IsHoveringUnit() || unit.canMoveAllTerrain() || unit.isEmbarked());
+			break;
+
+		default:
+			return false;
+			break;
+		}
+
+		return false;
+	}
 }
 
 //	--------------------------------------------------------------------------------
@@ -7327,7 +7340,12 @@ void CvPlot::SetWorldAnchor(GenericWorldAnchorTypes eAnchor, int iData1)
 //	--------------------------------------------------------------------------------
 RouteTypes CvPlot::getRouteType() const
 {
-	return (RouteTypes)m_eRouteType;
+	if ((RouteTypes)m_eRouteType != NO_ROUTE)
+		return (RouteTypes)m_eRouteType;
+	// let the bridge to count as a road
+	if (IsAllowsWalkWater())
+		return ROUTE_ROAD;
+	return NO_ROUTE;
 }
 
 

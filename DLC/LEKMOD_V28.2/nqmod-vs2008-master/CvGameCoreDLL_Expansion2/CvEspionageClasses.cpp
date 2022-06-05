@@ -129,7 +129,7 @@ void CvPlayerEspionage::Init(CvPlayer* pPlayer)
 	for(uint ui = 0; ui < m_aiSpyListNameOrder.size(); ui++)
 	{
 		uint uiTempValue;
-		uint uiTargetSlot = GC.getGame().getJonRandNum(m_aiSpyListNameOrder.size(), "Randomizing m_aiSpyListNameOrder list");
+		uint uiTargetSlot = GC.getGame().getJonRandNum(m_aiSpyListNameOrder.size(), "Randomizing m_aiSpyListNameOrder list", NULL, ui);
 		uiTempValue = m_aiSpyListNameOrder[ui];
 		m_aiSpyListNameOrder[ui] = m_aiSpyListNameOrder[uiTargetSlot];
 		m_aiSpyListNameOrder[uiTargetSlot] = uiTempValue;
@@ -430,7 +430,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 			int iSpyResult;
 			if(pCityEspionage->HasCounterSpy())
 			{
-				iSpyResult = GC.getGame().getJonRandNum(300, "Random roll for the result of a spy mission with a counterspy in the city");
+				iSpyResult = GC.getGame().getJonRandNum(300, "Random roll for the result of a spy mission with a counterspy in the city", NULL, uiSpyIndex);
 				int iCounterspyIndex = GET_PLAYER(eCityOwner).GetEspionage()->GetSpyIndexInCity(pCity);
 				iSpyResult += GET_PLAYER(eCityOwner).GetEspionage()->m_aSpyList[iCounterspyIndex].m_eRank * 30;
 				iSpyResult *= (100 + GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER));
@@ -465,7 +465,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 			}
 			else
 			{
-				iSpyResult = GC.getGame().getJonRandNum(300, "Random roll for the result of a spying mission without a counterspy in the city");
+				iSpyResult = GC.getGame().getJonRandNum(300, "Random roll for the result of a spying mission without a counterspy in the city", NULL, uiSpyIndex);
 				iSpyResult *= (100 + GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER));
 				iSpyResult /= 100;
 				if(iSpyResult < 100)
@@ -778,7 +778,7 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 	for(uint ui = 0; ui < aiMajorCivIndex.size(); ui++)
 	{
 		int iTempValue;
-		uint uiTargetSlot = GC.getGame().getJonRandNum(aiMajorCivIndex.size(), "Randomizing aiMajorCivIndex list within UncoverIntrigue");
+		uint uiTargetSlot = GC.getGame().getJonRandNum(aiMajorCivIndex.size(), "Randomizing aiMajorCivIndex list within UncoverIntrigue", NULL, uiSpyIndex);
 		iTempValue = aiMajorCivIndex[ui];
 		aiMajorCivIndex[ui] = aiMajorCivIndex[uiTargetSlot];
 		aiMajorCivIndex[uiTargetSlot] = iTempValue;
@@ -1919,7 +1919,7 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 	}
 
 	bool bAttemptSuccess = false;
-	int iRandRoll = GC.getGame().getJonRandNum(100, "Roll for the result of an attempted coup");
+	int iRandRoll = GC.getGame().getJonRandNum(100, "Roll for the result of an attempted coup", NULL, uiSpyIndex);
 	if(iRandRoll <= GetCoupChanceOfSuccess(uiSpyIndex))
 	{
 		// swap influence from ally to 2nd place ally
@@ -4694,7 +4694,7 @@ void CvEspionageAI::AttemptCoups()
 		}
 
 		int iChanceOfSuccess = pEspionage->GetCoupChanceOfSuccess(uiSpy);
-		int iRoll = GC.getGame().getJonRandNum(100, "Random roll to see if we should attempt a coup");
+		int iRoll = GC.getGame().getJonRandNum(100, "Random roll to see if we should attempt a coup", NULL, uiSpy);
 		if (iRoll < iChanceOfSuccess)
 		{
 			pEspionage->AttemptCoup(uiSpy);

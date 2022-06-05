@@ -137,7 +137,7 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 		
 		-- Maintenance
 		if (not bNoMaintenance) then
-			local iMaintenance = pBuildingInfo.GoldMaintenance;
+			local iMaintenance = pActivePlayer:GetTotalBuildingYields(pCity, iBuildingID, -2, false);
 			if (iMaintenance ~= nil and iMaintenance ~= 0) then		
 				table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_MAINTENANCE", iMaintenance));
 			end
@@ -700,6 +700,8 @@ function GetCultureTooltip(pCity)
 			
 			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_FROM_TRAITS", iCultureFromTraits);
 		end
+
+		strCultureToolTip = strCultureToolTip .. "[NEWLINE][ICON_BULLET] Any remainder is from Trade Routes";
 		
 		-- Empire Culture modifier
 		local iAmount = Players[pCity:GetOwner()]:GetCultureCityModifier();

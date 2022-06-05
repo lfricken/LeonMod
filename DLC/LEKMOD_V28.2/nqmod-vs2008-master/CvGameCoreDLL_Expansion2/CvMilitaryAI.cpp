@@ -1204,7 +1204,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 	if(weightedTargetList.GetTotalWeight() > 0)
 	{
 		RandomNumberDelegate fcn;
-		fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
+		fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNumExtraSafe);
 		int iNumChoices = max (1, (weightedTargetList.size() * 25 / 100));
 		chosenTarget = weightedTargetList.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing attack target from top 25%% of choices");
 		// if we need the winning score
@@ -2987,8 +2987,9 @@ void CvMilitaryAI::UpdateOperations()
 			if(eLoopPlayer != m_pPlayer->GetID() && m_pPlayer->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
 			{
 				bool bLaunchNuke = false;
+				const int numTimesNuked = m_pPlayer->getNumNukeUnits();
 				// only evaluate nukes when we have nukes and we've declared war on someone
-				if (m_pPlayer->getNumNukeUnits() > 0 && GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam())) 
+				if (numTimesNuked > 0 && GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
 				{
 					// they nuked us, so we can nuke them.
 					if (m_pPlayer->GetDiplomacyAI()->GetNumTimesNuked(eLoopPlayer) > 0)
@@ -3021,8 +3022,8 @@ void CvMilitaryAI::UpdateOperations()
 						if (bRollForNuke)
 						{
 							int iFlavorNuke = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_USE_NUKE"));
-							int iRoll  = GC.getGame().getJonRandNum(10, "Roll to see if we're going to nuke!");
-							int iRoll2 = GC.getGame().getJonRandNum(10, "Second roll to see if we're going to nuke!");
+							int iRoll  = GC.getGame().getJonRandNum(10, "Roll to see if we're going to nuke!", NULL, iPlayerLoop + 200 * numTimesNuked);
+							int iRoll2 = GC.getGame().getJonRandNum(10, "Second roll to see if we're going to nuke!", NULL, iPlayerLoop * 2000 + numTimesNuked);
 							if (iRoll < iFlavorNuke && iRoll2 < iFlavorNuke)
 							{
 								bLaunchNuke = true;
@@ -3130,7 +3131,7 @@ void CvMilitaryAI::UpdateOperations()
 				if(weightedTargetList.GetTotalWeight() > 0)
 				{
 					RandomNumberDelegate fcn;
-					fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
+					fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNumExtraSafe);
 					CvMilitaryTarget chosenTarget = weightedTargetList.ChooseByWeight(&fcn, "Choosing attack target by weight");
 
 					// declare that attack

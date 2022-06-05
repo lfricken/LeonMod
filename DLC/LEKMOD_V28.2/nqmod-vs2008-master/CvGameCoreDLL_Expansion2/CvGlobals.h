@@ -8,6 +8,7 @@
 #pragma once
 
 // CvGlobals.h
+#include <math.h>
 
 #ifndef CIV5_GLOBALS_H
 #define CIV5_GLOBALS_H
@@ -216,8 +217,9 @@ public:
 	{
 		return m_aiPlotDirectionX;
 	}
+	unsigned long getFakeSeed(const int x = 1, const int y = 1, const int other = 1);
 	// number in range [0, maxInclusive]
-	int rand(int maxInclusive, string log);
+	int rand(int maxInclusive, string log, const CvPlot* plot = NULL, const unsigned long other = 23);
 	int* getPlotDirectionY()
 	{
 		return m_aiPlotDirectionY;
@@ -249,10 +251,14 @@ public:
 		return val;
 	}
 
+	double round(double x)
+	{
+		return x < 0 ? ceil(x - 0.5) : floor(x + 0.5);
+	}
 	// 1.516 -> 52
 	int toPercentT100(double factor)
 	{
-		return ((factor - 1.0) * 100.0) + 0.5;
+		return round((factor - 1.0) * 100.0);
 	}
 	// 52 -> 1.52
 	double toFactor(const int percentChangeT100)
@@ -953,6 +959,29 @@ public:
 	GD_INT_DEF(NEW_SCORE_GREAT_WORK_MULTIPLIER);
 	GD_INT_DEF(NEW_SCORE_BELIEF_MULTIPLIER);
 #endif
+
+
+	// score per turn for being an ally
+	int getDIPLOMATIC_INFLUENCE_PER_TURN_ALLY(const PlayerTypes eMinor, const PlayerTypes ePlayer) const;
+	// amount of dioplomatic influence per quest you complete
+	int getDIPLOMATIC_INFLUENCE_PER_QUEST(const PlayerTypes eMinor, const PlayerTypes ePlayer) const;
+	// Number of policies needed to adopt ideology
+	// will unlock after adopting this policy
+	int getPOLICY_NUM_FOR_IDEOLOGY() const;
+	// grow or shrink city tourism impact
+	float getTOURISM_CITY_PERCENT_ADJUST() const;
+	// grow or shrink city tourism impact
+	int getTOURISM_FROM_CITY_CULTURE_PER_POLICY() const;
+	// how many more cities does the capital count for when calculating tourism adjustment
+	float getTOURISM_CITY_CAPITAL_ADJUST() const;
+	// How much extra "policies" does each policy cost once you get ideology
+	float getPOLICY_INCREASE_LATE_GAME() const;
+	// how much stuff the great scientist gives
+	int getGREAT_SCIENTIST_AMOUNT() const;
+	// how far someone falls behind in science turns before they get 100% boost
+	float getSCIENCE_CATCHUP_DIFF() const;
+	// how far someone falls behind in science turns before they get ANY boost
+	float getSCIENCE_CATCHUP_DIFF_NONE() const;
 
 	// -- ints --
 

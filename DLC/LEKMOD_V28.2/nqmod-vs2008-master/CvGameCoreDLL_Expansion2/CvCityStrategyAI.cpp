@@ -785,7 +785,7 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 	}
 	else
 	{
-		fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
+		fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNumExtraSafe);
 	}
 
 	// Reset vector holding items we can currently build
@@ -1005,7 +1005,7 @@ EndHarborLoop:;
 				iTempWeight *= int(2.0 / (1.0 + exp(double(iEffectiveMaintenanceT100) / 200.0)) + 0.5);
 #else
 				// they also like stuff that won't burden the empire with maintenance costs
-				if(pkBuildingInfo->GetGoldMaintenance() == 0)
+				if(pkBuildingInfo->GetGoldMaintenance(GET_PLAYER(m_pCity->getOwner())) == 0)
 				{
 					iTempWeight *= 2;
 				}

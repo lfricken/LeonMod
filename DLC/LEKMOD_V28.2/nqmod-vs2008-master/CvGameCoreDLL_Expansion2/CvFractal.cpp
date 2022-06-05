@@ -217,7 +217,7 @@ void CvFractal::fracInitInternal(int iNewXs, int iNewYs, int iGrain, CvRandom& r
 				{
 					if(pbyHints == NULL)
 					{
-						m_aaiFrac[iX << iPass][iY << iPass] = random.get(256, "Fractal Gen");
+						m_aaiFrac[iX << iPass][iY << iPass] = random.get(256, CvRandom::MutateSeed, "Fractal Gen");
 					}
 					else
 					{
@@ -244,7 +244,7 @@ void CvFractal::fracInitInternal(int iNewXs, int iNewYs, int iGrain, CvRandom& r
 							iSum += m_aaiFrac[(iX-1) << iPass][(iY+1) << iPass];
 							iSum += m_aaiFrac[(iX+1) << iPass][(iY+1) << iPass];
 							iSum >>= 2;
-							iSum += random.get(1 << (8 - iSmooth + iPass), "Fractal Gen 2");
+							iSum += random.get(1 << (8 - iSmooth + iPass), CvRandom::MutateSeed, "Fractal Gen 2");
 							iSum -= 1 << (7 - iSmooth + iPass);
 							iSum = range(iSum, 0, 255);
 							m_aaiFrac[iX << iPass][iY << iPass] = iSum;
@@ -254,7 +254,7 @@ void CvFractal::fracInitInternal(int iNewXs, int iNewYs, int iGrain, CvRandom& r
 							iSum += m_aaiFrac[(iX-1) << iPass][iY << iPass];
 							iSum += m_aaiFrac[(iX+1) << iPass][iY << iPass];
 							iSum >>= 1;
-							iSum += random.get(1 << (8 - iSmooth + iPass), "Fractal Gen 3");
+							iSum += random.get(1 << (8 - iSmooth + iPass), CvRandom::MutateSeed, "Fractal Gen 3");
 							iSum -= 1 << (7 - iSmooth + iPass);
 							iSum = range(iSum, 0, 255);
 							m_aaiFrac[iX << iPass][iY << iPass] = iSum;
@@ -267,7 +267,7 @@ void CvFractal::fracInitInternal(int iNewXs, int iNewYs, int iGrain, CvRandom& r
 							iSum += m_aaiFrac[iX << iPass][(iY-1) << iPass];
 							iSum += m_aaiFrac[iX << iPass][(iY+1) << iPass];
 							iSum >>= 1;
-							iSum += random.get(1 << (8 - iSmooth + iPass), "Fractal Gen 4");
+							iSum += random.get(1 << (8 - iSmooth + iPass), CvRandom::MutateSeed, "Fractal Gen 4");
 							iSum -= 1 << (7 - iSmooth + iPass);
 							iSum = range(iSum, 0, 255);
 #ifdef AUI_WARNING_FIXES
@@ -471,8 +471,8 @@ void CvFractal::ridgeBuilder(CvRandom& random, int iNumVoronoiSeeds, int iRidgeF
 	for(int iThisVoronoiSeedIndex = 0; iThisVoronoiSeedIndex < iNumVoronoiSeeds; iThisVoronoiSeedIndex++)
 	{
 		VoronoiSeed thisVoronoiSeed;
-		thisVoronoiSeed.m_iHexspaceY = random.get(m_iFracY, "Ridge Gen 1");
-		thisVoronoiSeed.m_iHexspaceX =  xToHexspaceX(random.get(m_iFracX, "Ridge Gen 2"), thisVoronoiSeed.m_iHexspaceY);
+		thisVoronoiSeed.m_iHexspaceY = random.get(m_iFracY, CvRandom::MutateSeed, "Ridge Gen 1");
+		thisVoronoiSeed.m_iHexspaceX =  xToHexspaceX(random.get(m_iFracX, CvRandom::MutateSeed, "Ridge Gen 2"), thisVoronoiSeed.m_iHexspaceY);
 #ifdef AUI_FRACTAL_RIDGE_USE_BINOM_RNG
 		thisVoronoiSeed.m_iWeakness = MAX(0, int(random.getBinom(7, "Ridge Gen 3")) - 3); // ??? do we want to parameterize this???
 #elif defined(AUI_USE_SFMT_RNG) || defined(AUI_WARNING_FIXES)
@@ -480,9 +480,9 @@ void CvFractal::ridgeBuilder(CvRandom& random, int iNumVoronoiSeeds, int iRidgeF
 #elif defined(NQM_FAST_COMP)
 		thisVoronoiSeed.m_iWeakness = MAX(0, random.get(7, "Ridge Gen 3") - 3); // ??? do we want to parameterize this???
 #else
-		thisVoronoiSeed.m_iWeakness = std::max(0,random.get(7, "Ridge Gen 3")-3); // ??? do we want to parameterize this???
+		thisVoronoiSeed.m_iWeakness = std::max(0,random.get(7, CvRandom::MutateSeed, "Ridge Gen 3")-3); // ??? do we want to parameterize this???
 #endif
-		thisVoronoiSeed.m_eBiasDirection = random.get(NUM_DIRECTION_TYPES, "Ridge Gen 4");
+		thisVoronoiSeed.m_eBiasDirection = random.get(NUM_DIRECTION_TYPES, CvRandom::MutateSeed, "Ridge Gen 4");
 #ifdef AUI_FRACTAL_RIDGE_USE_BINOM_RNG
 		thisVoronoiSeed.m_iDirectionalBiasStrength = MAX(0, int(random.getBinom(8, "Ridge Gen 5")) - 4); // ??? do we want to parameterize this???
 #elif defined(AUI_USE_SFMT_RNG) || defined(AUI_WARNING_FIXES)
@@ -490,7 +490,7 @@ void CvFractal::ridgeBuilder(CvRandom& random, int iNumVoronoiSeeds, int iRidgeF
 #elif defined(NQM_FAST_COMP)
 		thisVoronoiSeed.m_iDirectionalBiasStrength = MAX(0, random.get(8, "Ridge Gen 5") - 4); // ??? do we want to parameterize this???
 #else
-		thisVoronoiSeed.m_iDirectionalBiasStrength = std::max(0,random.get(8, "Ridge Gen 5") - 4); // ??? do we want to parameterize this???
+		thisVoronoiSeed.m_iDirectionalBiasStrength = std::max(0,random.get(8, CvRandom::MutateSeed, "Ridge Gen 5") - 4); // ??? do we want to parameterize this???
 #endif
 
 		// check to see if we are too close to an existing seed
@@ -504,8 +504,8 @@ void CvFractal::ridgeBuilder(CvRandom& random, int iNumVoronoiSeeds, int iRidgeF
 
 				if(iDistanceBetweenVoronoiSeeds < 7)  // ??? parameterize ???
 				{
-					thisVoronoiSeed.m_iHexspaceX = random.get(m_iFracX, "Ridge Gen 6");
-					thisVoronoiSeed.m_iHexspaceY = random.get(m_iFracY, "Ridge Gen 7");
+					thisVoronoiSeed.m_iHexspaceX = random.get(m_iFracX, CvRandom::MutateSeed, "Ridge Gen 6");
+					thisVoronoiSeed.m_iHexspaceY = random.get(m_iFracY, CvRandom::MutateSeed, "Ridge Gen 7");
 					bNeedToRecheck = true;
 					break;
 				}
@@ -541,7 +541,7 @@ void CvFractal::ridgeBuilder(CvRandom& random, int iNumVoronoiSeeds, int iRidgeF
 #ifdef AUI_FRACTAL_RIDGE_USE_BINOM_RNG
 					iModifiedHexspaceDistance += random.getBinom(3, "Ridge Gen 8");
 #else
-					iModifiedHexspaceDistance += random.get(3, "Ridge Gen 8");
+					iModifiedHexspaceDistance += random.get(3, CvRandom::MutateSeed, "Ridge Gen 8");
 #endif
 					DirectionTypes eRelativeDirection = estimateDirection(vVoronoiSeeds[iThisVoronoiSeedIndex].m_iHexspaceX-iThisHexX,vVoronoiSeeds[iThisVoronoiSeedIndex].m_iHexspaceY-iThisHexY);
 					if(eRelativeDirection == vVoronoiSeeds[iThisVoronoiSeedIndex].m_eBiasDirection)

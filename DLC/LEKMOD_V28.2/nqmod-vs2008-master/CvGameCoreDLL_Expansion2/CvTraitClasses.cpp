@@ -3572,7 +3572,7 @@ bool CvPlayerTraits::ConvertBarbarianCamp(CvPlot* pPlot)
 	}
 
 	// Roll die to see if it converts
-	if(GC.getGame().getJonRandNum(100, "Barbarian Camp Conversion") < m_iLandBarbarianConversionPercent)
+	if(GC.getGame().getJonRandNum(100, "Barbarian Camp Conversion", pPlot, 19) < m_iLandBarbarianConversionPercent)
 	{
 		pPlot->setImprovementType(NO_IMPROVEMENT);
 
@@ -3639,7 +3639,7 @@ bool CvPlayerTraits::ConvertBarbarianNavalUnit(UnitHandle pUnit)
 	}
 
 	// Roll die to see if it converts
-	if(GC.getGame().getJonRandNum(100, "Barbarian Naval Unit Conversion") < m_iSeaBarbarianConversionPercent)
+	if(GC.getGame().getJonRandNum(100, "Barbarian Naval Unit Conversion", pUnit->plot(), 13) < m_iSeaBarbarianConversionPercent)
 	{
 		int iNumGold = /*25*/ GC.getGOLD_FROM_BARBARIAN_CONVERSION();
 		m_pPlayer->GetTreasury()->ChangeGold(iNumGold);

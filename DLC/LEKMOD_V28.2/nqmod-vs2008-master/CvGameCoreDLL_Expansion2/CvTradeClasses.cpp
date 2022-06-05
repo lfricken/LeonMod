@@ -2291,6 +2291,19 @@ void CvPlayerTrade::DoTurn(void)
 	MoveUnits();
 }
 
+bool TradeConnection::isPathStillValid() const
+{
+	// ignore the last tile, since it may be a city that we don't have open borders with
+	for (int i = 0; i < m_aPlotList.size() - 1; ++i)
+	{
+		// make sure is still valid for domain
+		const CvPlot* pPlot = GC.getMap().plot(m_aPlotList[i].m_iX, m_aPlotList[i].m_iY);
+		if (!pPlot->isValidDomain(m_eDomain, m_eOriginOwner))
+			return false;
+	}
+	return true;
+}
+
 //	--------------------------------------------------------------------------------
 /// MoveUnits
 void CvPlayerTrade::MoveUnits (void)
@@ -2302,30 +2315,27 @@ void CvPlayerTrade::MoveUnits (void)
 		if (pTradeConnection->m_eOriginOwner == m_pPlayer->GetID())
 		{
 			pTrade->MoveUnit(ui);
-
-			// check to see if the trade route is still active but the circuit is completed
-			if (!pTrade->IsTradeRouteIndexEmpty(ui) && pTradeConnection->m_iCircuitsCompleted >= pTradeConnection->m_iCircuitsToComplete)
+			if (!pTrade->IsTradeRouteIndexEmpty(ui))
 			{
-				m_aRecentlyExpiredConnections.push_back(*pTradeConnection);
+				const bool circuitsComplete = pTradeConnection->m_iCircuitsCompleted >= pTradeConnection->m_iCircuitsToComplete;
+				// check to see if the trade route is still active but the circuit is completed
+				if (circuitsComplete || !pTradeConnection->isPathStillValid())
+				{
+					m_aRecentlyExpiredConnections.push_back(*pTradeConnection);
 
-				// get data before we wipe the trade route
-				int iOriginX = pTradeConnection->m_iOriginX;
-				int iOriginY = pTradeConnection->m_iOriginY;
-				DomainTypes eDomain = pTradeConnection->m_eDomain;
+					// get data before we wipe the trade route
+					int iOriginX = pTradeConnection->m_iOriginX;
+					int iOriginY = pTradeConnection->m_iOriginY;
+					DomainTypes eDomain = pTradeConnection->m_eDomain;
 
-				// wipe trade route
-				pTrade->EmptyTradeRoute(ui);
-				
-				// create new unit
-				UnitTypes eUnitType = GetTradeUnit(eDomain);
-#ifdef CVASSERT_ENABLE
-				CvUnit* pRebornUnit = m_pPlayer->initUnit(eUnitType, iOriginX, iOriginY, UNITAI_TRADE_UNIT);
+					// wipe trade route
+					pTrade->EmptyTradeRoute(ui);
 
-				DEBUG_VARIABLE(pRebornUnit);
-				CvAssertMsg(pRebornUnit, "pRebornUnit is null. This is bad!!");
-#else
-				m_pPlayer->initUnit(eUnitType, iOriginX, iOriginY, UNITAI_TRADE_UNIT);
-#endif
+					// create new unit
+					UnitTypes eUnitType = GetTradeUnit(eDomain);
+
+					m_pPlayer->initUnit(eUnitType, iOriginX, iOriginY, UNITAI_TRADE_UNIT);
+				}
 			}
 		}
 	}
@@ -3038,6 +3048,8 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 			}
 		}
 	}
+
+	iValue += 100 * GetTradeConnectionValueExtra(kTradeConnection, eYield, bAsOriginPlayer);
 
 	return iValue;	
 }

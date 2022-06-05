@@ -256,7 +256,7 @@ public:
 
 	void DoPickInitialItems();
 
-	CvPlayer* GetPlayer();
+	CvPlayer* GetPlayer() const;
 
 	MinorCivTypes GetMinorCivType() const;
 
