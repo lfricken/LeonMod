@@ -4077,7 +4077,10 @@ int CvGame::countCivPlayersAlive() const
 //	--------------------------------------------------------------------------------
 int CvGame::countCivPlayersEverAlive() const
 {
-	return m_playersEverAlive.size();
+	int val = m_playersEverAlive.size();
+	if (val < 1) // wtf is this
+		val = 8; // for some reason val is 0 sometimes, and that can't be right!
+	return val; // 0 causes div by 0 crash
 }
 
 
