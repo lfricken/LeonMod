@@ -78,6 +78,24 @@ int CvPlayer::GetExtraYieldForBuilding
 				yieldChange += 10;
 		}
 
+		{// BELIEFS that buff buildings purchased through faith
+			const bool hasBeliefDharma = city.HasBelief("BELIEF_DARMA");
+			const bool hasBeliefHajj = city.HasBelief("BELIEF_HAJJJJ");
+			const bool hasBeliefJizya = city.HasBelief("BELIEF_CRAFTWORKS");
+			const bool isReligiousBuilding = 
+				  eBuildingClass == BuildingClass("BUILDINGCLASS_PAGODA") || eBuildingClass == BuildingClass("BUILDINGCLASS_MOSQUE")
+				|| eBuildingClass == BuildingClass("BUILDINGCLASS_CATHEDRAL") || eBuildingClass == BuildingClass("BUILDINGCLASS_SCRIPTORIUM")
+				|| eBuildingClass == BuildingClass("BUILDINGCLASS_TABERNACLE") || eBuildingClass == BuildingClass("BUILDINGCLASS_GURDWARA")
+				|| eBuildingClass == BuildingClass("BUILDINGCLASS_SYNAGOGUE") || eBuildingClass == BuildingClass("BUILDINGCLASS_MITHRAEUM")
+				|| eBuildingClass == BuildingClass("BUILDINGCLASS_VIHARA") || eBuildingClass == BuildingClass("BUILDINGCLASS_MANDIR");
+			if (eYieldType == YIELD_GOLD && !isPercentMod && isReligiousBuilding && hasBeliefDharma)
+				yieldChange += 3;
+			if (eYieldType == YIELD_CULTURE && !isPercentMod && isReligiousBuilding && hasBeliefHajj)
+				yieldChange += 1;
+			if (eYieldType == YIELD_FAITH && !isPercentMod && isReligiousBuilding && hasBeliefJizya)
+				yieldChange += 2;
+		}
+
 		{// BUILDINGCLASS_HOTEL +1 C, +1 Tourism and +2% C, +2% Tourism for every 5 citizens in a city.
 			const bool isHotel = eBuildingClass == BuildingClass("BUILDINGCLASS_HOTEL");
 			const int cityPopulation = city.getPopulation();

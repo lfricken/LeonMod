@@ -251,6 +251,24 @@ int CvPlot::getExtraYield
 					yieldChange += 1;
 			}
 
+			{// BELIEF_DEFENDER_FAITH - gives 2FH for every 3 Followers in Holy City. 
+				const bool hasBeliefDefenderOfTheFaith = city.HasBelief("BELIEF_DEFENDER_FAITH");
+				if (eYieldType == YIELD_FAITH && hasBeliefDefenderOfTheFaith && isHolyCity && isCityCenter)
+					yieldChange += (numFollowersLocal / 3) * 2;
+			}
+			
+			{// BELIEF_KARMA - gives 1C for every 2 Followers in Holy City. 
+				const bool hasBeliefKarma = city.HasBelief("BELIEF_KARMA");
+				if (eYieldType == YIELD_CULTURE && hasBeliefKarma && isHolyCity && isCityCenter)
+					yieldChange += (numFollowersLocal / 2);
+			}
+
+			{// BELIEF_PROMISED_LAND - gives 1G for every follower in Holy City. 
+				const bool hasBeliefPromisedLand = city.HasBelief("BELIEF_PROMISED_LAND");
+				if (eYieldType == YIELD_GOLD && hasBeliefPromisedLand && isHolyCity && isCityCenter)
+					yieldChange += (numFollowersLocal);
+			}
+
 			{// Policy_Cutural Exchange - gives 1 tourism to great person tile improvements. 
 				const bool hasPolicyCulturalExchange = player.HasPolicy("POLICY_ETHICS");
 				if (eYieldType == YIELD_TOURISM && hasPolicyCulturalExchange && isGreatTile)
