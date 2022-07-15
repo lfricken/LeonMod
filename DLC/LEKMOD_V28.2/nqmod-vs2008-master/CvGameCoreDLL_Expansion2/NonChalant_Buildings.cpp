@@ -315,8 +315,15 @@ int CvPlayer::getSpecialistYieldHardcoded(const CvCity* pCity, const SpecialistT
 
 
 	// logic that does not reference the city
-	change += 3;
+	
 
+	{// POLICY_TRADITION_FINISHER gives +1G +1PD to Engineer Specialists
+		const bool hasTraditionFinisher = player.HasPolicy("POLICY_TRADITION_FINISHER");
+		if (eYield == YIELD_GOLD && hasTraditionFinisher && isEngineer)
+			change += 1;
+		if (eYield == YIELD_PRODUCTION && hasTraditionFinisher && isEngineer)
+			change += 1;
+	}
 
 	return GC.round(change);
 }
@@ -352,7 +359,7 @@ int CvPlayer::getGreatWorkYieldTotal(const CvCity* pCity, const CvGreatWork* pWo
 
 
 	// logic that does not reference the city
-	change += 3;
+	
 
 
 	return GC.round(change);

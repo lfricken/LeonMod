@@ -320,6 +320,17 @@ int CvPlot::getExtraYield
 					yieldChange += 2;
 			}
 
+			{// POLICY_HONOR_FINISHER - gives +3 PD, SC, C to Citadels
+				const bool hasHonorFinisher = player.HasPolicy("POLICY_HONOR_FINISHER");
+				const bool isCitadel = plot.HasImprovement("IMPROVEMENT_CITADEL");
+				if (eYieldType == YIELD_PRODUCTION && hasHonorFinisher && isCitadel)
+					yieldChange += 3;
+				if (eYieldType == YIELD_CULTURE && hasHonorFinisher && isCitadel)
+					yieldChange += 3;
+				if (eYieldType == YIELD_SCIENCE && hasHonorFinisher && isCitadel)
+					yieldChange += 3;
+			}
+
 		}
 	}
 

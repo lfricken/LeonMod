@@ -5376,9 +5376,7 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts) 
 					}
 					else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_ENGINEER", true /*bHideAssert*/))
 					{
-						isUnlockedByPolicy |= doesHaveBranch("POLICY_BRANCH_TRADITION", kPlayer);
-						isUnlockedByPolicy |= doesHaveBranch("POLICY_BRANCH_LIBERTY", kPlayer);
-						isUnlockedByPolicy |= doesHaveBranch("POLICY_BRANCH_HONOR", kPlayer);
+						isUnlockedByPolicy |= doesHaveBranch("POLICY_BRANCH_TRADITION", kPlayer);					
 						numAlreadyAttained = kPlayer.getEngineersFromFaith();
 					}
 					else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_GENERAL", true /*bHideAssert*/))
