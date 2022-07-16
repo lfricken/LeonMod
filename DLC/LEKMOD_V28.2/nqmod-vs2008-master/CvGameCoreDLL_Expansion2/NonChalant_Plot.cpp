@@ -337,6 +337,24 @@ int CvPlot::getExtraYield
 					yieldChange += (numFollowersLocal / 3);
 			}
 
+			{// POLICY_EXPLORATION_FINISHER gives +1FD from Fish, +1C from Coastal Luxuries, +1PD from Atolls, 2PD, 2G from DryDocks				
+				const bool hasExplorationFinisher = player.HasPolicy("POLICY_EXPLORATION_FINISHER");
+				const bool isFish = plot.HasResource("RESOURCE_FISH"); 
+				const bool isCoastalLuxury = (plot.HasResource("RESOURCE_") || plot.HasResource("RESOURCE_CRAB") || plot.HasResource("RESOURCE_WHALE") || plot.HasResource("RESOURCE_PEARLS")
+					|| plot.HasResource("RESOURCE_CORAL"));
+				const bool isDryDock = (plot.HasImprovement("IMPROVEMENT_DOCK") || plot.HasImprovement("IMPROVEMENT_CHILE_DOCK"));
+				if (eYieldType == YIELD_FOOD && hasExplorationFinisher && isFish)
+					yieldChange += 1;
+				if (eYieldType == YIELD_CULTURE && hasExplorationFinisher && isCoastalLuxury)
+					yieldChange += 1;
+				if (eYieldType == YIELD_PRODUCTION && hasExplorationFinisher && hasAnyAtoll)
+					yieldChange += 1;
+				if (eYieldType == YIELD_GOLD && hasExplorationFinisher && isDryDock)
+					yieldChange += 2;
+				if (eYieldType == YIELD_PRODUCTION && hasExplorationFinisher && isDryDock)
+					yieldChange += 2;
+			}
+
 		}
 	}
 
