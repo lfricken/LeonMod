@@ -10990,10 +10990,10 @@ int CvCity::getYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade) const
 		iProcessYield = getYieldRateTimes100(YIELD_PRODUCTION, false) * getProductionToYieldModifier(eIndex) / 100;
 	}
 
-	if (eIndex == YIELD_DIPLOMATIC_SUPPORT && IsOwnedMinorCapital())
+	if (IsOwnedMinorCapital())
 	{
 		CvPlayer& owner = GET_PLAYER(getOwner());
-		iBaseYield += 100 * GC.getDIPLOMATIC_INFLUENCE_PER_TURN_ALLY(getOriginalOwner(), owner.GetID(), true);
+		iBaseYield += 100 * GC.getYIELD_PER_TURN_ALLY(eIndex, getOriginalOwner(), owner.GetID(), true);
 	}
 
 	// Sum up yield rate
