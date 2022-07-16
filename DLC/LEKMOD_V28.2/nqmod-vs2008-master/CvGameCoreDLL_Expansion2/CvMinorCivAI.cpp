@@ -936,6 +936,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 	m_rewards.friendship = GC.getYIELD_PER_QUEST(YIELD_FRIENDSHIP, m_eMinor, m_eAssignedPlayer);
 	m_rewards.gold = GC.getYIELD_PER_QUEST(YIELD_GOLD, m_eMinor, m_eAssignedPlayer);
 	m_rewards.beakers = GC.getYIELD_PER_QUEST(YIELD_SCIENCE, m_eMinor, m_eAssignedPlayer);
+	m_rewards.insight = GC.getYIELD_PER_QUEST(YIELD_SCIENTIFIC_INSIGHT, m_eMinor, m_eAssignedPlayer);
 
 	Localization::String strMessage;
 	Localization::String strSummary;
