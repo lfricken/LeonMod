@@ -78,6 +78,24 @@ int CvPlayer::GetExtraYieldForBuilding
 				yieldChange += 10;
 		}
 
+		{// BELIEFS that buff buildings purchased through faith
+			const bool hasBeliefDharma = city.HasBelief("BELIEF_DARMA");
+			const bool hasBeliefHajj = city.HasBelief("BELIEF_HAJJJJ");
+			const bool hasBeliefJizya = city.HasBelief("BELIEF_CRAFTWORKS");
+			const bool isReligiousBuilding = 
+				  eBuildingClass == BuildingClass("BUILDINGCLASS_PAGODA") || eBuildingClass == BuildingClass("BUILDINGCLASS_MOSQUE")
+				|| eBuildingClass == BuildingClass("BUILDINGCLASS_CATHEDRAL") || eBuildingClass == BuildingClass("BUILDINGCLASS_SCRIPTORIUM")
+				|| eBuildingClass == BuildingClass("BUILDINGCLASS_TABERNACLE") || eBuildingClass == BuildingClass("BUILDINGCLASS_GURDWARA")
+				|| eBuildingClass == BuildingClass("BUILDINGCLASS_SYNAGOGUE") || eBuildingClass == BuildingClass("BUILDINGCLASS_MITHRAEUM")
+				|| eBuildingClass == BuildingClass("BUILDINGCLASS_VIHARA") || eBuildingClass == BuildingClass("BUILDINGCLASS_MANDIR");
+			if (eYieldType == YIELD_GOLD && !isPercentMod && isReligiousBuilding && hasBeliefDharma)
+				yieldChange += 3;
+			if (eYieldType == YIELD_CULTURE && !isPercentMod && isReligiousBuilding && hasBeliefHajj)
+				yieldChange += 1;
+			if (eYieldType == YIELD_FAITH && !isPercentMod && isReligiousBuilding && hasBeliefJizya)
+				yieldChange += 2;
+		}
+
 		{// BUILDINGCLASS_HOTEL +1 C, +1 Tourism and +2% C, +2% Tourism for every 5 citizens in a city.
 			const bool isHotel = eBuildingClass == BuildingClass("BUILDINGCLASS_HOTEL");
 			const int cityPopulation = city.getPopulation();
@@ -229,12 +247,19 @@ int CvPlayer::GetExtraYieldForBuilding
 		if (eYieldType == YIELD_SCIENTIFIC_INSIGHT && !isPercentMod && isRecyclingCenter)
 			yieldChange += 2;
 	}
+	
 
 	return yieldChange;
 }
 bool CvPlayer::ShouldHaveBuilding(const CvPlayer& rPlayer, const CvCity& rCity, const bool isYourCapital, const bool isConquered, const bool isNewlyFounded, const BuildingClassTypes eBuildingClass)
 {
-
+	{// POLICY_MERCHANT_CONFEDERACY gives BUILDING_MERCHANT_CONFEDERACY_TRADE_ROUTE to Capital
+		const bool isMerchantConfederacyBuilding = eBuildingClass == BuildingClass("BUILDINGCLASS_MERCHANT_CONFEDERACY_TRADE_ROUTE");	
+		const bool hasMerchantConfederacy = rPlayer.HasPolicy("POLICY_MERCHANT_CONFEDERACY");
+		if (isMerchantConfederacyBuilding && isYourCapital && hasMerchantConfederacy)
+		
+			return true;
+	}
 	return false;
 }
 int CvPlayer::getSpecialistGpp(const CvCity* pCity, const SpecialistTypes eSpecialist, const SpecialistTypes eGppType, const bool isPercentMod) const
@@ -297,8 +322,15 @@ int CvPlayer::getSpecialistYieldHardcoded(const CvCity* pCity, const SpecialistT
 
 
 	// logic that does not reference the city
-	change += 3;
+	
 
+	{// POLICY_TRADITION_FINISHER gives +1G +1PD to Engineer Specialists
+		const bool hasTraditionFinisher = player.HasPolicy("POLICY_TRADITION_FINISHER");
+		if (eYield == YIELD_GOLD && hasTraditionFinisher && isEngineer)
+			change += 1;
+		if (eYield == YIELD_PRODUCTION && hasTraditionFinisher && isEngineer)
+			change += 1;
+	}
 
 	return GC.round(change);
 }
@@ -334,7 +366,7 @@ int CvPlayer::getGreatWorkYieldTotal(const CvCity* pCity, const CvGreatWork* pWo
 
 
 	// logic that does not reference the city
-	change += 3;
+	
 
 
 	return GC.round(change);

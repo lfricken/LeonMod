@@ -251,6 +251,24 @@ int CvPlot::getExtraYield
 					yieldChange += 1;
 			}
 
+			{// BELIEF_DEFENDER_FAITH - gives 2FH for every 3 Followers in Holy City. 
+				const bool hasBeliefDefenderOfTheFaith = city.HasBelief("BELIEF_DEFENDER_FAITH");
+				if (eYieldType == YIELD_FAITH && hasBeliefDefenderOfTheFaith && isHolyCity && isCityCenter)
+					yieldChange += (numFollowersLocal / 3) * 2;
+			}
+			
+			{// BELIEF_KARMA - gives 1C for every 2 Followers in Holy City. 
+				const bool hasBeliefKarma = city.HasBelief("BELIEF_KARMA");
+				if (eYieldType == YIELD_CULTURE && hasBeliefKarma && isHolyCity && isCityCenter)
+					yieldChange += (numFollowersLocal / 2);
+			}
+
+			{// BELIEF_PROMISED_LAND - gives 1G for every follower in Holy City. 
+				const bool hasBeliefPromisedLand = city.HasBelief("BELIEF_PROMISED_LAND");
+				if (eYieldType == YIELD_GOLD && hasBeliefPromisedLand && isHolyCity && isCityCenter)
+					yieldChange += (numFollowersLocal);
+			}
+
 			{// Policy_Cutural Exchange - gives 1 tourism to great person tile improvements. 
 				const bool hasPolicyCulturalExchange = player.HasPolicy("POLICY_ETHICS");
 				if (eYieldType == YIELD_TOURISM && hasPolicyCulturalExchange && isGreatTile)
@@ -300,6 +318,23 @@ int CvPlot::getExtraYield
 				const bool isAcadamy = plot.HasImprovement("IMPROVEMENT_ACADEMY");
 				if (eYieldType == YIELD_SCIENTIFIC_INSIGHT && hasSovereignty && isAcadamy)
 					yieldChange += 2;
+			}
+
+			{// POLICY_HONOR_FINISHER - gives +3 PD, SC, C to Citadels
+				const bool hasHonorFinisher = player.HasPolicy("POLICY_HONOR_FINISHER");
+				const bool isCitadel = plot.HasImprovement("IMPROVEMENT_CITADEL");
+				if (eYieldType == YIELD_PRODUCTION && hasHonorFinisher && isCitadel)
+					yieldChange += 3;
+				if (eYieldType == YIELD_CULTURE && hasHonorFinisher && isCitadel)
+					yieldChange += 3;
+				if (eYieldType == YIELD_SCIENCE && hasHonorFinisher && isCitadel)
+					yieldChange += 3;
+			}
+
+			{// POLICY_ORGANIZED_RELIGION gives +1C for every 3 Followers in Holy city if you have adopted a religion				
+				const bool hasOrganizedReligion = player.HasPolicy("POLICY_ORGANIZED_RELIGION");				
+				if (eYieldType == YIELD_CULTURE && hasOrganizedReligion && isHolyCity && isCityCenter)
+					yieldChange += (numFollowersLocal / 3);
 			}
 
 		}
