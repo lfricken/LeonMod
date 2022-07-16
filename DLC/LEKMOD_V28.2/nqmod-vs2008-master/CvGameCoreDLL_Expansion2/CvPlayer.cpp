@@ -6048,7 +6048,7 @@ void CvPlayer::GetDiplomaticInfluencePerTurn(int* influenceThisTurn, int* iNumMi
 			if (player.isAlive() && player.isMinorCiv() && player.GetMinorCivAI()->IsAllies(GetID()))
 			{
 				controlled++;
-				influenceT100 += 100 * GC.getDIPLOMATIC_INFLUENCE_PER_TURN_ALLY(eMinor, GetID(), false);
+				influenceT100 += 100 * GC.getYIELD_PER_TURN_ALLY(YIELD_DIPLOMATIC_SUPPORT, eMinor, GetID(), false);
 			}
 		}
 	}
@@ -6101,7 +6101,7 @@ int CvPlayer::GetDiplomaticInfluenceNeeded() const
 	const float expectedTurnFraction = 0.50;
 	const float totalGameTurns = GC.getGamePointer()->getMaxTurns();
 	const float expectedAllies = (numCityStates / effectiveNumCivs) * toWinBoost; // fair share + some percentage
-	const float influencePerTurnPerAlly = GC.getDIPLOMATIC_INFLUENCE_PER_TURN_ALLY(NO_PLAYER, NO_PLAYER);
+	const float influencePerTurnPerAlly = GC.getYIELD_PER_TURN_ALLY(YIELD_DIPLOMATIC_SUPPORT, NO_PLAYER, NO_PLAYER);
 
 	int influenceNeeded = influencePerTurnPerAlly * expectedAllies * expectedTurnFraction * totalGameTurns;
 	influenceNeeded -= ((float)influenceNeeded / 1000.0f * (float)GC.getGame().GetVpAdjustment());

@@ -47,33 +47,53 @@ int CvGlobals::getCITIZENS_PER_SPECIALIST(const PlayerTypes ePlayer) const
 {
 	return 2;
 }
-int CvGlobals::getDIPLOMATIC_INFLUENCE_PER_TURN_ALLY(const PlayerTypes eMinor, const PlayerTypes ePlayer, const bool isCaptured) const
+int CvGlobals::getYIELD_PER_TURN_ALLY(const YieldTypes eYieldType, const PlayerTypes eMinor, const PlayerTypes ePlayer, const bool isCaptured) const
 {
-	float diplomaticInfluencePerTurn = 10;
+	float value = 0;
+	// defaults
+	if (eYieldType == YIELD_DIPLOMATIC_SUPPORT)
+		value = 10;
 
+	// player specific changes
 	if (ePlayer != NO_PLAYER)
 	{
 		const CvPlayer& player = GET_PLAYER(ePlayer);
-		const bool hasPatronageFinisher = player.HasPolicy("POLICY_PATRONAGE_FINISHER");
-		if (hasPatronageFinisher)
-			diplomaticInfluencePerTurn += 5;
+		if (eYieldType == YIELD_DIPLOMATIC_SUPPORT)
+		{
+			const bool hasPatronageFinisher = player.HasPolicy("POLICY_PATRONAGE_FINISHER");
+			if (hasPatronageFinisher)
+				value += 5;
+		}
 	}
 
-	return GC.round(diplomaticInfluencePerTurn);
+	return GC.round(value);
 }
-int CvGlobals::getDIPLOMATIC_INFLUENCE_PER_QUEST(const PlayerTypes eMinor, const PlayerTypes ePlayer) const
+int CvGlobals::getYIELD_PER_QUEST(const YieldTypes eYieldType, const PlayerTypes eMinor, const PlayerTypes ePlayer) const
 {
-	float diplomaticInfluenceFromQuests = 100;
+	float value = 0;
+	// defaults
+	if (eYieldType == YIELD_DIPLOMATIC_SUPPORT)
+		value = 100;
+	if (eYieldType == YIELD_FRIENDSHIP)
+		value = GC.getMINOR_FRIENDSHIP_FROM_TRADE_MISSION(); // 40
 
+	// player specific changes
 	if (ePlayer != NO_PLAYER)
 	{
 		const CvPlayer& player = GET_PLAYER(ePlayer);
-		const bool hasPhilanthropy = player.HasPolicy("POLICY_PHILANTHROPY");
-		if (hasPhilanthropy)
-			diplomaticInfluenceFromQuests *= 1.5;
+		if (eYieldType == YIELD_DIPLOMATIC_SUPPORT)
+		{
+			const bool hasPhilanthropy = player.HasPolicy("POLICY_PHILANTHROPY");
+			if (hasPhilanthropy)
+				value *= 1.5;
+		}
+		if (eYieldType == YIELD_SCIENTIFIC_INSIGHT)
+		{
+
+		}
 	}
 
-	return GC.round(diplomaticInfluenceFromQuests);
+	return GC.round(value);
 }
 
 

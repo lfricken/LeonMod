@@ -73,6 +73,8 @@ struct QuestReward
 		food = 0;
 		hammers = 0;
 		culture = 0;
+		gold = 0;
+
 		beakers = 0;
 		militaryUnits = 0;
 		goldenPoints = 0;
@@ -86,6 +88,7 @@ struct QuestReward
 	int food;
 	int hammers;
 	int culture;
+	int gold;
 
 	int beakers;
 	int militaryUnits;

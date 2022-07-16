@@ -136,6 +136,18 @@ string compileRewards(QuestReward rewards)
 	{
 		ss.push_back(reward(colorBegin, rewards.support, "{DIPLOMATIC_INFLUENCE}"));
 	}
+	if (rewards.gold > 0)
+	{
+		ss.push_back(reward(colorBegin, rewards.gold, "{GOLD}"));
+	}
+	if (rewards.beakers > 0)
+	{
+		ss.push_back(reward(colorBegin, rewards.beakers, "{SCIENCE}"));
+	}
+	if (rewards.insight > 0)
+	{
+		ss.push_back(reward(colorBegin, rewards.insight, "{SCIENTIFIC_INSIGHT}"));
+	}
 
 	stringstream total;
 	for (int i = 0; i < ss.size(); ++i)
@@ -920,8 +932,10 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 
 	m_iStartTurn = iStartTurn;
 	m_rewards = QuestReward();
-	m_rewards.support = GC.getDIPLOMATIC_INFLUENCE_PER_QUEST(m_eMinor, m_eAssignedPlayer);
-	m_rewards.friendship = GC.getMINOR_FRIENDSHIP_FROM_TRADE_MISSION();
+	m_rewards.support = GC.getYIELD_PER_QUEST(YIELD_DIPLOMATIC_SUPPORT, m_eMinor, m_eAssignedPlayer);
+	m_rewards.friendship = GC.getYIELD_PER_QUEST(YIELD_FRIENDSHIP, m_eMinor, m_eAssignedPlayer);
+	m_rewards.gold = GC.getYIELD_PER_QUEST(YIELD_GOLD, m_eMinor, m_eAssignedPlayer);
+	m_rewards.beakers = GC.getYIELD_PER_QUEST(YIELD_SCIENCE, m_eMinor, m_eAssignedPlayer);
 
 	Localization::String strMessage;
 	Localization::String strSummary;
@@ -1013,16 +1027,27 @@ bool CvMinorCivQuest::DoFinishQuest(const float bonusFactor)
 	SetHandled(true); // We are handling the end of the quest, and this should only happen once
 
 	CvPlayer* pMinor = &GET_PLAYER(m_eMinor);
-	const CvPlayer* pMajor = &GET_PLAYER(m_eAssignedPlayer);
+	CvPlayer* pMajor = &GET_PLAYER(m_eAssignedPlayer);
 	const PlayerTypes eMajor = pMajor->GetID();
 	const int friendshipRewardT100 = 100 * m_rewards.friendship * bonusFactor;
-	const int diplomaticSupportReward = GC.getDIPLOMATIC_INFLUENCE_PER_QUEST(m_eMinor, eMajor) * bonusFactor;
-
+	const int diplomaticSupportReward = m_rewards.support * bonusFactor;
 
 	// apply rewards
 	pMinor->GetMinorCivAI()->ChangeFriendshipWithMajorTimes100Instant(m_eAssignedPlayer, friendshipRewardT100, /*bFromQuest*/ true);
-	GET_PLAYER(m_eAssignedPlayer).ChangeDiplomaticInfluence(diplomaticSupportReward);
-	
+
+	pMajor->ChangeDiplomaticInfluence(diplomaticSupportReward);
+
+	pMajor->ChangeScientificInfluence(m_rewards.insight * bonusFactor);
+
+	pMajor->GetTreasury()->ChangeGold(m_rewards.gold * bonusFactor);
+
+	CvTeam* pTeam = &GET_TEAM(pMajor->getTeam());
+	TechTypes eCurrentTech = pMajor->GetPlayerTechs()->GetCurrentResearch();
+	int iBeakers = m_rewards.beakers * bonusFactor;
+	if (eCurrentTech == NO_TECH)
+		pMajor->changeOverflowResearch(iBeakers);
+	else
+		pTeam->GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iBeakers, eMajor);
 
 	// do notifications
 	bool bWasFriends = pMinor->GetMinorCivAI()->IsFriends(m_eAssignedPlayer);
@@ -9359,6 +9384,7 @@ FDataStream& operator<<(FDataStream& saveTo, const QuestReward& readFrom)
 	saveTo << readFrom.beakers;
 	saveTo << readFrom.culturalInfluence;
 	saveTo << readFrom.culture;
+	saveTo << readFrom.gold;
 
 	saveTo << readFrom.food;
 	saveTo << readFrom.friendship;
@@ -9377,6 +9403,7 @@ FDataStream& operator>>(FDataStream& loadFrom, QuestReward& writeTo)
 	loadFrom >> writeTo.beakers;
 	loadFrom >> writeTo.culturalInfluence;
 	loadFrom >> writeTo.culture;
+	loadFrom >> writeTo.gold;
 
 	loadFrom >> writeTo.food;
 	loadFrom >> writeTo.friendship;

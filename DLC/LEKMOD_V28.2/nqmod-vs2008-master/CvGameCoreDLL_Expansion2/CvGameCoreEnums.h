@@ -10,6 +10,7 @@
 
 
 #define YIELD_MAINTENANCE ((YieldTypes)-2)
+#define YIELD_FRIENDSHIP ((YieldTypes)-3)
 
 
 enum YieldTypes

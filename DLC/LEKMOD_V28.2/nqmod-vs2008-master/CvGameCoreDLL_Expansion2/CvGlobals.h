@@ -964,9 +964,9 @@ public:
 	// each additional specialist requires this many citizens
 	int getCITIZENS_PER_SPECIALIST(const PlayerTypes ePlayer) const;
 	// how much influence per turn a player gets from an ally
-	int getDIPLOMATIC_INFLUENCE_PER_TURN_ALLY(const PlayerTypes eMinor, const PlayerTypes ePlayer, const bool isCaptured = false) const;
+	int getYIELD_PER_TURN_ALLY(const YieldTypes eYieldType, const PlayerTypes eMinor, const PlayerTypes ePlayer, const bool isCaptured = false) const;
 	// amount of dioplomatic influence per quest you complete
-	int getDIPLOMATIC_INFLUENCE_PER_QUEST(const PlayerTypes eMinor, const PlayerTypes ePlayer) const;
+	int getYIELD_PER_QUEST(const YieldTypes eYieldType, const PlayerTypes eMinor, const PlayerTypes ePlayer) const;
 	// Number of policies needed to adopt ideology
 	// will unlock after adopting this policy
 	int getPOLICY_NUM_FOR_IDEOLOGY() const;
