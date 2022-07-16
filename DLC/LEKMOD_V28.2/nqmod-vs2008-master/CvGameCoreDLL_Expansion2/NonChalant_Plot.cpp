@@ -331,6 +331,12 @@ int CvPlot::getExtraYield
 					yieldChange += 3;
 			}
 
+			{// POLICY_ORGANIZED_RELIGION gives +1C for every 3 Followers in Holy city if you have adopted a religion				
+				const bool hasOrganizedReligion = player.HasPolicy("POLICY_ORGANIZED_RELIGION");				
+				if (eYieldType == YIELD_CULTURE && hasOrganizedReligion && isHolyCity && isCityCenter)
+					yieldChange += (numFollowersLocal / 3);
+			}
+
 		}
 	}
 
