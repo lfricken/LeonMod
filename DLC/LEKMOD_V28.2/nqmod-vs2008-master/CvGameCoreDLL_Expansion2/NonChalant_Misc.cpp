@@ -63,7 +63,7 @@ int CvGlobals::getYIELD_PER_TURN_ALLY(const YieldTypes eYieldType, const PlayerT
 			const bool hasPatronageFinisher = player.HasPolicy("POLICY_PATRONAGE_FINISHER");
 			if (hasPatronageFinisher)
 				value += 5;
-		}
+		}		
 	}
 
 	return GC.round(value);
@@ -80,9 +80,10 @@ int CvGlobals::getYIELD_PER_QUEST(const YieldTypes eYieldType, const PlayerTypes
 	// player specific changes
 	if (ePlayer != NO_PLAYER)
 	{
-		const CvPlayer& player = GET_PLAYER(ePlayer);
+		const CvPlayer& player = GET_PLAYER(ePlayer);		
 		if (eYieldType == YIELD_DIPLOMATIC_SUPPORT)
 		{
+			//POLICY_PHILANTHROPY grants 50% more Diplo Points from Completing Quests
 			const bool hasPhilanthropy = player.HasPolicy("POLICY_PHILANTHROPY");
 			if (hasPhilanthropy)
 				value *= 1.5;
@@ -90,6 +91,14 @@ int CvGlobals::getYIELD_PER_QUEST(const YieldTypes eYieldType, const PlayerTypes
 		if (eYieldType == YIELD_SCIENTIFIC_INSIGHT)
 		{
 
+		}
+
+		if (eYieldType == YIELD_GOLD)
+		{
+			// POLICY_PATRONAGE grants 100G from City-State Quests
+			const bool hasPatronageOpener = player.HasPolicy("POLICY_PATRONAGE");
+			if (hasPatronageOpener)
+				value += 100;
 		}
 	}
 
@@ -114,8 +123,7 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 	// how many tiles between the 2 cities
 	const int tradeDistance = kTradeConnection.m_aPlotList.size();
 	const bool hasSilkRoad = playerOrigin.HasPolicy("POLICY_CARAVANS");
-	const bool hasMerchantConfederacy = playerOrigin.HasPolicy("POLICY_MERCHANT_CONFEDERACY");
-	// const bool isGrocer = BuildingClass("BUILDINGCLASS_GROCER");
+	const bool hasMerchantConfederacy = playerOrigin.HasPolicy("POLICY_MERCHANT_CONFEDERACY");	
 	const bool hasMerchantsGuild = cityOrigin->GetCityBuildings()->HasBuildingClass(BuildingClass("BUILDINGCLASS_CARAVANSARY"));
 	const bool hasMarket = cityOrigin->GetCityBuildings()->HasBuildingClass(BuildingClass("BUILDINGCLASS_MARKET"));
 	const bool hasBank = cityOrigin->GetCityBuildings()->HasBuildingClass(BuildingClass("BUILDINGCLASS_BANK"));
@@ -154,18 +162,28 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 		if (isDestMinor) // destination is City State
 		{
 			if (eYieldType == YIELD_DIPLOMATIC_SUPPORT && hasMerchantConfederacy)
-				yieldChange += 3;
+				yieldChange += 2;
 			if (eYieldType == YIELD_FOOD && hasMerchantConfederacy)
 				yieldChange += 2;
 			if (eYieldType == YIELD_PRODUCTION && hasMerchantConfederacy)
 				yieldChange += 2;
+			if (eYieldType == YIELD_CULTURE && hasMerchantConfederacy)
+				yieldChange += 2;			
 		}
 		else // destination is another civ
 		{
 			if (eYieldType == YIELD_FOOD && hasSilkRoad)
 				yieldChange += 3;
 			if (eYieldType == YIELD_PRODUCTION && hasSilkRoad)
-				yieldChange += 3;
+				yieldChange += 3;			
+		}
+
+		{ // culture and tourism from External Routes from Aesthetics Opener
+			const bool hasAestheticsOpener = playerOrigin.HasPolicy("POLICY_AESTHETICS");
+			if (eYieldType == YIELD_CULTURE && hasAestheticsOpener)
+				yieldChange += 2;
+			if (eYieldType == YIELD_TOURISM && hasAestheticsOpener)
+				yieldChange += 2;
 		}
 
 		{ // diplomatic support from trade route buildings

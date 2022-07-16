@@ -260,6 +260,14 @@ bool CvPlayer::ShouldHaveBuilding(const CvPlayer& rPlayer, const CvCity& rCity, 
 		
 			return true;
 	}
+
+	{// POLICY_MERCHANT_CONFEDERACY gives BUILDING_MERCHANT_CONFEDERACY_TRADE_ROUTE to Capital
+		const bool isCaputuredCityState = rCity.IsOwnedMinorCapital();
+		const bool hasPhilanthropy = rPlayer.HasPolicy("POLICY_PHILANTHROPY");
+		if (isCaputuredCityState && hasPhilanthropy)
+
+			return true;
+	}
 	return false;
 }
 int CvPlayer::getSpecialistGpp(const CvCity* pCity, const SpecialistTypes eSpecialist, const SpecialistTypes eGppType, const bool isPercentMod) const
@@ -332,6 +340,30 @@ int CvPlayer::getSpecialistYieldHardcoded(const CvCity* pCity, const SpecialistT
 			change += 1;
 	}
 
+	{// POLICY_ETHICS gives +1G +1C to Writer Specialists
+		const bool hasCulturalExchange = player.HasPolicy("POLICY_ETHICS");
+		if (eYield == YIELD_GOLD && hasCulturalExchange && isWriter)
+			change += 1;
+		if (eYield == YIELD_CULTURE && hasCulturalExchange && isWriter)
+			change += 1;
+	}
+
+	{// POLICY_ARTISTIC_GENIUS gives +1SC +1C to Artist Specialists
+		const bool hasArtisticGenius = player.HasPolicy("POLICY_ARTISTIC_GENIUS");
+		if (eYield == YIELD_SCIENCE && hasArtisticGenius && isArtist)
+			change += 1;
+		if (eYield == YIELD_CULTURE && hasArtisticGenius && isArtist)
+			change += 1;
+	}
+
+	{// POLICY_FINE_ARTS gives +1T +1G to Musician Specialists
+		const bool hasFineArts = player.HasPolicy("POLICY_FINE_ARTS");
+		if (eYield == YIELD_TOURISM && hasFineArts && isMusician)
+			change += 1;
+		if (eYield == YIELD_GOLD && hasFineArts && isMusician)
+			change += 1;
+	}
+
 	return GC.round(change);
 }
 int CvPlayer::getGreatWorkYieldTotal(const CvCity* pCity, const CvGreatWork* pWork, const YieldTypes eYield) const
@@ -367,7 +399,37 @@ int CvPlayer::getGreatWorkYieldTotal(const CvCity* pCity, const CvGreatWork* pWo
 
 	// logic that does not reference the city
 	
+	{// POLICY_ETHICS gives +1G +1C to GW of Writing
+		const bool hasCulturalExchange = player.HasPolicy("POLICY_ETHICS");
+		if (eYield == YIELD_GOLD && hasCulturalExchange && isWriting)
+			change += 1;
+		if (eYield == YIELD_CULTURE && hasCulturalExchange && isWriting)
+			change += 1;
+	}
 
+	{// POLICY_ARTISTIC_GENIUS gives +1SC +1C to GW of Art
+		const bool hasArtisticGenius = player.HasPolicy("POLICY_ARTISTIC_GENIUS");
+		if (eYield == YIELD_SCIENCE && hasArtisticGenius && isArt)
+			change += 1;
+		if (eYield == YIELD_CULTURE && hasArtisticGenius && isArt)
+			change += 1;
+	}
+
+	{// POLICY_FINE_ARTS gives +1T +1G to GW of Music
+		const bool hasFineArts = player.HasPolicy("POLICY_FINE_ARTS");
+		if (eYield == YIELD_TOURISM && hasFineArts && isMusic)
+			change += 1;
+		if (eYield == YIELD_GOLD && hasFineArts && isMusic)
+			change += 1;
+	}
+
+	{// POLICY_FLOURISHING_OF_ARTS gives +1T +1C to GW of Artifacts
+		const bool hasFlourishingOfTheArts = player.HasPolicy("POLICY_FLOURISHING_OF_ARTS");
+		if (eYield == YIELD_TOURISM && hasFlourishingOfTheArts && isArtifact)
+			change += 1;
+		if (eYield == YIELD_CULTURE && hasFlourishingOfTheArts && isArtifact)
+			change += 1;
+	}
 
 	return GC.round(change);
 }

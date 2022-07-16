@@ -3228,7 +3228,8 @@ bool CvCity::canJoin() const
 bool CvCity::IsOwnedMinorCapital() const
 {
 	const PlayerTypes eOriginalOwner = this->getOriginalOwner();
-	if (eOriginalOwner != NO_PLAYER)
+	bool originalOwnerOwnsIt = getOwner() == eOriginalOwner;
+	if (!originalOwnerOwnsIt && eOriginalOwner != NO_PLAYER)
 	{
 		if (IsOriginalCapital() && GET_PLAYER(eOriginalOwner).isMinorCiv())
 		{
