@@ -156,6 +156,13 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 			yieldChange += 1;
 		if (eYieldType == YIELD_PRODUCTION && hasOilRefinery)
 			yieldChange += 3;
+		{ // POLICY_FREE_THOUGHT +6SC +2FD from Internal Trade Routes
+			const bool hasFreeThought = playerOrigin.HasPolicy("POLICY_FREE_THOUGHT");
+			if (eYieldType == YIELD_FOOD && hasFreeThought)
+				yieldChange += 2;
+			if (eYieldType == YIELD_SCIENCE && hasFreeThought)
+				yieldChange += 6;
+		}
 	}
 	else
 	{
@@ -180,12 +187,18 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 				yieldChange += 3;
 		}
 
-		{ // culture and tourism from External Routes from Aesthetics Opener
+		{ // POLICY_AESTHETICS +2C and +2T from External Routes
 			const bool hasAestheticsOpener = playerOrigin.HasPolicy("POLICY_AESTHETICS");
 			if (eYieldType == YIELD_CULTURE && hasAestheticsOpener)
 				yieldChange += 2;
 			if (eYieldType == YIELD_TOURISM && hasAestheticsOpener)
 				yieldChange += 2;
+		}
+
+		{ // POLICY_FREE_THOUGHT +1 Insight from External Routes
+			const bool hasFreeThought = playerOrigin.HasPolicy("POLICY_FREE_THOUGHT");
+			if (eYieldType == YIELD_SCIENTIFIC_INSIGHT && hasFreeThought)
+				yieldChange += 1;			
 		}
 
 		{ // diplomatic support from trade route buildings

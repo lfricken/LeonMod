@@ -165,21 +165,7 @@ int CvPlayer::GetExtraYieldForBuilding
 		const bool isMerchantsGuild = eBuildingClass == BuildingClass("BUILDINGCLASS_GUILD_GOLD");
 		if (eYieldType == YIELD_GOLD && isPercentMod && hasMercenaryArmy && isMerchantsGuild)
 			yieldChange += 15;
-	}
-
-	{// POLICY_FREE_THOUGHT - +1 Singularity from Research Labs
-		const bool hasFreeThought = player.HasPolicy("POLICY_FREE_THOUGHT");
-		const bool isResearchLab = eBuildingClass == BuildingClass("BUILDINGCLASS_LABORATORY");
-		if (eYieldType == YIELD_SCIENTIFIC_INSIGHT && !isPercentMod && hasFreeThought && isResearchLab)
-			yieldChange += 1;
-	}
-
-	{// POLICY_FREE_THOUGHT - +1 Singularity from Research Labs
-		const bool hasFreeThought = player.HasPolicy("POLICY_FREE_THOUGHT");
-		const bool isResearchLab = eBuildingClass == BuildingClass("BUILDINGCLASS_LABORATORY");
-		if (eYieldType == YIELD_SCIENTIFIC_INSIGHT && !isPercentMod && hasFreeThought && isResearchLab)
-			yieldChange += 1;
-	}
+	}	
 
 	{// POLICY_URBANIZATION - +3% Production and Science to Windmill, Workshop, Factory
 		const bool hasUrbanization = player.HasPolicy("POLICY_URBANIZATION");
@@ -273,6 +259,22 @@ bool CvPlayer::ShouldHaveBuilding(const CvPlayer& rPlayer, const CvCity& rCity, 
 		const bool isSilkRoadBuilding = eBuildingClass == BuildingClass("BUILDING_SILK_ROAD_TRADE_ROUTE");
 		const bool hasSilkRoad = rPlayer.HasPolicy("POLICY_CARAVANS");
 		if (isSilkRoadBuilding && isYourCapital && hasSilkRoad)
+
+			return true;
+	}
+
+	{// POLICY_FREE_THOUGHT gives BUILDING_FREE_THOUGHT_TRADE_ROUTE to Capital
+		const bool isFreeThoughtBuilding = eBuildingClass == BuildingClass("BUILDINGCLASS_FREE_THOUGHT_TRADE_ROUTE");
+		const bool hasFreeThought = rPlayer.HasPolicy("POLICY_FREE_THOUGHT");
+		if (isFreeThoughtBuilding && isYourCapital && hasFreeThought)
+
+			return true;
+	}
+
+	{// POLICY_RATIONALISM_FINISHER gives BUILDING_RATIONALISM_FINISHER_FREE_POP to Capital
+		const bool isFreePopBuilding = eBuildingClass == BuildingClass("BUILDINGCLASS_RATIONALISM_FINISHER_FREE_POP");
+		const bool hasRationalismFinisher = rPlayer.HasPolicy("POLICY_RATIONALISM_FINISHER");
+		if (isFreePopBuilding && isYourCapital && hasRationalismFinisher)
 
 			return true;
 	}
@@ -387,6 +389,12 @@ int CvPlayer::getSpecialistYieldHardcoded(const CvCity* pCity, const SpecialistT
 		if (eYield == YIELD_GOLD && hasEntreprenuership && isMerchant)
 			change += 1;
 		if (eYield == YIELD_CULTURE && hasEntreprenuership && isMerchant)
+			change += 1;
+	}
+
+	{// POLICY_SECULARISM gives 1C to Scientist Specialists
+		const bool hasSecularism = player.HasPolicy("POLICY_SECULARISM");			
+		if (eYield == YIELD_CULTURE && hasSecularism && isScientist)
 			change += 1;
 	}
 

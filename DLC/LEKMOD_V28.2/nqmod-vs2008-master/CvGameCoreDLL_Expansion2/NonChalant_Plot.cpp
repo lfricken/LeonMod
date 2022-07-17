@@ -311,14 +311,7 @@ int CvPlot::getExtraYield
 					yieldChange += 3;
 				if (eYieldType == YIELD_GOLD && hasNewOrder && isCitadel)
 					yieldChange += 3;
-			}
-
-			{// POLICY_SOVEREIGNTY - gives +2 singularity to Acadamies
-				const bool hasSovereignty = player.HasPolicy("POLICY_SOVEREIGNTY");
-				const bool isAcadamy = plot.HasImprovement("IMPROVEMENT_ACADEMY");
-				if (eYieldType == YIELD_SCIENTIFIC_INSIGHT && hasSovereignty && isAcadamy)
-					yieldChange += 2;
-			}
+			}			
 
 			{// POLICY_HONOR_FINISHER - gives +3 PD, SC, C to Citadels
 				const bool hasHonorFinisher = player.HasPolicy("POLICY_HONOR_FINISHER");
