@@ -54,6 +54,8 @@ int CvPlayer::GetExtraYieldForBuilding
 
 	const CvPlayer& player = *this;
 
+	const int numCityStateAllies = player.GetNumMinorAllies();
+
 	if (pCity != NULL) // in a city
 	{
 		const CvCity& city = *pCity;
@@ -205,11 +207,18 @@ int CvPlayer::GetExtraYieldForBuilding
 		}
 	}
 
-	{// POLICY_RATIONALISM_FINISHER - Rationalism Finisher gives 5 Scientific insight to the palace
-		const bool hasRationalismFinisher = player.HasPolicy("POLICY_RATIONALISM_FINISHER");
+	{// POLICY_SCHOLASTICISM - gives +5% Science to the Palace for each City-State Ally
+		const bool hasScholasticism = player.HasPolicy("POLICY_SCHOLASTICISM");
 		const bool isPalace = eBuildingClass == BuildingClass("BUILDINGCLASS_PALACE");
-		if (eYieldType == YIELD_SCIENTIFIC_INSIGHT && !isPercentMod && hasRationalismFinisher && isPalace)
-			yieldChange += 5;
+		if (eYieldType == YIELD_SCIENCE && isPercentMod && hasScholasticism && isPalace)
+			yieldChange += (numCityStateAllies * 5);
+	}
+
+	{// POLICY_CONSULATES - gives +3C to the Palace for each City-State Ally
+		const bool hasConsulates = player.HasPolicy("POLICY_CONSULATES");
+		const bool isPalace = eBuildingClass == BuildingClass("BUILDINGCLASS_PALACE");
+		if (eYieldType == YIELD_SCIENCE && !isPercentMod && hasConsulates && isPalace)
+			yieldChange += (numCityStateAllies * 3);
 	}
 
 	{// TIBET_STUPA // adds one of several yields every few techs
@@ -232,6 +241,16 @@ int CvPlayer::GetExtraYieldForBuilding
 		const bool isRecyclingCenter = eBuildingClass == BuildingClass("BUILDINGCLASS_RECYCLING_CENTER");
 		if (eYieldType == YIELD_SCIENTIFIC_INSIGHT && !isPercentMod && isRecyclingCenter)
 			yieldChange += 2;
+	}
+
+	{// BUILDING_CONQUERED_CITY_STATE Center gets +10% FD, SC, C 
+		const bool isConqueredCityStateBuilding = eBuildingClass == BuildingClass("BUILDINGCLASS_CONQUERED_CITY_STATE");
+		if (eYieldType == YIELD_FOOD && isPercentMod && isConqueredCityStateBuilding)
+			yieldChange += 10;
+		if (eYieldType == YIELD_PRODUCTION && isPercentMod && isConqueredCityStateBuilding)
+			yieldChange += 10;
+		if (eYieldType == YIELD_CULTURE && isPercentMod && isConqueredCityStateBuilding)
+			yieldChange += 10;
 	}
 	
 
@@ -279,13 +298,16 @@ bool CvPlayer::ShouldHaveBuilding(const CvPlayer& rPlayer, const CvCity& rCity, 
 			return true;
 	}
 
-	{// POLICY_Assimilation gives stuff for conquered City-States
+	{// POLICY_PHILANTHROPY gives stuff for conquered City-States
+		const bool isConqueredCityStateBuilding = eBuildingClass == BuildingClass("BUILDINGCLASS_CONQUERED_CITY_STATE"); 
 		const bool isCaputuredCityState = rCity.IsOwnedMinorCapital();
 		const bool hasPhilanthropy = rPlayer.HasPolicy("POLICY_PHILANTHROPY");
-		if (isCaputuredCityState && hasPhilanthropy)
+		if (isConqueredCityStateBuilding && isCaputuredCityState && hasPhilanthropy)
 
 			return true;
 	}
+	
+
 	return false;
 }
 int CvPlayer::getSpecialistGpp(const CvCity* pCity, const SpecialistTypes eSpecialist, const SpecialistTypes eGppType, const bool isPercentMod) const

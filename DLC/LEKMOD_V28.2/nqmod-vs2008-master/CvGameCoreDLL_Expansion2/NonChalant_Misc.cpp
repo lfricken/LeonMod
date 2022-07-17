@@ -83,14 +83,17 @@ int CvGlobals::getYIELD_PER_QUEST(const YieldTypes eYieldType, const PlayerTypes
 		const CvPlayer& player = GET_PLAYER(ePlayer);		
 		if (eYieldType == YIELD_DIPLOMATIC_SUPPORT)
 		{
-			//POLICY_PHILANTHROPY grants 50% more Diplo Points from Completing Quests
-			const bool hasPhilanthropy = player.HasPolicy("POLICY_PHILANTHROPY");
+			//POLICY_PATRONAGE_FINISHER grants 50% more Diplo Points from Completing Quests
+			const bool hasPhilanthropy = player.HasPolicy("POLICY_PATRONAGE_FINISHER");
 			if (hasPhilanthropy)
 				value *= 1.5;
 		}
 		if (eYieldType == YIELD_SCIENTIFIC_INSIGHT)
 		{
-
+			//POLICY_PATRONAGE_FINISHER grants +15 Insight from Completing Quests
+			const bool hasPhilanthropy = player.HasPolicy("POLICY_PATRONAGE_FINISHER");
+			if (hasPhilanthropy)
+				value += 15;
 		}
 
 		if (eYieldType == YIELD_GOLD)
