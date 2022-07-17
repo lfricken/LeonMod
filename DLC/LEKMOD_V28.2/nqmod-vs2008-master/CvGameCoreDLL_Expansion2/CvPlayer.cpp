@@ -10154,6 +10154,16 @@ int CvPlayer::greatAdmiralThreshold() const
 
 	return std::max(1, iThreshold);
 }
+bool CvPlayer::HasWonder(BuildingClassTypes eBuildingClass) const
+{
+	int iLoop = 0;
+	for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		if (pLoopCity->HasBuildingClass(eBuildingClass))
+			return true;
+	}
+	return false;
+}
 int CvPlayer::getSpecialistYieldTotal(const CvCity* pCity, const SpecialistTypes eSpecialist, const YieldTypes eYield, const bool isPercentMod) const
 {
 	int value = 0;
