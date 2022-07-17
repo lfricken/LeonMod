@@ -262,6 +262,22 @@ bool CvPlayer::ShouldHaveBuilding(const CvPlayer& rPlayer, const CvCity& rCity, 
 	}
 
 	{// POLICY_MERCHANT_CONFEDERACY gives BUILDING_MERCHANT_CONFEDERACY_TRADE_ROUTE to Capital
+		const bool isMerchantConfederacyBuilding = eBuildingClass == BuildingClass("BUILDINGCLASS_MERCHANT_CONFEDERACY_TRADE_ROUTE");
+		const bool hasMerchantConfederacy = rPlayer.HasPolicy("POLICY_MERCHANT_CONFEDERACY");
+		if (isMerchantConfederacyBuilding && isYourCapital && hasMerchantConfederacy)
+
+			return true;
+	}
+
+	{// POLICY_CARAVANS gives BUILDING_SILK_ROAD_TRADE_ROUTE to Capital
+		const bool isSilkRoadBuilding = eBuildingClass == BuildingClass("BUILDING_SILK_ROAD_TRADE_ROUTE");
+		const bool hasSilkRoad = rPlayer.HasPolicy("POLICY_CARAVANS");
+		if (isSilkRoadBuilding && isYourCapital && hasSilkRoad)
+
+			return true;
+	}
+
+	{// POLICY_Assimilation gives stuff for conquered City-States
 		const bool isCaputuredCityState = rCity.IsOwnedMinorCapital();
 		const bool hasPhilanthropy = rPlayer.HasPolicy("POLICY_PHILANTHROPY");
 		if (isCaputuredCityState && hasPhilanthropy)
@@ -361,6 +377,16 @@ int CvPlayer::getSpecialistYieldHardcoded(const CvCity* pCity, const SpecialistT
 		if (eYield == YIELD_TOURISM && hasFineArts && isMusician)
 			change += 1;
 		if (eYield == YIELD_GOLD && hasFineArts && isMusician)
+			change += 1;
+	}
+
+	{// POLICY_ENTREPRENEURSHIP gives +1PD +1G 1C to Merchant Specialists
+		const bool hasEntreprenuership = player.HasPolicy("POLICY_ENTREPRENEURSHIP");
+		if (eYield == YIELD_PRODUCTION && hasEntreprenuership && isMerchant)
+			change += 1;
+		if (eYield == YIELD_GOLD && hasEntreprenuership && isMerchant)
+			change += 1;
+		if (eYield == YIELD_CULTURE && hasEntreprenuership && isMerchant)
 			change += 1;
 	}
 

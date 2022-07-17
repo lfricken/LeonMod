@@ -175,7 +175,9 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 			if (eYieldType == YIELD_FOOD && hasSilkRoad)
 				yieldChange += 3;
 			if (eYieldType == YIELD_PRODUCTION && hasSilkRoad)
-				yieldChange += 3;			
+				yieldChange += 3;	
+			if (eYieldType == YIELD_DIPLOMATIC_SUPPORT && hasSilkRoad)
+				yieldChange += 3;
 		}
 
 		{ // culture and tourism from External Routes from Aesthetics Opener
