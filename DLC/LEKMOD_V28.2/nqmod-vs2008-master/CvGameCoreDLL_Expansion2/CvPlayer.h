@@ -376,7 +376,8 @@ public:
 	int greatGeneralThreshold() const;
 	int greatAdmiralThreshold() const;
 
-
+	// true if this player currently has the given wonder in any city they own
+	bool HasWonder(BuildingClassTypes eBuildingClass) const;
 
 	// total yield for a specialist (base + extra)
 	int getSpecialistYieldTotal(const CvCity* pCity, const SpecialistTypes eSpecialist, const YieldTypes eYield, const bool isPercentMod) const;
