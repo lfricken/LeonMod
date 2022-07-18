@@ -5,6 +5,7 @@
 
 include( "IconSupport" );
 include( "InstanceManager" );
+include( "CommonBehaviors" );
 
 local m_PopupInfo = nil;
 
@@ -12,23 +13,23 @@ local g_LibertyPipeManager = InstanceManager:new( "ConnectorPipe", "ConnectorIma
 local g_TraditionPipeManager = InstanceManager:new( "ConnectorPipe", "ConnectorImage", Controls.TraditionPanel );
 local g_HonorPipeManager = InstanceManager:new( "ConnectorPipe", "ConnectorImage", Controls.HonorPanel );
 local g_PietyPipeManager = InstanceManager:new( "ConnectorPipe", "ConnectorImage", Controls.PietyPanel );
+local g_AestheticsPipeManager = InstanceManager:new ( "ConnectorPipe", "ConnectorImage", Controls.AestheticsPanel );
 local g_PatronagePipeManager = InstanceManager:new( "ConnectorPipe", "ConnectorImage", Controls.PatronagePanel );
 local g_CommercePipeManager = InstanceManager:new( "ConnectorPipe", "ConnectorImage", Controls.CommercePanel );
+local g_ExplorationPipeManager = InstanceManager:new ( "ConnectorPipe", "ConnectorImage", Controls.ExplorationPanel );
 local g_RationalismPipeManager = InstanceManager:new( "ConnectorPipe", "ConnectorImage", Controls.RationalismPanel );
-local g_FreedomPipeManager = InstanceManager:new( "ConnectorPipe", "ConnectorImage", Controls.FreedomPanel );
-local g_OrderPipeManager = InstanceManager:new( "ConnectorPipe", "ConnectorImage", Controls.OrderPanel );
-local g_AutocracyPipeManager = InstanceManager:new( "ConnectorPipe", "ConnectorImage", Controls.AutocracyPanel );
 
 local g_LibertyInstanceManager = InstanceManager:new( "PolicyButton", "PolicyIcon", Controls.LibertyPanel );
 local g_TraditionInstanceManager = InstanceManager:new( "PolicyButton", "PolicyIcon", Controls.TraditionPanel );
 local g_HonorInstanceManager = InstanceManager:new( "PolicyButton", "PolicyIcon", Controls.HonorPanel );
 local g_PietyInstanceManager = InstanceManager:new( "PolicyButton", "PolicyIcon", Controls.PietyPanel );
+local g_AestheticsInstanceManager = InstanceManager:new ( "PolicyButton", "PolicyIcon", Controls.AestheticsPanel );
 local g_PatronageInstanceManager = InstanceManager:new( "PolicyButton", "PolicyIcon", Controls.PatronagePanel );
 local g_CommerceInstanceManager = InstanceManager:new( "PolicyButton", "PolicyIcon", Controls.CommercePanel );
+local g_ExplorationInstanceManager = InstanceManager:new( "PolicyButton", "PolicyIcon", Controls.ExplorationPanel );
 local g_RationalismInstanceManager = InstanceManager:new( "PolicyButton", "PolicyIcon", Controls.RationalismPanel );
-local g_FreedomInstanceManager = InstanceManager:new( "PolicyButton", "PolicyIcon", Controls.FreedomPanel );
-local g_OrderInstanceManager = InstanceManager:new( "PolicyButton", "PolicyIcon", Controls.OrderPanel );
-local g_AutocracyInstanceManager = InstanceManager:new( "PolicyButton", "PolicyIcon", Controls.AutocracyPanel );
+
+local g_TenetInstanceManager = InstanceManager:new( "TenetChoice", "TenetButton", Controls.TenetStack );
 
 include( "FLuaVector" );
 
@@ -58,7 +59,26 @@ local g_PolicyPipeYOffset = 68;
 local m_gPolicyID;
 local m_gAdoptingPolicy;
 
-local numBranchesRequiredForUtopia = GameInfo.Projects["PROJECT_UTOPIA_PROJECT"].CultureBranchesRequired;
+g_Tabs = {
+	["SocialPolicies"] = {
+		Button = Controls.TabButtonSocialPolicies,
+		Panel = Controls.SocialPolicyPane,
+		SelectHighlight = Controls.TabButtonSocialPoliciesHL,
+	},
+	
+	["Ideologies"] = {
+		Button = Controls.TabButtonIdeologies,
+		Panel = Controls.IdeologyPane,
+		SelectHighlight = Controls.TabButtonIdeologiesHL,
+	},
+}
+
+local g_IdeologyBackgrounds = {
+		[0] = "PolicyBranch_Ideology.dds",
+		POLICY_BRANCH_AUTOCRACY = "SocialPoliciesAutocracy.dds",
+		POLICY_BRANCH_FREEDOM = "SocialPoliciesFreedom.dds",
+		POLICY_BRANCH_ORDER = "SocialPoliciesOrder.dds",
+}
 
 -------------------------------------------------
 -- On Policy Selected
@@ -112,8 +132,6 @@ function PolicySelected( policyIndex )
 		m_gAdoptingPolicy = true;
 		Controls.PolicyConfirm:SetHide(false);
 		Controls.BGBlock:SetHide(true);
-		--Network.SendUpdatePolicies(policyIndex, true, true);
-		--Events.AudioPlay2DSound("AS2D_INTERFACE_POLICY");		
 	end
 	
 end
@@ -165,24 +183,6 @@ function PolicyBranchSelected( policyBranchIndex )
 		Controls.PolicyConfirm:SetHide(false);
 		Controls.BGBlock:SetHide(true);
 	end
-	
-	---- Are we allowed to unlock this Branch right now?
-	--if player:CanUnlockPolicyBranch( policyBranchIndex ) then
-		--
-		---- Can't adopt the Policy Branch - can we switch active branches though?
-		--if (player:IsPolicyBranchBlocked(policyBranchIndex)) then
-		--
-			--local popupInfo = {
-				--Type = ButtonPopupTypes.BUTTONPOPUP_CONFIRM_POLICY_BRANCH_SWITCH,
-				--Data1 = policyBranchIndex;
-			--}
-			--Events.SerialEventGameMessagePopup(popupInfo);
-	    --
-		---- Can adopt this Policy Branch right now
-		--else
-			--Network.SendUpdatePolicies(policyBranchIndex, false, true);
-		--end
-	--end
 end
 
 -------------------------------------------------
@@ -197,6 +197,12 @@ function OnPopupMessage(popupInfo)
 	m_PopupInfo = popupInfo;
 
 	UpdateDisplay();
+	
+	if(m_PopupInfo.Data2 == 2) then
+		TabSelect(g_Tabs["Ideologies"]);
+	else
+		TabSelect(g_Tabs["SocialPolicies"]);
+	end
 	
 	if( m_PopupInfo.Data1 == 1 ) then
     	if( ContextPtr:IsHidden() == false ) then
@@ -215,6 +221,10 @@ Events.SerialEventGameMessagePopup.Add( OnPopupMessage );
 function UpdateDisplay()
 
     local player = Players[Game.GetActivePlayer()];
+   	CivIconHookup( player:GetID(), 64, Controls.CivIcon, Controls.CivIconBG, Controls.CivIconShadow, false, true );
+
+	print ("In UpdateDisplay()");
+
     local pTeam = Teams[player:GetTeam()];
     
     if player == nil then
@@ -223,8 +233,6 @@ function UpdateDisplay()
     
     local playerHas1City = player:GetNumCities() > 0;
     
-    Controls.AnarchyBlock:SetHide( not player:IsAnarchy() );
-
     local bShowAll = OptionsManager.GetPolicyInfo();
     
     local szText = Locale.ConvertTextKey("TXT_KEY_NEXT_POLICY_COST_LABEL", player:GetNextPolicyCost());
@@ -277,6 +285,7 @@ function UpdateDisplay()
     end
     
 	Controls.InfoStack:ReprocessAnchoring();
+	Controls.InfoStack2:ReprocessAnchoring();
     
 	--szText = Locale.ConvertTextKey( "TXT_KEY_SOCIAL_POLICY_DIRECTIONS" );
     --Controls.ReminderText:SetText( szText );
@@ -291,7 +300,7 @@ function UpdateDisplay()
 	local numUnlockedBranches = player:GetNumPolicyBranchesUnlocked();
 --	if numUnlockedBranches > 0 then
 		local policyBranchInfo = GameInfo.PolicyBranchTypes[i];
-		while policyBranchInfo ~= nil do
+		while policyBranchInfo ~= nil and not policyBranchInfo.PurchaseByLevel do
 			local numString = tostring( i );
 			
 			local buttonName = "BranchButton"..numString;
@@ -301,7 +310,6 @@ function UpdateDisplay()
 			local ImageMaskName = "ImageMask"..numString;
 			local DisabledMaskName = "DisabledMask"..numString;
 			--local EraLabelName = "EraLabel"..numString;
-			
 			
 			local thisButton = Controls[buttonName];
 			local thisBack = Controls[backName];
@@ -333,9 +341,12 @@ function UpdateDisplay()
 			
 			-- Branch is not yet unlocked
 			if not player:IsPolicyBranchUnlocked( i ) then
-			
+				
 				-- Cannot adopt this branch right now
-				if (not player:CanUnlockPolicyBranch(i)) then
+				if (policyBranchInfo.LockedWithoutReligion and Game.IsOption(GameOptionTypes.GAMEOPTION_NO_RELIGION)) then
+					strToolTip = strToolTip .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_POLICY_BRANCH_CANNOT_UNLOCK_RELIGION");
+
+				elseif (not player:CanUnlockPolicyBranch(i)) then
 					
 					strToolTip = strToolTip .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_POLICY_BRANCH_CANNOT_UNLOCK");
 					
@@ -385,11 +396,9 @@ function UpdateDisplay()
 				
 			-- Branch is unlocked, but blocked by another branch
 			elseif (player:IsPolicyBranchBlocked(i)) then
-				thisButton:SetText( Locale.ConvertTextKey( "TXT_KEY_POP_ADOPT_BUTTON" ) );
-			
 				thisButton:SetHide( false );
 				thisBack:SetColor( fadeColor );
-				thisLock:SetHide( true );
+				thisLock:SetHide( false );
 				thisLockedBox:SetHide(true);
 				
 				strToolTip = strToolTip .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_POLICY_BRANCH_BLOCKED");
@@ -448,7 +457,7 @@ function UpdateDisplay()
 		local iBranch = policyInfo.PolicyBranchType;
 		
 		-- If this is nil it means the Policy is a freebie handed out with the Branch, so don't display it
-		if (iBranch ~= nil) then
+		if (iBranch ~= nil and not GameInfo.PolicyBranchTypes[iBranch].PurchaseByLevel) then
 			
 			local thisPolicyIcon = policyIcons[i];
 			
@@ -490,7 +499,7 @@ function UpdateDisplay()
 				end
 				IconHookup( policyInfo.PortraitIndex, 64, policyInfo.IconAtlas, thisPolicyIcon.PolicyImage );
 				
-			-- Policy is locked
+			-- Policy is unlocked, but we lack culture
 			elseif player:CanAdoptPolicy(i, true) then
 				--thisPolicyIcon.Lock:SetTexture( lockTexture ); 
 				thisPolicyIcon.MouseOverContainer:SetHide( true );
@@ -533,16 +542,291 @@ function UpdateDisplay()
 		policyInfo = GameInfo.Policies[i];
 	end
 	
-	-- update the Utopia bar
-	local numDone = player:GetNumPolicyBranchesFinished();
-	local percentDone = numDone / numBranchesRequiredForUtopia;
-	if percentDone > 1 then
-		percentDone = 1;
+	-- Adjust Ideology
+	local iIdeology = player:GetLateGamePolicyTree();
+	local iLevel1Tenets = {};
+	local iLevel2Tenets = {};
+	local iLevel3Tenets = {};
+
+	for i = 1, 7 do
+		iLevel1Tenets[i] = player:GetTenet(iIdeology, 1, i);
+		local buttonControl = Controls["IdeologyButton1" .. tostring(i)];
+		local labelControl = Controls["IdeologyButtonLabel1" .. tostring(i)];
+		local lockControl = Controls["Lock1" .. tostring(i)];
+	
+		buttonControl:SetDisabled(true);
+		buttonControl:ClearCallback( Mouse.eLClick );
+		buttonControl:SetToolTipString("");
+		labelControl:SetString("");
+		lockControl:SetHide(false);
+		
+		if (iLevel1Tenets[i] >= 0) then
+		    local tenet = GameInfo.Policies[iLevel1Tenets[i]];
+		 	labelControl:LocalizeAndSetText(tenet.Description);
+		 	lockControl:SetHide(true);
+     		if (tenet.Help ~= nil) then
+     			local strToolTip = Locale.ConvertTextKey(tenet.Help);
+     			buttonControl:SetToolTipString(strToolTip);
+     		end
+     	else
+		    if ((i == 1 and iIdeology >= 0) or (i > 1 and iLevel1Tenets[i-1] >= 0)) then
+    			labelControl:LocalizeAndSetText("TXT_KEY_POLICYSCREEN_ADD_TENET");
+ 				lockControl:SetHide(true);
+ 				if (player:GetJONSCulture() >= player:GetNextPolicyCost() or player:GetNumFreePolicies() > 0 or player:GetNumFreeTenets() > 0) then
+      				buttonControl:RegisterCallback( Mouse.eLClick, function() TenetSelect(10 + i); end);	
+					buttonControl:SetDisabled(false);
+ 				else
+      			    buttonControl:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_POLICY_BRANCH_CANNOT_UNLOCK_CULTURE", player:GetNextPolicyCost()));				
+ 				end
+ 			end
+		end
 	end
-	Controls.UtopiaBar:SetPercent( percentDone );
+	for i = 1, 4 do
+		iLevel2Tenets[i] = player:GetTenet(iIdeology, 2, i);
+		local buttonControl = Controls["IdeologyButton2" .. tostring(i)];
+		local labelControl = Controls["IdeologyButtonLabel2" .. tostring(i)];
+		local lockControl = Controls["Lock2" .. tostring(i)];
+		
+		buttonControl:SetDisabled(true);
+		buttonControl:ClearCallback( Mouse.eLClick );
+		buttonControl:SetToolTipString("");
+		labelControl:SetString("");
+		lockControl:SetHide(false);
+	
+		if (iLevel2Tenets[i] >= 0) then
+		    local tenet = GameInfo.Policies[iLevel2Tenets[i]];
+     		labelControl:LocalizeAndSetText(tenet.Description);
+     		if (tenet.Help ~= nil) then
+     			local strToolTip = Locale.ConvertTextKey(tenet.Help);
+     			buttonControl:SetToolTipString(strToolTip);
+      		end
+    		lockControl:SetHide(true);
+     	else
+		    if (iLevel1Tenets[i+1] >= 0) then
+    			labelControl:LocalizeAndSetText("TXT_KEY_POLICYSCREEN_ADD_TENET");
+ 				lockControl:SetHide(true);
+ 				if (player:GetJONSCulture() >= player:GetNextPolicyCost() or player:GetNumFreePolicies() > 0 or player:GetNumFreeTenets() > 0) then
+      				buttonControl:RegisterCallback( Mouse.eLClick, function() TenetSelect(20 + i); end);	
+				    buttonControl:SetDisabled(false);
+ 				else
+      			    buttonControl:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_POLICY_BRANCH_CANNOT_UNLOCK_CULTURE", player:GetNextPolicyCost()));				
+ 				end			
+			elseif (iLevel1Tenets[i] >= 0) then
+				buttonControl:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_POLICYSCREEN_NEED_L1_TENETS_TOOLTIP"));
+ 			end
+		end
+	end
+	
+	for i = 1, 3 do
+		iLevel3Tenets[i] = player:GetTenet(iIdeology, 3, i);
+		local buttonControl = Controls["IdeologyButton3" .. tostring(i)];
+		local labelControl = Controls["IdeologyButtonLabel3" .. tostring(i)];
+		local lockControl = Controls["Lock3" .. tostring(i)];
+		
+		buttonControl:SetDisabled(true);
+		buttonControl:ClearCallback( Mouse.eLClick );
+		buttonControl:SetToolTipString("");
+		labelControl:SetString("");
+		lockControl:SetHide(false);
+		
+		if (iLevel3Tenets[i] >= 0) then
+		    local tenet = GameInfo.Policies[iLevel3Tenets[i]];
+     		labelControl:LocalizeAndSetText(tenet.Description);
+     		lockControl:SetHide(true);
+     		if (tenet.Help ~= nil) then
+     			local strToolTip = Locale.ConvertTextKey(tenet.Help);
+     			buttonControl:SetToolTipString(strToolTip);
+      		end
+     	else
+		    if (iLevel2Tenets[i+1] >= 0) then
+    			labelControl:LocalizeAndSetText("TXT_KEY_POLICYSCREEN_ADD_TENET");
+ 				lockControl:SetHide(true);
+				
+ 				if (player:GetJONSCulture() >= player:GetNextPolicyCost() or player:GetNumFreePolicies() > 0 or player:GetNumFreeTenets() > 0) then
+      				buttonControl:RegisterCallback( Mouse.eLClick, function() TenetSelect(30 + i); end);	
+				    buttonControl:SetDisabled(false);
+ 				else
+      			    buttonControl:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_POLICY_BRANCH_CANNOT_UNLOCK_CULTURE", player:GetNextPolicyCost()));				
+ 				end				
+			elseif (iLevel2Tenets[i] >= 0) then
+				buttonControl:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_POLICYSCREEN_NEED_L2_TENETS_TOOLTIP"));
+			end
+		end
+	end
+	
+	if (iIdeology >= 0) then
+	
+	    -- Free Tenets
+		local iNumFreeTenets = player:GetNumFreeTenets();
+		if (iNumFreeTenets > 0) then
+			szText = Locale.ConvertTextKey("TXT_KEY_FREE_TENETS_LABEL", iNumFreeTenets);
+			Controls.FreeTenetsLabel:SetText( szText );
+			Controls.FreeTenetsLabel:SetHide( false );
+		else
+			Controls.FreeTenetsLabel:SetHide( true );
+		end
+    
+		local ideology = GameInfo.PolicyBranchTypes[iIdeology];
+	    local ideologyName = Locale.Lookup("TXT_KEY_POLICYSCREEN_IDEOLOGY_TITLE", player:GetCivilizationAdjectiveKey(), ideology.Description); 
+	    Controls.IdeologyHeader:SetText(ideologyName);
+	    Controls.IdeologyImage1:SetTexture(g_IdeologyBackgrounds[ideology.Type]);
+	    Controls.IdeologyImage2:SetTexture(g_IdeologyBackgrounds[ideology.Type]);
+	    
+	    local level1Count = 0;
+	    local level2Count = 0;
+	    local level3Count = 0;
+	    
+	    for i,v in ipairs(iLevel1Tenets) do
+			if(v >= 0) then
+				level1Count = level1Count + 1;
+			end
+	    end
+	    
+	      for i,v in ipairs(iLevel2Tenets) do
+			if(v >= 0) then
+				level2Count = level2Count + 1;
+			end
+	    end
+	    
+	      for i,v in ipairs(iLevel3Tenets) do
+			if(v >= 0) then
+				level3Count = level3Count + 1;
+			end
+	    end
+	    
+	    
+	    Controls.Level1Tenets:LocalizeAndSetText("TXT_KEY_POLICYSCREEN_IDEOLOGY_L1TENETS", level1Count);
+	    Controls.Level2Tenets:LocalizeAndSetText("TXT_KEY_POLICYSCREEN_IDEOLOGY_L2TENETS", level2Count);
+	    Controls.Level3Tenets:LocalizeAndSetText("TXT_KEY_POLICYSCREEN_IDEOLOGY_L3TENETS", level3Count);
+	    
+	    Controls.TenetsStack:CalculateSize();
+	    Controls.TenetsStack:ReprocessAnchoring();
+	    
+	    local ideologyTitle = Locale.ToUpper(ideologyName);
+	    Controls.IdeologyTitle:SetText(ideologyTitle);
+	    Controls.ChooseTenetTitle:SetText(ideologyTitle);
+		Controls.NoIdeology:SetHide(true);
+		Controls.DisabledIdeology:SetHide(true);
+		Controls.HasIdeology:SetHide(false);
+		
+		Controls.IdeologyGenericHeader:SetHide(true);
+		Controls.IdeologyDetails:SetHide(false);
+		
+		local szOpinionString;
+		local iOpinion = player:GetPublicOpinionType();
+		if (iOpinion == PublicOpinionTypes.PUBLIC_OPINION_DISSIDENTS) then
+			szOpinionString = Locale.ConvertTextKey("TXT_KEY_CO_PUBLIC_OPINION_DISSIDENTS");
+		elseif (iOpinion == PublicOpinionTypes.PUBLIC_OPINION_CIVIL_RESISTANCE) then
+			szOpinionString = Locale.ConvertTextKey("TXT_KEY_CO_PUBLIC_OPINION_CIVIL_RESISTANCE");
+		elseif (iOpinion == PublicOpinionTypes.PUBLIC_OPINION_REVOLUTIONARY_WAVE) then
+			szOpinionString = Locale.ConvertTextKey("TXT_KEY_CO_PUBLIC_OPINION_REVOLUTIONARY_WAVE");
+		else
+			szOpinionString = Locale.ConvertTextKey("TXT_KEY_CO_PUBLIC_OPINION_CONTENT");
+		end
+		Controls.PublicOpinion:SetText(szOpinionString);
+		Controls.PublicOpinion:SetToolTipString(player:GetPublicOpinionTooltip());
+				
+		local iUnhappiness = -1 * player:GetPublicOpinionUnhappiness();
+		local strPublicOpinionUnhappiness = tostring(0);
+		local strChangeIdeologyTooltip = "";
+		if (iUnhappiness < 0) then
+			strPublicOpinionUnhappiness = Locale.ConvertTextKey("TXT_KEY_CO_PUBLIC_OPINION_UNHAPPINESS", iUnhappiness);
+			Controls.SwitchIdeologyButton:SetDisabled(false);	
+			local ePreferredIdeology = player:GetPublicOpinionPreferredIdeology();
+			local strPreferredIdeology = GameInfo.PolicyBranchTypes[ePreferredIdeology].Description;
+		    strChangeIdeologyTooltip = Locale.ConvertTextKey("TXT_KEY_POLICYSCREEN_CHANGE_IDEOLOGY_TT", strPreferredIdeology, (-1 * iUnhappiness), 2);
+		    
+		    Controls.SwitchIdeologyButton:RegisterCallback(Mouse.eLClick, function()
+					ChooseChangeIdeology();
+			end);
+		else
+			Controls.SwitchIdeologyButton:SetDisabled(true);	
+		strChangeIdeologyTooltip = Locale.ConvertTextKey("TXT_KEY_POLICYSCREEN_CHANGE_IDEOLOGY_DISABLED_TT");
+		end
+		Controls.PublicOpinionUnhappiness:SetText(strPublicOpinionUnhappiness);
+		Controls.PublicOpinionUnhappiness:SetToolTipString(player:GetPublicOpinionUnhappinessTooltip());
+		Controls.SwitchIdeologyButton:SetToolTipString(strChangeIdeologyTooltip);
+		
+		Controls.PublicOpinionHeader:SetHide(false);
+		Controls.PublicOpinion:SetHide(false);
+		Controls.PublicOpinionUnhappinessHeader:SetHide(false);
+		Controls.PublicOpinionUnhappiness:SetHide(false);
+		Controls.SwitchIdeologyButton:SetHide(false);
+	else
+		Controls.IdeologyImage1:SetTexture(g_IdeologyBackgrounds[0]);
+	    Controls.HasIdeology:SetHide(true);
+		Controls.IdeologyGenericHeader:SetHide(false);
+		Controls.IdeologyDetails:SetHide(true);
+		Controls.PublicOpinionHeader:SetHide(true);
+		Controls.PublicOpinion:SetHide(true);
+		Controls.PublicOpinionUnhappinessHeader:SetHide(true);
+		Controls.PublicOpinionUnhappiness:SetHide(true);
+		Controls.SwitchIdeologyButton:SetHide(true);
+		
+		local bDisablePolicies = Game.IsOption(GameOptionTypes.GAMEOPTION_NO_POLICIES);
+		Controls.NoIdeology:SetHide(bDisablePolicies);
+	    Controls.DisabledIdeology:SetHide(not bDisablePolicies);
+		
+	end
 end
 Events.EventPoliciesDirty.Add( UpdateDisplay );
 
+-------------------------------------------------
+-- On Tenet Selected
+-------------------------------------------------
+function TenetSelect(ideologyButtonNumber)
+
+	if ideologyButtonNumber == nil then
+		return;
+	end
+
+	local iLevel = math.floor(ideologyButtonNumber / 10);
+
+    local player = Players[Game.GetActivePlayer()];   
+    if player == nil then
+		return;
+	else
+		Controls.ChooseTenet:SetHide(false);
+		Controls.BGBlock:SetHide(true);
+		
+		g_TenetInstanceManager:ResetInstances();
+		 
+		local availableTenets = {};
+		for i,v in ipairs(player:GetAvailableTenets(iLevel)) do
+			local tenet = GameInfo.Policies[v];
+			if (tenet ~= nil) then
+				local entry = g_TenetInstanceManager:GetInstance();
+				if (tenet.Help ~= nil) then
+					entry.TenetLabel:LocalizeAndSetText(tenet.Help);
+				else
+					local szName = Locale.ConvertTextKey(tenet.Description);
+					entry.TenetLabel:SetText("[COLOR_POSITIVE_TEXT]" .. szName .. "[ENDCOLOR]");
+				end
+				
+				local tbW, tbH = entry.TenetButton:GetSizeVal();
+				local tlW, tlH = entry.TenetLabel:GetSizeVal();
+				
+				local newHeight = tlH + 30;
+				
+				entry.TenetButton:SetSizeVal(tbW, newHeight);
+				entry.Box:SetSizeVal(tbW, newHeight);
+				
+				entry.TenetButton:ReprocessAnchoring();
+				
+				entry.TenetButton:RegisterCallback(Mouse.eLClick, function()
+					ChooseTenet(v, tenet.Description);
+				end);
+			end
+		end
+    end
+end
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+function OnCancel( )
+	Controls.ChooseTenet:SetHide(true);
+	Controls.BGBlock:SetHide(false);	
+end
+Controls.TenetCancelButton:RegisterCallback( Mouse.eLClick, OnCancel );
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 function OnClose()
@@ -576,11 +860,17 @@ function InputHandler( uiMsg, wParam, lParam )
     ----------------------------------------------------------------        
     if uiMsg == KeyEvents.KeyDown then
         if (wParam == Keys.VK_RETURN or wParam == Keys.VK_ESCAPE) then
-			if(Controls.PolicyConfirm:IsHidden())then
+			if(Controls.PolicyConfirm:IsHidden() and Controls.TenetConfirm:IsHidden() and Controls.ChooseTenet:IsHidden() and Controls.ChangeIdeologyConfirm:IsHidden())then
 	            OnClose();
 	        else
-				Controls.PolicyConfirm:SetHide(true);
-            	Controls.BGBlock:SetHide(false);
+				if(Controls.TenetConfirm:IsHidden()) then
+					Controls.ChooseTenet:SetHide(true);
+					Controls.PolicyConfirm:SetHide(true);
+					Controls.BGBlock:SetHide(false);
+				
+				else
+					Controls.TenetConfirm:SetHide(true);
+				end
 			end
 			return true;
         end
@@ -599,18 +889,16 @@ function GetPipe(branchType)
 		controlTable = g_HonorPipeManager:GetInstance();
 	elseif branchType == "POLICY_BRANCH_PIETY" then
 		controlTable = g_PietyPipeManager:GetInstance();
+	elseif branchType == "POLICY_BRANCH_AESTHETICS" then
+		controlTable = g_AestheticsPipeManager:GetInstance();
 	elseif branchType == "POLICY_BRANCH_PATRONAGE" then
 		controlTable = g_PatronagePipeManager:GetInstance();
 	elseif branchType == "POLICY_BRANCH_COMMERCE" then
 		controlTable = g_CommercePipeManager:GetInstance();
+	elseif branchType == "POLICY_BRANCH_EXPLORATION" then
+		controlTable = g_ExplorationPipeManager:GetInstance();
 	elseif branchType == "POLICY_BRANCH_RATIONALISM" then
 		controlTable = g_RationalismPipeManager:GetInstance();
-	elseif branchType == "POLICY_BRANCH_FREEDOM" then
-		controlTable = g_FreedomPipeManager:GetInstance();
-	elseif branchType == "POLICY_BRANCH_ORDER" then
-		controlTable = g_OrderPipeManager:GetInstance();
-	elseif branchType == "POLICY_BRANCH_AUTOCRACY" then
-		controlTable = g_AutocracyPipeManager:GetInstance();
 	end
 	return controlTable;
 end
@@ -628,7 +916,7 @@ function Init()
 	-- Activate the Branch buttons
 	local i = 0;
 	local policyBranchInfo = GameInfo.PolicyBranchTypes[i];
-	while policyBranchInfo ~= nil do
+	while policyBranchInfo ~= nil and not policyBranchInfo.PurchaseByLevel do
 		local buttonName = "BranchButton"..tostring( i );
 		local thisButton = Controls[buttonName];
 		thisButton:SetVoid1( i ); -- indicates type
@@ -880,29 +1168,29 @@ function Init()
 				controlTable = g_HonorInstanceManager:GetInstance();
 			elseif iBranch == "POLICY_BRANCH_PIETY" then
 				controlTable = g_PietyInstanceManager:GetInstance();
+			elseif iBranch == "POLICY_BRANCH_AESTHETICS" then
+				controlTable = g_AestheticsInstanceManager:GetInstance();
 			elseif iBranch == "POLICY_BRANCH_PATRONAGE" then
 				controlTable = g_PatronageInstanceManager:GetInstance();
 			elseif iBranch == "POLICY_BRANCH_COMMERCE" then
 				controlTable = g_CommerceInstanceManager:GetInstance();
+			elseif iBranch == "POLICY_BRANCH_EXPLORATION" then
+				controlTable = g_ExplorationInstanceManager:GetInstance();
 			elseif iBranch == "POLICY_BRANCH_RATIONALISM" then
 				controlTable = g_RationalismInstanceManager:GetInstance();
-			elseif iBranch == "POLICY_BRANCH_FREEDOM" then
-				controlTable = g_FreedomInstanceManager:GetInstance();
-			elseif iBranch == "POLICY_BRANCH_ORDER" then
-				controlTable = g_OrderInstanceManager:GetInstance();
-			elseif iBranch == "POLICY_BRANCH_AUTOCRACY" then
-				controlTable = g_AutocracyInstanceManager:GetInstance();
 			end
 			
-			IconHookup( policyInfo.PortraitIndex, 64, policyInfo.IconAtlas, controlTable.PolicyImage );
+			if (controlTable ~= nil) then
+				IconHookup( policyInfo.PortraitIndex, 64, policyInfo.IconAtlas, controlTable.PolicyImage );
 
-			-- this math should match Russ's mocked up layout
-			controlTable.PolicyIcon:SetOffsetVal((policyInfo.GridX-1)*g_PolicyXOffset+16,(policyInfo.GridY-1)*g_PolicyYOffset+12);
-			controlTable.PolicyIcon:SetVoid1( i ); -- indicates which policy
-			controlTable.PolicyIcon:RegisterCallback( Mouse.eLClick, PolicySelected );
+				-- this math should match Russ's mocked up layout
+				controlTable.PolicyIcon:SetOffsetVal((policyInfo.GridX-1)*g_PolicyXOffset+16,(policyInfo.GridY-1)*g_PolicyYOffset+12);
+				controlTable.PolicyIcon:SetVoid1( i ); -- indicates which policy
+				controlTable.PolicyIcon:RegisterCallback( Mouse.eLClick, PolicySelected );
 			
-			-- store this away for later
-			policyIcons[i] = controlTable;
+				-- store this away for later
+				policyIcons[i] = controlTable;
+			end
 		end
 		
 		i = i + 1;
@@ -928,6 +1216,61 @@ end
 Controls.No:RegisterCallback( Mouse.eLClick, OnNo );
 
 
+function ChooseTenet(tenet, name)
+	g_SelectedTenet = tenet;
+	Controls.LabelConfirmTenet:LocalizeAndSetText("TXT_KEY_POLICYSCREEN_CONFIRM_TENET", name);
+	Controls.TenetConfirm:SetHide(false);
+end
+
+					
+function OnTenetConfirmYes( )
+
+	Controls.TenetConfirm:SetHide(true);
+	Controls.ChooseTenet:SetHide(true);
+	Controls.BGBlock:SetHide(false);
+	
+	Network.SendUpdatePolicies(g_SelectedTenet, true, true);
+	Events.AudioPlay2DSound("AS2D_INTERFACE_POLICY");		
+end
+Controls.TenetConfirmYes:RegisterCallback( Mouse.eLClick, OnTenetConfirmYes );
+
+function OnTenetConfirmNo( )
+	Controls.TenetConfirm:SetHide(true);
+	Controls.BGBlock:SetHide(false);
+end
+Controls.TenetConfirmNo:RegisterCallback( Mouse.eLClick, OnTenetConfirmNo );
+
+
+function ChooseChangeIdeology()
+    local player = Players[Game.GetActivePlayer()];
+	local iAnarchyTurns = GameDefines["SWITCH_POLICY_BRANCHES_ANARCHY_TURNS"];
+	local eCurrentIdeology = player:GetLateGamePolicyTree();
+	local iCurrentIdeologyTenets = player:GetNumPoliciesInBranch(eCurrentIdeology);
+	local iPreferredIdeologyTenets = iCurrentIdeologyTenets - GameDefines["SWITCH_POLICY_BRANCHES_TENETS_LOST"];
+	if (iPreferredIdeologyTenets < 0) then
+		iPreferredIdeologyTenets = 0;
+	end
+	local iUnhappiness = player:GetPublicOpinionUnhappiness();
+	local strCurrentIdeology = GameInfo.PolicyBranchTypes[eCurrentIdeology].Description;	
+	local ePreferredIdeology = player:GetPublicOpinionPreferredIdeology();
+	local strPreferredIdeology = GameInfo.PolicyBranchTypes[ePreferredIdeology].Description;
+	Controls.LabelConfirmChangeIdeology:LocalizeAndSetText("TXT_KEY_POLICYSCREEN_CONFIRM_CHANGE_IDEOLOGY", iAnarchyTurns, iCurrentIdeologyTenets, strCurrentIdeology, iPreferredIdeologyTenets, strPreferredIdeology, iUnhappiness);
+	Controls.ChangeIdeologyConfirm:SetHide(false);
+end
+
+function OnChangeIdeologyConfirmYes( )
+
+	Controls.ChangeIdeologyConfirm:SetHide(true);
+	Network.SendChangeIdeology();
+	Events.AudioPlay2DSound("AS2D_INTERFACE_POLICY");	
+end
+Controls.ChangeIdeologyConfirmYes:RegisterCallback( Mouse.eLClick, OnChangeIdeologyConfirmYes );
+
+function OnChangeIdeologyConfirmNo( )
+	Controls.ChangeIdeologyConfirm:SetHide(true);
+end
+Controls.ChangeIdeologyConfirmNo:RegisterCallback( Mouse.eLClick, OnChangeIdeologyConfirmNo );
+
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 function ShowHideHandler( bIsHide, bInitState )
@@ -948,7 +1291,9 @@ ContextPtr:SetShowHideHandler( ShowHideHandler );
 -- 'Active' (local human) player has changed
 ----------------------------------------------------------------
 function OnActivePlayerChanged()
-	if (not Controls.PolicyConfirm:IsHidden()) then
+	if (not Controls.PolicyConfirm:IsHidden() or not Controls.TenetConfirm:IsHidden() or not Controls.ChangeIdeologyConfirm:IsHidden()) then
+		Controls.TenetConfirm:SetHide(true);
+		Controls.ChangeIdeologyConfirm:SetHide(true);
 		Controls.PolicyConfirm:SetHide(true);
     	Controls.BGBlock:SetHide(false);
 	end
@@ -957,3 +1302,8 @@ end
 Events.GameplaySetActivePlayer.Add(OnActivePlayerChanged);
 
 Init();
+
+-- Register tabbing behavior and assign global TabSelect routine.
+TabSelect = RegisterTabBehavior(g_Tabs, g_Tabs["SocialPolicies"]);
+
+Controls.ToIdeologyTab:RegisterCallback(Mouse.eLClick, function() TabSelect(g_Tabs["Ideologies"]) end);
