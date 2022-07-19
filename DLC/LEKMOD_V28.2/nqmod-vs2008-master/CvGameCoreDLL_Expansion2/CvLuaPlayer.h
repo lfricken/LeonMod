@@ -372,6 +372,7 @@ protected:
 	static int lGetNumPolicyBranchesAllowed(lua_State* L);
 	static int lGetNumPolicies(lua_State* L);
 	static int lGetNumPoliciesInBranch(lua_State* L);
+	static int lGetPolicyRebate(lua_State* L);
 	static int lHasPolicy(lua_State* L);
 	static int lSetHasPolicy(lua_State* L);
 	static int lGetNextPolicyCost(lua_State* L);

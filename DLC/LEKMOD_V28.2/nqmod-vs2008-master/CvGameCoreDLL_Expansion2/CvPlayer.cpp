@@ -13994,6 +13994,21 @@ bool CvPlayer::HasPolicy(const string name) const
 	}
 	return false;
 }
+T100 CvPlayer::GetPolicyRebatePercentT100(const PolicyTypes ePolicy, const bool isBranch) const
+{
+	return GC.getGame().randomPolicyRebateT100[(int)ePolicy + (isBranch * GC.getNumPolicyInfos())];
+}
+int CvPlayer::GetPolicyRebate(const PolicyTypes ePolicy, const bool isBranch) const
+{
+	T100 rebateT100 = GC.getPOLICY_REBATE_VARIATION_T100() * 2;
+	rebateT100 -= GetPolicyRebatePercentT100(ePolicy, isBranch);
+
+	const int nextCost = getNextPolicyCost();
+	const int originalCost = (nextCost * 100) / (100 + rebateT100);
+	const int rebate = (originalCost * rebateT100) / 100;
+
+	return rebate;
+}
 bool CvPlayer::HasTech(const string name) const
 {
 	const TechTypes e = GC.GetGameTechs()->Tech(name);
@@ -14026,7 +14041,8 @@ int CvPlayer::getNextPolicyCost() const
 //	--------------------------------------------------------------------------------
 void CvPlayer::DoUpdateNextPolicyCost()
 {
-	m_iCostNextPolicy = GetPlayerPolicies()->GetNextPolicyCost();
+	// need to increase base costs since we need to refund stuff
+	m_iCostNextPolicy = (GetPlayerPolicies()->GetNextPolicyCost() * (100 + GC.getPOLICY_REBATE_VARIATION_T100())) / 100;
 }
 
 //	--------------------------------------------------------------------------------
@@ -14048,25 +14064,36 @@ void CvPlayer::doAdoptPolicy(PolicyTypes ePolicy)
 		return;
 
 	bool bTenet = pkPolicyInfo->GetLevel() > 0;
+	bool wasFree = false;
 
 	// Pay Culture cost - if applicable
 	if (bTenet && GetNumFreeTenets() > 0)
 	{
 		ChangeNumFreeTenets(-1, false);
+		wasFree = true;
 	}
 	else if (GetNumFreePolicies() > 0)
 	{
 		ChangeNumFreePolicies(-1);
+		wasFree = true;
 	}
 	else
 	{
 		changeJONSCulture(-getNextPolicyCost());
+		wasFree = false;
 	}
 
 	setHasPolicy(ePolicy, true);
 
 	// Update cost if trying to buy another policy this turn
 	DoUpdateNextPolicyCost();
+
+	// needs to happen after DoUpdateNextPolicyCost so we rebate the NEXT policy cost
+	if (!wasFree)
+	{
+		const int rebate = GetPolicyRebate(ePolicy, false);
+		changeJONSCulture(rebate);
+	}
 
 	// Branch unlocked
 	PolicyBranchTypes ePolicyBranch = (PolicyBranchTypes) pkPolicyInfo->GetPolicyBranchType();

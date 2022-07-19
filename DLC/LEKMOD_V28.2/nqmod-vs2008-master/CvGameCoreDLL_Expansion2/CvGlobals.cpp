@@ -1737,6 +1737,7 @@ CvGlobals::CvGlobals() :
 	m_iINTERNATIONAL_TRADE_BASE(100),
 	m_iINTERNATIONAL_TRADE_EXCLUSIVE_CONNECTION(200),
 	m_iINTERNATIONAL_TRADE_CITY_GPT_DIVISOR(20),
+	m_iPOLICY_REBATE_VARIATION_T100(35),
 
 // -- floats --
 
@@ -2421,6 +2422,10 @@ int CvGlobals::getTOURISM_FROM_CITY_CULTURE_PER_POLICY() const
 float CvGlobals::getTOURISM_CITY_CAPITAL_ADJUST() const
 {
 	return 6.0f;
+}
+T100 CvGlobals::getPOLICY_REBATE_VARIATION_T100() const
+{
+	return m_iPOLICY_REBATE_VARIATION_T100;
 }
 // How much extra "policies" does each policy cost once you get ideology
 float CvGlobals::getPOLICY_INCREASE_LATE_GAME() const
@@ -4410,7 +4415,6 @@ int CvGlobals::getNumPolicyInfos()
 	return (int)m_pPolicies->GetPolicyEntries().size();
 #endif
 }
-
 int CvGlobals::getCULTURE_LEVEL_INFLUENTIAL() const
 {
 	return m_iCULTURE_LEVEL_INFLUENTIAL + (0.45f - (float)GC.getGame().GetVpAdjustment() / 10.f);
@@ -6856,6 +6860,7 @@ void CvGlobals::cacheGlobals()
 	m_iWITHDRAW_MOD_BLOCKED_TILE = getDefineINT("WITHDRAW_MOD_BLOCKED_TILE");
 	m_iAI_OPERATIONAL_MAX_RECRUIT_TURNS_DEFAULT = getDefineINT("AI_OPERATIONAL_MAX_RECRUIT_TURNS_DEFAULT");
 	m_iAI_OPERATIONAL_MAX_RECRUIT_TURNS_ENEMY_TERRITORY = getDefineINT("AI_OPERATIONAL_MAX_RECRUIT_TURNS_ENEMY_TERRITORY");
+	m_iPOLICY_REBATE_VARIATION_T100 = getDefineINT("POLICY_REBATE_VARIATION_T100");
 
 	// -- floats --
 

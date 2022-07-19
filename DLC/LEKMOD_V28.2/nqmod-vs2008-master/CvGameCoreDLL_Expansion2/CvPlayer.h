@@ -1720,6 +1720,10 @@ public:
 	// true if this player has this policy
 	// includes ideology
 	bool HasPolicy(const string name) const;
+	// how much culture should be given back?
+	T100 GetPolicyRebatePercentT100(const PolicyTypes ePolicy, const bool isBranch) const;
+	// how much culture should be given back?
+	int GetPolicyRebate(const PolicyTypes ePolicy, const bool isBranch) const;
 	// true if this player has a tech
 	bool HasTech(const string name) const;
 	// Are they a particular civilization?
