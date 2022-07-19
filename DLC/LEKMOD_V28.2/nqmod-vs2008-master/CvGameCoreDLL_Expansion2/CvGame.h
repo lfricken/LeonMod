@@ -615,6 +615,7 @@ public:
 	bool IsArchaeologyTriggered() const;
 	int GetNumArchaeologySites() const;
 	int GetNumHiddenArchaeologySites() const;
+	std::vector<int> randomPolicyRebateT100;
 	
 #if defined (CAN_PARADROP_HALF_TIMER) || defined (CAN_SET_INTERCEPT_HALF_TIMER)
 	FTimer  m_endTurnTimer;

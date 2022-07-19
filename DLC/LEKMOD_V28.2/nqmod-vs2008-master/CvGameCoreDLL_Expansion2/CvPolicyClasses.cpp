@@ -3800,18 +3800,30 @@ void CvPlayerPolicies::DoUnlockPolicyBranch(PolicyBranchTypes eBranchType)
 		}
 	}
 
+	bool wasFree = false;
 	// Pay Culture cost - if applicable
 	if(GetPlayer()->GetNumFreePolicies() == 0)
 	{
 		GetPlayer()->changeJONSCulture(-GetPlayer()->getNextPolicyCost());
+		wasFree = false;
 	}
 	else
 	{
 		GetPlayer()->ChangeNumFreePolicies(-1);
+		wasFree = true;
 	}
 
 	// Update cost if trying to buy another policy this turn
 	GetPlayer()->DoUpdateNextPolicyCost();
+
+
+	// needs to happen after DoUpdateNextPolicyCost so we rebate the NEXT policy cost
+	if (!wasFree)
+	{
+		const int rebate = GetPlayer()->GetPolicyRebate((PolicyTypes)eBranchType, true);
+		GetPlayer()->changeJONSCulture(rebate);
+	}
+
 
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 

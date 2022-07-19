@@ -1,13 +1,13 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
-	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
-	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
-	All other marks and trademarks are the property of their respective owners.  
-	All rights reserved. 
+	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.
+	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software
+	and their respective logos are all trademarks of Take-Two interactive Software, Inc.
+	All other marks and trademarks are the property of their respective owners.
+	All rights reserved.
 	------------------------------------------------------------------------------------------------------- */
 #pragma once
 
-// CvGlobals.h
+	// CvGlobals.h
 #include <math.h>
 
 #ifndef CIV5_GLOBALS_H
@@ -139,6 +139,8 @@ class ICvRandom1;
 class ICvUnit1;
 struct CompetitionDelegates;
 
+#define T100 int
+
 // uses the map to convert the name string to the specified enum type
 // needs to be passed a function to get the info type of a given TEnum
 // Populates the map if it is out of date.
@@ -195,7 +197,7 @@ public:
 	auto_ptr<ICvRandom1> WrapRandomPointer(CvRandom* pRandom);
 
 	auto_ptr<ICvUnit1> WrapUnitPointer(CvUnit* pUnit);
-	CvUnit*   UnwrapUnitPointer(ICvUnit1* pUnit);
+	CvUnit* UnwrapUnitPointer(ICvUnit1* pUnit);
 
 	void init();
 	void uninit();
@@ -292,7 +294,7 @@ public:
 		uint uiParentEvent, PlayerTypes ePlayer, bool bForce, int iLength, const char* strString, LPCTSTR pszSound = NULL,
 		InterfaceMessageTypes eType = MESSAGE_TYPE_INFO, LPCSTR pszIcon = NULL, ColorTypes eFlashColor = NO_COLOR,
 		int iFlashX = -1, int iFlashY = -1, bool bShowOffScreenArrows = false, bool bShowOnScreenArrows = false
-	);	
+	);
 	uint messageUnit(
 		uint uiParentEvent, const IDInfo& unitID, PlayerTypes ePlayer, bool bForce, int iLength, const char* szString, LPCTSTR pszSound = NULL,
 		InterfaceMessageTypes eType = MESSAGE_TYPE_INFO, LPCSTR pszIcon = NULL, ColorTypes eFlashColor = NO_COLOR,
@@ -800,7 +802,7 @@ public:
 	std::vector<CvLeagueSpecialSessionEntry*>& getLeagueSpecialSessionInfo();
 	_Ret_maybenull_ CvLeagueSpecialSessionEntry* getLeagueSpecialSessionInfo(LeagueSpecialSessionTypes eLeagueSpecialSessionNum);
 	CvLeagueSpecialSessionXMLEntries* GetGameLeagueSpecialSessions() const;
-	
+
 #ifdef AUI_WARNING_FIXES
 	uint getNumLeagueNameInfos() const;
 #else
@@ -809,7 +811,7 @@ public:
 	std::vector<CvLeagueNameEntry*>& getLeagueNameInfo();
 	_Ret_maybenull_ CvLeagueNameEntry* getLeagueNameInfo(LeagueNameTypes eLeagueNameNum);
 	CvLeagueNameXMLEntries* GetGameLeagueNames() const;
-	
+
 #ifdef AUI_WARNING_FIXES
 	uint getNumLeagueProjectInfos() const;
 #else
@@ -903,7 +905,7 @@ public:
 	{
 		return m_paszFlavorTypes;
 	}
-	CvString&  getFlavorTypes(FlavorTypes e)
+	CvString& getFlavorTypes(FlavorTypes e)
 	{
 		CvAssert(e > -1); /*CvAssert(e < GC.getNumFlavorTypes())*/;
 		return m_paszFlavorTypes[e];
@@ -976,6 +978,8 @@ public:
 	int getTOURISM_FROM_CITY_CULTURE_PER_POLICY() const;
 	// how many more cities does the capital count for when calculating tourism adjustment
 	float getTOURISM_CITY_CAPITAL_ADJUST() const;
+	// how much can policy cost vary per policy
+	T100 getPOLICY_REBATE_VARIATION_T100() const;
 	// How much extra "policies" does each policy cost once you get ideology
 	float getPOLICY_INCREASE_LATE_GAME() const;
 	// how much stuff the great scientist gives
@@ -6386,7 +6390,7 @@ public:
 #ifdef AUI_SITE_EVALUATION_PLOT_FOUND_VALUE_CONSIDER_CULTURE
 	GD_INT_DEF(START_AREA_CULTURE_MULTIPLIER)
 #endif
-	inline int getSTART_AREA_FAITH_MULTIPLIER()
+		inline int getSTART_AREA_FAITH_MULTIPLIER()
 	{
 		return m_iSTART_AREA_FAITH_MULTIPLIER;
 	}
@@ -6425,7 +6429,7 @@ public:
 #ifdef AUI_SITE_EVALUATION_PLOT_FOUND_VALUE_CONSIDER_CULTURE
 	GD_INT_DEF(SETTLER_CULTURE_MULTIPLIER)
 #endif
-	inline int getSETTLER_FAITH_MULTIPLIER()
+		inline int getSETTLER_FAITH_MULTIPLIER()
 	{
 		return m_iSETTLER_FAITH_MULTIPLIER;
 	}
@@ -6444,7 +6448,7 @@ public:
 #ifdef AUI_SITE_EVALUATION_COMPUTE_YIELD_VALUE_RECOGNIZE_CITY_PLOT
 	GD_INT_DEF(CITY_RING_0_MULTIPLIER)
 #endif
-	inline int getCITY_RING_1_MULTIPLIER()
+		inline int getCITY_RING_1_MULTIPLIER()
 	{
 		return m_iCITY_RING_1_MULTIPLIER;
 	}
@@ -9716,6 +9720,7 @@ protected:
 	int m_iCOMBAT_CAPTURE_MIN_CHANCE;
 	int m_iCOMBAT_CAPTURE_MAX_CHANCE;
 	int m_iCOMBAT_CAPTURE_RATIO_MULTIPLIER;
+	int m_iPOLICY_REBATE_VARIATION_T100;
 
 	// -- floats --
 
@@ -9895,8 +9900,8 @@ extern CvGlobals gGlobals;
 #define DLLUIClass CvDLLInterfaceIFaceBase
 
 #ifdef AUI_MINIDUMPS
-void CreateMiniDump(EXCEPTION_POINTERS *pep = NULL);
-LONG WINAPI CustomFilter(EXCEPTION_POINTERS *ExceptionInfo = NULL);
+void CreateMiniDump(EXCEPTION_POINTERS* pep = NULL);
+LONG WINAPI CustomFilter(EXCEPTION_POINTERS* ExceptionInfo = NULL);
 #endif
 
 inline Database::Connection* CvGlobals::GetGameDatabase()

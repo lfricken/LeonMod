@@ -216,6 +216,21 @@ function OnPopupMessage(popupInfo)
 end
 Events.SerialEventGameMessagePopup.Add( OnPopupMessage );
 
+function printFunctions(t)
+    local s={}
+    local n=0
+    for k in pairs(t) do
+        n=n+1 s[n]=k
+    end
+    table.sort(s)
+    for k,v in ipairs(s) do
+        f = t[v]
+        if type(f) == "function" then
+            print(v)
+        end
+    end
+end
+
 -------------------------------------------------
 -------------------------------------------------
 function UpdateDisplay()
@@ -413,6 +428,15 @@ function UpdateDisplay()
 				thisDisabledMask:SetHide(true);
 			end
 			
+			-- Policy cost variation
+			local change = -player:GetPolicyRebate(i, true);
+			if (change > 0) then
+				change = "[COLOR_NEGATIVE_TEXT]" .. "+" .. math.abs(change) .. "%[ENDCOLOR]";
+			else
+				change = "[COLOR_POSITIVE_TEXT]" .. "-" .. math.abs(change) .. "%[ENDCOLOR]";
+			end
+			strToolTip = strToolTip .. "[NEWLINE][NEWLINE][ICON_CULTURE] Culture cost: " .. change;
+
 			-- Update tooltips
 			thisButton:SetToolTipString(strToolTip);
 			
@@ -521,7 +545,8 @@ function UpdateDisplay()
 				thisPolicyIcon.PolicyImage:SetColor( fadeColorRV );
 				IconHookup( policyInfo.PortraitIndex, 64, policyInfo.IconAtlas, thisPolicyIcon.PolicyImage );
 				-- Tooltip
-				strTooltip = strTooltip .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_POLICY_CANNOT_UNLOCK");
+				-- remove useless info
+				--strTooltip = strTooltip .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_POLICY_CANNOT_UNLOCK");
 			end
 			
 			-- Policy is Blocked
@@ -534,7 +559,19 @@ function UpdateDisplay()
 					strTooltip = strTooltip .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_POLICY_BRANCH_BLOCKED");
 				end
 			end
-				
+
+			-- Policy cost variation
+			local change = -player:GetPolicyRebate(i, false);
+			if (change >= 0) then
+				change = "[COLOR_NEGATIVE_TEXT]" .. "+" .. math.abs(change) .. "%[ENDCOLOR]";
+			else
+				change = "[COLOR_POSITIVE_TEXT]" .. "-" .. math.abs(change) .. "%[ENDCOLOR]";
+			end
+			strTooltip = strTooltip .. "[NEWLINE][NEWLINE][ICON_CULTURE] Culture cost: " .. change;
+
+    
+		    --printFunctions(thisPolicyIcon.PolicyIcon);
+			--thisPolicyIcon.PolicyIcon.PolicyTooltip.SocialLabel:SetText( strTooltip );
 			thisPolicyIcon.PolicyIcon:SetToolTipString( strTooltip );
 		end
 		

@@ -389,6 +389,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetNumPolicyBranchesAllowed);
 	Method(GetNumPolicies);
 	Method(GetNumPoliciesInBranch);
+	Method(GetPolicyRebate);
 	Method(HasPolicy);
 	Method(SetHasPolicy);
 	Method(GetNextPolicyCost);
@@ -5019,6 +5020,18 @@ int CvLuaPlayer::lGetNumPoliciesInBranch(lua_State* L)
 	return 1;
 }
 
+//------------------------------------------------------------------------------
+//bool hasPolicy(PolicyTypes  iIndex);
+int CvLuaPlayer::lGetPolicyRebate(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const PolicyTypes iIndex = (PolicyTypes)lua_tointeger(L, 2);
+	const bool isBranch = (bool)lua_toboolean(L, 3);
+
+	const int result = (pkPlayer->GetPolicyRebatePercentT100(iIndex, isBranch) - GC.getPOLICY_REBATE_VARIATION_T100());
+	lua_pushinteger(L, result);
+	return 1;
+}
 //------------------------------------------------------------------------------
 //bool hasPolicy(PolicyTypes  iIndex);
 int CvLuaPlayer::lHasPolicy(lua_State* L)

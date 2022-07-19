@@ -269,10 +269,19 @@ void CvGame::init(HandicapTypes eHandicap)
 		}
 	}
 
+	// initialize all competitions
 	for (int i = 0; i < NUM_COMPETITIONS; ++i)
 	{
 		m_competitions.push_back(CvCompetition(MAX_MAJOR_CIVS, (MiniCompetitionTypes)i));
 		m_competitions[i].UpdateAndSort();
+	}
+
+	// set up random policy costs
+	const int numPolicies = 2 * GC.getNumPolicyInfos(); // 2 to safely handle branches
+	for (int i = 0; i < numPolicies; ++i)
+	{
+		int rand = GC.rand(GC.getPOLICY_REBATE_VARIATION_T100() * 2, "policy cost", NULL, (i + 57) * 5333);
+		randomPolicyRebateT100.push_back(rand);
 	}
 
 	if(isOption(GAMEOPTION_LOCK_MODS))
@@ -1051,6 +1060,7 @@ void CvGame::uninit()
 	m_voteSelections.Uninit();
 	m_votesTriggered.Uninit();
 	m_competitions.clear();
+	randomPolicyRebateT100.clear();
 
 	m_mapRand.uninit();
 	m_jonRand.uninit();
@@ -10444,6 +10454,7 @@ void CvGame::Read(FDataStream& kStream)
 	kStream >> m_aszGreatPeopleBorn;
 	kStream >> m_voteSelections;
 	kStream >> m_votesTriggered;
+	kStream >> randomPolicyRebateT100;
 	kStream >> m_competitions;
 
 	m_mapRand.read(kStream);
@@ -10678,6 +10689,7 @@ void CvGame::Write(FDataStream& kStream) const
 	kStream << m_aszGreatPeopleBorn;
 	kStream << m_voteSelections;
 	kStream << m_votesTriggered;
+	kStream << randomPolicyRebateT100;
 	kStream << m_competitions;
 
 	m_mapRand.write(kStream);
