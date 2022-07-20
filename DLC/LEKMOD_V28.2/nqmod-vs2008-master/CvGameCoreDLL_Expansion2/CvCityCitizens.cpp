@@ -2961,7 +2961,7 @@ bool CvCityCitizens::CanAddOneMoreSpecialist() const
 	const int currentSpecialists = GetTotalSpecialistCount();
 
 	const int specialistPool = max(0, divisor + GetCity()->getPopulation() - minBlueCollar);
-	const int maxSpecialists = floor((float)specialistPool / (float)divisor);
+	const int maxSpecialists = specialistPool / divisor;
 
 	const bool result = currentSpecialists < maxSpecialists;
 	return result;
