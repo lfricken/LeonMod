@@ -38,7 +38,7 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_iWonderProductionModifier(0),
 	m_iPlayerHappiness(0),
 	m_iPlayerCultureModifier(0),
-	m_fHappinessPerFollowingCity(0),
+	m_iHappinessPerFollowingCityT100(0),
 	m_iGoldPerFollowingCity(0),
 	m_iGoldPerXFollowers(0),
 	m_iGoldWhenCityAdopts(0),
@@ -282,9 +282,9 @@ int CvBeliefEntry::GetPlayerCultureModifier() const
 }
 
 /// Accessor:: amount of extra happiness from each city following this religion
-float CvBeliefEntry::GetHappinessPerFollowingCity() const
+T100 CvBeliefEntry::GetHappinessPerFollowingCityT100() const
 {
-	return m_fHappinessPerFollowingCity;
+	return m_iHappinessPerFollowingCityT100;
 }
 
 /// Accessor:: amount of extra gold from each city following this religion
@@ -796,7 +796,7 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iWonderProductionModifier       = kResults.GetInt("WonderProductionModifier");
 	m_iPlayerHappiness			      = kResults.GetInt("PlayerHappiness");
 	m_iPlayerCultureModifier          = kResults.GetInt("PlayerCultureModifier");
-	m_fHappinessPerFollowingCity      = kResults.GetFloat("HappinessPerFollowingCity");
+	m_iHappinessPerFollowingCityT100  = kResults.GetFloat("HappinessPerFollowingCity");
 	m_iGoldPerFollowingCity           = kResults.GetInt("GoldPerFollowingCity");
 	m_iGoldPerXFollowers              = kResults.GetInt("GoldPerXFollowers");
 	m_iGoldWhenCityAdopts             = kResults.GetInt("GoldPerFirstCityConversion");
@@ -1537,16 +1537,16 @@ int CvReligionBeliefs:: GetPlayerCultureModifier(bool bAtPeace) const
 }
 
 /// Happiness per following city
-float CvReligionBeliefs:: GetHappinessPerFollowingCity() const
+T100 CvReligionBeliefs:: GetHappinessPerFollowingCityT100() const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
-	float rtnValue = 0.0;
+	T100 rtnValue = 0;
 
 	for(int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
 	{
 		if(HasBelief((BeliefTypes)i))
 		{
-			rtnValue += pBeliefs->GetEntry(i)->GetHappinessPerFollowingCity();
+			rtnValue += pBeliefs->GetEntry(i)->GetHappinessPerFollowingCityT100();
 		}
 	}
 

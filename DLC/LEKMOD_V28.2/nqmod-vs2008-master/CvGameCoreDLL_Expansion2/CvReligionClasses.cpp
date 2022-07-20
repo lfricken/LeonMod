@@ -6249,7 +6249,7 @@ int CvReligionAI::ScoreBeliefForPlayer(const CvBeliefEntry* pEntry) const
 	//----------------
 	// FOUNDER BELIEFS
 	//----------------
-	iRtnValue += (int)(pEntry->GetHappinessPerFollowingCity() * (float)(iFlavorHappiness + 2 * iFlavorOffense - iFlavorDefense));
+	iRtnValue += (pEntry->GetHappinessPerFollowingCityT100() * (iFlavorHappiness + 2 * iFlavorOffense - iFlavorDefense)) / 100;
 	if (pEntry->GetHappinessPerXPeacefulForeignFollowers() > 0 && iFlavorDefense > 0)
 	{
 		iRtnValue += (iFlavorHappiness * 10 * iFlavorDefense) / (pEntry->GetHappinessPerXPeacefulForeignFollowers() * iFlavorDefense);

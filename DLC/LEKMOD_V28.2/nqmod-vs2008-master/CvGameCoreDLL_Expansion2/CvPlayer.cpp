@@ -12840,7 +12840,7 @@ int CvPlayer::GetHappinessFromResourceVariety() const
 /// Total amount of Happiness gained from Religion
 int CvPlayer::GetHappinessFromReligion()
 {
-	int iHappinessFromReligion = 0;
+	T100 iHappinessT100 = 0;
 	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
 
 	// Founder beliefs
@@ -12851,21 +12851,20 @@ int CvPlayer::GetHappinessFromReligion()
 		if(pReligion)
 		{
 			bool bAtPeace = GET_TEAM(getTeam()).getAtWarCount(false) == 0;
-			iHappinessFromReligion += pReligion->m_Beliefs.GetPlayerHappiness(bAtPeace);
+			iHappinessT100 += 100 * pReligion->m_Beliefs.GetPlayerHappiness(bAtPeace);
 
-			float iHappinessPerFollowingCity = pReligion->m_Beliefs.GetHappinessPerFollowingCity();
-			iHappinessFromReligion += (int)((float)pReligions->GetNumCitiesFollowing(eFoundedReligion) * iHappinessPerFollowingCity);
+			iHappinessT100 += pReligions->GetNumCitiesFollowing(eFoundedReligion) * pReligion->m_Beliefs.GetHappinessPerFollowingCityT100();
 
 			int iHappinessPerXPeacefulForeignFollowers = pReligion->m_Beliefs.GetHappinessPerXPeacefulForeignFollowers();
 			if (iHappinessPerXPeacefulForeignFollowers > 0)
 			{
 				// NQMP GJS - new Peace Loving religious belief no longer requires peace (changed /*bAtPeace*/ below from true to false
-				iHappinessFromReligion += GetReligions()->GetNumForeignFollowers(false /*bAtPeace */) / iHappinessPerXPeacefulForeignFollowers;
+				iHappinessT100 += 100 * (GetReligions()->GetNumForeignFollowers(false /*bAtPeace */) / iHappinessPerXPeacefulForeignFollowers);
 			}
 		}
 	}
 
-	return iHappinessFromReligion;
+	return iHappinessT100 / 100;
 }
 
 //	--------------------------------------------------------------------------------

@@ -48,7 +48,7 @@ public:
 	int GetWonderProductionModifier() const;
 	int GetPlayerHappiness() const;
 	int GetPlayerCultureModifier() const;
-	float GetHappinessPerFollowingCity() const;
+	T100 GetHappinessPerFollowingCityT100() const;
 	int GetGoldPerFollowingCity() const;
 	int GetGoldPerXFollowers() const;
 	int GetGoldWhenCityAdopts() const;
@@ -164,7 +164,7 @@ protected:
 	int m_iPlayerHappiness;
 	int m_iPlayerCultureModifier;
 
-	float m_fHappinessPerFollowingCity;
+	int m_iHappinessPerFollowingCityT100;
 
 	int m_iGoldPerFollowingCity;
 	int m_iGoldPerXFollowers;
@@ -490,7 +490,7 @@ public:
 	int GetWonderProductionModifier(EraTypes eWonderEra) const;
 	int GetPlayerHappiness(bool bAtPeace) const;
 	int GetPlayerCultureModifier(bool bAtPeace) const;
-	float GetHappinessPerFollowingCity() const;
+	T100 GetHappinessPerFollowingCityT100() const;
 	int GetGoldPerFollowingCity() const;
 	int GetGoldPerXFollowers() const;
 	int GetGoldWhenCityAdopts() const;
