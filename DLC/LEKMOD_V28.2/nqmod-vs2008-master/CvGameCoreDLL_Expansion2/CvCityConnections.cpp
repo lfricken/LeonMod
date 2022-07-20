@@ -274,7 +274,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 
 	if(vpCities.size() > m_uiRouteInfosDimension)
 	{
-		ResizeRouteInfo((uint)((float)m_uiRouteInfosDimension * 1.5f));
+		ResizeRouteInfo((uint)((m_uiRouteInfosDimension * 150) / 100));
 	}
 	ResetRouteInfo();
 
