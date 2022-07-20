@@ -8783,17 +8783,17 @@ int CvCity::GetJONSCultureThreshold() const
 	VALIDATE_OBJECT
 	int iCultureThreshold = /*15*/ GC.getCULTURE_COST_FIRST_PLOT();
 
-	float fExponent = /*1.1f*/ GC.getCULTURE_COST_LATER_PLOT_EXPONENT();
+	double exponent = 1.1; /*1.1f*/ // GC.getCULTURE_COST_LATER_PLOT_EXPONENT();
 
 	int iPolicyExponentMod = GET_PLAYER(m_eOwner).GetPlotCultureExponentModifier();
 	if(iPolicyExponentMod != 0)
 	{
-		fExponent = fExponent * (float)((100 + iPolicyExponentMod));
-		fExponent /= 100.0f;
+		exponent *= 100 + iPolicyExponentMod;
+		exponent /= 100.0;
 	}
 
 	int iAdditionalCost = GetJONSCultureLevel() * /*8*/ GC.getCULTURE_COST_LATER_PLOT_MULTIPLIER();
-	iAdditionalCost = (int) pow((double) iAdditionalCost, (double)fExponent);
+	iAdditionalCost = (int)pow((double)iAdditionalCost, exponent);
 
 	iCultureThreshold += iAdditionalCost;
 
@@ -12146,8 +12146,6 @@ int CvCity::getDamage() const
 //	--------------------------------------------------------------------------------
 void CvCity::setDamage(int iValue, bool noMessage)
 {
-	float fDelay = 0.0f;
-
 	VALIDATE_OBJECT
 
 	if(iValue < 0)
@@ -12168,6 +12166,7 @@ void CvCity::setDamage(int iValue, bool noMessage)
 			text[0] = NULL;
 			int iNewValue = MIN(GetMaxHitPoints(),iValue);
 			int iDiff = iOldValue - iNewValue;
+			float fDelay = 0.0f;
 			if(iNewValue < iOldValue)
 			{
 				sprintf_s(text, "[COLOR_GREEN]+%d[ENDCOLOR]", iDiff);
@@ -14512,13 +14511,14 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 	case YIELD_GOLD:
 	{
 		int iGoldCost = -1;
+		const int maxPercentDoneT100 = 50;
 
 		// Unit
 		if(eUnitType != NO_UNIT)
 		{
 			// dont allow investment in anything beyond 45% complete
-			const float percentDone = float(getUnitProductionTimes100(eUnitType)) / float(getProductionNeeded(eUnitType) * 100);
-			if (percentDone > 0.45)
+			const T100 percentDoneT100 = getUnitProductionTimes100(eUnitType) / getProductionNeeded(eUnitType);
+			if (percentDoneT100 > maxPercentDoneT100)
 				return false;
 			if(!canTrain(eUnitType, false, !bTestTrainable, false /*bIgnoreCost*/, true /*bWillPurchase*/))
 				return false;
@@ -14529,8 +14529,8 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 		else if(eBuildingType != NO_BUILDING)
 		{
 			// dont allow investment in anything beyond 45% complete
-			const float percentDone = float(m_pCityBuildings->GetBuildingProductionTimes100(eBuildingType)) / float(getProductionNeeded(eBuildingType) * 100);
-			if (percentDone > 0.45)
+			const T100 percentDoneT100 = m_pCityBuildings->GetBuildingProductionTimes100(eBuildingType) / getProductionNeeded(eBuildingType);
+			if (percentDoneT100 > maxPercentDoneT100)
 				return false;
 			if(!canConstruct(eBuildingType, false, !bTestTrainable))
 			{
@@ -14550,8 +14550,8 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 				return false;
 
 			// dont allow investment in anything beyond 45% complete
-			const float percentDone = float(getProjectProductionTimes100(eProjectType)) / float(getProductionNeeded(eProjectType) * 100);
-			if (percentDone > 0.45)
+			const T100 percentDoneT100 = getProjectProductionTimes100(eProjectType) / getProductionNeeded(eProjectType);
+			if (percentDoneT100 > maxPercentDoneT100)
 				return false;
 			if(!canCreate(eProjectType, false, !bTestTrainable))
 				return false;
@@ -15130,7 +15130,7 @@ void CvCity::doGrowth()
 				if(getOwner() == GC.getGame().getActivePlayer())
 				{
 					char text[256] = {0};
-					//float fDelay = GC.getPOST_COMBAT_TEXT_DELAY() * (1 + ((float)iDelay * 0.5f)); // 1 is added to avoid overlapping with XP text
+					//fl oat fDelay = GC.getPOST_COMBAT_TEXT_DELAY() * (1 + ((fl oat)iDelay * 0.5f)); // 1 is added to avoid overlapping with XP text
 					sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iFaith);
 					GC.GetEngineUserInterface()->AddPopupText(getX(), getY(), text, 0.0);//fDelay);
 				}
