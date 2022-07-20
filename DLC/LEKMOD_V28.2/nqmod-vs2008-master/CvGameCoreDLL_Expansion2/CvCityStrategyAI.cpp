@@ -3049,7 +3049,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_ManyTechsStolen(CvCity* pCity)
 	PlayerTypes ePlayer = pCity->getOwner();
 	CvEspionageAI* pEspionageAI = GET_PLAYER(ePlayer).GetEspionageAI();
 	CvCityEspionage* pCityEspionage = pCity->GetCityEspionage();
-	float fRatio = 0.0;
+	T100 ratioT100 = 0;
 	int iTurnsOfEspionage = GC.getGame().getGameTurn() - pEspionageAI->m_iTurnEspionageStarted;
 	if (pEspionageAI->m_iTurnEspionageStarted != 0)
 	{
@@ -3064,10 +3064,10 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_ManyTechsStolen(CvCity* pCity)
 		}
 		CvAssertMsg(eFlavorEspionage != NO_FLAVOR, "Could not find espionage flavor!");
 		
-		fRatio = pCityEspionage->m_aiNumTimesCityRobbed[ePlayer] / (float)(iTurnsOfEspionage);
+		ratioT100 = (pCityEspionage->m_aiNumTimesCityRobbed[ePlayer] * 100) / iTurnsOfEspionage;
 	}
 
-	if (fRatio > 0.0)
+	if (ratioT100 > 0)
 	{
 		return true;
 	}
@@ -3119,10 +3119,10 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_KeyScienceCity(CvCity* pCity)
 		}
 		CvAssertMsg(eFlavorEspionage != NO_FLAVOR, "Could not find espionage flavor!");
 
-		float fRatio = iNumBetterScienceCities / (float)iNumOtherCities;
-		float fCutOff = (0.05f * GET_PLAYER(ePlayer).GetFlavorManager()->GetPersonalityIndividualFlavor(eFlavorEspionage));
+		T100 ratioT100 = (iNumBetterScienceCities * 100) / iNumOtherCities;
+		T100 cutOffT100 = 005 * GET_PLAYER(ePlayer).GetFlavorManager()->GetPersonalityIndividualFlavor(eFlavorEspionage);
 
-		if (fRatio < fCutOff)
+		if (ratioT100 < cutOffT100)
 		{
 			return true;
 		}
