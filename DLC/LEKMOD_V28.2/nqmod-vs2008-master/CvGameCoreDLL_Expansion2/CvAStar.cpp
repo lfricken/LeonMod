@@ -860,7 +860,7 @@ void CvAStar::UpdateOpenNode(CvAStarNode* node)
 #ifdef AUI_ASTAR_MINOR_OPTIMIZATION
 	if (temp && (node->m_iTotalCost < temp->m_iTotalCost))
 	{
-		// have node free float for now
+		// have node free flo at for now
 		temp->m_pNext = node->m_pNext;
 		if (node->m_pNext)
 		{
@@ -873,7 +873,7 @@ void CvAStar::UpdateOpenNode(CvAStarNode* node)
 #else
 	if((node->m_pPrev != NULL) && (node->m_iTotalCost < node->m_pPrev->m_iTotalCost))
 	{
-		// have node free float for now
+		// have node free fl oat for now
 		node->m_pPrev->m_pNext = node->m_pNext;
 		if(node->m_pNext)
 		{

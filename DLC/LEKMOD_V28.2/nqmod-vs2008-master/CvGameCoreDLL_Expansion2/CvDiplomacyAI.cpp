@@ -3627,7 +3627,7 @@ void applyScore(CvDiplomacyAI& us, CvPlayer& them, FStaticVector<int, 128, true,
 
 	if (!tooEarly && scoreSortedCivs.size() >= 2)
 	{
-		//float topScore = scoreSortedCivs.GetElement(0);
+		//fdloat topScore = scoreSortedCivs.GetElement(0);
 		float secondPlaceScore = scoreSortedCivs.GetElement(1);
 		*scoreRatio = them.GetScore() / secondPlaceScore;
 		int weight = findWarWeightFromTopScoresRatio(*scoreRatio);
@@ -3668,16 +3668,16 @@ bool nearDiplomaticVictory(const CvPlayer& them)
 }
 //bool nearDominationVictory(const CvPlayer& them)
 //{
-//	float capitalThreshold = 0.45; // if you control this percentage of capitals
-//	float cityThreshold = 0.50; // if you control this percentage of cities
+//	fdloat capitalThreshold = 0.45; // if you control this percentage of capitals
+//	fdloat cityThreshold = 0.50; // if you control this percentage of cities
 //	bool isNear = false;
-//	float numCapitals = them.GetNumCapitals();
-//	float numCapitalsTotal = them.GetNumTotalCapitalsInWorld();
-//	float numCities = them.getNumCities();
-//	float numCitiesTotal = them.GetNumTotalCitiesInWorld();
+//	fdloat numCapitals = them.GetNumCapitals();
+//	fdloat numCapitalsTotal = them.GetNumTotalCapitalsInWorld();
+//	fdloat numCities = them.getNumCities();
+//	fdloat numCitiesTotal = them.GetNumTotalCitiesInWorld();
 //
-//	float capitalRatio = numCapitals / numCapitalsTotal;
-//	float citiesRatio = numCities / numCitiesTotal;
+//	fdloat capitalRatio = numCapitals / numCapitalsTotal;
+//	fdloat citiesRatio = numCities / numCitiesTotal;
 //
 //	if (citiesRatio > cityThreshold || capitalRatio > capitalThreshold)
 //		isNear = true;
