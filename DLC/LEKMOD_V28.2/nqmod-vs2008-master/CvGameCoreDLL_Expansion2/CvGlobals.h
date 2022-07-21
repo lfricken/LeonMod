@@ -139,7 +139,8 @@ class ICvRandom1;
 class ICvUnit1;
 struct CompetitionDelegates;
 
-#define T100 int
+// Defines this type as storing a fixed point decimal value. 1275 would represent 12.75
+#define T100 long
 
 // uses the map to convert the name string to the specified enum type
 // needs to be passed a function to get the info type of a given TEnum

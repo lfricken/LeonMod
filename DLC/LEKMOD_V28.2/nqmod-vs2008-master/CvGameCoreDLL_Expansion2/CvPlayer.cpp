@@ -13999,14 +13999,14 @@ T100 CvPlayer::GetPolicyRebatePercentT100(const PolicyTypes ePolicy, const bool 
 }
 int CvPlayer::GetPolicyRebate(const PolicyTypes ePolicy, const bool isBranch) const
 {
-	T100 rebateT100 = GC.getPOLICY_REBATE_VARIATION_T100() * 2;
-	rebateT100 -= GetPolicyRebatePercentT100(ePolicy, isBranch);
+	T100 rebatePercentT100 = GetPolicyRebatePercentT100(ePolicy, isBranch);
 
-	const int nextCost = getNextPolicyCost();
-	const int originalCost = (nextCost * 100) / (100 + rebateT100);
-	const int rebate = (originalCost * rebateT100) / 100;
+	const T100 nextCostT100 = getNextPolicyCostT100();
+	const T100 originalCostT100 = (100 * nextCostT100) / (100 + GC.getPOLICY_REBATE_VARIATION_T100());
+	const T100 round_T100xT100 = 50 * 100; // 0.5 * 100 * 100
+	const T100 rebateCultureT100 = ((originalCostT100 * rebatePercentT100) + round_T100xT100) / 100;
 
-	return rebate;
+	return rebateCultureT100 / 100;
 }
 bool CvPlayer::HasTech(const string name) const
 {
@@ -14034,6 +14034,10 @@ void CvPlayer::setHasPolicy(PolicyTypes eIndex, bool bNewValue)
 //	--------------------------------------------------------------------------------
 int CvPlayer::getNextPolicyCost() const
 {
+	return m_iCostNextPolicy / 100;
+}
+T100 CvPlayer::getNextPolicyCostT100() const
+{
 	return m_iCostNextPolicy;
 }
 
@@ -14041,7 +14045,7 @@ int CvPlayer::getNextPolicyCost() const
 void CvPlayer::DoUpdateNextPolicyCost()
 {
 	// need to increase base costs since we need to refund stuff
-	m_iCostNextPolicy = (GetPlayerPolicies()->GetNextPolicyCost() * (100 + GC.getPOLICY_REBATE_VARIATION_T100())) / 100;
+	m_iCostNextPolicy = GetPlayerPolicies()->GetNextPolicyCost() * (100 + GC.getPOLICY_REBATE_VARIATION_T100());
 }
 
 //	--------------------------------------------------------------------------------

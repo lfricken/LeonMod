@@ -698,6 +698,7 @@ public:
 
 	void setHasPolicy(PolicyTypes eIndex, bool bNewValue);
 	int getNextPolicyCost() const;
+	T100 getNextPolicyCostT100() const;
 	void DoUpdateNextPolicyCost();
 	bool canAdoptPolicy(PolicyTypes ePolicy) const;
 	void doAdoptPolicy(PolicyTypes ePolicy);

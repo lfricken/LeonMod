@@ -430,10 +430,10 @@ function UpdateDisplay()
 			
 			-- Policy cost variation
 			local change = player:GetPolicyRebate(i, true);
-			if (change > 0) then
-				change = "[COLOR_NEGATIVE_TEXT]" .. "+" .. math.abs(change) .. "%[ENDCOLOR]";
+			if (change < 0) then
+				change = "[COLOR_NEGATIVE_TEXT]" .. "-" .. math.abs(change) .. "%[ENDCOLOR]";
 			else
-				change = "[COLOR_POSITIVE_TEXT]" .. "-" .. math.abs(change) .. "%[ENDCOLOR]";
+				change = "[COLOR_POSITIVE_TEXT]" .. "+" .. math.abs(change) .. "%[ENDCOLOR]";
 			end
 			strToolTip = strToolTip .. "[NEWLINE][NEWLINE][ICON_CULTURE] Culture cost: " .. change;
 
@@ -562,10 +562,10 @@ function UpdateDisplay()
 
 			-- Policy cost variation
 			local change = player:GetPolicyRebate(i, false);
-			if (change > 0) then
-				change = "[COLOR_NEGATIVE_TEXT]" .. "+" .. math.abs(change) .. "%[ENDCOLOR]";
+			if (change < 0) then
+				change = "[COLOR_NEGATIVE_TEXT]" .. "-" .. math.abs(change) .. "%[ENDCOLOR]";
 			else
-				change = "[COLOR_POSITIVE_TEXT]" .. "-" .. math.abs(change) .. "%[ENDCOLOR]";
+				change = "[COLOR_POSITIVE_TEXT]" .. "+" .. math.abs(change) .. "%[ENDCOLOR]";
 			end
 			strTooltip = strTooltip .. "[NEWLINE][NEWLINE][ICON_CULTURE] Culture cost: " .. change;
 
