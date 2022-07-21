@@ -354,8 +354,7 @@ int CvPlot::getExtraYield
 				if (eYieldType == YIELD_FOOD && hasCommerceFinisher && isFarm && noResource && !isFloodPlains)
 					yieldChange += 1;
 				if (eYieldType == YIELD_PRODUCTION && hasCommerceFinisher && isMine && noResource)
-					yieldChange += 1;
-				
+					yieldChange += 1;				
 			}
 
 			{// IMPROVEMENT_POLDER - gives +2 Food to Marsh.
@@ -365,6 +364,35 @@ int CvPlot::getExtraYield
 					yieldChange += 2;
 			}
 
+			{// BUILDINGCLASS_BOROBUDUR - 1 FH per city
+				const bool hasBorobudur = player.HasWonder(BuildingClass("BUILDINGCLASS_BOROBUDUR"));
+				if (eYieldType == YIELD_FAITH && hasBorobudur && isCityCenter)
+					yieldChange += 1;
+			}
+
+			{// BUILDINGCLASS_MACHU_PICHU - 2G per city
+				const bool hasMachuPichu = player.HasWonder(BuildingClass("BUILDINGCLASS_MACHU_PICHU"));
+				if (eYieldType == YIELD_GOLD && hasMachuPichu && isCityCenter)
+					yieldChange += 2;
+			}				
+
+			{// BUILDINGCLASS_PYRAMID - 1PD per city
+				const bool hasPyramids = player.HasWonder(BuildingClass("BUILDINGCLASS_PYRAMID"));
+				if (eYieldType == YIELD_PRODUCTION && hasPyramids && isCityCenter)
+					yieldChange += 1;
+			}
+
+			{// BUILDINGCLASS_TEMPLE_ARTEMIS - 1FD per city
+				const bool hasTempleOfArtemis = player.HasWonder(BuildingClass("BUILDINGCLASS_TEMPLE_ARTEMIS"));
+				if (eYieldType == YIELD_FOOD && hasTempleOfArtemis && isCityCenter)
+					yieldChange += 1;
+			} 			
+
+			{// BUILDINGCLASS_PORCELAIN_TOWER - 3SC per Lucury
+				const bool hasPorcelinTower = player.HasWonder(BuildingClass("BUILDINGCLASS_PORCELAIN_TOWER"));
+				if (eYieldType == YIELD_SCIENCE && hasPorcelinTower && hasLuxury)
+					yieldChange += 3;
+			}
 		}
 	}
 

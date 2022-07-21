@@ -130,8 +130,7 @@ int CvPlayer::GetExtraYieldForBuilding
 				yieldChange += (2 * numWorldWondersInCity);
 			if (eYieldType == YIELD_TOURISM && isPercentMod && isBroadcastTower)
 				yieldChange += (2 * numNationalWondersInCity);
-		}
-
+		}		
 	}
 
 	{ // POLICY_SKYSCRAPERS - adds +2 diplomatic points to plazas
@@ -251,6 +250,60 @@ int CvPlayer::GetExtraYieldForBuilding
 			yieldChange += 10;
 		if (eYieldType == YIELD_CULTURE && isPercentMod && isConqueredCityStateBuilding)
 			yieldChange += 10;
+	}
+
+	{// BUILDING_EIFFEL_TOWER grants +2T to every broadcast tower 
+		const bool isBroadcastTower =  eBuildingClass == BuildingClass("BUILDINGCLASS_EIFFEL_TOWER");
+		const bool hasEiffelTower = player.HasWonder(BuildingClass("BUILDINGCLASS_EIFFEL_TOWER"));
+		if (eYieldType == YIELD_TOURISM && !isPercentMod && isBroadcastTower && hasEiffelTower)
+			yieldChange += 2;		
+	}
+
+	{// BUILDING_BROADWAY grants +2T to every Hotel 
+		const bool isHotel = eBuildingClass == BuildingClass("BUILDINGCLASS_EIFFEL_TOWER");
+		const bool hasBroadway = player.HasWonder(BuildingClass("BUILDINGCLASS_HOTEL"));
+		if (eYieldType == YIELD_TOURISM && !isPercentMod && isHotel && hasBroadway)
+			yieldChange += 2;
+	}
+
+	{// BUILDING_CRISTO_REDENTOR grants +2T to every Plaza
+		const bool isPlaza = eBuildingClass == BuildingClass("BUILDINGCLASS_STATUE_5");
+		const bool hasCristo = player.HasWonder(BuildingClass("BUILDINGCLASS_CRISTO_REDENTOR"));
+		if (eYieldType == YIELD_TOURISM && !isPercentMod && isPlaza && hasCristo)
+			yieldChange += 2;
+	}
+
+	{// BUILDING_SYDNEY_OPERA_HOUSE grants +3T to every Airport
+		const bool isAirport = eBuildingClass == BuildingClass("BUILDINGCLASS_AIRPORT");
+		const bool hasSydney = player.HasWonder(BuildingClass("BUILDINGCLASS_SYDNEY_OPERA_HOUSE"));
+		if (eYieldType == YIELD_TOURISM && !isPercentMod && isAirport && hasSydney)
+			yieldChange += 3;
+	}
+
+	{// BUILDINGCLASS_STATUE_OF_LIBERTY grants +10% FD to every Granary
+		const bool isGranry = eBuildingClass == BuildingClass("BUILDINGCLASS_GRANARY");
+		const bool hasStatueOfLiberty = player.HasWonder(BuildingClass("BUILDINGCLASS_STATUE_OF_LIBERTY"));
+		if (eYieldType == YIELD_FOOD && isPercentMod && hasStatueOfLiberty && isGranry)
+			yieldChange += 10;
+	}
+
+	{// BUILDINGCLASS_KREMLIN grants +10% PD to every Workshop
+		const bool isWorkshop = eBuildingClass == BuildingClass("BUILDINGCLASS_WORKSHOP");
+		const bool hasKremlin = player.HasWonder(BuildingClass("BUILDINGCLASS_KREMLIN"));
+		if (eYieldType == YIELD_PRODUCTION && isPercentMod && hasKremlin && isWorkshop)
+			yieldChange += 10;
+	}
+
+	{// BUILDINGCLASS_FORBIDDEN_PALACE grants +1FD +1PD +1G +1Diplo from every City-State Ally
+		const bool isForbiddenPalace = eBuildingClass == BuildingClass("BUILDINGCLASS_FORBIDDEN_PALACE");
+		if (eYieldType == YIELD_FOOD && !isPercentMod && isForbiddenPalace)
+			yieldChange += numCityStateAllies;
+		if (eYieldType == YIELD_PRODUCTION && !isPercentMod && isForbiddenPalace)
+			yieldChange += numCityStateAllies;
+		if (eYieldType == YIELD_GOLD && !isPercentMod && isForbiddenPalace)
+			yieldChange += numCityStateAllies;
+		if (eYieldType == YIELD_DIPLOMATIC_SUPPORT && !isPercentMod && isForbiddenPalace)
+			yieldChange += numCityStateAllies;
 	}
 	
 
@@ -420,6 +473,54 @@ int CvPlayer::getSpecialistYieldHardcoded(const CvCity* pCity, const SpecialistT
 			change += 1;
 	}
 
+	{// Globe Theater gives 1C, +1T  to Writer Specialists
+		const bool hasGlobeTheater = player.HasWonder(BuildingClass("BUILDINGCLASS_GLOBE_THEATER"));
+		if (eYield == YIELD_TOURISM && hasGlobeTheater && isWriter)
+			change += 1;
+		if (eYield == YIELD_CULTURE && hasGlobeTheater && isWriter)
+			change += 1;
+	}
+
+	{// Sistine Chapel gives +1C, +1T  to Artist Specialists
+		const bool hasSistineChapel = player.HasWonder(BuildingClass("BUILDINGCLASS_SISTINE_CHAPEL"));
+		if (eYield == YIELD_CULTURE && hasSistineChapel && isArtist)
+			change += 1;
+		if (eYield == YIELD_TOURISM && hasSistineChapel && isArtist)
+			change += 1;
+	}
+
+	{// Uffizi gives +1C, +1T  to Music Specialists
+		const bool hasUffizi = player.HasWonder(BuildingClass("BUILDINGCLASS_UFFIZI"));
+		if (eYield == YIELD_CULTURE && hasUffizi && isMusician)
+			change += 1;
+		if (eYield == YIELD_TOURISM && hasUffizi && isMusician)
+			change += 1;
+	}
+
+	{// BUILDINGCLASS_BIG_BEN gives +1G +1PD to Merchants
+		const bool hasBigBen = player.HasWonder(BuildingClass("BUILDINGCLASS_BIG_BEN"));
+		if (eYield == YIELD_PRODUCTION && hasBigBen && isMerchant)
+			change += 1;
+		if (eYield == YIELD_GOLD && hasBigBen && isMerchant)
+			change += 1;
+	}
+
+	{// BUILDINGCLASS_PANAMA gives +1G +1PD to Engineers
+		const bool hasPanama = player.HasWonder(BuildingClass("BUILDINGCLASS_PANAMA"));
+		if (eYield == YIELD_PRODUCTION && hasPanama && isEngineer)
+			change += 1;
+		if (eYield == YIELD_GOLD && hasPanama && isEngineer)
+			change += 1;
+	}
+
+	{// BUILDINGCLASS_PORCELAIN_TOWER gives +1SC +1PD to Scientists
+		const bool hasPorcelainTower = player.HasWonder(BuildingClass("BUILDINGCLASS_PORCELAIN_TOWER"));
+		if (eYield == YIELD_PRODUCTION && hasPorcelainTower && isScientist)
+			change += 1;
+		if (eYield == YIELD_SCIENCE && hasPorcelainTower && isScientist)
+			change += 1;
+	}
+
 	return GC.round(change);
 }
 int CvPlayer::getGreatWorkYieldTotal(const CvCity* pCity, const CvGreatWork* pWork, const YieldTypes eYield) const
@@ -454,6 +555,38 @@ int CvPlayer::getGreatWorkYieldTotal(const CvCity* pCity, const CvGreatWork* pWo
 
 
 	// logic that does not reference the city
+
+	{// Globe Theater gives +2C, +2T  to GW Writing
+		const bool hasGlobeTheater = player.HasWonder(BuildingClass("BUILDINGCLASS_GLOBE_THEATER"));
+		if (eYield == YIELD_CULTURE && hasGlobeTheater && isWriting)
+			change += 2;
+		if (eYield == YIELD_TOURISM && hasGlobeTheater && isWriting)
+			change += 2;		
+	}
+
+	{// Sistine Chapel gives +2C, +2T  to GW Art
+		const bool hasSistineChapel = player.HasWonder(BuildingClass("BUILDINGCLASS_SISTINE_CHAPEL"));
+		if (eYield == YIELD_CULTURE && hasSistineChapel && isArt)
+			change += 2;
+		if (eYield == YIELD_TOURISM && hasSistineChapel && isArt)
+			change += 2;
+	}
+
+	{// Uffizi gives +2C, +2T  to GW Music
+		const bool hasUffizi = player.HasWonder(BuildingClass("BUILDINGCLASS_UFFIZI"));
+		if (eYield == YIELD_CULTURE && hasUffizi && isMusic)
+			change += 2;
+		if (eYield == YIELD_TOURISM && hasUffizi && isMusic)
+			change += 2;
+	}
+
+	{// Louvre gives +2C, +2T  to Artifacts
+		const bool hasLourve = player.HasWonder(BuildingClass("BUILDINGCLASS_LOUVRE"));
+		if (eYield == YIELD_CULTURE && hasLourve && isArtifact)
+			change += 2;
+		if (eYield == YIELD_TOURISM && hasLourve && isArtifact)
+			change += 2;
+	}	
 	
 	{// POLICY_ETHICS gives +1G +1C to GW of Writing
 		const bool hasCulturalExchange = player.HasPolicy("POLICY_ETHICS");
