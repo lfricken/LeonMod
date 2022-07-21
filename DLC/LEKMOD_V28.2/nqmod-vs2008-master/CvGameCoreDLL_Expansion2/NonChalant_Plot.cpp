@@ -78,6 +78,7 @@ int CvPlot::getExtraYield
 
 
 	const bool isTundra = plot.HasTerrain(TERRAIN_TUNDRA);
+	const bool isSnow = plot.HasTerrain(TERRAIN_SNOW);
 	const bool isDesert = plot.HasTerrain(TERRAIN_DESERT);
 	const bool hasBonus = plot.HasResourceClass("RESOURCECLASS_BONUS"); // has a bonus resource
 	const bool hasLuxury = plot.HasResourceClass("RESOURCECLASS_LUXURY"); // has a luxury resource
@@ -331,7 +332,7 @@ int CvPlot::getExtraYield
 			{// POLICY_EXPLORATION_FINISHER gives +1FD from Fish, +1C from Coastal Luxuries, +1PD from Atolls, 2PD, 2G from DryDocks				
 				const bool hasExplorationFinisher = player.HasPolicy("POLICY_EXPLORATION_FINISHER");
 				const bool isFish = plot.HasResource("RESOURCE_FISH"); 
-				const bool isCoastalLuxury = (plot.HasResource("RESOURCE_") || plot.HasResource("RESOURCE_CRAB") || plot.HasResource("RESOURCE_WHALE") || plot.HasResource("RESOURCE_PEARLS")
+				const bool isCoastalLuxury = (plot.HasResource("RESOURCE_CRAB") || plot.HasResource("RESOURCE_WHALE") || plot.HasResource("RESOURCE_PEARLS")
 					|| plot.HasResource("RESOURCE_CORAL"));
 				const bool isDryDock = (plot.HasImprovement("IMPROVEMENT_DOCK") || plot.HasImprovement("IMPROVEMENT_CHILE_DOCK"));
 				if (eYieldType == YIELD_FOOD && hasExplorationFinisher && isFish)
@@ -393,10 +394,120 @@ int CvPlot::getExtraYield
 				if (eYieldType == YIELD_SCIENCE && hasPorcelinTower && hasLuxury)
 					yieldChange += 3;
 			}
+
+			{// CIVILIZATION_ENGLAND - 1 FD 1 PD from Cattle, Sheep, After Trapping
+				const bool hasCattle = plot.HasResource("RESOURCE_COW");
+				const bool hasSheep = plot.HasResource("RESOURCE_SHEEP");
+				const bool isEngland = player.IsCiv("CIVILIZATION_ENGLAND");
+				const bool hasTrapping = player.HasTech("TECH_TRAPPING");
+				if (eYieldType == YIELD_FOOD && isEngland && hasTrapping && (hasCattle || hasSheep))
+					yieldChange += 1;
+				if (eYieldType == YIELD_PRODUCTION && isEngland && hasTrapping && (hasCattle || hasSheep))
+						yieldChange += 1;
+			}	
+
+			{// CIVILIZATION_INDONESIA - +1 to Atolls +2G from Coastal Luxes After Sailing
+				const bool isAtoll = plot.HasFeature("FEATURE_ATOLL");
+				const bool isAtollCulture = plot.HasFeature("FEATURE_ATOLL_CULTURE");
+				const bool isAtollProduction = plot.HasFeature("FEATURE_ATOLL_PRODUCTION");
+				const bool isAtollGold = plot.HasFeature("FEATURE_ATOLL_GOLD");
+				const bool isAtollScience = plot.HasFeature("FEATURE_ATOLL_SCIENCE");
+				const bool isCoastalLuxury = (plot.HasResource("RESOURCE_CRAB") || plot.HasResource("RESOURCE_WHALE") || plot.HasResource("RESOURCE_PEARLS")
+					|| plot.HasResource("RESOURCE_CORAL"));
+				const bool isIndonesia = player.IsCiv("CIVILIZATION_INDONESIA");
+				const bool hasSailing = player.HasTech("TECH_SAILING");
+				if (eYieldType == YIELD_GOLD && isIndonesia && hasSailing && isCoastalLuxury)
+					yieldChange += 2;
+				if (eYieldType == YIELD_FAITH && isIndonesia && hasSailing && isAtoll)
+					yieldChange += 1;
+				if (eYieldType == YIELD_CULTURE && isIndonesia && hasSailing && isAtollCulture)
+					yieldChange += 1;
+				if (eYieldType == YIELD_PRODUCTION && isIndonesia && hasSailing && isAtollProduction)
+					yieldChange += 1;
+				if (eYieldType == YIELD_GOLD && isIndonesia && hasSailing && isAtollGold)
+					yieldChange += 1;
+				if (eYieldType == YIELD_SCIENCE && isIndonesia && hasSailing && isAtollScience)
+					yieldChange += 1;				
+			}
+
+			{// CIVILIZATION_INDIA - 2FD 1C PD from Cattle After Animal Husbandry
+				const bool hasCattle = plot.HasResource("RESOURCE_COW");
+				const bool isIndia = player.IsCiv("CIVILIZATION_INDIA");
+				const bool hasAnimalHusbandry = player.HasTech("TECH_ANIMAL_HUSBANDRY");
+				if (eYieldType == YIELD_CULTURE && isIndia && hasAnimalHusbandry && hasCattle)
+					yieldChange += 1;
+				if (eYieldType == YIELD_FAITH && isIndia && hasAnimalHusbandry && hasCattle)
+					yieldChange += 2;				
+			}
+
+			{// CIVILIZATION_DENMARK - 1PD from fish. After Sailing
+				const bool hasFish = plot.HasResource("RESOURCE_FISH");
+				const bool isDenmark = player.IsCiv("CIVILIZATION_DENMARK");
+				const bool hasSailing = player.HasTech("TECH_SAILING");
+				if (eYieldType == YIELD_PRODUCTION && isDenmark && hasSailing && hasFish)
+					yieldChange += 1;				
+			}
+
+			{// CIVILIZATION_AZTEC - 1C from Jungle Lux 1PD from Bannanas After Calendar
+				const bool hasBanana = plot.HasResource("RESOURCE_BANANA");
+				const bool isAztec = player.IsCiv("CIVILIZATION_AZTEC");
+				const bool hasCalendar = player.HasTech("TECH_CALENDAR");
+				const bool isJungleLuxury = (plot.HasResource("RESOURCE_DYE") || plot.HasResource("RESOURCE_GEMS") || plot.HasResource("RESOURCE_SPICES") 
+					|| plot.HasResource("RESOURCE_TRUFFLES") || plot.HasResource("RESOURCE_COCOA") || plot.HasResource("RESOURCE_COCONUT"));
+				if (eYieldType == YIELD_PRODUCTION && isAztec && hasCalendar && hasBanana)
+					yieldChange += 1;
+				if (eYieldType == YIELD_CULTURE && isAztec && hasCalendar && isJungleLuxury)
+					yieldChange += 1;
+			}
+
+			{// CIVILIZATION_EGYPT - 2PD from Stone After Masonry
+				const bool hasStone = plot.HasResource("RESOURCE_STONE");
+				const bool isEgypt = player.IsCiv("CIVILIZATION_EGYPT");
+				const bool hasMasonry = player.HasTech("TECH_MASONRY");
+				if (eYieldType == YIELD_PRODUCTION && isEgypt && hasMasonry && hasStone)
+					yieldChange += 2;
+			}
+
+			{// CIVILIZATION_UC_TURKEY - 1PD 1G from Wheat and Oasis After Pottery
+				const bool hasWheat = plot.HasResource("RESOURCE_WHEAT");
+				const bool isMiddleEast = player.IsCiv("CIVILIZATION_UC_TURKEY");
+				const bool hasPottery = player.HasTech("TECH_POTTERY");				
+				const bool isOasis = plot.HasFeature("FEATURE_OASIS");
+				if (eYieldType == YIELD_PRODUCTION && isMiddleEast && hasPottery && (hasWheat || isOasis))
+					yieldChange += 1;
+				if (eYieldType == YIELD_GOLD && isMiddleEast && hasPottery && (hasWheat || isOasis))
+					yieldChange += 1;
+			}
+
+			{// CIVILIZATION_BYZANTIUM - 1PD 1C from Horse After The Wheel
+				const bool hasHorse = plot.HasResource("RESOURCE_HORSE");
+				const bool hasMaize = plot.HasResource("RESOURCE_MAIZE");
+				const bool isByzantium = player.IsCiv("CIVILIZATION_BYZANTIUM");
+				const bool hasTheWheel = player.HasTech("TECH_THE_WHEEL");	
+				const bool hasPottery = player.HasTech("TECH_POTTERY");
+				if (eYieldType == YIELD_PRODUCTION && isByzantium && hasTheWheel && hasHorse)
+					yieldChange += 1;
+				if (eYieldType == YIELD_CULTURE && isByzantium && hasTheWheel && hasHorse)
+					yieldChange += 1;
+				if (eYieldType == YIELD_FOOD && isByzantium && hasPottery && hasMaize)
+					yieldChange += 1;
+				if (eYieldType == YIELD_GOLD && isByzantium && hasPottery && hasMaize)
+					yieldChange += 1;
+			}
+
+			{// CIVILIZATION_AMERICA - 2G 1 C from Lakes After Trappingislake
+				const bool isLake = plot.isLake();				
+				const bool isAmerica = player.IsCiv("CIVILIZATION_AMERICA");
+				const bool hasTrapping = player.HasTech("TECH_TRAPPING");				
+				if (eYieldType == YIELD_CULTURE && hasTrapping && isAmerica && isLake)
+					yieldChange += 1;
+				if (eYieldType == YIELD_GOLD && hasTrapping && isAmerica && isLake)
+					yieldChange += 1;				
+			}
 		}
 	}
 
-	// does not depend on player
+	// does not depend on player` 
 
 	{ // don't stack lake and atoll yields
 		if (plot.isLake() && hasAnyAtoll)
