@@ -2461,24 +2461,11 @@ float CvGlobals::onePerOnlineSpeedTurn()
 {
 	return getPercentTurnsDone() * onlineSpeedMaxTurns();
 }
-unsigned long CvGlobals::getFakeSeed(const int x, const int y, const int other)
+unsigned long CvGlobals::getFakeSeed(const unsigned int x, const unsigned int y, const unsigned int other)
 {
 	// these magic numbers are arbitrary prime numbers which help reduce
 	// the odds a seed collision (repeating a seed even though some variables changed)
 	unsigned long seed = 4339;
-	if (m_game != NULL)
-	{
-		seed *= getGame().countCivPlayersEverAlive();
-		for (int i = 0; i < MAX_CIV_PLAYERS; ++i)
-		{
-			if (GET_PLAYER((PlayerTypes)i).isEverAlive())
-				seed += (i * 157 * GET_PLAYER((PlayerTypes)i).getCivilizationInfo().GetID());
-			else
-				seed += i * 947;
-		}
-		seed += getGame().getMaxTurns() * 349;
-		seed += getGame().getGameTurn() * 6047;
-	}
 	seed += x * 2557;
 	seed += y * 7901;
 	seed += other * 227;
