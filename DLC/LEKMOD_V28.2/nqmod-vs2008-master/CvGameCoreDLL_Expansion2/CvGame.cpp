@@ -280,6 +280,7 @@ void CvGame::init(HandicapTypes eHandicap)
 	// set up random policy costs
 	const int numPolicies = 2 * GC.getNumPolicyInfos(); // 2 to safely handle branches
 	randomPolicyRebateT100.clear();
+	m_jonRand.reseed(1234);
 	for (int i = 0; i < numPolicies; ++i)
 	{
 		int rand = GC.rand(GC.getPOLICY_REBATE_VARIATION_T100() * 2, "policy cost", NULL, (i + 57) * 5333);
