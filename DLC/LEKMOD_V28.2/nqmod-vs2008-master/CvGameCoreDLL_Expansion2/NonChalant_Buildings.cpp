@@ -314,8 +314,7 @@ bool CvPlayer::ShouldHaveBuilding(const CvPlayer& rPlayer, const CvCity& rCity, 
 	{// POLICY_MERCHANT_CONFEDERACY gives BUILDING_MERCHANT_CONFEDERACY_TRADE_ROUTE to Capital
 		const bool isMerchantConfederacyBuilding = eBuildingClass == BuildingClass("BUILDINGCLASS_MERCHANT_CONFEDERACY_TRADE_ROUTE");	
 		const bool hasMerchantConfederacy = rPlayer.HasPolicy("POLICY_MERCHANT_CONFEDERACY");
-		if (isMerchantConfederacyBuilding && isYourCapital && hasMerchantConfederacy)
-		
+		if (isMerchantConfederacyBuilding && isYourCapital && hasMerchantConfederacy)		
 			return true;
 	}
 
@@ -323,7 +322,6 @@ bool CvPlayer::ShouldHaveBuilding(const CvPlayer& rPlayer, const CvCity& rCity, 
 		const bool isMerchantConfederacyBuilding = eBuildingClass == BuildingClass("BUILDINGCLASS_MERCHANT_CONFEDERACY_TRADE_ROUTE");
 		const bool hasMerchantConfederacy = rPlayer.HasPolicy("POLICY_MERCHANT_CONFEDERACY");
 		if (isMerchantConfederacyBuilding && isYourCapital && hasMerchantConfederacy)
-
 			return true;
 	}
 
@@ -331,7 +329,6 @@ bool CvPlayer::ShouldHaveBuilding(const CvPlayer& rPlayer, const CvCity& rCity, 
 		const bool isSilkRoadBuilding = eBuildingClass == BuildingClass("BUILDING_SILK_ROAD_TRADE_ROUTE");
 		const bool hasSilkRoad = rPlayer.HasPolicy("POLICY_CARAVANS");
 		if (isSilkRoadBuilding && isYourCapital && hasSilkRoad)
-
 			return true;
 	}
 
@@ -339,7 +336,6 @@ bool CvPlayer::ShouldHaveBuilding(const CvPlayer& rPlayer, const CvCity& rCity, 
 		const bool isFreeThoughtBuilding = eBuildingClass == BuildingClass("BUILDINGCLASS_FREE_THOUGHT_TRADE_ROUTE");
 		const bool hasFreeThought = rPlayer.HasPolicy("POLICY_FREE_THOUGHT");
 		if (isFreeThoughtBuilding && isYourCapital && hasFreeThought)
-
 			return true;
 	}
 
@@ -347,7 +343,6 @@ bool CvPlayer::ShouldHaveBuilding(const CvPlayer& rPlayer, const CvCity& rCity, 
 		const bool isFreePopBuilding = eBuildingClass == BuildingClass("BUILDINGCLASS_RATIONALISM_FINISHER_FREE_POP");
 		const bool hasRationalismFinisher = rPlayer.HasPolicy("POLICY_RATIONALISM_FINISHER");
 		if (isFreePopBuilding && isYourCapital && hasRationalismFinisher)
-
 			return true;
 	}
 
@@ -356,7 +351,13 @@ bool CvPlayer::ShouldHaveBuilding(const CvPlayer& rPlayer, const CvCity& rCity, 
 		const bool isCaputuredCityState = rCity.IsOwnedMinorCapital();
 		const bool hasPhilanthropy = rPlayer.HasPolicy("POLICY_PHILANTHROPY");
 		if (isConqueredCityStateBuilding && isCaputuredCityState && hasPhilanthropy)
+			return true;
+	}
 
+	{// CIVILIZATION_BYZANTIUM gets free  Murus Gallicus in Capital
+		const bool isByzantium = rPlayer.IsCiv("CIVILIZATION_BYZANTIUM");
+		const bool isMurusGallicus = eBuildingClass == BuildingClass("BUILDINGCLASS_WALLS");
+		if (isByzantium && isMurusGallicus && isYourCapital)
 			return true;
 	}
 	
