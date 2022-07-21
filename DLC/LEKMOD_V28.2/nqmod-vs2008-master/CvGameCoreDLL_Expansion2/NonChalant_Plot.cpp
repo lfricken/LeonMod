@@ -365,11 +365,25 @@ int CvPlot::getExtraYield
 					yieldChange += 1;
 			}
 
-			{// BUILDINGCLASS_BOROBUDUR - 2G per city
-				const bool hasMachuPichuBorobudur = player.HasWonder(BuildingClass("BUILDINGCLASS_MACHU_PICHU"));
-				if (eYieldType == YIELD_GOLD && hasMachuPichuBorobudur && isCityCenter)
+			{// BUILDINGCLASS_MACHU_PICHU - 2G per city
+				const bool hasMachuPichu = player.HasWonder(BuildingClass("BUILDINGCLASS_MACHU_PICHU"));
+				if (eYieldType == YIELD_GOLD && hasMachuPichu && isCityCenter)
 					yieldChange += 2;
-			}		
+			}				
+
+			{// BUILDINGCLASS_PYRAMID - 1PD per city
+				const bool hasPyramids = player.HasWonder(BuildingClass("BUILDINGCLASS_PYRAMID"));
+				if (eYieldType == YIELD_PRODUCTION && hasPyramids && isCityCenter)
+					yieldChange += 1;
+			}
+
+			{// BUILDINGCLASS_PORCELAIN_TOWER - 3SC per Lucury
+				const bool hasPorcelinTower = player.HasWonder(BuildingClass("BUILDINGCLASS_PORCELAIN_TOWER"));
+				if (eYieldType == YIELD_SCIENCE && hasPorcelinTower && hasLuxury)
+					yieldChange += 3;
+			}
+
+			
 
 		}
 	}

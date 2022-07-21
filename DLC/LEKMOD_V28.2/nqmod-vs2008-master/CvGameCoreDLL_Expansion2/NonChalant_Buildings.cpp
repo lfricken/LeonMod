@@ -287,13 +287,38 @@ int CvPlayer::GetExtraYieldForBuilding
 			yieldChange += 3;
 	}
 
-	{// BUILDING_SYDNEY_OPERA_HOUSE grants +3T to every Airport
-		const bool isGranry = eBuildingClass == BuildingClass("BUILDINGCLASS_AIRPORT");
+	{// BUILDINGCLASS_STATUE_OF_LIBERTY grants +10% FD to every Granary
+		const bool isGranry = eBuildingClass == BuildingClass("BUILDINGCLASS_GRANARY");
 		const bool hasStatueOfLiberty = player.HasWonder(BuildingClass("BUILDINGCLASS_STATUE_OF_LIBERTY"));
 		if (eYieldType == YIELD_FOOD && isPercentMod && hasStatueOfLiberty && isGranry)
 			yieldChange += 10;
 	}
-	
+
+	{// BUILDINGCLASS_KREMLIN grants +10% PD to every Workshop
+		const bool isWorkshop = eBuildingClass == BuildingClass("BUILDINGCLASS_WORKSHOP");
+		const bool hasKremlin = player.HasWonder(BuildingClass("BUILDINGCLASS_KREMLIN"));
+		if (eYieldType == YIELD_PRODUCTION && isPercentMod && hasKremlin && isWorkshop)
+			yieldChange += 10;
+	}
+
+	{// BUILDINGCLASS_FORBIDDEN_PALACE grants +1FD +1PD +1G +1Diplo from every City-State Ally
+		const bool isForbiddenPalace = eBuildingClass == BuildingClass("BUILDINGCLASS_FORBIDDEN_PALACE");
+		if (eYieldType == YIELD_FOOD && !isPercentMod && isForbiddenPalace)
+			yieldChange += numCityStateAllies;
+		if (eYieldType == YIELD_PRODUCTION && !isPercentMod && isForbiddenPalace)
+			yieldChange += numCityStateAllies;
+		if (eYieldType == YIELD_GOLD && !isPercentMod && isForbiddenPalace)
+			yieldChange += numCityStateAllies;
+		if (eYieldType == YIELD_DIPLOMATIC_SUPPORT && !isPercentMod && isForbiddenPalace)
+			yieldChange += numCityStateAllies;
+	}
+
+	{// BUILDINGCLASS_TEMPLE_ARTEMIS grants +1FD to each Granary
+		const bool hasTempleOfArtemis = player.HasWonder(BuildingClass("BUILDINGCLASS_TEMPLE_ARTEMIS"));
+		const bool isGranry = eBuildingClass == BuildingClass("BUILDINGCLASS_GRANARY");
+		if (eYieldType == YIELD_FOOD && !isPercentMod && hasTempleOfArtemis && isGranry)
+			yieldChange += +1;		
+	}
 
 	return yieldChange;
 }
@@ -498,6 +523,14 @@ int CvPlayer::getSpecialistYieldHardcoded(const CvCity* pCity, const SpecialistT
 		if (eYield == YIELD_PRODUCTION && hasPanama && isEngineer)
 			change += 1;
 		if (eYield == YIELD_GOLD && hasPanama && isEngineer)
+			change += 1;
+	}
+
+	{// BUILDINGCLASS_PORCELAIN_TOWER gives +1SC +1PD to Scientists
+		const bool hasPorcelainTower = player.HasWonder(BuildingClass("BUILDINGCLASS_PORCELAIN_TOWER"));
+		if (eYield == YIELD_PRODUCTION && hasPorcelainTower && isScientist)
+			change += 1;
+		if (eYield == YIELD_SCIENCE && hasPorcelainTower && isScientist)
 			change += 1;
 	}
 
