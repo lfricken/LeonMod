@@ -3813,16 +3813,15 @@ void CvPlayerPolicies::DoUnlockPolicyBranch(PolicyBranchTypes eBranchType)
 		wasFree = true;
 	}
 
-	// Update cost if trying to buy another policy this turn
-	GetPlayer()->DoUpdateNextPolicyCost();
-
-
 	// needs to happen after DoUpdateNextPolicyCost so we rebate the NEXT policy cost
 	if (!wasFree)
 	{
 		const int rebate = GetPlayer()->GetPolicyRebate((PolicyTypes)eBranchType, true);
 		GetPlayer()->changeJONSCulture(rebate);
 	}
+
+	// Update cost if trying to buy another policy this turn
+	GetPlayer()->DoUpdateNextPolicyCost();
 
 
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);

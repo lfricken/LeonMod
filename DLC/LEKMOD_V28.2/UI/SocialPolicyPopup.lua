@@ -429,7 +429,7 @@ function UpdateDisplay()
 			end
 			
 			-- Policy cost variation
-			local change = -player:GetPolicyRebate(i, true);
+			local change = player:GetPolicyRebate(i, true);
 			if (change > 0) then
 				change = "[COLOR_NEGATIVE_TEXT]" .. "+" .. math.abs(change) .. "%[ENDCOLOR]";
 			else
@@ -561,8 +561,8 @@ function UpdateDisplay()
 			end
 
 			-- Policy cost variation
-			local change = -player:GetPolicyRebate(i, false);
-			if (change >= 0) then
+			local change = player:GetPolicyRebate(i, false);
+			if (change > 0) then
 				change = "[COLOR_NEGATIVE_TEXT]" .. "+" .. math.abs(change) .. "%[ENDCOLOR]";
 			else
 				change = "[COLOR_POSITIVE_TEXT]" .. "-" .. math.abs(change) .. "%[ENDCOLOR]";

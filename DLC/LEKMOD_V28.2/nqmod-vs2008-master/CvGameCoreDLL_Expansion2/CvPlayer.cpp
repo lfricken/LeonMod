@@ -14082,17 +14082,17 @@ void CvPlayer::doAdoptPolicy(PolicyTypes ePolicy)
 		wasFree = false;
 	}
 
-	setHasPolicy(ePolicy, true);
-
-	// Update cost if trying to buy another policy this turn
-	DoUpdateNextPolicyCost();
-
 	// needs to happen after DoUpdateNextPolicyCost so we rebate the NEXT policy cost
 	if (!wasFree)
 	{
 		const int rebate = GetPolicyRebate(ePolicy, false);
 		changeJONSCulture(rebate);
 	}
+
+	setHasPolicy(ePolicy, true);
+
+	// Update cost if trying to buy another policy this turn
+	DoUpdateNextPolicyCost();
 
 	// Branch unlocked
 	PolicyBranchTypes ePolicyBranch = (PolicyBranchTypes) pkPolicyInfo->GetPolicyBranchType();
