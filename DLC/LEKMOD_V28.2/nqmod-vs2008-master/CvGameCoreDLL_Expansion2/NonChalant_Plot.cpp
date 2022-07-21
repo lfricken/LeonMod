@@ -311,14 +311,7 @@ int CvPlot::getExtraYield
 					yieldChange += 3;
 				if (eYieldType == YIELD_GOLD && hasNewOrder && isCitadel)
 					yieldChange += 3;
-			}
-
-			{// POLICY_SOVEREIGNTY - gives +2 singularity to Acadamies
-				const bool hasSovereignty = player.HasPolicy("POLICY_SOVEREIGNTY");
-				const bool isAcadamy = plot.HasImprovement("IMPROVEMENT_ACADEMY");
-				if (eYieldType == YIELD_SCIENTIFIC_INSIGHT && hasSovereignty && isAcadamy)
-					yieldChange += 2;
-			}
+			}			
 
 			{// POLICY_HONOR_FINISHER - gives +3 PD, SC, C to Citadels
 				const bool hasHonorFinisher = player.HasPolicy("POLICY_HONOR_FINISHER");
@@ -335,6 +328,36 @@ int CvPlot::getExtraYield
 				const bool hasOrganizedReligion = player.HasPolicy("POLICY_ORGANIZED_RELIGION");				
 				if (eYieldType == YIELD_CULTURE && hasOrganizedReligion && isHolyCity && isCityCenter)
 					yieldChange += (numFollowersLocal / 3);
+			}
+
+			{// POLICY_EXPLORATION_FINISHER gives +1FD from Fish, +1C from Coastal Luxuries, +1PD from Atolls, 2PD, 2G from DryDocks				
+				const bool hasExplorationFinisher = player.HasPolicy("POLICY_EXPLORATION_FINISHER");
+				const bool isFish = plot.HasResource("RESOURCE_FISH"); 
+				const bool isCoastalLuxury = (plot.HasResource("RESOURCE_") || plot.HasResource("RESOURCE_CRAB") || plot.HasResource("RESOURCE_WHALE") || plot.HasResource("RESOURCE_PEARLS")
+					|| plot.HasResource("RESOURCE_CORAL"));
+				const bool isDryDock = (plot.HasImprovement("IMPROVEMENT_DOCK") || plot.HasImprovement("IMPROVEMENT_CHILE_DOCK"));
+				if (eYieldType == YIELD_FOOD && hasExplorationFinisher && isFish)
+					yieldChange += 1;
+				if (eYieldType == YIELD_CULTURE && hasExplorationFinisher && isCoastalLuxury)
+					yieldChange += 1;
+				if (eYieldType == YIELD_PRODUCTION && hasExplorationFinisher && hasAnyAtoll)
+					yieldChange += 1;
+				if (eYieldType == YIELD_GOLD && hasExplorationFinisher && isDryDock)
+					yieldChange += 2;
+				if (eYieldType == YIELD_PRODUCTION && hasExplorationFinisher && isDryDock)
+					yieldChange += 2;
+			}
+
+			{// POLICY_COMMERCE_FINISHER gives +1PD to mines withour resources, and +1FD to Farms without Resources or Flood Plains				
+				const bool hasCommerceFinisher = player.HasPolicy("POLICY_COMMERCE_FINISHER");
+				const bool isFarm = plot.HasImprovement("IMPROVEMENT_FARM");
+				const bool isMine = plot.HasImprovement("IMPROVEMENT_MINE");
+				const bool isFloodPlains = plot.HasFeature("FEATURE_FLOOD_PLAINS");
+				if (eYieldType == YIELD_FOOD && hasCommerceFinisher && isFarm && noResource && !isFloodPlains)
+					yieldChange += 1;
+				if (eYieldType == YIELD_PRODUCTION && hasCommerceFinisher && isMine && noResource)
+					yieldChange += 1;
+				
 			}
 
 		}
