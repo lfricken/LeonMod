@@ -270,6 +270,7 @@ void CvGame::init(HandicapTypes eHandicap)
 	}
 
 	// initialize all competitions
+	m_competitions.clear();
 	for (int i = 0; i < NUM_COMPETITIONS; ++i)
 	{
 		m_competitions.push_back(CvCompetition(MAX_MAJOR_CIVS, (MiniCompetitionTypes)i));
@@ -278,6 +279,7 @@ void CvGame::init(HandicapTypes eHandicap)
 
 	// set up random policy costs
 	const int numPolicies = 2 * GC.getNumPolicyInfos(); // 2 to safely handle branches
+	randomPolicyRebateT100.clear();
 	for (int i = 0; i < numPolicies; ++i)
 	{
 		int rand = GC.rand(GC.getPOLICY_REBATE_VARIATION_T100() * 2, "policy cost", NULL, (i + 57) * 5333);
