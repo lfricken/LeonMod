@@ -377,6 +377,12 @@ int CvPlot::getExtraYield
 					yieldChange += 1;
 			}
 
+			{// BUILDINGCLASS_TEMPLE_ARTEMIS - 1FD per city
+				const bool hasTempleOfArtemis = player.HasWonder(BuildingClass("BUILDINGCLASS_TEMPLE_ARTEMIS"));
+				if (eYieldType == YIELD_FOOD && hasTempleOfArtemis && isCityCenter)
+					yieldChange += 1;
+			} 			
+
 			{// BUILDINGCLASS_PORCELAIN_TOWER - 3SC per Lucury
 				const bool hasPorcelinTower = player.HasWonder(BuildingClass("BUILDINGCLASS_PORCELAIN_TOWER"));
 				if (eYieldType == YIELD_SCIENCE && hasPorcelinTower && hasLuxury)

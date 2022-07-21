@@ -130,14 +130,7 @@ int CvPlayer::GetExtraYieldForBuilding
 				yieldChange += (2 * numWorldWondersInCity);
 			if (eYieldType == YIELD_TOURISM && isPercentMod && isBroadcastTower)
 				yieldChange += (2 * numNationalWondersInCity);
-		}
-
-		{// BUILDINGCLASS_HAGIA_SOPHIA +2FH per Population in a the City. 
-			const bool isHagiaSofia = eBuildingClass == BuildingClass("BUILDINGCLASS_HAGIA_SOPHIA");
-			const int cityPopulation = city.getPopulation();			
-			if (eYieldType == YIELD_FAITH && !isPercentMod && isHagiaSofia)
-				yieldChange += (cityPopulation / 2);
-		}
+		}		
 	}
 
 	{ // POLICY_SKYSCRAPERS - adds +2 diplomatic points to plazas
@@ -312,13 +305,7 @@ int CvPlayer::GetExtraYieldForBuilding
 		if (eYieldType == YIELD_DIPLOMATIC_SUPPORT && !isPercentMod && isForbiddenPalace)
 			yieldChange += numCityStateAllies;
 	}
-
-	{// BUILDINGCLASS_TEMPLE_ARTEMIS grants +1FD to each Granary
-		const bool hasTempleOfArtemis = player.HasWonder(BuildingClass("BUILDINGCLASS_TEMPLE_ARTEMIS"));
-		const bool isGranry = eBuildingClass == BuildingClass("BUILDINGCLASS_GRANARY");
-		if (eYieldType == YIELD_FOOD && !isPercentMod && hasTempleOfArtemis && isGranry)
-			yieldChange += +1;		
-	}
+	
 
 	return yieldChange;
 }
