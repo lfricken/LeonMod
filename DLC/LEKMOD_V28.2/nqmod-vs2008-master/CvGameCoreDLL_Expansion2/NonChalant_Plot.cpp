@@ -356,9 +356,20 @@ int CvPlot::getExtraYield
 				if (eYieldType == YIELD_FOOD && hasCommerceFinisher && isFarm && noResource && !isFloodPlains)
 					yieldChange += 1;
 				if (eYieldType == YIELD_PRODUCTION && hasCommerceFinisher && isMine && noResource)
-					yieldChange += 1;
-				
+					yieldChange += 1;				
 			}
+
+			{// BUILDINGCLASS_BOROBUDUR - 1 FH per city
+				const bool hasBorobudur = player.HasWonder(BuildingClass("BUILDINGCLASS_BOROBUDUR"));
+				if (eYieldType == YIELD_FAITH && hasBorobudur && isCityCenter)
+					yieldChange += 1;
+			}
+
+			{// BUILDINGCLASS_BOROBUDUR - 2G per city
+				const bool hasMachuPichuBorobudur = player.HasWonder(BuildingClass("BUILDINGCLASS_MACHU_PICHU"));
+				if (eYieldType == YIELD_GOLD && hasMachuPichuBorobudur && isCityCenter)
+					yieldChange += 2;
+			}		
 
 		}
 	}
