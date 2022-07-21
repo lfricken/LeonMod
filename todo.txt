@@ -1,4 +1,13 @@
 
+try packet dropper
+try network latency
+UDP 1200 (used for friends service)
+UDP 27000 to 27015 inclusive
+TCP 27020 to 27039 inclusive
+
+tcp.port <= 27039 and tcp.port >= 27020 
+udp.srcport >= 27000 and udp.srcport <= 27015 or udp.dstport >= 27000 and udp.dstport <= 27015
+(tcp.srcport >= 27020 and tcp.srcport <= 27040) or (tcp.dstport >= 27020 and tcp.dstport <= 27040)
 
 
 tile vp icons are broken

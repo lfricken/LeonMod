@@ -3228,7 +3228,8 @@ bool CvCity::canJoin() const
 bool CvCity::IsOwnedMinorCapital() const
 {
 	const PlayerTypes eOriginalOwner = this->getOriginalOwner();
-	if (eOriginalOwner != NO_PLAYER)
+	bool originalOwnerOwnsIt = getOwner() == eOriginalOwner;
+	if (!originalOwnerOwnsIt && eOriginalOwner != NO_PLAYER)
 	{
 		if (IsOriginalCapital() && GET_PLAYER(eOriginalOwner).isMinorCiv())
 		{
@@ -5376,9 +5377,7 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts) 
 					}
 					else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_ENGINEER", true /*bHideAssert*/))
 					{
-						isUnlockedByPolicy |= doesHaveBranch("POLICY_BRANCH_TRADITION", kPlayer);
-						isUnlockedByPolicy |= doesHaveBranch("POLICY_BRANCH_LIBERTY", kPlayer);
-						isUnlockedByPolicy |= doesHaveBranch("POLICY_BRANCH_HONOR", kPlayer);
+						isUnlockedByPolicy |= doesHaveBranch("POLICY_BRANCH_TRADITION", kPlayer);					
 						numAlreadyAttained = kPlayer.getEngineersFromFaith();
 					}
 					else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_GENERAL", true /*bHideAssert*/))

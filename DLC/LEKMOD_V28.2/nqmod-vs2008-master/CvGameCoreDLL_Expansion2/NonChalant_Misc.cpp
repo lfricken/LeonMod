@@ -80,16 +80,28 @@ int CvGlobals::getYIELD_PER_QUEST(const YieldTypes eYieldType, const PlayerTypes
 	// player specific changes
 	if (ePlayer != NO_PLAYER)
 	{
-		const CvPlayer& player = GET_PLAYER(ePlayer);
+		const CvPlayer& player = GET_PLAYER(ePlayer);		
 		if (eYieldType == YIELD_DIPLOMATIC_SUPPORT)
 		{
-			const bool hasPhilanthropy = player.HasPolicy("POLICY_PHILANTHROPY");
+			//POLICY_PATRONAGE_FINISHER grants 50% more Diplo Points from Completing Quests
+			const bool hasPhilanthropy = player.HasPolicy("POLICY_PATRONAGE_FINISHER");
 			if (hasPhilanthropy)
 				value *= 1.5;
 		}
 		if (eYieldType == YIELD_SCIENTIFIC_INSIGHT)
 		{
+			//POLICY_PATRONAGE_FINISHER grants +15 Insight from Completing Quests
+			const bool hasPhilanthropy = player.HasPolicy("POLICY_PATRONAGE_FINISHER");
+			if (hasPhilanthropy)
+				value += 15;
+		}
 
+		if (eYieldType == YIELD_GOLD)
+		{
+			// POLICY_PATRONAGE grants 100G from City-State Quests
+			const bool hasPatronageOpener = player.HasPolicy("POLICY_PATRONAGE");
+			if (hasPatronageOpener)
+				value += 100;
 		}
 	}
 
@@ -147,24 +159,49 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 			yieldChange += 1;
 		if (eYieldType == YIELD_PRODUCTION && hasOilRefinery)
 			yieldChange += 3;
+		{ // POLICY_FREE_THOUGHT +6SC +2FD from Internal Trade Routes
+			const bool hasFreeThought = playerOrigin.HasPolicy("POLICY_FREE_THOUGHT");
+			if (eYieldType == YIELD_FOOD && hasFreeThought)
+				yieldChange += 2;
+			if (eYieldType == YIELD_SCIENCE && hasFreeThought)
+				yieldChange += 6;
+		}
 	}
 	else
 	{
 		if (isDestMinor) // destination is City State
 		{
 			if (eYieldType == YIELD_DIPLOMATIC_SUPPORT && hasMerchantConfederacy)
-				yieldChange += 3;
+				yieldChange += 2;
 			if (eYieldType == YIELD_FOOD && hasMerchantConfederacy)
 				yieldChange += 2;
 			if (eYieldType == YIELD_PRODUCTION && hasMerchantConfederacy)
 				yieldChange += 2;
+			if (eYieldType == YIELD_CULTURE && hasMerchantConfederacy)
+				yieldChange += 2;			
 		}
 		else // destination is another civ
 		{
 			if (eYieldType == YIELD_FOOD && hasSilkRoad)
 				yieldChange += 3;
 			if (eYieldType == YIELD_PRODUCTION && hasSilkRoad)
+				yieldChange += 3;	
+			if (eYieldType == YIELD_DIPLOMATIC_SUPPORT && hasSilkRoad)
 				yieldChange += 3;
+		}
+
+		{ // POLICY_AESTHETICS +2C and +2T from External Routes
+			const bool hasAestheticsOpener = playerOrigin.HasPolicy("POLICY_AESTHETICS");
+			if (eYieldType == YIELD_CULTURE && hasAestheticsOpener)
+				yieldChange += 2;
+			if (eYieldType == YIELD_TOURISM && hasAestheticsOpener)
+				yieldChange += 2;
+		}
+
+		{ // POLICY_FREE_THOUGHT +1 Insight from External Routes
+			const bool hasFreeThought = playerOrigin.HasPolicy("POLICY_FREE_THOUGHT");
+			if (eYieldType == YIELD_SCIENTIFIC_INSIGHT && hasFreeThought)
+				yieldChange += 1;			
 		}
 
 		{ // diplomatic support from trade route buildings

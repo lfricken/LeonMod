@@ -249,6 +249,24 @@ int CvPlot::getExtraYield
 					yieldChange += 1;
 			}
 
+			{// BELIEF_DEFENDER_FAITH - gives 2FH for every 3 Followers in Holy City. 
+				const bool hasBeliefDefenderOfTheFaith = city.HasBelief("BELIEF_DEFENDER_FAITH");
+				if (eYieldType == YIELD_FAITH && hasBeliefDefenderOfTheFaith && isHolyCity && isCityCenter)
+					yieldChange += (numFollowersLocal / 3) * 2;
+			}
+			
+			{// BELIEF_KARMA - gives 1C for every 2 Followers in Holy City. 
+				const bool hasBeliefKarma = city.HasBelief("BELIEF_KARMA");
+				if (eYieldType == YIELD_CULTURE && hasBeliefKarma && isHolyCity && isCityCenter)
+					yieldChange += (numFollowersLocal / 2);
+			}
+
+			{// BELIEF_PROMISED_LAND - gives 1G for every follower in Holy City. 
+				const bool hasBeliefPromisedLand = city.HasBelief("BELIEF_PROMISED_LAND");
+				if (eYieldType == YIELD_GOLD && hasBeliefPromisedLand && isHolyCity && isCityCenter)
+					yieldChange += (numFollowersLocal);
+			}
+
 			{// Policy_Cutural Exchange - gives 1 tourism to great person tile improvements. 
 				const bool hasPolicyCulturalExchange = player.HasPolicy("POLICY_ETHICS");
 				if (eYieldType == YIELD_TOURISM && hasPolicyCulturalExchange && isGreatTile)
@@ -291,13 +309,53 @@ int CvPlot::getExtraYield
 					yieldChange += 3;
 				if (eYieldType == YIELD_GOLD && hasNewOrder && isCitadel)
 					yieldChange += 3;
+			}			
+
+			{// POLICY_HONOR_FINISHER - gives +3 PD, SC, C to Citadels
+				const bool hasHonorFinisher = player.HasPolicy("POLICY_HONOR_FINISHER");
+				const bool isCitadel = plot.HasImprovement("IMPROVEMENT_CITADEL");
+				if (eYieldType == YIELD_PRODUCTION && hasHonorFinisher && isCitadel)
+					yieldChange += 3;
+				if (eYieldType == YIELD_CULTURE && hasHonorFinisher && isCitadel)
+					yieldChange += 3;
+				if (eYieldType == YIELD_SCIENCE && hasHonorFinisher && isCitadel)
+					yieldChange += 3;
 			}
 
-			{// POLICY_SOVEREIGNTY - gives +2 singularity to Acadamies
-				const bool hasSovereignty = player.HasPolicy("POLICY_SOVEREIGNTY");
-				const bool isAcadamy = plot.HasImprovement("IMPROVEMENT_ACADEMY");
-				if (eYieldType == YIELD_SCIENTIFIC_INSIGHT && hasSovereignty && isAcadamy)
+			{// POLICY_ORGANIZED_RELIGION gives +1C for every 3 Followers in Holy city if you have adopted a religion				
+				const bool hasOrganizedReligion = player.HasPolicy("POLICY_ORGANIZED_RELIGION");				
+				if (eYieldType == YIELD_CULTURE && hasOrganizedReligion && isHolyCity && isCityCenter)
+					yieldChange += (numFollowersLocal / 3);
+			}
+
+			{// POLICY_EXPLORATION_FINISHER gives +1FD from Fish, +1C from Coastal Luxuries, +1PD from Atolls, 2PD, 2G from DryDocks				
+				const bool hasExplorationFinisher = player.HasPolicy("POLICY_EXPLORATION_FINISHER");
+				const bool isFish = plot.HasResource("RESOURCE_FISH"); 
+				const bool isCoastalLuxury = (plot.HasResource("RESOURCE_") || plot.HasResource("RESOURCE_CRAB") || plot.HasResource("RESOURCE_WHALE") || plot.HasResource("RESOURCE_PEARLS")
+					|| plot.HasResource("RESOURCE_CORAL"));
+				const bool isDryDock = (plot.HasImprovement("IMPROVEMENT_DOCK") || plot.HasImprovement("IMPROVEMENT_CHILE_DOCK"));
+				if (eYieldType == YIELD_FOOD && hasExplorationFinisher && isFish)
+					yieldChange += 1;
+				if (eYieldType == YIELD_CULTURE && hasExplorationFinisher && isCoastalLuxury)
+					yieldChange += 1;
+				if (eYieldType == YIELD_PRODUCTION && hasExplorationFinisher && hasAnyAtoll)
+					yieldChange += 1;
+				if (eYieldType == YIELD_GOLD && hasExplorationFinisher && isDryDock)
 					yieldChange += 2;
+				if (eYieldType == YIELD_PRODUCTION && hasExplorationFinisher && isDryDock)
+					yieldChange += 2;
+			}
+
+			{// POLICY_COMMERCE_FINISHER gives +1PD to mines withour resources, and +1FD to Farms without Resources or Flood Plains				
+				const bool hasCommerceFinisher = player.HasPolicy("POLICY_COMMERCE_FINISHER");
+				const bool isFarm = plot.HasImprovement("IMPROVEMENT_FARM");
+				const bool isMine = plot.HasImprovement("IMPROVEMENT_MINE");
+				const bool isFloodPlains = plot.HasFeature("FEATURE_FLOOD_PLAINS");
+				if (eYieldType == YIELD_FOOD && hasCommerceFinisher && isFarm && noResource && !isFloodPlains)
+					yieldChange += 1;
+				if (eYieldType == YIELD_PRODUCTION && hasCommerceFinisher && isMine && noResource)
+					yieldChange += 1;
+				
 			}
 
 			{// IMPROVEMENT_POLDER - gives +2 Food to Marsh.

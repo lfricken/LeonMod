@@ -54,6 +54,8 @@ int CvPlayer::GetExtraYieldForBuilding
 
 	const CvPlayer& player = *this;
 
+	const int numCityStateAllies = player.GetNumMinorAllies();
+
 	if (pCity != NULL) // in a city
 	{
 		const CvCity& city = *pCity;
@@ -76,6 +78,24 @@ int CvPlayer::GetExtraYieldForBuilding
 				yieldChange += 10;
 			if (eYieldType == YIELD_TOURISM && isPercentMod && isHermitage && hasBeliefReligiousArt)
 				yieldChange += 10;
+		}
+
+		{// BELIEFS that buff buildings purchased through faith
+			const bool hasBeliefDharma = city.HasBelief("BELIEF_DARMA");
+			const bool hasBeliefHajj = city.HasBelief("BELIEF_HAJJJJ");
+			const bool hasBeliefJizya = city.HasBelief("BELIEF_CRAFTWORKS");
+			const bool isReligiousBuilding = 
+				  eBuildingClass == BuildingClass("BUILDINGCLASS_PAGODA") || eBuildingClass == BuildingClass("BUILDINGCLASS_MOSQUE")
+				|| eBuildingClass == BuildingClass("BUILDINGCLASS_CATHEDRAL") || eBuildingClass == BuildingClass("BUILDINGCLASS_SCRIPTORIUM")
+				|| eBuildingClass == BuildingClass("BUILDINGCLASS_TABERNACLE") || eBuildingClass == BuildingClass("BUILDINGCLASS_GURDWARA")
+				|| eBuildingClass == BuildingClass("BUILDINGCLASS_SYNAGOGUE") || eBuildingClass == BuildingClass("BUILDINGCLASS_MITHRAEUM")
+				|| eBuildingClass == BuildingClass("BUILDINGCLASS_VIHARA") || eBuildingClass == BuildingClass("BUILDINGCLASS_MANDIR");
+			if (eYieldType == YIELD_GOLD && !isPercentMod && isReligiousBuilding && hasBeliefDharma)
+				yieldChange += 3;
+			if (eYieldType == YIELD_CULTURE && !isPercentMod && isReligiousBuilding && hasBeliefHajj)
+				yieldChange += 1;
+			if (eYieldType == YIELD_FAITH && !isPercentMod && isReligiousBuilding && hasBeliefJizya)
+				yieldChange += 2;
 		}
 
 		{// BUILDINGCLASS_HOTEL +1 C, +1 Tourism and +2% C, +2% Tourism for every 5 citizens in a city.
@@ -147,21 +167,7 @@ int CvPlayer::GetExtraYieldForBuilding
 		const bool isMerchantsGuild = eBuildingClass == BuildingClass("BUILDINGCLASS_GUILD_GOLD");
 		if (eYieldType == YIELD_GOLD && isPercentMod && hasMercenaryArmy && isMerchantsGuild)
 			yieldChange += 15;
-	}
-
-	{// POLICY_FREE_THOUGHT - +1 Singularity from Research Labs
-		const bool hasFreeThought = player.HasPolicy("POLICY_FREE_THOUGHT");
-		const bool isResearchLab = eBuildingClass == BuildingClass("BUILDINGCLASS_LABORATORY");
-		if (eYieldType == YIELD_SCIENTIFIC_INSIGHT && !isPercentMod && hasFreeThought && isResearchLab)
-			yieldChange += 1;
-	}
-
-	{// POLICY_FREE_THOUGHT - +1 Singularity from Research Labs
-		const bool hasFreeThought = player.HasPolicy("POLICY_FREE_THOUGHT");
-		const bool isResearchLab = eBuildingClass == BuildingClass("BUILDINGCLASS_LABORATORY");
-		if (eYieldType == YIELD_SCIENTIFIC_INSIGHT && !isPercentMod && hasFreeThought && isResearchLab)
-			yieldChange += 1;
-	}
+	}	
 
 	{// POLICY_URBANIZATION - +3% Production and Science to Windmill, Workshop, Factory
 		const bool hasUrbanization = player.HasPolicy("POLICY_URBANIZATION");
@@ -201,11 +207,18 @@ int CvPlayer::GetExtraYieldForBuilding
 		}
 	}
 
-	{// POLICY_RATIONALISM_FINISHER - Rationalism Finisher gives 5 Scientific insight to the palace
-		const bool hasRationalismFinisher = player.HasPolicy("POLICY_RATIONALISM_FINISHER");
+	{// POLICY_SCHOLASTICISM - gives +5% Science to the Palace for each City-State Ally
+		const bool hasScholasticism = player.HasPolicy("POLICY_SCHOLASTICISM");
 		const bool isPalace = eBuildingClass == BuildingClass("BUILDINGCLASS_PALACE");
-		if (eYieldType == YIELD_SCIENTIFIC_INSIGHT && !isPercentMod && hasRationalismFinisher && isPalace)
-			yieldChange += 5;
+		if (eYieldType == YIELD_SCIENCE && isPercentMod && hasScholasticism && isPalace)
+			yieldChange += (numCityStateAllies * 5);
+	}
+
+	{// POLICY_CONSULATES - gives +3C to the Palace for each City-State Ally
+		const bool hasConsulates = player.HasPolicy("POLICY_CONSULATES");
+		const bool isPalace = eBuildingClass == BuildingClass("BUILDINGCLASS_PALACE");
+		if (eYieldType == YIELD_SCIENCE && !isPercentMod && hasConsulates && isPalace)
+			yieldChange += (numCityStateAllies * 3);
 	}
 
 	{// TIBET_STUPA // adds one of several yields every few techs
@@ -230,10 +243,70 @@ int CvPlayer::GetExtraYieldForBuilding
 			yieldChange += 2;
 	}
 
+	{// BUILDING_CONQUERED_CITY_STATE Center gets +10% FD, SC, C 
+		const bool isConqueredCityStateBuilding = eBuildingClass == BuildingClass("BUILDINGCLASS_CONQUERED_CITY_STATE");
+		if (eYieldType == YIELD_FOOD && isPercentMod && isConqueredCityStateBuilding)
+			yieldChange += 10;
+		if (eYieldType == YIELD_PRODUCTION && isPercentMod && isConqueredCityStateBuilding)
+			yieldChange += 10;
+		if (eYieldType == YIELD_CULTURE && isPercentMod && isConqueredCityStateBuilding)
+			yieldChange += 10;
+	}
+	
+
 	return yieldChange;
 }
 bool CvPlayer::ShouldHaveBuilding(const CvPlayer& rPlayer, const CvCity& rCity, const bool isYourCapital, const bool isConquered, const bool isNewlyFounded, const BuildingClassTypes eBuildingClass)
 {
+	{// POLICY_MERCHANT_CONFEDERACY gives BUILDING_MERCHANT_CONFEDERACY_TRADE_ROUTE to Capital
+		const bool isMerchantConfederacyBuilding = eBuildingClass == BuildingClass("BUILDINGCLASS_MERCHANT_CONFEDERACY_TRADE_ROUTE");	
+		const bool hasMerchantConfederacy = rPlayer.HasPolicy("POLICY_MERCHANT_CONFEDERACY");
+		if (isMerchantConfederacyBuilding && isYourCapital && hasMerchantConfederacy)
+		
+			return true;
+	}
+
+	{// POLICY_MERCHANT_CONFEDERACY gives BUILDING_MERCHANT_CONFEDERACY_TRADE_ROUTE to Capital
+		const bool isMerchantConfederacyBuilding = eBuildingClass == BuildingClass("BUILDINGCLASS_MERCHANT_CONFEDERACY_TRADE_ROUTE");
+		const bool hasMerchantConfederacy = rPlayer.HasPolicy("POLICY_MERCHANT_CONFEDERACY");
+		if (isMerchantConfederacyBuilding && isYourCapital && hasMerchantConfederacy)
+
+			return true;
+	}
+
+	{// POLICY_CARAVANS gives BUILDING_SILK_ROAD_TRADE_ROUTE to Capital
+		const bool isSilkRoadBuilding = eBuildingClass == BuildingClass("BUILDING_SILK_ROAD_TRADE_ROUTE");
+		const bool hasSilkRoad = rPlayer.HasPolicy("POLICY_CARAVANS");
+		if (isSilkRoadBuilding && isYourCapital && hasSilkRoad)
+
+			return true;
+	}
+
+	{// POLICY_FREE_THOUGHT gives BUILDING_FREE_THOUGHT_TRADE_ROUTE to Capital
+		const bool isFreeThoughtBuilding = eBuildingClass == BuildingClass("BUILDINGCLASS_FREE_THOUGHT_TRADE_ROUTE");
+		const bool hasFreeThought = rPlayer.HasPolicy("POLICY_FREE_THOUGHT");
+		if (isFreeThoughtBuilding && isYourCapital && hasFreeThought)
+
+			return true;
+	}
+
+	{// POLICY_RATIONALISM_FINISHER gives BUILDING_RATIONALISM_FINISHER_FREE_POP to Capital
+		const bool isFreePopBuilding = eBuildingClass == BuildingClass("BUILDINGCLASS_RATIONALISM_FINISHER_FREE_POP");
+		const bool hasRationalismFinisher = rPlayer.HasPolicy("POLICY_RATIONALISM_FINISHER");
+		if (isFreePopBuilding && isYourCapital && hasRationalismFinisher)
+
+			return true;
+	}
+
+	{// POLICY_PHILANTHROPY gives stuff for conquered City-States
+		const bool isConqueredCityStateBuilding = eBuildingClass == BuildingClass("BUILDINGCLASS_CONQUERED_CITY_STATE"); 
+		const bool isCaputuredCityState = rCity.IsOwnedMinorCapital();
+		const bool hasPhilanthropy = rPlayer.HasPolicy("POLICY_PHILANTHROPY");
+		if (isConqueredCityStateBuilding && isCaputuredCityState && hasPhilanthropy)
+
+			return true;
+	}
+	
 
 	return false;
 }
@@ -297,8 +370,55 @@ int CvPlayer::getSpecialistYieldHardcoded(const CvCity* pCity, const SpecialistT
 
 
 	// logic that does not reference the city
-	change += 3;
+	
 
+	{// POLICY_TRADITION_FINISHER gives +1G +1PD to Engineer Specialists
+		const bool hasTraditionFinisher = player.HasPolicy("POLICY_TRADITION_FINISHER");
+		if (eYield == YIELD_GOLD && hasTraditionFinisher && isEngineer)
+			change += 1;
+		if (eYield == YIELD_PRODUCTION && hasTraditionFinisher && isEngineer)
+			change += 1;
+	}
+
+	{// POLICY_ETHICS gives +1G +1C to Writer Specialists
+		const bool hasCulturalExchange = player.HasPolicy("POLICY_ETHICS");
+		if (eYield == YIELD_GOLD && hasCulturalExchange && isWriter)
+			change += 1;
+		if (eYield == YIELD_CULTURE && hasCulturalExchange && isWriter)
+			change += 1;
+	}
+
+	{// POLICY_ARTISTIC_GENIUS gives +1SC +1C to Artist Specialists
+		const bool hasArtisticGenius = player.HasPolicy("POLICY_ARTISTIC_GENIUS");
+		if (eYield == YIELD_SCIENCE && hasArtisticGenius && isArtist)
+			change += 1;
+		if (eYield == YIELD_CULTURE && hasArtisticGenius && isArtist)
+			change += 1;
+	}
+
+	{// POLICY_FINE_ARTS gives +1T +1G to Musician Specialists
+		const bool hasFineArts = player.HasPolicy("POLICY_FINE_ARTS");
+		if (eYield == YIELD_TOURISM && hasFineArts && isMusician)
+			change += 1;
+		if (eYield == YIELD_GOLD && hasFineArts && isMusician)
+			change += 1;
+	}
+
+	{// POLICY_ENTREPRENEURSHIP gives +1PD +1G 1C to Merchant Specialists
+		const bool hasEntreprenuership = player.HasPolicy("POLICY_ENTREPRENEURSHIP");
+		if (eYield == YIELD_PRODUCTION && hasEntreprenuership && isMerchant)
+			change += 1;
+		if (eYield == YIELD_GOLD && hasEntreprenuership && isMerchant)
+			change += 1;
+		if (eYield == YIELD_CULTURE && hasEntreprenuership && isMerchant)
+			change += 1;
+	}
+
+	{// POLICY_SECULARISM gives 1C to Scientist Specialists
+		const bool hasSecularism = player.HasPolicy("POLICY_SECULARISM");			
+		if (eYield == YIELD_CULTURE && hasSecularism && isScientist)
+			change += 1;
+	}
 
 	return GC.round(change);
 }
@@ -334,8 +454,38 @@ int CvPlayer::getGreatWorkYieldTotal(const CvCity* pCity, const CvGreatWork* pWo
 
 
 	// logic that does not reference the city
-	change += 3;
+	
+	{// POLICY_ETHICS gives +1G +1C to GW of Writing
+		const bool hasCulturalExchange = player.HasPolicy("POLICY_ETHICS");
+		if (eYield == YIELD_GOLD && hasCulturalExchange && isWriting)
+			change += 1;
+		if (eYield == YIELD_CULTURE && hasCulturalExchange && isWriting)
+			change += 1;
+	}
 
+	{// POLICY_ARTISTIC_GENIUS gives +1SC +1C to GW of Art
+		const bool hasArtisticGenius = player.HasPolicy("POLICY_ARTISTIC_GENIUS");
+		if (eYield == YIELD_SCIENCE && hasArtisticGenius && isArt)
+			change += 1;
+		if (eYield == YIELD_CULTURE && hasArtisticGenius && isArt)
+			change += 1;
+	}
+
+	{// POLICY_FINE_ARTS gives +1T +1G to GW of Music
+		const bool hasFineArts = player.HasPolicy("POLICY_FINE_ARTS");
+		if (eYield == YIELD_TOURISM && hasFineArts && isMusic)
+			change += 1;
+		if (eYield == YIELD_GOLD && hasFineArts && isMusic)
+			change += 1;
+	}
+
+	{// POLICY_FLOURISHING_OF_ARTS gives +1T +1C to GW of Artifacts
+		const bool hasFlourishingOfTheArts = player.HasPolicy("POLICY_FLOURISHING_OF_ARTS");
+		if (eYield == YIELD_TOURISM && hasFlourishingOfTheArts && isArtifact)
+			change += 1;
+		if (eYield == YIELD_CULTURE && hasFlourishingOfTheArts && isArtifact)
+			change += 1;
+	}
 
 	return GC.round(change);
 }
