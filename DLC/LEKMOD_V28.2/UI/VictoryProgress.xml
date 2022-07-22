@@ -67,9 +67,9 @@
 
   <!-- Tech Victory Item Instance -->
   <Instance Name="TechItem">
-    <Stack ID="TechItemChild" Anchor="L,T" StackGrowth="Right" Offset="0,0" Padding="0" >
+    <Stack ID="ItemChild" Anchor="L,T" StackGrowth="Right" Offset="0,0" Padding="0" >
       <!-- Description -->
-      <Container ID="TechItemLabelContainer" Size="300,32">
+      <Container ID="LabelContainer" Size="300,32">
         <Label ID="RowDesc" Anchor="R,T" Font="TwCenMT14" String="RowDesc"/>
       </Container>
       <Label Anchor="L,T" Font="TwCenMT14" String="    "/><!--tab-->
@@ -85,9 +85,9 @@
   </Instance>
   <!-- Diplomatic Victory Item Instance -->
   <Instance Name="DiploItem">
-    <Stack ID="DiploItemChild" Anchor="L,T" StackGrowth="Right" Offset="0,0" Padding="0" >
+    <Stack ID="ItemChild" Anchor="L,T" StackGrowth="Right" Offset="0,0" Padding="0" >
       <!-- Description -->
-      <Container ID="DiploItemLabelContainer" Size="300,32">
+      <Container ID="LabelContainer" Size="300,32">
         <Label ID="RowDesc" Anchor="R,T" Font="TwCenMT14" String="RowDesc"/>
       </Container>
       <Label Anchor="L,T" Font="TwCenMT14" String="    "/><!--tab-->
@@ -103,9 +103,9 @@
   </Instance>
   <!-- Culture Victory Item Instance -->
   <Instance Name="CultureItem">
-    <Stack ID="CultureItemChild" Anchor="L,T" StackGrowth="Right" Offset="0,0" Padding="0" >
+    <Stack ID="ItemChild" Anchor="L,T" StackGrowth="Right" Offset="0,0" Padding="0" >
       <!-- Description -->
-      <Container ID="CultureItemLabelContainer" Size="300,32">
+      <Container ID="LabelContainer" Size="300,32">
         <Label ID="RowDesc" Anchor="R,T" Font="TwCenMT14" String="RowDesc"/>
       </Container>
       <Label Anchor="L,T" Font="TwCenMT14" String="    "/><!--tab-->

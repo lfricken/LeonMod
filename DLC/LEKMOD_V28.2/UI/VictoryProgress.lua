@@ -445,7 +445,7 @@ function PopulateSpaceRace()
 				g_TechRowList[numRows] = curRow;
 				
 				numItemIM = numItemIM + 1;
-				curItemIM = InstanceManager:new( "TechItem", "TechItemChild", curRow.RowStack );
+				curItemIM = InstanceManager:new( "TechItem", "ItemChild", curRow.RowStack );
 				g_TechItemIMList[numItemIM] = curItemIM;
 				
 			end							
@@ -465,8 +465,8 @@ function PopulateSpaceRace()
 			item.RowDescReward:SetText(sDescReward);
 			item.RowDescReward:SetToolTipString(sDesc);
 
-			item.TechItemChild:SetToolTipString(sDesc);
-			item.TechItemLabelContainer:SetSizeX(g_LabelContainerSizeX);
+			item.ItemChild:SetToolTipString(sDesc);
+			item.LabelContainer:SetSizeX(g_LabelContainerSizeX);
 
 			-- civ icon
 			local pWinningPlayer = Players[iWinningPlayer];
@@ -599,7 +599,7 @@ function PopulateDiplomatic()
 				g_DiploRowList[numRows] = curRow;
 				
 				numItemIM = numItemIM + 1;
-				curItemIM = InstanceManager:new( "DiploItem", "DiploItemChild", curRow.RowStack );
+				curItemIM = InstanceManager:new( "DiploItem", "ItemChild", curRow.RowStack );
 				g_DiploItemIMList[numItemIM] = curItemIM;
 				
 			end							
@@ -611,6 +611,7 @@ function PopulateDiplomatic()
 			local sDesc = Game.GetCompetitionDesc(iCompetition, iActivePlayer);
 			local sDescShort = Game.GetCompetitionDescShort(iCompetition);
 			local sDescReward = Game.GetCompetitionDescReward(iCompetition);
+			local iWinningScore = Game.GetCompetitionWinnerScore(iCompetition);
 			-- prefix
 			item.RowDesc:SetText(sDescShort);
 			item.RowDesc:SetToolTipString(sDesc);
@@ -618,16 +619,17 @@ function PopulateDiplomatic()
 			item.RowDescReward:SetText(sDescReward);
 			item.RowDescReward:SetToolTipString(sDesc);
 
-			item.DiploItemChild:SetToolTipString(sDesc);
-			item.DiploItemLabelContainer:SetSizeX(g_LabelContainerSizeX);
+			item.ItemChild:SetToolTipString(sDesc);
+			item.LabelContainer:SetSizeX(g_LabelContainerSizeX);
 
 			-- civ icon
 			local pWinningPlayer = Players[iWinningPlayer];
 			local activeTeam = Teams[pActivePlayer:GetTeam()];
 			local bHasMet = activeTeam:IsHasMet(pWinningPlayer:GetTeam());
-			local iPlayerIcon = bHasMet and iWinningPlayer or -1;
-			local sCivName = pWinningPlayer:GetCivNameSafe(iActivePlayer);
-			item.IconBox:SetToolTipString(sCivName);
+			local bUseQuestionMark = iWinningScore == 0 or (not bHasMet);
+			local iPlayerIcon = bUseQuestionMark and -1 or iWinningPlayer;
+			local sCivName = bUseQuestionMark and "{TXT_KEY_AN_UNMET_CIV}" or pWinningPlayer:GetCivNameSafe(iActivePlayer);
+			item.IconBox:SetToolTipString(Locale.ConvertTextKey(sCivName));
 			CivIconHookup(iPlayerIcon, 32, item.Icon, item.IconBackground, item.IconShadow, false, true);
 		end
 
@@ -745,7 +747,7 @@ function PopulateCultural()
 				g_CultureRowList[numRows] = curRow;
 				
 				numItemIM = numItemIM + 1;
-				curItemIM = InstanceManager:new( "CultureItem", "CultureItemChild", curRow.RowStack );
+				curItemIM = InstanceManager:new( "CultureItem", "ItemChild", curRow.RowStack );
 				g_CultureItemIMList[numItemIM] = curItemIM;
 				
 			end							
@@ -764,8 +766,8 @@ function PopulateCultural()
 			item.RowDescReward:SetText(sDescReward);
 			item.RowDescReward:SetToolTipString(sDesc);
 
-			item.CultureItemChild:SetToolTipString(sDesc);
-			item.CultureItemLabelContainer:SetSizeX(g_LabelContainerSizeX);
+			item.ItemChild:SetToolTipString(sDesc);
+			item.LabelContainer:SetSizeX(g_LabelContainerSizeX);
 
 			-- civ icon
 			local pWinningPlayer = Players[iWinningPlayer];

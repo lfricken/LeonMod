@@ -376,10 +376,10 @@ PlayerTypes CvCompetition::GetPlayerOfRank(const int iRank) const
 	if (iRank < 0 || iRank >= m_entries.size())
 		return NO_PLAYER;
 
-	//if (m_entries[iRank].iScore == INVALID_SCORE) // no score is always last place
-	//	return NO_PLAYER;
-	//else
-	return m_entries[iRank].ePlayer;
+	if (m_entries[iRank].iScore == INVALID_SCORE) // no score is always last place
+		return NO_PLAYER;
+	else
+		return m_entries[iRank].ePlayer;
 }
 int CvCompetition::GetRankOfPlayer(const PlayerTypes ePlayer) const
 {
