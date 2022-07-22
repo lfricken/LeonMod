@@ -305,6 +305,16 @@ int CvPlayer::GetExtraYieldForBuilding
 		if (eYieldType == YIELD_DIPLOMATIC_SUPPORT && !isPercentMod && isForbiddenPalace)
 			yieldChange += numCityStateAllies;
 	}
+
+	{// BUILDINGCLASS_WALLS grants +1C +1PD to Walls, Castles, Arsenals, and Military Bases to Prussia
+		const bool isDefensiveBuilding = eBuildingClass == (BuildingClass("BUILDINGCLASS_WALLS") || BuildingClass("BUILDINGCLASS_CASTLE") ||
+			BuildingClass("BUILDINGCLASS_ARSENAL") || BuildingClass("BUILDINGCLASS_MILITARY_BASE"));
+		const bool isPrussia = player.IsCiv("CIVILIZATION_PRUSSIA");
+		if (eYieldType == YIELD_PRODUCTION && !isPercentMod && isDefensiveBuilding && isPrussia)
+			yieldChange += 1;
+		if (eYieldType == YIELD_CULTURE && !isPercentMod && isDefensiveBuilding && isPrussia)
+			yieldChange += 1;		
+	}
 	
 
 	return yieldChange;
