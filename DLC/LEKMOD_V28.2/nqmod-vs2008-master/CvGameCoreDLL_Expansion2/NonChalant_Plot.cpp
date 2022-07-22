@@ -504,6 +504,14 @@ int CvPlot::getExtraYield
 				if (eYieldType == YIELD_GOLD && hasTrapping && isAmerica && isLake)
 					yieldChange += 1;				
 			}
+
+			{// CIVILIZATION_PRUSSIA - 2G from Luxuries
+				const bool isPrussia = player.IsCiv("CIVILIZATION_PRUSSIA");				
+				if (eYieldType == YIELD_GOLD && isPrussia && hasLuxury)
+					yieldChange += 2;
+			}
+
+
 		}
 	}
 
