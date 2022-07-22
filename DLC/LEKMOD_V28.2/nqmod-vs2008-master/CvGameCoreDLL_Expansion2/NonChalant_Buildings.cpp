@@ -307,12 +307,14 @@ int CvPlayer::GetExtraYieldForBuilding
 	}
 
 	{// BUILDINGCLASS_WALLS grants +1C +1PD to Walls, Castles, Arsenals, and Military Bases to Prussia
-		const bool isDefensiveBuilding = eBuildingClass == (BuildingClass("BUILDINGCLASS_WALLS") || BuildingClass("BUILDINGCLASS_CASTLE") ||
-			BuildingClass("BUILDINGCLASS_ARSENAL") || BuildingClass("BUILDINGCLASS_MILITARY_BASE"));
+		const bool isWalls = eBuildingClass == BuildingClass("BUILDINGCLASS_WALLS");
+		const bool isCastle = eBuildingClass == BuildingClass("BUILDINGCLASS_CASTLE"); 
+		const bool isArsenal = eBuildingClass == BuildingClass("BUILDINGCLASS_ARSENAL"); 
+		const bool isMilitaryBase = eBuildingClass == BuildingClass("BUILDINGCLASS_MILITARY_BASE"); 
 		const bool isPrussia = player.IsCiv("CIVILIZATION_PRUSSIA");
-		if (eYieldType == YIELD_PRODUCTION && !isPercentMod && isDefensiveBuilding && isPrussia)
+		if (eYieldType == YIELD_PRODUCTION && !isPercentMod && isPrussia && (isWalls || isCastle || isArsenal || isMilitaryBase))
 			yieldChange += 1;
-		if (eYieldType == YIELD_CULTURE && !isPercentMod && isDefensiveBuilding && isPrussia)
+		if (eYieldType == YIELD_CULTURE && !isPercentMod && isPrussia && isPrussia && (isWalls || isCastle || isArsenal || isMilitaryBase))
 			yieldChange += 1;		
 	}
 	
