@@ -659,7 +659,6 @@ function UpdateCompetitionLine(iActivePlayer, iCompetition, item)
 
 	-- civ icon
 	if (iWinningScore == 0) then iWinningPlayer = -1; end
-	iWinningPlayer = -1;
 	local sCivName = pActivePlayer:GetCivNameSafe(iWinningPlayer);
 	local iPlayerIcon = pActivePlayer:GetCivIconSafe(iWinningPlayer);
 	item.IconBox:SetToolTipString(sCivName);
