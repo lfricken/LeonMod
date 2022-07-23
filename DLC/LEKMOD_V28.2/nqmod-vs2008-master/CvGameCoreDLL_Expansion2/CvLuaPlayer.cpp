@@ -1277,7 +1277,7 @@ int CvLuaPlayer::lGetCivNameSafe(lua_State* L)
 	{
 		const bool bHasMet = GET_TEAM(pkPlayer->getTeam()).isHasMet(GET_PLAYER(ePlayerOther).getTeam());
 		if (bHasMet)
-			result = pkPlayer->getCivilizationShortDescription();
+			result = GET_PLAYER(ePlayerOther).getCivilizationShortDescription();
 		else
 			result = GetLocalizedText("TXT_KEY_AN_UNMET_CIV");
 	}
