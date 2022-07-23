@@ -3064,7 +3064,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_ManyTechsStolen(CvCity* pCity)
 		}
 		CvAssertMsg(eFlavorEspionage != NO_FLAVOR, "Could not find espionage flavor!");
 		
-		ratioT100 = (pCityEspionage->m_aiNumTimesCityRobbed[ePlayer] * 100) / iTurnsOfEspionage;
+		ratioT100 = (pCityEspionage->m_aiNumTimesCityRobbed[ePlayer] * 100) / max(1, iTurnsOfEspionage); // avoid div by 0
 	}
 
 	if (ratioT100 > 0)
