@@ -68,6 +68,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetCivilizationShortDescription);
 	Method(GetCivilizationShortDescriptionKey);
 	Method(GetCivNameSafe);
+	Method(GetCivIconSafe);
 	Method(GetCivilizationAdjective);
 	Method(GetCivilizationAdjectiveKey);
 	Method(IsWhiteFlag);
@@ -1268,17 +1269,39 @@ int CvLuaPlayer::lGetCivilizationShortDescriptionKey(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetCivNameSafe(lua_State* L)
 {
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	PlayerTypes ePlayerOrigin = (PlayerTypes)lua_tointeger(L, 1);
+	const CvPlayerAI* pkPlayer = GetInstance(L);
+	const PlayerTypes ePlayerOther = (PlayerTypes)lua_tointeger(L, 2);
 
-	bool bHasMet = GET_TEAM(CvPlayer::getTeam(ePlayerOrigin)).isHasMet(pkPlayer->getTeam());
-	string result;
-	if (bHasMet)
-		result = pkPlayer->getCivilizationShortDescription();
-	else
-		result = GetLocalizedText("TXT_KEY_AN_UNMET_CIV");
+	string result = "No one";
+	if (ePlayerOther != NO_PLAYER)
+	{
+		const bool bHasMet = GET_TEAM(pkPlayer->getTeam()).isHasMet(GET_PLAYER(ePlayerOther).getTeam());
+		if (bHasMet)
+			result = pkPlayer->getCivilizationShortDescription();
+		else
+			result = GetLocalizedText("TXT_KEY_AN_UNMET_CIV");
+	}
 
 	lua_pushstring(L, result.c_str());
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetCivIconSafe(lua_State* L)
+{
+	const CvPlayerAI* pkPlayer = GetInstance(L);
+	const PlayerTypes ePlayerOther = (PlayerTypes)lua_tointeger(L, 2);
+
+	int result = -1; // questionmark
+	if (ePlayerOther != NO_PLAYER)
+	{
+		const bool bHasMet = GET_TEAM(pkPlayer->getTeam()).isHasMet(GET_PLAYER(ePlayerOther).getTeam());
+		if (bHasMet)
+			result = ePlayerOther;
+		else
+			result = -1;
+	}
+
+	lua_pushinteger(L, result);
 	return 1;
 }
 //------------------------------------------------------------------------------

@@ -658,15 +658,10 @@ function UpdateCompetitionLine(iActivePlayer, iCompetition, item)
 	item.LabelContainer:SetSizeX(g_LabelContainerSizeX);
 
 	-- civ icon
-	local activeTeam = Teams[pActivePlayer:GetTeam()];
-	local bHasMet = false;
-	local sCivName = "No one";
-	if (iWinningPlayer >= 0 and iWinningScore > 0) then
-		sCivName =	pActivePlayer:GetCivNameSafe(iWinningPlayer);
-		local pWinningPlayer = Players[iWinningPlayer];
-		bHasMet = activeTeam:IsHasMet(pWinningPlayer:GetTeam());
-	end
-	local iPlayerIcon = bHasMet and iWinningPlayer or -1;
+	if (iWinningScore == 0) then iWinningPlayer = -1; end
+	iWinningPlayer = -1;
+	local sCivName = pActivePlayer:GetCivNameSafe(iWinningPlayer);
+	local iPlayerIcon = pActivePlayer:GetCivIconSafe(iWinningPlayer);
 	item.IconBox:SetToolTipString(sCivName);
 	CivIconHookup(iPlayerIcon, 32, item.Icon, item.IconBackground, item.IconShadow, false, true);
 end

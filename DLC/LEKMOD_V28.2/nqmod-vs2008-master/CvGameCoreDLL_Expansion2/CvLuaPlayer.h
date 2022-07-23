@@ -64,6 +64,7 @@ protected:
 	static int lGetCivilizationShortDescriptionKey(lua_State* L);
 	// will return "An Unmet Civilization" if the passed player has not met the instanced civ
 	static int lGetCivNameSafe(lua_State* L);
+	static int lGetCivIconSafe(lua_State* L);
 	static int lGetCivilizationAdjective(lua_State* L);
 	static int lGetCivilizationAdjectiveKey(lua_State* L);
 	static int lIsWhiteFlag(lua_State* L);
