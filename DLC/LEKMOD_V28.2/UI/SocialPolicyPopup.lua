@@ -435,7 +435,7 @@ function UpdateDisplay()
 			else
 				change = "[COLOR_POSITIVE_TEXT]" .. "+" .. math.abs(change) .. "%[ENDCOLOR]";
 			end
-			strToolTip = strToolTip .. "[NEWLINE][NEWLINE][ICON_CULTURE] Culture cost: " .. change;
+			strToolTip = strToolTip .. "[NEWLINE][NEWLINE][ICON_CULTURE] Culture rebate: " .. change;
 
 			-- Update tooltips
 			thisButton:SetToolTipString(strToolTip);
@@ -567,7 +567,7 @@ function UpdateDisplay()
 			else
 				change = "[COLOR_POSITIVE_TEXT]" .. "+" .. math.abs(change) .. "%[ENDCOLOR]";
 			end
-			strTooltip = strTooltip .. "[NEWLINE][NEWLINE][ICON_CULTURE] Culture cost: " .. change;
+			strTooltip = strTooltip .. "[NEWLINE][NEWLINE][ICON_CULTURE] Culture rebate: " .. change;
 
     
 		    --printFunctions(thisPolicyIcon.PolicyIcon);
