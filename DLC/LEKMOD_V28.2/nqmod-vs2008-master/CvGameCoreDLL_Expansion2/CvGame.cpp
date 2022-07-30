@@ -4097,7 +4097,7 @@ int CvGame::countCivPlayersAlive() const
 //	--------------------------------------------------------------------------------
 int CvGame::countCivPlayersEverAlive() const
 {
-	return m_playersEverAlive.size();
+	return max(1, (int)m_playersEverAlive.size()); // for some reason this is randomly 0 sometimes? WTF. Always return at least 1.
 }
 
 
