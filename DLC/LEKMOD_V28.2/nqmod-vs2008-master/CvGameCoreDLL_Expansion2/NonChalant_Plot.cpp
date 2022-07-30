@@ -493,9 +493,9 @@ int CvPlot::getExtraYield
 					yieldChange += 1;
 			}
 
-			{// CIVILIZATION_AMERICA - 2G 1 C from Lakes After Trappingislake
+			{// CIVILIZATION_IROQUOIS - 2G 1 C from Lakes After Trappingislake
 				const bool isLake = plot.isLake();				
-				const bool isAmerica = player.IsCiv("CIVILIZATION_AMERICA");
+				const bool isAmerica = player.IsCiv("CIVILIZATION_IROQUOIS");
 				const bool hasTrapping = player.HasTech("TECH_TRAPPING");				
 				if (eYieldType == YIELD_CULTURE && hasTrapping && isAmerica && isLake)
 					yieldChange += 1;
