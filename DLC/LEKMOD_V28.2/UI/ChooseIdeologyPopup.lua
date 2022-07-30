@@ -41,6 +41,20 @@ Controls.BottomPanel:SetSizeVal(bpWidth, bpHeight);
 Controls.BottomPanel:ReprocessAnchoring();
 
 local g_PopupInfo = nil;
+
+
+-- Policy cost variation
+function GetPolicyRebateString(player, iPolicy, bIsBranch)
+	local change = player:GetPolicyRebate(iPolicy, bIsBranch);
+	if (change < 0) then
+		change = "[COLOR_NEGATIVE_TEXT]" .. "-" .. math.abs(change) .. "%[ENDCOLOR]";
+	else
+		change = "[COLOR_POSITIVE_TEXT]" .. "+" .. math.abs(change) .. "%[ENDCOLOR]";
+	end
+	return "[NEWLINE][NEWLINE][ICON_CULTURE] Culture rebate: " .. change;
+end
+
+
 -------------------------------------------------
 -------------------------------------------------
 function OnPopupMessage(popupInfo)
@@ -277,10 +291,14 @@ function ViewTenets(branchType)
 	g_ViewTenetsLevel2Manager:ResetInstances();
 	g_ViewTenetsLevel3Manager:ResetInstances();
 	
-	local tick = true;	
+	local tick = true;
+	local player = Players[Game.GetActivePlayer()];
 	
-	function PopulateInstance(instance, text)
-		instance.TenetDescription:LocalizeAndSetText(text);
+	function PopulateInstance(instance, policyInfo)
+		local text = policyInfo.Help;
+		text = Locale.ConvertTextKey(text);
+		text = text .. GetPolicyRebateString(player, policyInfo.ID, false);
+		instance.TenetDescription:SetText(text);
 		instance.Button:SetDisabled(true);
 		
 		local width,height = instance.TenetDescription:GetSizeVal();
@@ -298,17 +316,17 @@ function ViewTenets(branchType)
 	
 	for row in GameInfo.Policies{PolicyBranchType = branchType, Level = 1} do
 		local instance = g_ViewTenetsLevel1Manager:GetInstance();
-		PopulateInstance(instance, row.Help);
+		PopulateInstance(instance, row);
 	end
 	
 	for row in GameInfo.Policies{PolicyBranchType = branchType, Level = 2} do
 		local instance = g_ViewTenetsLevel2Manager:GetInstance();
-		PopulateInstance(instance, row.Help);
+		PopulateInstance(instance, row);
 	end
 	
 	for row in GameInfo.Policies{PolicyBranchType = branchType, Level = 3} do
 		local instance = g_ViewTenetsLevel3Manager:GetInstance();
-		PopulateInstance(instance, row.Help);
+		PopulateInstance(instance, row);
 	end
 	
 	Controls.Level1TenetsStack:CalculateSize();

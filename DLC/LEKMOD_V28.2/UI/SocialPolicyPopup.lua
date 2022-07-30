@@ -80,6 +80,18 @@ local g_IdeologyBackgrounds = {
 		POLICY_BRANCH_ORDER = "SocialPoliciesOrder.dds",
 }
 
+
+-- Policy cost variation
+function GetPolicyRebateString(player, iPolicy, bIsBranch)
+	local change = player:GetPolicyRebate(iPolicy, bIsBranch);
+	if (change < 0) then
+		change = "[COLOR_NEGATIVE_TEXT]" .. "-" .. math.abs(change) .. "%[ENDCOLOR]";
+	else
+		change = "[COLOR_POSITIVE_TEXT]" .. "+" .. math.abs(change) .. "%[ENDCOLOR]";
+	end
+	return "[NEWLINE][NEWLINE][ICON_CULTURE] Culture rebate: " .. change;
+end
+
 -------------------------------------------------
 -- On Policy Selected
 -------------------------------------------------
@@ -429,13 +441,7 @@ function UpdateDisplay()
 			end
 			
 			-- Policy cost variation
-			local change = player:GetPolicyRebate(i, true);
-			if (change < 0) then
-				change = "[COLOR_NEGATIVE_TEXT]" .. "-" .. math.abs(change) .. "%[ENDCOLOR]";
-			else
-				change = "[COLOR_POSITIVE_TEXT]" .. "+" .. math.abs(change) .. "%[ENDCOLOR]";
-			end
-			strToolTip = strToolTip .. "[NEWLINE][NEWLINE][ICON_CULTURE] Culture rebate: " .. change;
+			strToolTip = strToolTip .. GetPolicyRebateString(player, i, true);
 
 			-- Update tooltips
 			thisButton:SetToolTipString(strToolTip);
@@ -561,13 +567,7 @@ function UpdateDisplay()
 			end
 
 			-- Policy cost variation
-			local change = player:GetPolicyRebate(i, false);
-			if (change < 0) then
-				change = "[COLOR_NEGATIVE_TEXT]" .. "-" .. math.abs(change) .. "%[ENDCOLOR]";
-			else
-				change = "[COLOR_POSITIVE_TEXT]" .. "+" .. math.abs(change) .. "%[ENDCOLOR]";
-			end
-			strTooltip = strTooltip .. "[NEWLINE][NEWLINE][ICON_CULTURE] Culture rebate: " .. change;
+			strTooltip = strTooltip .. GetPolicyRebateString(player, i, false);
 
     
 		    --printFunctions(thisPolicyIcon.PolicyIcon);
@@ -603,6 +603,7 @@ function UpdateDisplay()
 		 	lockControl:SetHide(true);
      		if (tenet.Help ~= nil) then
      			local strToolTip = Locale.ConvertTextKey(tenet.Help);
+     			strToolTip = strToolTip .. GetPolicyRebateString(player, iLevel1Tenets[i], false);
      			buttonControl:SetToolTipString(strToolTip);
      		end
      	else
@@ -635,6 +636,7 @@ function UpdateDisplay()
      		labelControl:LocalizeAndSetText(tenet.Description);
      		if (tenet.Help ~= nil) then
      			local strToolTip = Locale.ConvertTextKey(tenet.Help);
+     			strToolTip = strToolTip .. GetPolicyRebateString(player, iLevel2Tenets[i], false);
      			buttonControl:SetToolTipString(strToolTip);
       		end
     		lockControl:SetHide(true);
@@ -672,6 +674,7 @@ function UpdateDisplay()
      		lockControl:SetHide(true);
      		if (tenet.Help ~= nil) then
      			local strToolTip = Locale.ConvertTextKey(tenet.Help);
+     			strToolTip = strToolTip .. GetPolicyRebateString(player, iLevel3Tenets[i], false);
      			buttonControl:SetToolTipString(strToolTip);
       		end
      	else
@@ -819,7 +822,7 @@ function TenetSelect(ideologyButtonNumber)
 
 	local iLevel = math.floor(ideologyButtonNumber / 10);
 
-    local player = Players[Game.GetActivePlayer()];   
+    local player = Players[Game.GetActivePlayer()];
     if player == nil then
 		return;
 	else
@@ -834,7 +837,9 @@ function TenetSelect(ideologyButtonNumber)
 			if (tenet ~= nil) then
 				local entry = g_TenetInstanceManager:GetInstance();
 				if (tenet.Help ~= nil) then
-					entry.TenetLabel:LocalizeAndSetText(tenet.Help);
+					local text = Locale.ConvertTextKey(tenet.Help);
+					text = text .. GetPolicyRebateString(player, v, false);
+					entry.TenetLabel:SetText(text);
 				else
 					local szName = Locale.ConvertTextKey(tenet.Description);
 					entry.TenetLabel:SetText("[COLOR_POSITIVE_TEXT]" .. szName .. "[ENDCOLOR]");
@@ -844,6 +849,9 @@ function TenetSelect(ideologyButtonNumber)
 				local tlW, tlH = entry.TenetLabel:GetSizeVal();
 				
 				local newHeight = tlH + 30;
+
+				entry.BounceAnim:SetSizeVal(tbW, newHeight);
+				entry.BounceGrid:SetSizeVal(tbW, newHeight);
 				
 				entry.TenetButton:SetSizeVal(tbW, newHeight);
 				entry.Box:SetSizeVal(tbW, newHeight);
@@ -856,6 +864,8 @@ function TenetSelect(ideologyButtonNumber)
 			end
 		end
     end
+
+	Controls.SelectTenetScrollPanel:CalculateInternalSize();
 end
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
