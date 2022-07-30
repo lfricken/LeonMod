@@ -281,7 +281,7 @@ public:
 	// in online turns, indicates the percentage [0,1]
 	float turnsToPercentage(float start, float end);
 	// [0, 1] Number of turns DONE as a percentage of max turns 
-	float getPercentTurnsDone();
+	T100 getPercentTurnsDone();
 	// max turns in an online speed game
 	float onlineSpeedMaxTurns();
 	// on turn 100 this would return: onlineSpeed: 100, normalSpeed: 50
@@ -986,9 +986,9 @@ public:
 	// how much stuff the great scientist gives
 	int getGREAT_SCIENTIST_AMOUNT() const;
 	// how far someone falls behind in science turns before they get 100% boost
-	float getSCIENCE_CATCHUP_DIFF() const;
+	T100 getSCIENCE_CATCHUP_DIFF() const;
 	// how far someone falls behind in science turns before they get ANY boost
-	float getSCIENCE_CATCHUP_DIFF_NONE() const;
+	T100 getSCIENCE_CATCHUP_DIFF_NONE() const;
 
 	// -- ints --
 

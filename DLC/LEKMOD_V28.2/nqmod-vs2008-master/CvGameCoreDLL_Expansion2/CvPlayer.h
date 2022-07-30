@@ -1296,8 +1296,10 @@ public:
 
 	void RecalculateNonLeaderBoost();
 	// [0, 1] where 1 would be a 100% science boost
-	float GetNonLeaderBoost() const;
-	int leaderTechDiff; // if they have 5 techs and we have 4, this would be ~0.01 with 100 techs in the tree
+	T100 GetNonLeaderBoostT100() const;
+	// How many turns we are behind in tech.
+	// If they have 9 techs and we have 7, and we get 0.5 techs per turn, this value would be ((9 - 7) / 0.5) * 100= 400
+	T100 leaderTechDiffT100;
 
 	int GetScience() const;
 	int GetScienceTimes100(bool includeBoost = true) const;

@@ -2437,19 +2437,19 @@ int CvGlobals::getGREAT_SCIENTIST_AMOUNT() const
 {
 	return 100;
 }
-float CvGlobals::getSCIENCE_CATCHUP_DIFF() const
+T100 CvGlobals::getSCIENCE_CATCHUP_DIFF() const
 {
-	return 12.0f;
+	return 12 * 100;
 }
-float CvGlobals::getSCIENCE_CATCHUP_DIFF_NONE() const
+T100 CvGlobals::getSCIENCE_CATCHUP_DIFF_NONE() const
 {
-	return 1.0f;
+	return 1 * 100;
 }
 
 // [0, 1] Number of turns DONE as a percentage of max turns 
-float CvGlobals::getPercentTurnsDone()
+T100 CvGlobals::getPercentTurnsDone()
 {
-	return max(0.0f, (float)this->getGamePointer()->getGameTurn() / (float)this->getGamePointer()->getMaxTurns());
+	return max(0, (this->getGamePointer()->getGameTurn() * 100) / this->getGamePointer()->getMaxTurns());
 }
 // max turns in an online speed game
 float CvGlobals::onlineSpeedMaxTurns()
@@ -2459,7 +2459,7 @@ float CvGlobals::onlineSpeedMaxTurns()
 // on turn 100 this would return: onlineSpeed: 100, normalSpeed: 50
 float CvGlobals::onePerOnlineSpeedTurn()
 {
-	return getPercentTurnsDone() * onlineSpeedMaxTurns();
+	return (getPercentTurnsDone() * onlineSpeedMaxTurns()) / 100;
 }
 unsigned long CvGlobals::getFakeSeed(const unsigned int x, const unsigned int y, const unsigned int other)
 {

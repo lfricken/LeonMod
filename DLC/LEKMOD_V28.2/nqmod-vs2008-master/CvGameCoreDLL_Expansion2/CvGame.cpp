@@ -1869,13 +1869,13 @@ void CvGame::updateScienceCatchup()
 		int progress = progresses[player];
 		float beakerDifference = best - progress;
 
-		const float adjustedBeakerDifference = (beakerDifference * (100 + rPlayer.GetPlayerTechs()->GetResearchCostIncreasePercentT100())) / 100;
+		const T100 adjustedBeakerDifferenceT100 = (beakerDifference * (100 + rPlayer.GetPlayerTechs()->GetResearchCostIncreasePercentT100()));
 
-		const float medianScienceOutput = ((float)rPlayer.GetScienceTimes100(true) + (float)rPlayer.GetScienceTimes100(false)) / 2.0f;
+		const T100 medianScienceOutputT100 = (rPlayer.GetScienceTimes100(true) + rPlayer.GetScienceTimes100(false)) / 2;
 
-		const float turnDifference = (float)adjustedBeakerDifference * 100 / medianScienceOutput;
+		const T100 turnDifference = adjustedBeakerDifferenceT100 * 100 / medianScienceOutputT100;
 
-		rPlayer.leaderTechDiff = turnDifference;
+		rPlayer.leaderTechDiffT100 = turnDifference;
 	}
 }
 

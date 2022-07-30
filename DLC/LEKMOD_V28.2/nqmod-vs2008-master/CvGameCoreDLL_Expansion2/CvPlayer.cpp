@@ -1153,7 +1153,7 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 	// Uninit class
 	uninit();
 
-	leaderTechDiff = 0;
+	leaderTechDiffT100 = 0;
 	m_eID = eID;
 	if(m_eID != NO_PLAYER)
 	{
@@ -19224,17 +19224,17 @@ void CvPlayer::updateExtraYieldThreshold(YieldTypes eIndex)
 
 void CvPlayer::RecalculateNonLeaderBoost()
 {
-	const float allowedLag = GC.getSCIENCE_CATCHUP_DIFF_NONE(); // how far a player can fall behind without getting a boost in turns
-	const float reachMaxBoost = 3.0f; // reach 100% boost early
-	const float percentGameDone = GC.getPercentTurnsDone();
-	const float effectiveGameDone = min(1.0f, percentGameDone * reachMaxBoost); // don't exceed 100% done
-	const float naiveBoost = (leaderTechDiff - allowedLag) / (GC.getSCIENCE_CATCHUP_DIFF() - allowedLag);
-	const float boost = min(1.0f, max(0.0f, naiveBoost)); // tech boost
-	const float resultBoost = min(1.0f, boost * max(0.10f, effectiveGameDone));
+	const T100 allowedTurnsLag = GC.getSCIENCE_CATCHUP_DIFF_NONE(); // how far a player can fall behind without getting a boost in turns
+	const T100 reachMaxBoost = 3 * 100; // reach 100% boost early
+	const T100 percentGameDone = GC.getPercentTurnsDone();
+	const T100 effectiveGameDone = min((T100)100, (percentGameDone * reachMaxBoost) / (T100)100); // don't exceed 100% done
+	const T100 naiveBoost = (leaderTechDiffT100 - allowedTurnsLag) / (GC.getSCIENCE_CATCHUP_DIFF() - allowedTurnsLag);
+	const T100 boost = min((T100)100, max((T100)0, naiveBoost)); // tech boost
+	const T100 resultBoost = min((T100)100, boost * max((T100)10, effectiveGameDone));
 	m_fScienceRubberBand = resultBoost;
 }
 
-float CvPlayer::GetNonLeaderBoost() const
+T100 CvPlayer::GetNonLeaderBoostT100() const
 {
 	return m_fScienceRubberBand;
 }
@@ -19276,7 +19276,7 @@ int CvPlayer::GetScienceTimes100(bool includeBoost) const
 
 	if (includeBoost)
 	{
-		const float nonLeaderBoost = GetNonLeaderBoost();
+		const float nonLeaderBoost = GetNonLeaderBoostT100();
 		iValue += iValue * nonLeaderBoost;
 	}
 

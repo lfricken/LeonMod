@@ -7243,7 +7243,7 @@ int CvLuaPlayer::lGetNonLeaderBoost(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
-	const int iValue = GC.round(100 * pkPlayer->GetNonLeaderBoost());
+	const int iValue = pkPlayer->GetNonLeaderBoostT100();
 
 	lua_pushinteger(L, iValue);
 	return 1;
@@ -7608,7 +7608,7 @@ int CvLuaPlayer::lGetScienceTopPanelTooltip(lua_State* L)
 	{
 		const int increase = pkPlayer->GetPlayerTechs()->GetResearchCostIncreasePercentT100();
 		const int increasePer = GC.getMap().getWorldInfo().GetNumCitiesTechCostMod();
-		const int percentFromOthers = GC.round(pkPlayer->GetNonLeaderBoost() * 100.0);
+		const int percentFromOthers = GC.round(pkPlayer->GetNonLeaderBoostT100() * 100.0);
 
 		string color = "[COLOR_POSITIVE_TEXT]";
 		if (percentFromOthers <= 0) color = "[COLOR_NEGATIVE_TEXT]";
