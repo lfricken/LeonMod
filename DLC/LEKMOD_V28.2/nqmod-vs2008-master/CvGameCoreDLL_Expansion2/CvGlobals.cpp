@@ -2068,6 +2068,13 @@ bool launchDebugger()
 void CvGlobals::init()
 {
 	launchDebugger();
+
+
+	// NW NE 
+	// WE 00 EA
+	//    SW SE
+
+
 	//
 	// These vars are used to initialize the globals.
 	//
