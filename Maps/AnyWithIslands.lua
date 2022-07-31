@@ -488,6 +488,8 @@ end
 function GeneratePlotTypes()
 	--print("Generating Plot Types (Lua Small Continents) ...");
 
+	--Map.RandSeed(9999); -- helps see changes by guaranteeing the same map gets generated
+
 	local inverse_continent_sizes = Map.GetCustomOption(15); -- 1 means pangea, 2 means continents, 3, means small cont, etc.
 	local age = Map.GetCustomOption(1);
 	local sea = GetSeaLevel();
@@ -497,8 +499,8 @@ function GeneratePlotTypes()
 	local islandSizeMin = 8;
 	local islandSizeMax = Map.GetCustomOption(18)*2-1;
 	local islandChance = Map.GetCustomOption(17)*2; -- chance in 1000 that an island will start generating (Standard size does 4000 checks)
-	local polesIslandChance = islandChance / 1.3; -- chance in 1000 that an island will start generating in polar region
-	local poleClearDist = 6; -- clear all land at this range
+	local polesIslandChance = islandChance * 2; -- chance in 1000 that an island will start generating in polar region
+	local poleClearDist = 8; -- clear all land at this range
 	local polesAddDist =  3; -- add small islands up to this range 
 	local geometricReduction = GetSizeExponent();
 
@@ -527,6 +529,7 @@ function GeneratePlotTypes()
 	--local x = fractal_world:Plots();
 
 
+	-- redo mountains
 	for x = 0, maxX - 1 do
 		for y = 0, maxY - 1 do
 			local i = GetI(x,y,maxX);
@@ -534,7 +537,7 @@ function GeneratePlotTypes()
 				if plotTypes[i] == PlotTypes.PLOT_MOUNTAIN then -- remove existing mountain
 					plotTypes[i] = PlotTypes.PLOT_HILLS;
 				end
-				if Map.Rand(1000, "Mountain Chance") < 50 then -- mountain chance
+				if Map.Rand(1000, "Mountain Chance") < 65 then -- mountain chance
 					plotTypes[i] = PlotTypes.PLOT_MOUNTAIN;
 				end
 			end
@@ -557,6 +560,7 @@ function GeneratePlotTypes()
 		end
 	end
 
+
 	-- remove near poles
 	-- re add small stuff near poles 
 	if Map.GetCustomOption(16)==1 then
@@ -576,6 +580,7 @@ function GeneratePlotTypes()
 		end
 	end
 
+
 	-- add pole islands
 	for x = 0, maxX - 1 do
 		for y = 0, maxY - 1 do
@@ -586,6 +591,148 @@ function GeneratePlotTypes()
 			end
 		end
 	end
+
+	local numGrowths = 0;
+
+
+	-- grow land
+	numGrowths = 2;
+	for iter = 1, numGrowths do
+		print ("Growing Land");
+		local toMakeLandIdx = {};
+		for x = 0, maxX - 1 do
+			for y = 0, maxY - 1 do
+
+				local iCenter = GetI(x,y,maxX);
+				if plotTypes[iCenter] == PlotTypes.PLOT_OCEAN then -- if water
+
+					local radius = 1;
+					local countAdjacentLand = 0;
+					local points = GetIndexesAround(x,y,maxX,maxY,radius);
+					for k,index in pairs(points) do
+						if plotTypes[index] ~= PlotTypes.PLOT_OCEAN then -- if adjacent land
+							countAdjacentLand = countAdjacentLand + 1;
+						end
+						if setContains(toMakeLandIdx, index) then -- invalid because adjacent tile will change
+							countAdjacentLand = 0;
+							break;
+						end
+					end
+
+					local makeLand = false;
+					if countAdjacentLand == 1 then makeLand = (Map.Rand(1000, "Grow Land Chance") < 400); end
+					--if iter == 1 and countAdjacentLand == 2 then makeLand = (Map.Rand(1000, "Grow Land Chance") < 100); end
+					--if countAdjacentLand == 5 then makeLand = (Map.Rand(1000, "Grow Land Chance") < 900); end
+
+					if makeLand then
+						addToSet(toMakeLandIdx, iCenter);
+						--print("made land");
+					end
+				end
+			end
+		end
+
+		for makeLandIdx,v in pairs(toMakeLandIdx) do
+			plotTypes[makeLandIdx] = RandomPlot(10,40,10,0); -- make this one land too
+		end
+	end
+
+
+	-- fill land
+	numGrowths = 3;
+	for _ = 1, numGrowths do
+		print ("Filling Land");
+		for x = 0, maxX - 1 do
+			for y = 0, maxY - 1 do
+
+				local iCenter = GetI(x,y,maxX);
+				if plotTypes[iCenter] == PlotTypes.PLOT_OCEAN then -- if water
+
+					local radius = 1;
+					local countSwitches = 0;
+					local wasLastLand = false;
+					local bHasAnyAdjacentLand = false;
+					local points = GetIndexesOrderedRing(x,y,maxX,maxY,radius);
+					local countAdjacentLand = 0;
+					for k,index in pairs(points) do
+						local bIsLand = (plotTypes[index] ~= PlotTypes.PLOT_OCEAN); -- if adjacent land
+						if bIsLand then countAdjacentLand = countAdjacentLand + 1; end
+
+						bHasAnyAdjacentLand = bHasAnyAdjacentLand or bIsLand;
+						-- skip the first check since we don't know anything yet
+						if (k ~= 1 and (bIsLand ~= wasLastLand)) then countSwitches = countSwitches + 1; end
+						wasLastLand = bIsLand;
+					end
+
+					local bWouldConnectUnconnectedLand = (countSwitches >= 3);
+					local bMakeLand = false;
+					if (not bWouldConnectUnconnectedLand) then
+						chance = 0;
+						if (countAdjacentLand == 5) then chance = 1000; end
+						if (countAdjacentLand == 4) then chance = 800; end
+						if (countAdjacentLand == 3) then chance = 400; end
+
+						bMakeLand = (Map.Rand(1000, "Grow Land Chance") < chance); 
+					end
+
+					if bMakeLand then -- make changes immediately to avoid running over eachother
+						--table.insert(toMakeLandIdx, iCenter);
+						plotTypes[iCenter] = RandomPlot(20,30,10,0); -- make this one land too
+						--print ("filled_");
+						--print("made land");
+					end
+				end
+			end
+		end
+
+		--for k,makeLandIdx in pairs(toMakeLandIdx) do
+			--plotTypes[makeLandIdx] = RandomPlot(10,40,10,0); -- make this one land too
+		--end
+	end
+
+
+	-- grow land
+	numGrowths = 2;
+	for iter = 1, numGrowths do
+		print ("Growing Land");
+		local toMakeLandIdx = {};
+		for x = 0, maxX - 1 do
+			for y = 0, maxY - 1 do
+
+				local iCenter = GetI(x,y,maxX);
+				if plotTypes[iCenter] == PlotTypes.PLOT_OCEAN then -- if water
+
+					local radius = 1;
+					local countAdjacentLand = 0;
+					local points = GetIndexesAround(x,y,maxX,maxY,radius);
+					for k,index in pairs(points) do
+						if plotTypes[index] ~= PlotTypes.PLOT_OCEAN then -- if adjacent land
+							countAdjacentLand = countAdjacentLand + 1;
+						end
+						if setContains(toMakeLandIdx, index) then -- invalid because adjacent tile will change
+							countAdjacentLand = 0;
+							break;
+						end
+					end
+
+					local makeLand = false;
+					if countAdjacentLand == 1 then makeLand = (Map.Rand(1000, "Grow Land Chance") < 100); end
+					--if iter == 1 and countAdjacentLand == 2 then makeLand = (Map.Rand(1000, "Grow Land Chance") < 100); end
+					--if countAdjacentLand == 5 then makeLand = (Map.Rand(1000, "Grow Land Chance") < 900); end
+
+					if makeLand then
+						addToSet(toMakeLandIdx, iCenter);
+						--print("made land");
+					end
+				end
+			end
+		end
+
+		for makeLandIdx,v in pairs(toMakeLandIdx) do
+			plotTypes[makeLandIdx] = RandomPlot(10,40,10,0); -- make this one land too
+		end
+	end
+
 
 	-- remove single islands
 	for x = 0, maxX - 1 do
@@ -600,35 +747,33 @@ function GeneratePlotTypes()
 		end
 	end
 
+
 	SetPlotTypes(plotTypes);
 
 	local args = {expansion_diceroll_table = {10, 4, 4}};
 	GenerateCoasts(args);
 end
 
+function addToSet(set, key)
+    set[key] = true
+end
 
-------------------------------------------------------------------------------
--- creates a random island starting with x,y and going around that point 
--- bouncing positive and negative until numLandTiles is reached
--- maxX needs to be the width of the map
--- plotTypes needs to be the linear array of tile types
-------------------------------------------------------------------------------
+function removeFromSet(set, key)
+    set[key] = nil
+end
+
+function setContains(set, key)
+    return set[key] ~= nil
+end
+
+
 function IsSingleIsland(plotTypes,x,y,maxX,numLandTiles)
 
-	local start = GetI(x,y,maxX);
+	local points = GetIndexesOrderedRing(x,y,maxX,maxY,1);
 
-	local radius = 3;
-	local points = GetGridPoints(radius);
-
-	for i=1,radius*radius do
-		local p = points[i];
-    	local nx,ny = p[1]-1 + x, p[2]-1 + y;
-		local index = GetI(nx, ny, maxX);
-
-		if (not (x == nx and y == ny)) then -- skip center tile
-			if plotTypes[index] ~= PlotTypes.PLOT_OCEAN then
-				return false; -- adjacent tile was land, so skip
-			end
+	for k,idx in pairs(points) do
+		if plotTypes[idx] ~= PlotTypes.PLOT_OCEAN then
+			return false; -- adjacent tile was land, so skip
 		end
 	end
 
@@ -677,8 +822,8 @@ function RandomIsland(plotTypes,x,y,maxX,numLandTiles,oceanChance)
 	local mountainChance = 17; -- gets reduced if we've made one
 
 	for i=1,radius*radius do
-    	p = points[i];
-    	local xOffA,yOffA = p[1], p[2];
+		p = points[i];
+		local xOffA,yOffA = p[1], p[2];
 		local index = GetI(x+xOffA,y+yOffA,maxX);
 
 		-- don't replace an existing non ocean tile
@@ -726,6 +871,63 @@ function RandomIsland(plotTypes,x,y,maxX,numLandTiles,oceanChance)
 
 end
 
+-- starts with Northeast and goes clockwise
+function GetIndexesOrderedRing(x,y,maxX,maxY)
+	local pts = GetIndexesAround(x,y,maxX,maxY,1); 
+
+	local reorder = {};
+	table.insert(reorder, pts[1]);
+	table.insert(reorder, pts[4]);
+	table.insert(reorder, pts[7]);
+	-- skip middle
+	table.insert(reorder, pts[6]);
+	table.insert(reorder, pts[5]);
+	table.insert(reorder, pts[2]);
+	return reorder;
+end
+
+
+
+-- radius 1 is 7 tiles
+function GetIndexesAround(x,y,maxX,maxY,radius)
+	local xy = {};
+	local totalSideLength = radius * 2 + 1;
+
+	local ds = GetGridPoints(totalSideLength);
+
+	local oddR = 0; -- currently odd-r,  www.redblobgames.com/grids/hexagons/#coordinates
+	local evenR = 1;
+
+	-- works by using total y coordinate to skip 
+	for i = 1, totalSideLength * totalSideLength do
+		local px = ds[i][1]; -- for totalSideLength=5 px would be in range [0,4]
+		local dx, dy = ds[i][1] - radius, ds[i][2] - radius;
+		local nx, ny = x + dx, y + dy;
+
+		
+		local xSkipStart = 0;
+		local xSkipEnd = 0;
+		if y % 2 == oddR then
+			xSkipStart = math.floor(math.abs(dy) / 2.0); -- ceiling and floor control the row shift
+			xSkipEnd = totalSideLength - math.ceil(math.abs(dy) / 2.0);
+		else
+			xSkipStart = math.ceil(math.abs(dy) / 2.0); -- ceiling and floor control the row shift
+			xSkipEnd = totalSideLength - math.floor(math.abs(dy) / 2.0);
+		end
+
+		if xSkipStart <= px and px < xSkipEnd then
+			local idx = GetI(nx,ny,maxX);
+			table.insert(xy, idx);
+		end
+	end
+	return xy;
+end
+
+-- given radius=2 will return
+-- 0 0
+-- 0 1
+-- 1 1
+-- 1 0
 function GetGridPoints(radius)
 	local points = {};
 	offX, offY = 0, 0;

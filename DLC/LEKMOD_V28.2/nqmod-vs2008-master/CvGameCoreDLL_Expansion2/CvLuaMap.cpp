@@ -62,6 +62,7 @@ void CvLuaMap::RegisterMembers(lua_State* L)
 	Method(IsWrapY);
 	Method(MaxPlotDistance);
 	Method(Rand);
+	Method(RandSeed);
 	Method(CalculateAreas);
 	Method(RecalculateAreas);
 	Method(PlotDistance);
@@ -346,6 +347,13 @@ int CvLuaMap::lRand(lua_State* L)
 	const int rand_val = GC.getGame().getMapRandNum(max_num, strLog);
 
 	lua_pushinteger(L, rand_val);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaMap::lRandSeed(lua_State* L)
+{
+	const int iNewSeed = luaL_checkinteger(L, 1);
+	GC.getGame().getMapRand().reseed(iNewSeed);
 	return 1;
 }
 //------------------------------------------------------------------------------

@@ -900,7 +900,11 @@ function GetShuffledCopyOfTable(incoming_table)
 	-- One at a time, choose a random index from Copy to insert in to final table, then remove it from the copy.
 	local left_to_do = table.maxn(copy);
 	for loop = 1, len do
-		local random_index = 1 + Map.Rand(left_to_do, "Shuffling table entry - Lua");
+		local random_index = 0;
+		random_index = 1 + Map.Rand(left_to_do, "Shuffling table entry - Lua");
+		random_index = 1 + Map.Rand(left_to_do, "Shuffling table entry - Lua");
+		random_index = 1 + Map.Rand(left_to_do, "Shuffling table entry - Lua");
+		random_index = 1 + Map.Rand(left_to_do, "Shuffling table entry - Lua");
 		table.insert(shuffledVersion, copy[random_index]);
 		table.remove(copy, random_index);
 		left_to_do = left_to_do - 1;

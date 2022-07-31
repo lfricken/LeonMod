@@ -98,6 +98,7 @@ protected:
 
 	//! (Lua) Rand using CvMap::GetRand.
 	static int lRand(lua_State* L);
+	static int lRandSeed(lua_State* L);
 
 	//! (Lua) calculate areas
 	static int lCalculateAreas(lua_State* L);

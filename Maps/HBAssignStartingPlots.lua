@@ -72,15 +72,32 @@ local coalPer = 9;
 local oilPer = 12;
 local aluminumPer = 15;
 local uraniumPer = 18;
-
-
+-- how frequent resources are relative to number of tiles. 16 means 16 tiles out of 1000 
+-- will have a particular type of resource. So 1000 size world would have 16 iron AND 16 horses, AND etc.
+function getStratFrequency(this)
+	return 16.00;
+end
+-- should return a number between 0.1 and 40. Controls how frequently resources spawn relative to eachother.
+-- this is multiplied by getStratFrequency
+function getStratFrequencyRelative(this, resId)
+	if resId == this.uranium_ID then return 0.65 end -- less uranium
+	return 1.00;
+end
+-- this is multiplied by getStratFrequencyRelative which is then multiplied by getStratFrequency
+function getCoastalOilFrequency(this)
+	return 1.40;
+end
+function getBonusResourceAdjustment(this, resId)
+	if resId == this.fish_ID then return 0.75 end -- less uranium
+	return 1.00;
+end
 function getMinPerCiv(this, resId)
-	if resId == this.horse_ID then return horsesPer * 9 end
-	if resId == this.iron_ID then return ironPer * 5 end
-	if resId == this.coal_ID then return coalPer * 4 end
-	if resId == this.oil_ID then return oilPer * 4 end
-	if resId == this.aluminum_ID then return aluminumPer * 3 end
-	if resId == this.uranium_ID then return uraniumPer * 2 end
+	if resId == this.horse_ID then return horsesPer * 1 end
+	if resId == this.iron_ID then return ironPer * 1 end
+	if resId == this.coal_ID then return coalPer * 1 end
+	if resId == this.oil_ID then return oilPer * 1 end
+	if resId == this.aluminum_ID then return aluminumPer * 1 end
+	if resId == this.uranium_ID then return uraniumPer * 1 end
 	return 3;
 end
 function horses(this)
@@ -223,6 +240,7 @@ function AssignStartingPlots.Create()
 		GenerateGlobalResourcePlotLists = AssignStartingPlots.GenerateGlobalResourcePlotLists,
 		PlaceResourceImpact = AssignStartingPlots.PlaceResourceImpact,		-- Note: called from PlaceImpactAndRipples
 		ProcessResourceList = AssignStartingPlots.ProcessResourceList,
+		AddResources = AssignStartingPlots.AddResources,
 		PlaceSpecificNumberOfResources = AssignStartingPlots.PlaceSpecificNumberOfResources,
 		IdentifyRegionsOfThisType = AssignStartingPlots.IdentifyRegionsOfThisType,
 		SortRegionsByType = AssignStartingPlots.SortRegionsByType,
@@ -8853,6 +8871,7 @@ function AssignStartingPlots:GenerateGlobalResourcePlotLists()
 	local iW, iH = Map.GetGridSize();
 	local temp_coast_next_to_land_list, temp_marsh_list, temp_flood_plains_list = {}, {}, {};
 	local temp_hills_open_list, temp_hills_covered_list, temp_hills_jungle_list = {}, {}, {};
+	local temp_land_all_list = {};
 	local temp_hills_forest_list, temp_jungle_flat_list, temp_forest_flat_list = {}, {}, {};
 	local temp_desert_flat_no_feature, temp_plains_flat_no_feature, temp_dry_grass_flat_no_feature = {}, {}, {};
 	local temp_fresh_water_grass_flat_no_feature, temp_tundra_flat_including_forests, temp_forest_flat_that_are_not_tundra = {}, {}, {};
@@ -8883,6 +8902,12 @@ function AssignStartingPlots:GenerateGlobalResourcePlotLists()
 				local plotType = plot:GetPlotType()
 				local terrainType = plot:GetTerrainType()
 				local featureType = plot:GetFeatureType()
+
+				if plotType ~= PlotTypes.PLOT_MOUNTAIN and plotType ~= PlotTypes.PLOT_OCEAN then
+					table.insert(temp_land_all_list, i);
+				end
+
+
 				if plotType == PlotTypes.PLOT_MOUNTAIN then
 					self.barren_plots = self.barren_plots + 1;
 				elseif plotType == PlotTypes.PLOT_OCEAN then
@@ -9053,6 +9078,8 @@ function AssignStartingPlots:GenerateGlobalResourcePlotLists()
 		end
 	end
 	-- Scramble and record the lists.
+	self.land_all_list = GetShuffledCopyOfTable(GetShuffledCopyOfTable(temp_land_all_list))
+	self.land_all_list = GetShuffledCopyOfTable(GetShuffledCopyOfTable(self.land_all_list)) -- random list of all land except mountains
 	self.coast_next_to_land_list = GetShuffledCopyOfTable(temp_coast_next_to_land_list)
 	self.marsh_list = GetShuffledCopyOfTable(temp_marsh_list)
 	self.flood_plains_list = GetShuffledCopyOfTable(temp_flood_plains_list)
@@ -9096,7 +9123,7 @@ function AssignStartingPlots:GenerateGlobalResourcePlotLists()
 	self.snow_flat_list = GetShuffledCopyOfTable(temp_snow_flat_list)
 	self.hills_list = GetShuffledCopyOfTable(temp_hills_list)
 	self.land_list = GetShuffledCopyOfTable(temp_land_list)
-	self.coast_list = GetShuffledCopyOfTable(temp_coast_list)
+	self.coast_list = GetShuffledCopyOfTable(GetShuffledCopyOfTable(GetShuffledCopyOfTable(temp_coast_list)))
 	self.marble_list = GetShuffledCopyOfTable(temp_marble_list)
 	self.extra_deer_list = GetShuffledCopyOfTable(temp_deer_list)
 	self.desert_wheat_list = GetShuffledCopyOfTable(temp_desert_wheat_list)
@@ -9288,6 +9315,36 @@ function AssignStartingPlots:PlaceResourceImpact(x, y, impact_table_number, radi
 		print("Unsupported Radius length of ", radius, " passed to PlaceResourceImpact()");
 	end
 end
+function AssignStartingPlots:AddResources(oddsOutOf1000, impact_table_number, plot_list, resources_to_place)
+	--self:ProcessResourceList(1 / (oddsOutOf1000 / 1000), impact_table_number, plot_list, resources_to_place);
+
+	local resId;
+	for i,v in ipairs(resources_to_place) do
+		resId = v[1];
+	end
+
+	if (plot_list.idxTracker == nil) then plot_list.idxTracker = 0; end
+
+	local iNumTotalPlots = table.maxn(plot_list);
+	local iW, iH = Map.GetGridSize();
+	oddsOutOf1000 = oddsOutOf1000 * getStratFrequencyRelative(self, resId);
+	local iNumResourcesToPlace = math.min(iNumTotalPlots, math.ceil(iNumTotalPlots * (oddsOutOf1000 / 1000)));
+	for n=1,iNumTotalPlots do -- ensure we won't ready past end of plot_list
+		if n > iNumResourcesToPlace then break; end -- but also prevent placing too many
+		plot_list.idxTracker = plot_list.idxTracker + 1;
+
+		local idx = plot_list[plot_list.idxTracker];
+		local x = (idx - 1) % iW;
+		local y = (idx - x - 1) / iW;
+
+		local plot = Map.GetPlot(x, y);
+		local amount = getResourceAmount(self, resId);
+		plot:SetResourceType(resId, amount);
+		self.amounts_of_resources_placed[resId + 1] = self.amounts_of_resources_placed[resId + 1] + amount;
+	end
+
+	print ("idxTracker" .. plot_list.idxTracker);
+end
 ------------------------------------------------------------------------------
 function AssignStartingPlots:ProcessResourceList(frequency, impact_table_number, plot_list, resources_to_place)
 	-- This function needs to receive two numbers and two tables.
@@ -9312,7 +9369,7 @@ function AssignStartingPlots:ProcessResourceList(frequency, impact_table_number,
 	end
 	local iW, iH = Map.GetGridSize();
 	local iNumTotalPlots = table.maxn(plot_list);
-	local iNumResourcesToPlace = math.ceil(iNumTotalPlots / frequency);
+	local iNumResourcesToPlace = math.min(iNumTotalPlots, math.ceil(iNumTotalPlots / frequency))
 	local iNumResourcesTypes = table.maxn(resources_to_place);
 	local res_ID, res_quantity, res_weight, res_min, res_max, res_range, res_threshold = {}, {}, {}, {}, {}, {}, {};
 	local totalWeight, accumulatedWeight = 0, 0;
@@ -12734,7 +12791,6 @@ end
 
 ------------------------------------------------------------------------------
 function AssignStartingPlots:PlaceFishMainland(frequency, plot_list)
-	-- This function places fish at members of plot_list. (Sounds fishy to me!)
 	if plot_list == nil then
 		--print("No fish were placed! -PlaceFish");
 		return
@@ -12794,7 +12850,7 @@ function AssignStartingPlots:PlaceFish(frequency, plot_list)
 	end
 	local iW, iH = Map.GetGridSize();
 	local iNumTotalPlots = table.maxn(plot_list);
-	local iNumFishToPlace = math.ceil(iNumTotalPlots / frequency);
+	local iNumFishToPlace = math.ceil(iNumTotalPlots / frequency) * getBonusResourceAdjustment(self, self.fish_ID);
 	local bMainlandCoast = false;
 
 	-- Main loop
@@ -13554,7 +13610,36 @@ function AssignStartingPlots:PlaceStrategicAndBonusResources()
 		bonus_multiplier = 0.15;
 	end
 
+	local weight = 30;
+	local oddsOutOf1000 = getStratFrequency(self);
+
+	local resources_to_place = {};
+	-- place land strategics
+	resources_to_place = { {self.iron_ID, iron_amt, weight, 1, 999} };
+	self:AddResources(oddsOutOf1000, 1, self.land_all_list, resources_to_place);
+
+	resources_to_place = { {self.horse_ID, horse_amt, weight, 1, 999} };
+	self:AddResources(oddsOutOf1000, 1, self.land_all_list, resources_to_place);
+
+	resources_to_place = { {self.coal_ID, coal_amt, weight, 1, 999} };
+	self:AddResources(oddsOutOf1000, 1, self.land_all_list, resources_to_place);
+
+	resources_to_place = { {self.oil_ID, oil_amt, weight, 1, 999} };
+	self:AddResources(oddsOutOf1000, 1, self.land_all_list, resources_to_place);
+
+	resources_to_place = { {self.aluminum_ID, alum_amt, weight, 1, 999} };
+	self:AddResources(oddsOutOf1000, 1, self.land_all_list, resources_to_place);
+
+	resources_to_place = { {self.uranium_ID, uran_amt, weight, 1, 999}, };
+	self:AddResources(oddsOutOf1000, 1, self.land_all_list, resources_to_place);
+
+
+	-- place coast strategics
+	resources_to_place = { {self.oil_ID, oil_amt, weight, 1, 999} };
+	self:AddResources(oddsOutOf1000 * getCoastalOilFrequency(self), 1, self.coast_list, resources_to_place);
+
 	-- Place Strategic resources.
+	--[[ -- remove default strategic resource placement
 	print("Map Generation - Placing Strategics");
 	local resources_to_place = {
 	{self.oil_ID, oil_amt, 65, 1, 4},
@@ -13604,8 +13689,9 @@ function AssignStartingPlots:PlaceStrategicAndBonusResources()
 	self:AddModernMinorStrategicsToCityStates() -- Added spring 2011
 	
 	self:PlaceSmallQuantitiesOfStrategics(23 * bonus_multiplier, self.land_list);
+	--]]
 	
-	self:PlaceOilInTheSea();
+	--self:PlaceOilInTheSea();
 
 	
 	-- Check for low or missing Strategic resources
