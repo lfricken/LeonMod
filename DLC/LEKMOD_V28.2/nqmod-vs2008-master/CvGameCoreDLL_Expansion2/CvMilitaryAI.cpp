@@ -990,7 +990,7 @@ bool CvMilitaryAI::BuyEmergencyBuilding(CvCity* pCity)
 		{
 			// Make sure this building can be built now
 #ifdef NQ_BUILDING_DEFENSE_FROM_CITIZENS
-			if(pCity->canConstruct(eBldg) && (pkBuildingInfo->GetDefenseModifier() > 0 || pkBuildingInfo->GetDefensePerCitizen() > 0))
+			if(pCity->canConstruct(eBldg) && (pkBuildingInfo->GetDefenseModifierT100() > 0 || pkBuildingInfo->GetDefensePerCitizen() > 0))
 #else
 			if(pCity->canConstruct(eBldg) && pkBuildingInfo->GetDefenseModifier() > 0)
 #endif
@@ -1393,7 +1393,7 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 	// TODO come up with a better way to do this that is always correct
 
 	int iFriendlyStrength = target.iMusterNearbyUnitPower;
-	int iEnemyStrength = target.iTargetNearbyUnitPower + (target.m_pTargetCity->getStrengthValue() / 50);
+	int iEnemyStrength = target.iTargetNearbyUnitPower + (target.m_pTargetCity->getStrengthValueT100() / 50);
 	iFriendlyStrength = max(1, iFriendlyStrength);
 	iEnemyStrength = max(1, iEnemyStrength);
 	int iRatio = 1;
@@ -2203,7 +2203,7 @@ void CvMilitaryAI::UpdateBaseData()
 	iNumUnitsWanted = GC.getAI_STRATEGY_DEFEND_MY_LANDS_BASE_UNITS();
 
 	// 1 Unit per City & 1 per Settler
-	iNumUnitsWanted += (int)(m_pPlayer->getNumCities() * /*1.0*/ GC.getAI_STRATEGY_DEFEND_MY_LANDS_UNITS_PER_CITY());
+	iNumUnitsWanted += (m_pPlayer->getNumCities() * /*100*/ GC.getAI_STRATEGY_DEFEND_MY_LANDS_UNITS_PER_CITYT100()) / 100;
 	iNumUnitsWanted += m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_SETTLE, true);
 
 	m_iMandatoryReserveSize = (int)((float)iNumUnitsWanted * fMultiplier);
@@ -4847,8 +4847,6 @@ int MilitaryAIHelpers::ComputeRecommendedNavySize(CvPlayer* pPlayer)
 	int iFlavorNaval = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL"));
 	// cap at 10?
 
-	double dMultiplier;
-
 	// Start with 1
 	iNumUnitsWanted = 1;
 
@@ -4864,9 +4862,12 @@ int MilitaryAIHelpers::ComputeRecommendedNavySize(CvPlayer* pPlayer)
 	}
 
 	iNumUnitsWanted += iNumCoastalCities;
-	// Scale up or down based on true threat level and a bit by flavors (multiplier should range from about 0.75 to 2.0)
-	dMultiplier = (double)0.75 + ((double)pPlayer->GetMilitaryAI()->GetHighestThreat() / (double)4.0) + ((double)(iFlavorNaval) / (double)40.0);
-	iNumUnitsWanted = (int)((double)iNumUnitsWanted * dMultiplier* /*0.67*/ GC.getAI_STRATEGY_NAVAL_UNITS_PER_CITY());
+	int multiplierT100 = 0;
+	multiplierT100 += 75; // base value
+	multiplierT100 += (iFlavorNaval * 100) / 40; // naval flavor
+	multiplierT100 += (pPlayer->GetMilitaryAI()->GetHighestThreat() * 100) / 4; // real threats
+
+	iNumUnitsWanted = (iNumUnitsWanted * multiplierT100 * /*67*/ GC.getAI_STRATEGY_NAVAL_UNITS_PER_CITYT100()) / (100 * 100);
 
 	iNumUnitsWanted = max(1,iNumUnitsWanted);
 

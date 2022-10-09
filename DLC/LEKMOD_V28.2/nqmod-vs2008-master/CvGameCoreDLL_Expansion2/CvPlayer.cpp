@@ -6166,14 +6166,14 @@ void CvPlayer::ChangeCompetitionHammersT100(const HammerCompetitionTypes eType, 
 }
 int CvPlayer::GetTradeRouteCost(const int ithTradeRoute) const
 {
-	const int base = 600 * GC.adjustForSpeed(YIELD_PRODUCTION);
+	const int base = 6 * GC.adjustForSpeedT100(YIELD_PRODUCTION);
 	const int howMany = ithTradeRoute - 1;
 	const int cost = base + howMany * GetTradeRouteCostIncrease();
 	return max(0, cost);
 }
 int CvPlayer::GetTradeRouteCostIncrease() const
 {
-	return 300 * GC.adjustForSpeed(YIELD_PRODUCTION);
+	return 3 * GC.adjustForSpeedT100(YIELD_PRODUCTION);
 }
 void CvPlayer::GetTradeRouteProjectInfo(int* iCount, int* iProgress) const
 {
@@ -6199,14 +6199,14 @@ void CvPlayer::GetTradeRouteProjectInfo(int* iCount, int* iProgress) const
 
 int CvPlayer::GetNationalGamesCost(const int ithTradeRoute) const
 {
-	const int base = 600 * GC.adjustForSpeed(YIELD_PRODUCTION);
+	const int base = 6 * GC.adjustForSpeedT100(YIELD_PRODUCTION);
 	const int howMany = ithTradeRoute - 1;
 	const int cost = base + howMany * GetNationalGamesCostIncrease();
 	return max(0, cost);
 }
 int CvPlayer::GetNationalGamesCostIncrease() const
 {
-	return 300 * GC.adjustForSpeed(YIELD_PRODUCTION);
+	return 3 * GC.adjustForSpeedT100(YIELD_PRODUCTION);
 }
 void CvPlayer::GetNationalGamesProjectInfo(int* iCount, int* iProgress) const
 {
@@ -7086,6 +7086,7 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pDiscov
 
 
 
+const int t100 = (100 * 100);
 // random number
 int rand(int maxExclusive, const CvPlot* pPlot)
 {
@@ -7094,51 +7095,60 @@ int rand(int maxExclusive, const CvPlot* pPlot)
 // randomly adjust this value by +/- 10%
 int varyByPercent(int original, const CvPlot* pPlot)
 {
-	float percent = original * 0.10f;
-	int range = ceil(2 * percent);
-	return original + rand(range, pPlot) - range / 2;
+	const int range = 20; // random value up to this value
+	const int percentageT100 = rand(range, pPlot) - (range / 2); // percentageT100 now in range [-range, +range]
+	const int resultT100 = original * (100 + percentageT100);
+	return resultT100 / 100;
 }
 // Food a goody hut gives
 int hutFood(const CvPlot* pPlot)
 {
-	float value = 2 * (7 + 1.0 * pow(GC.onePerOnlineSpeedTurn(), 0.8f));
-	value *= GC.adjustForSpeed(YIELD_FOOD);
-	return varyByPercent(value, pPlot);
+	int value = (2 * (7 * t100 + 1.0 * GC.onePerOnlineSpeedTurnT10000()));
+	value *= GC.adjustForSpeedT100(YIELD_FOOD);
+	value /= 100;
+	return varyByPercent(value, pPlot) / (100 * 100);
 }
 // Production a goody hut gives
 int hutProduction(const CvPlot* pPlot)
 {
-	float value = 2 * (7 + 1.0 * pow(GC.onePerOnlineSpeedTurn(), 0.8f));
-	value *= GC.adjustForSpeed(YIELD_PRODUCTION);
-	return varyByPercent(value, pPlot);
+	int valueT10000 = (2 * (7 * t100 + 1.0 * GC.onePerOnlineSpeedTurnT10000()));
+	valueT10000 *= GC.adjustForSpeedT100(YIELD_PRODUCTION);
+	valueT10000 /= 100;
+	return varyByPercent(valueT10000, pPlot) / (100 * 100);
 }
 // Gold a goody hut gives
 int hutGold(const CvPlot* pPlot)
 {
-	float value = 2 * (60 + 1.0 * GC.onePerOnlineSpeedTurn());
-	value *= GC.adjustForSpeed(YIELD_GOLD);
-	return varyByPercent(value, pPlot);
+	T100 valueT10000 = (2 * (60 * t100 + 1.0 * GC.onePerOnlineSpeedTurnT10000()));
+	valueT10000 *= GC.adjustForSpeedT100(YIELD_GOLD);
+	valueT10000 /= 100;
+	return varyByPercent(valueT10000, pPlot) / (100 * 100);
 }
 // Science a goody hut gives
 int hutScience(const CvPlot* pPlot)
 {
-	float value = 2 * (20 + 1.0 * GC.onePerOnlineSpeedTurn());
-	value *= GC.adjustForSpeed(YIELD_SCIENCE);
-	return varyByPercent(value, pPlot);
+	T100 valueT10000 = (2 * (20 * t100 + 1 * GC.onePerOnlineSpeedTurnT10000()));
+	valueT10000 *= GC.adjustForSpeedT100(YIELD_SCIENCE);
+	valueT10000 /= 100;
+	return varyByPercent(valueT10000, pPlot) / (100 * 100);
 }
 // Culture a goody hut gives
 int hutCulture(const CvPlot* pPlot)
 {
-	float value = 2 * (10 + pow(0.66f * GC.onePerOnlineSpeedTurn(), 0.8f));
-	value *= GC.adjustForSpeed(YIELD_CULTURE);
-	return varyByPercent(value, pPlot);
+	T100 valueT10000 = (2 * (10 * t100 + GC.onePerOnlineSpeedTurnT10000()));
+	valueT10000 *= 2;
+	valueT10000 /= 3;
+	valueT10000 *= GC.adjustForSpeedT100(YIELD_CULTURE);
+	valueT10000 /= 100;
+	return varyByPercent(valueT10000, pPlot) / (100 * 100);
 }
 // Culture a goody hut gives
 int hutFaith(const CvPlot* pPlot)
 {
-	float value = 2 * (15 + GC.onePerOnlineSpeedTurn());
-	value *= GC.adjustForSpeed(YIELD_FAITH);
-	return varyByPercent(value, pPlot);
+	T100 valueT10000 = 2 * (15 * t100 + GC.onePerOnlineSpeedTurnT10000());
+	valueT10000 *= GC.adjustForSpeedT100(YIELD_FAITH);
+	valueT10000 /= 100;
+	return varyByPercent(valueT10000, pPlot) / (100 * 100);
 }
 // Map radius a goody hut gives
 int hutMapRadius(const CvPlot* pPlot)
@@ -7146,7 +7156,7 @@ int hutMapRadius(const CvPlot* pPlot)
 	int baseRadius = 9; // starts with this much radius
 	int turnsPerRadius = 12; // on average, will grant 1 more radius every 20 turns on online speed
 	int randValue = GC.getGame().getJonRandNum(turnsPerRadius + 1, "Goody Hut Map", pPlot, 35); // [1-20]
-	int bonusRadius = ((int)GC.onePerOnlineSpeedTurn() + randValue) / turnsPerRadius;
+	int bonusRadius = ((GC.onePerOnlineSpeedTurnT10000() / t100) + randValue) / turnsPerRadius;
 	float value = baseRadius + bonusRadius;
 	return value;
 }
@@ -11507,9 +11517,9 @@ void CvPlayer::ReportYieldFromKill(YieldTypes eYield, int iValue, int iX, int iY
 		if(GetID() == GC.getGame().getActivePlayer())
 		{
 			char text[256] = {0};
-			float fDelay = GC.getPOST_COMBAT_TEXT_DELAY() * (1 + ((float)iDelay * 0.5f)); // 1 is added to avoid overlapping with XP text
+			int delayT100 = GC.getPOST_COMBAT_TEXT_DELAYT100() * (100 + (iDelay * 50)) / 100; // 1 is added to avoid overlapping with XP text
 			sprintf_s(text, yieldString, iValue);
-			GC.GetEngineUserInterface()->AddPopupText(iX, iY, text, fDelay);
+			GC.GetEngineUserInterface()->AddPopupText(iX, iY, text, delayT100 / 100.0f);
 		}
 	}
 }
@@ -13066,16 +13076,16 @@ int CvPlayer::GetUnhappiness(CvCity* pAssumeCityAnnexed, CvCity* pAssumeCityPupp
 /// Used for providing info to the player
 int CvPlayer::GetUnhappinessFromCityForUI(CvCity* pCity) const
 {
-	int iNumCitiesUnhappinessTimes100 = 0;
-	int iPopulationUnhappinessTimes100 = 0;
+	T100 iNumCitiesUnhappinessTimes100 = 0;
+	T100 iPopulationUnhappinessTimes100 = 0;
 
-	int iPopulation = pCity->getPopulation() * 100;
+	T100 iPopulationT100 = pCity->getPopulation() * 100;
 
 	// No Unhappiness from Specialist Pop? (Policies, etc.)
 	if(isHalfSpecialistUnhappiness())
 	{
-		int iSpecialistCount = pCity->GetCityCitizens()->GetTotalSpecialistCount() * 100;
-		iPopulation -= (iSpecialistCount / 2);
+		T100 iSpecialistCountT100 = pCity->GetCityCitizens()->GetTotalSpecialistCount() * 100;
+		iPopulationT100 -= (iSpecialistCountT100 / 2);
 	}
 
 	// Occupied?
@@ -13084,7 +13094,7 @@ int CvPlayer::GetUnhappinessFromCityForUI(CvCity* pCity) const
 		//if (!pCity->IsIgnoreCityForHappiness()) // NQMP GJS - new Military Caste
 		//{
 			iNumCitiesUnhappinessTimes100 += (100 * /*5*/ GC.getUNHAPPINESS_PER_CAPTURED_CITY());
-			iPopulationUnhappinessTimes100 += int(iPopulation* /*1.34f*/ GC.getUNHAPPINESS_PER_OCCUPIED_POPULATION());
+			iPopulationUnhappinessTimes100 += (iPopulationT100 * GC.getUNHAPPINESS_PER_OCCUPIED_POPULATIONT100()) / 100; 
 		//}
 
 		// Mod (Policies, etc.)
@@ -13098,7 +13108,7 @@ int CvPlayer::GetUnhappinessFromCityForUI(CvCity* pCity) const
 	else
 	{
 		iNumCitiesUnhappinessTimes100 += (100 * /*2*/ GC.getUNHAPPINESS_PER_CITY());
-		iPopulationUnhappinessTimes100 += (iPopulation* /*1*/ GC.getUNHAPPINESS_PER_POPULATION());
+		iPopulationUnhappinessTimes100 += (iPopulationT100* /*1*/ GC.getUNHAPPINESS_PER_POPULATION());
 
 		if(pCity->isCapital() && GetCapitalUnhappinessMod() != 0)
 		{
@@ -13444,10 +13454,10 @@ int CvPlayer::GetUnhappinessFromCitySpecialists(CvCity* pAssumeCityAnnexed, CvCi
 /// Unhappiness from City Population in Occupied Cities
 int CvPlayer::GetUnhappinessFromOccupiedCities(CvCity* pAssumeCityAnnexed, CvCity* pAssumeCityPuppeted, const CvCity* pAssumeCityGrows, const CvCity* pAssumeCityExtraSpecialist) const
 {
-	int iUnhappiness = 0;
-	int iUnhappinessFromThisCity;
+	int iUnhappinessT100 = 0;
+	int iUnhappinessFromThisCityT100;
 
-	double fUnhappinessPerPop = /*1.34f*/ GC.getUNHAPPINESS_PER_OCCUPIED_POPULATION() * 100;
+	int T100UnhappinessPerPop = /*134*/ GC.getUNHAPPINESS_PER_OCCUPIED_POPULATIONT100();
 	int iPopulation;
 	int iSpecialistCount;
 
@@ -13492,24 +13502,24 @@ int CvPlayer::GetUnhappinessFromOccupiedCities(CvCity* pAssumeCityAnnexed, CvCit
 				iPopulation -= (iSpecialistCount / 2);
 			}
 
-			iUnhappinessFromThisCity = int(double(iPopulation) * fUnhappinessPerPop);
+			iUnhappinessFromThisCityT100 = int(iPopulation * T100UnhappinessPerPop);
 
 			// Mod (Policies, etc.)
 			if(GetOccupiedPopulationUnhappinessMod() != 0)
 			{
-				iUnhappinessFromThisCity *= (100 + GetOccupiedPopulationUnhappinessMod());
-				iUnhappinessFromThisCity /= 100;
+				iUnhappinessFromThisCityT100 *= (100 + GetOccupiedPopulationUnhappinessMod());
+				iUnhappinessFromThisCityT100 /= 100;
 			}
 
-			iUnhappiness += iUnhappinessFromThisCity;
+			iUnhappinessT100 += iUnhappinessFromThisCityT100;
 		}
 	}
 
 	// Handicap mod
-	iUnhappiness *= getHandicapInfo().getPopulationUnhappinessMod();
-	iUnhappiness /= 100;
+	iUnhappinessT100 *= getHandicapInfo().getPopulationUnhappinessMod();
+	iUnhappinessT100 /= 100;
 
-	return iUnhappiness;
+	return iUnhappinessT100;
 }
 
 //	--------------------------------------------------------------------------------
@@ -14244,22 +14254,23 @@ void CvPlayer::ChangeTourismBonusTurns(int iChange)
 	}
 }
 
-int CvPlayer::GetTourismCombatPenalty(const PlayerTypes eOtherPlayerId) const
+T100 CvPlayer::GetTourismCombatPenaltyT100(const PlayerTypes eOtherPlayerId) const
 {
 	int iRetVal = 0;
 
 	CvPlayer& usPlayer = GET_PLAYER(GetID());
 	CvPlayer& themPlayer = GET_PLAYER(eOtherPlayerId);
 
-	const float ourInfluence = usPlayer.GetCulture()->GetInfluencePercent(themPlayer.GetID());
-	const float theirInfluence = themPlayer.GetCulture()->GetInfluencePercent(usPlayer.GetID());
+	const T100 ourInfluenceT100 = usPlayer.GetCulture()->GetInfluencePercentT100(themPlayer.GetID());
+	const T100 theirInfluenceT100 = themPlayer.GetCulture()->GetInfluencePercentT100(usPlayer.GetID());
 
 	// if their influence is greater than ours, WE get a PENALTY, THEY don't get a bonus
-	if (theirInfluence > ourInfluence)
+	if (theirInfluenceT100 > ourInfluenceT100)
 	{
-		const int maxBonus = (int)GC.getTOURISM_COMBAT_MAX();
-		float influenceDivisor = GC.getTOURISM_COMBAT_DIVISOR();
-		iRetVal = -1 * min(maxBonus, (int)((theirInfluence - ourInfluence) / influenceDivisor));
+		const T100 maxBonusT100 = GC.getTOURISM_COMBAT_MAXT100();
+		const T100 influenceDivisorT100 = GC.getTOURISM_COMBAT_DIVISORT100();
+		const T100 bonusT100 = (theirInfluenceT100 - ourInfluenceT100);
+		iRetVal = -1 * min(maxBonusT100, bonusT100);
 	}
 	return iRetVal;
 }
@@ -14330,8 +14341,10 @@ int CvPlayer::GetGoldenAgeProgressThreshold() const
 	iThreshold += GetNumGoldenAges() * /*500*/ GC.getGOLDEN_AGE_EACH_GA_ADDITIONAL_HAPPINESS();
 
 	// Increase cost based on the # of cities in the empire
-	int iCostExtra = int(iThreshold * (getNumCities() - 1) * /*0.02*/ GC.getGOLDEN_AGE_THRESHOLD_CITY_MULTIPLIER());
-	iThreshold += iCostExtra;
+	T100 numCityModT100 = 100;
+	numCityModT100 += (getNumCities() - 1) * GC.getGOLDEN_AGE_THRESHOLD_CITY_MULTIPLIERT100();
+	iThreshold *= numCityModT100;
+	iThreshold /= 100;
 
 	if(GetGoldenAgeMeterMod() != 0)
 	{
@@ -19224,11 +19237,11 @@ void CvPlayer::updateExtraYieldThreshold(YieldTypes eIndex)
 
 void CvPlayer::RecalculateNonLeaderBoost()
 {
-	const float allowedLag = GC.getSCIENCE_CATCHUP_DIFF_NONE(); // how far a player can fall behind without getting a boost in turns
+	const float allowedLag = GC.getSCIENCE_CATCHUP_DIFF_NONET100() / 100.0f; // how far a player can fall behind without getting a boost in turns
 	const float reachMaxBoost = 3.0f; // reach 100% boost early
-	const float percentGameDone = GC.getPercentTurnsDone();
+	const float percentGameDone = GC.getPercentTurnsDoneT10000() / 10000.0f;
 	const float effectiveGameDone = min(1.0f, percentGameDone * reachMaxBoost); // don't exceed 100% done
-	const float naiveBoost = (leaderTechDiff - allowedLag) / (GC.getSCIENCE_CATCHUP_DIFF() - allowedLag);
+	const float naiveBoost = (leaderTechDiff - allowedLag) / ((GC.getSCIENCE_CATCHUP_DIFFT100() / 100.0f) - allowedLag);
 	const float boost = min(1.0f, max(0.0f, naiveBoost)); // tech boost
 	const float resultBoost = min(1.0f, boost * max(0.10f, effectiveGameDone));
 	m_fScienceRubberBand = resultBoost;
@@ -21179,7 +21192,7 @@ int CvPlayer::GetHurryGoldCost(HurryTypes eHurry) const
 
 			// Cost of Gold rushing based on the ORIGINAL Research price
 			int iGoldForFullPrice = iTotalCost * pkHurryInfo->getGoldPerBeaker();
-			iGoldForFullPrice = (int) pow((double) iGoldForFullPrice, (double) /*1.10f*/ GC.getHURRY_GOLD_TECH_EXPONENT());
+			iGoldForFullPrice = (iGoldForFullPrice * GC.getHURRY_GOLD_TECH_EXPONENTT100()) / 100;
 
 			// Figure out the actual cost by comparing what's left to the original Research cost, and multiplying that by the amount to Gold rush the original cost
 			iGold = (iGoldForFullPrice * iResearchLeft / iTotalCost);
@@ -21201,7 +21214,7 @@ int CvPlayer::GetHurryGoldCost(HurryTypes eHurry) const
 
 			// Cost of Gold rushing based on the ORIGINAL Culture price
 			int iGoldForFullPrice = iCurrentPolicyCost * pkHurryInfo->getGoldPerCulture();
-			iGoldForFullPrice = (int) pow((double) iGoldForFullPrice, (double) /*1.10f*/ GC.getHURRY_GOLD_CULTURE_EXPONENT());
+			iGoldForFullPrice = (iGoldForFullPrice * GC.getHURRY_GOLD_CULTURE_EXPONENTT100()) / 100;
 
 			// Figure out the actual cost by comparing what's left to the original Culture cost, and multiplying that by the amount to Gold rush the original cost
 #ifdef AUI_PLAYER_FIX_JONS_CULTURE_IS_T100
@@ -26174,10 +26187,10 @@ int CvPlayer::getGrowthThreshold(int iPopulation) const
 
 	int iBaseThreshold = /*15*/ GC.getBASE_CITY_GROWTH_THRESHOLD();
 
-	int iExtraPopThreshold = int((iPopulation-1) * /*6*/ GC.getCITY_GROWTH_MULTIPLIER());
+	int iExtraPopThreshold = ((iPopulation-1) * /*6*/ GC.getCITY_GROWTH_MULTIPLIERT100()) / 100;
 
 	iBaseThreshold += iExtraPopThreshold;
-	iExtraPopThreshold = (int) pow(double(iPopulation-1), (double) /*1.8*/ GC.getCITY_GROWTH_EXPONENT());
+	iExtraPopThreshold = (int) pow(double(iPopulation-1), (double) /*1.5*/ (GC.getCITY_GROWTH_EXPONENTT100() / 100.0));
 
 	iThreshold = iBaseThreshold + iExtraPopThreshold;
 

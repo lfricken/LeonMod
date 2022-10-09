@@ -9410,10 +9410,10 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly, Tea
 								if(eTeam == eActiveTeam)
 								{
 									char text[256] = {0};
-									float fDelay = GC.getPOST_COMBAT_TEXT_DELAY() * 3;
+									int delayT100 = GC.getPOST_COMBAT_TEXT_DELAYT100() * 3;
 									text[0] = NULL;
 									sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iFinderGold);
-									GC.GetEngineUserInterface()->AddPopupText(getX(), getY(), text, fDelay);
+									GC.GetEngineUserInterface()->AddPopupText(getX(), getY(), text, delayT100 / 100.0f);
 								}
 							}
 						}

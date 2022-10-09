@@ -3032,7 +3032,7 @@ CvString CvPlayerCulture::GetOurTourism_Tooltip() const
 		stringstream s;
 		s << "[NEWLINE][NEWLINE]Having a stronger {TXT_KEY_CULTURAL_INFLUENCE} over another ";
 		s << "civilization can grant up to [COLOR_POSITIVE_TEXT]+";
-		s << abs(GC.getTOURISM_COMBAT_MAX());
+		s << abs(GC.getTOURISM_COMBAT_MAXT100());
 		s << "%[ENDCOLOR] [ICON_STRENGTH] Strength against that civilization's units.";
 		tooltip += s.str().c_str();
 	}
@@ -3117,22 +3117,22 @@ int CvPlayerCulture::GetTourismFromCulturePercentT100() const
 	return min(maxPolicyTourismPercentage, (numPoliciesPast * GC.getTOURISM_FROM_CITY_CULTURE_PER_POLICY()));
 }
 
-float CvPlayerCulture::GetInfluencePercent(PlayerTypes ePlayer) const
+T100 CvPlayerCulture::GetInfluencePercentT100(PlayerTypes ePlayer) const
 {
-	float iPercent = 0;
+	T100 iPercentT100 = 0;
 	CvPlayer &kOtherPlayer = GET_PLAYER(ePlayer);
 	CvTeam &kOtherTeam = GET_TEAM(kOtherPlayer.getTeam());
 	if (kOtherTeam.isHasMet(m_pPlayer->getTeam()))
 	{
-		float iInfluenceOn = GetInfluenceOn(ePlayer);
-		float iLifetimeCulture = kOtherPlayer.GetJONSCultureEverGenerated();
+		int iInfluenceOn = GetInfluenceOn(ePlayer);
+		int iLifetimeCulture = kOtherPlayer.GetJONSCultureEverGenerated();
 
 		if (iLifetimeCulture > 0)
 		{
-			iPercent = iInfluenceOn * 100.0f / iLifetimeCulture;
+			iPercentT100 = (iInfluenceOn * 100) / iLifetimeCulture;
 		}
 	}
-	return max(0.0f, iPercent);
+	return max((T100)0, iPercentT100);
 }
 
 /// Current influence level on this player
@@ -3149,27 +3149,27 @@ InfluenceLevelTypes CvPlayerCulture::GetInfluenceLevel(PlayerTypes ePlayer) cons
 	}
 	else
 	{
-		int iPercent = GetInfluencePercent(ePlayer);
+		T100 iPercentT100 = GetInfluencePercentT100(ePlayer);
 
 		eRtnValue = INFLUENCE_LEVEL_UNKNOWN;
 
-		if (iPercent >= GC.getCULTURE_LEVEL_DOMINANT())
+		if (iPercentT100 >= GC.getCULTURE_LEVEL_DOMINANT())
 		{
 			eRtnValue = INFLUENCE_LEVEL_DOMINANT;
 		}
-		else if (iPercent >= GC.getCULTURE_LEVEL_INFLUENTIAL())
+		else if (iPercentT100 >= GC.getCULTURE_LEVEL_INFLUENTIAL())
 		{
 			eRtnValue = INFLUENCE_LEVEL_INFLUENTIAL;
 		}
-		else if (iPercent >= GC.getCULTURE_LEVEL_POPULAR())
+		else if (iPercentT100 >= GC.getCULTURE_LEVEL_POPULAR())
 		{
 			eRtnValue = INFLUENCE_LEVEL_POPULAR;
 		}
-		else if (iPercent >= GC.getCULTURE_LEVEL_FAMILIAR())
+		else if (iPercentT100 >= GC.getCULTURE_LEVEL_FAMILIAR())
 		{
 			eRtnValue = INFLUENCE_LEVEL_FAMILIAR;
 		}
-		else if (iPercent >= GC.getCULTURE_LEVEL_EXOTIC())
+		else if (iPercentT100 >= GC.getCULTURE_LEVEL_EXOTIC())
 		{
 			eRtnValue = INFLUENCE_LEVEL_EXOTIC;
 		}

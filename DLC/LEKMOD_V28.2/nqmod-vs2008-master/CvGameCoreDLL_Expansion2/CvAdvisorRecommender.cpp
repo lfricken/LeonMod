@@ -214,6 +214,33 @@ void CvAdvisorRecommender::ResetTechs()
 	m_aFinalRoundTechs.clear();
 }
 
+void ReweightByAdvisor(const CvPlayer& player, CvWeightedVector<int, 80, true>* pWeights)
+{
+	CvWeightedVector<int, 80, true>& weights = *pWeights;
+	
+	const bool bNeedExpensiveTechs = player.getOverflowResearchTimes100() > (player.GetScienceTimes100() * 2); // if lots of science overflow, want to pick an expensive tech
+
+	int lowestTurnsToResearch = 1000;
+	for (int iI = 0; iI < weights.size(); iI++)
+	{
+		const TechTypes eTech = (TechTypes)weights.GetElement(iI);
+		const int iTurnsLeft = player.GetPlayerTechs()->GetResearchTurnsLeft(eTech, true);
+		if (iTurnsLeft < lowestTurnsToResearch)
+			lowestTurnsToResearch = iTurnsLeft;
+	}
+	const int maxWeightValue = 5;
+	for (int iI = 0; iI < weights.size(); iI++)
+	{
+		const TechTypes eTech = (TechTypes)weights.GetElement(iI);
+		const int iTurnsLeft = max(1, player.GetPlayerTechs()->GetResearchTurnsLeft(eTech, true));
+		int iNewWeight = max(1, (maxWeightValue * lowestTurnsToResearch) / iTurnsLeft); // lowest achieves weight 5, something 5x more expensive gets weight 1
+		if (bNeedExpensiveTechs)
+			iNewWeight = maxWeightValue / iNewWeight; // inverse the weight
+
+		weights.SetWeight(iI, iNewWeight);
+	}
+}
+
 void CvAdvisorRecommender::UpdateTechRecommendations(PlayerTypes ePlayer)
 {
 	ResetTechs();
@@ -242,36 +269,7 @@ void CvAdvisorRecommender::UpdateTechRecommendations(PlayerTypes ePlayer)
 		}
 	}
 
-	// weigh by cost
-	for(int iI = 0; iI < m_aResearchableTechs.size(); iI++)
-	{
-		TechTypes eTech = (TechTypes) m_aResearchableTechs.GetElement(iI);
-		int iTurnsLeft = 0;
-
-		iTurnsLeft = pPlayerTechs->GetResearchTurnsLeft(eTech, true);
-
-		double fWeightDivisor;
-
-		// 10 turns will add 0.02; 80 turns will add 0.16
-		double fAdditionalTurnCostFactor = GC.getAI_RESEARCH_WEIGHT_MOD_PER_TURN_LEFT() * iTurnsLeft;	// 0.015
-		double fTotalCostFactor = GC.getAI_RESEARCH_WEIGHT_BASE_MOD() + fAdditionalTurnCostFactor;	// 0.15
-
-		fWeightDivisor = pow((double) iTurnsLeft, fTotalCostFactor);
-
-		// if the tech is free, then we don't want inverse the weighting. More expensive techs = better.
-		int iNewWeight = 0;
-		if(GET_PLAYER(ePlayer).GetNumFreeTechs() == 0)
-		{
-			iNewWeight = int(double(m_aResearchableTechs.GetWeight(iI)) / fWeightDivisor);
-		}
-		else
-		{
-			iNewWeight = m_aResearchableTechs.GetWeight(iI) * max(iTurnsLeft / 2, 1);
-		}
-
-		// Now actually change the weight
-		m_aResearchableTechs.SetWeight(iI, iNewWeight);
-	}
+	ReweightByAdvisor(GET_PLAYER(ePlayer), &m_aResearchableTechs);
 
 	m_aResearchableTechs.SortItems();
 

@@ -569,22 +569,22 @@ int CvDllGameContext::GetMAX_CITY_HIT_POINTS_AI_BONUS() const
 //------------------------------------------------------------------------------
 float CvDllGameContext::GetCITY_ZOOM_OFFSET() const
 {
-	return GC.getCITY_ZOOM_OFFSET();
+	return GC.getCITY_ZOOM_OFFSETT100() / 100.0f;
 }
 //------------------------------------------------------------------------------
 float CvDllGameContext::GetCITY_ZOOM_LEVEL_1() const
 {
-	return GC.getCITY_ZOOM_LEVEL_1();
+	return GC.getCITY_ZOOM_LEVEL_1T100() / 100.0f;
 }
 //------------------------------------------------------------------------------
 float CvDllGameContext::GetCITY_ZOOM_LEVEL_2() const
 {
-	return GC.getCITY_ZOOM_LEVEL_2();
+	return GC.getCITY_ZOOM_LEVEL_2T100() / 100.0f;
 }
 //------------------------------------------------------------------------------
 float CvDllGameContext::GetCITY_ZOOM_LEVEL_3() const
 {
-	return GC.getCITY_ZOOM_LEVEL_3();
+	return GC.getCITY_ZOOM_LEVEL_3T100() / 100.0f;
 }
 //------------------------------------------------------------------------------
 int CvDllGameContext::GetRUINS_IMPROVEMENT() const

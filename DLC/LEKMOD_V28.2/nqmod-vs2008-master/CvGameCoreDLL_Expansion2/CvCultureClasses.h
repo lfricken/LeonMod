@@ -249,7 +249,7 @@ public:
 	void ChangeInfluenceOn(PlayerTypes ePlayer, int iValue);
 	int GetLastTurnInfluenceOn(PlayerTypes ePlayer) const;
 
-	float GetInfluencePercent(PlayerTypes ePlayer) const;
+	T100 GetInfluencePercentT100(PlayerTypes ePlayer) const;
 	InfluenceLevelTypes GetInfluenceLevel(PlayerTypes ePlayer) const;
 	InfluenceLevelTrend GetInfluenceTrend(PlayerTypes ePlayer) const;
 	int GetTurnsToInfluential(PlayerTypes ePlayer) const;

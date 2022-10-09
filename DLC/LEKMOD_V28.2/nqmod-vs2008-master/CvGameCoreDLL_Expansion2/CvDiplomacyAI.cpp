@@ -3623,7 +3623,7 @@ int findWarWeightFromTopScoresRatio(float ratio)
 void applyScore(CvDiplomacyAI& us, CvPlayer& them, FStaticVector<int, 128, true, c_eCiv5GameplayDLL>& viApproachWeights, float* scoreRatio)
 {
 	CvWeightedVector<PlayerTypes, MAX_MAJOR_CIVS, true> scoreSortedCivs = getScoreSortedCivs(us);
-	bool tooEarly = GC.onePerOnlineSpeedTurn() < 40; // early game scores vary wildly, don't consider score yet
+	bool tooEarly = GC.onePerOnlineSpeedTurnT10000() < 40 * 100 * 100; // early game scores vary wildly, don't consider score yet
 
 	if (!tooEarly && scoreSortedCivs.size() >= 2)
 	{
@@ -7903,7 +7903,7 @@ void CvDiplomacyAI::DoUpdateWarmongerThreats()
 			SetWarmongerThreat(eLoopPlayer, eThreatType);
 
 			// decay score
-			ChangeOtherPlayerWarmongerAmount(eLoopPlayer, /*-5*/GC.getWARMONGER_THREAT_PER_TURN_DECAY() / max(0.1f, GC.adjustForSpeed(YIELD_PRODUCTION)));
+			ChangeOtherPlayerWarmongerAmount(eLoopPlayer, /*-5*/(GC.getWARMONGER_THREAT_PER_TURN_DECAY() * 100) / max((T100)10, GC.adjustForSpeedT100(YIELD_PRODUCTION)));
 		}
 	}
 }

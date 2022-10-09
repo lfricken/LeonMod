@@ -3610,9 +3610,9 @@ bool EconomicAIHelpers::IsTestStrategy_NeedImprovement(CvPlayer* pPlayer, YieldT
 	{
 		return false;
 	}
-
-	// if enough cities are worried about this problem
+	// total city count
 	int iNumCities = pPlayer->getNumCities();
+	// if enough cities are worried about this problem
 	if(iNumCities == 0)
 	{
 		return false; // no cities, no problem!
@@ -3629,10 +3629,11 @@ bool EconomicAIHelpers::IsTestStrategy_NeedImprovement(CvPlayer* pPlayer, YieldT
 		}
 	}
 
-	double fWarningRatio = GC.getAI_STRATEGY_NEED_IMPROVEMENT_CITY_RATIO();
+	T100 ratioWarningT100 = GC.getAI_STRATEGY_NEED_IMPROVEMENT_CITY_RATIOT100();
+	T100 ratioConcernedT100 = (iNumCitiesConcerned * 100 / iNumCities);
 
 	// if not enough cities are upset
-	if((iNumCitiesConcerned / (double)iNumCities) < fWarningRatio)
+	if(ratioConcernedT100 < ratioWarningT100)
 	{
 		return false;
 	}

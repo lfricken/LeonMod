@@ -652,20 +652,6 @@
 #define GD_INT_INIT(name, def)  m_i##name(def)
 #define GD_INT_CACHE(name)      m_i##name = getDefineINT(#name)
 #define GD_INT_GET(name)        GC.get##name()
-// FLOAT
-#define GD_FLOAT_DECL(name)       float m_f##name
-#define GD_FLOAT_DEF(name)        inline float get##name() { return m_f##name; }
-#define GD_FLOAT_INIT(name, def)  m_f##name(def)
-#define GD_FLOAT_CACHE(name)      m_f##name = getDefineFLOAT(#name)
-#define GD_FLOAT_GET(name)        GC.get##name()
-// DOUBLE (high precision, but much slower than float)
-#ifdef NQM_CACHE_DOUBLE
-#define GD_DOUBLE_DECL(name)       double m_d##name
-#define GD_DOUBLE_DEF(name)        inline double get##name() { return m_d##name; }
-#define GD_DOUBLE_INIT(name, def)  m_d##name(def)
-#define GD_DOUBLE_CACHE(name)      m_d##name = getDefineDOUBLE(#name)
-#define GD_DOUBLE_GET(name)        GC.get##name()
-#endif
 
 // --- NQ Changes ---
 /// Relaxed the limits on the slice limits before turn timers are forced to expire in network multiplayer games (should help stop resyncs due to last-second moves)

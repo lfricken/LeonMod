@@ -2702,7 +2702,7 @@ int CvLuaCity::lCreateApolloProgram(lua_State* L)
 int CvLuaCity::lGetBuildingDefense(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const int iResult = pkCity->GetCityBuildings()->GetBuildingDefense();
+	const int iResult = pkCity->GetCityBuildings()->GetBuildingDefenseT100();
 
 	lua_pushinteger(L, iResult);
 	return 1;
@@ -3565,7 +3565,7 @@ int CvLuaCity::lGetStrengthValue(lua_State* L)
 	return BasicLuaMethod(L, &CvCity::getStrengthValue);
 #else
 	CvCity* pkCity = GetInstance(L);
-	const int iResult = pkCity->getStrengthValue();
+	const int iResult = pkCity->getStrengthValueT100();
 
 	lua_pushinteger(L, iResult);
 	return 1;

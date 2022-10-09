@@ -5461,7 +5461,7 @@ int CvLuaPlayer::lGetTourismCombatPenalty(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eOtherPlayerId = (PlayerTypes)lua_tointeger(L, 2);
-	const int iResult = pkPlayer->GetTourismCombatPenalty(eOtherPlayerId);
+	const int iResult = pkPlayer->GetTourismCombatPenaltyT100(eOtherPlayerId);
 	lua_pushinteger(L, iResult);
 	return 1;
 }

@@ -52,4 +52,6 @@ public:
 	CvWeightedVector<CvCityBuildable, NUM_ADVISOR_TYPES, true> m_aFinalRoundBuildables;
 };
 
+void ReweightByAdvisor(const CvPlayer& player, CvWeightedVector<int, 80, true>* weights);
+
 #endif	//CIV5_ADVISOR_COUNSEL_H

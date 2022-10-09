@@ -751,7 +751,7 @@ public:
 	void changeSpecialistFreeExperience(int iChange);
 
 	void updateStrengthValue();
-	int getStrengthValue(bool bForRangeStrike = false) const;
+	int getStrengthValueT100(bool bForRangeStrike = false) const;
 	int GetPower() const;
 
 	int getDamage() const;
@@ -964,7 +964,7 @@ protected:
 	FAutoVariable<int, CvCity> m_iCultureUpdateTimer;
 	FAutoVariable<int, CvCity> m_iCitySizeBoost;
 	FAutoVariable<int, CvCity> m_iSpecialistFreeExperience;
-	FAutoVariable<int, CvCity> m_iStrengthValue;
+	FAutoVariable<int, CvCity> m_iStrengthValueT100;
 	FAutoVariable<int, CvCity> m_iDamage;
 	FAutoVariable<int, CvCity> m_iThreatValue;
 	FAutoVariable<int, CvCity> m_iGarrisonedUnit;  // unused

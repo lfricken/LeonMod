@@ -253,7 +253,7 @@ void CvTacticalAI::Init(CvPlayer* pPlayer)
 	m_iRepositionRange = GC.getAI_TACTICAL_REPOSITION_RANGE();
 	m_iDeployRadius = GC.getAI_OPERATIONAL_CITY_ATTACK_DEPLOY_RANGE();
 	m_iRandomRange = GC.getAI_TACTICAL_MOVE_PRIORITY_RANDOMNESS();
-	m_fFlavorDampening = GC.getAI_TACTICAL_FLAVOR_DAMPENING_FOR_MOVE_PRIORITIZATION();
+	m_fFlavorDampening = GC.getAI_TACTICAL_FLAVOR_DAMPENING_FOR_MOVE_PRIORITIZATIONT100() / 100.0f;
 
 	// cache TypeInfos rather than doing a hash map look up of the string every time it is being used
 	m_CachedInfoTypes[eTACTICAL_UNASSIGNED] = GC.getInfoTypeForString("TACTICAL_UNASSIGNED");
@@ -5782,7 +5782,7 @@ void CvTacticalAI::IdentifyPriorityTargets()
 				else if (CanReachInXTurns(pEnemyUnit, pLoopCity->plot(), 1))
 				{
 					int iAttackerStrength = pEnemyUnit->GetMaxAttackStrength(NULL, pLoopCity->plot(), NULL);
-					int iDefenderStrength = pLoopCity->getStrengthValue();
+					int iDefenderStrength = pLoopCity->getStrengthValueT100();
 					CvUnit* pFireSupportUnit = CvUnitCombat::GetFireSupportUnit(pLoopCity->getOwner(), pLoopCity->getX(), pLoopCity->getY(), pEnemyUnit->getX(), pEnemyUnit->getY());
 					int iDefenderFireSupportCombatDamage = 0;
 					if (pFireSupportUnit != NULL)
@@ -9261,7 +9261,7 @@ int CvTacticalAI::ComputeTotalExpectedDamage(CvTacticalTarget* pTarget, CvPlot* 
 				else
 				{
 					int iAttackerStrength = pAttacker->GetMaxAttackStrength(NULL, pTargetPlot, NULL);
-					int iDefenderStrength = pCity->getStrengthValue();
+					int iDefenderStrength = pCity->getStrengthValueT100();
 					CvUnit* pFireSupportUnit = CvUnitCombat::GetFireSupportUnit(pCity->getOwner(), pTargetPlot->getX(), pTargetPlot->getY(), pAttacker->getX(), pAttacker->getY());
 					int iDefenderFireSupportCombatDamage = 0;
 					if (pFireSupportUnit != NULL)
@@ -10900,7 +10900,7 @@ int CvTacticalAI::ScoreGreatGeneralPlot(UnitHandle pGeneral, CvPlot* pTarget, Cv
 		bFriendlyCity = true;
 		CvCity* pCity = pTarget->getPlotCity();
 
-		iFriendlyCityStrength = pCity->getStrengthValue() * 100;
+		iFriendlyCityStrength = pCity->getStrengthValueT100() * 100;
 		iFriendlyCityStrength *= (pCity->GetMaxHitPoints() - pCity->getDamage());
 		iFriendlyCityStrength /= pCity->GetMaxHitPoints();
 

@@ -399,39 +399,7 @@ void CvTechAI::PropagateWeights(int iTech, int iWeight, int iPropagationPercent,
 /// Recompute weights taking into account tech cost
 void CvTechAI::ReweightByCost(CvPlayer *pPlayer)
 {
-	TechTypes eTech;
-
-	// April 2014 Balance Patch: if lots of science overflow, want to pick an expensive tech
-	bool bNeedExpensiveTechs = pPlayer->getOverflowResearchTimes100() > (pPlayer->GetScienceTimes100() * 2);
-
-	for(int iI = 0; iI < m_ResearchableTechs.size(); iI++)
-	{
-		eTech = (TechTypes) m_ResearchableTechs.GetElement(iI);
-		int iTurnsLeft = 0;
-
-		iTurnsLeft = m_pCurrentTechs->GetResearchTurnsLeft(eTech, true);
-
-		double fWeightDivisor;
-
-		// 10 turns will add 0.02; 80 turns will add 0.16
-		double fAdditionalTurnCostFactor = GC.getAI_RESEARCH_WEIGHT_MOD_PER_TURN_LEFT() * iTurnsLeft;	// 0.015
-		double fTotalCostFactor = GC.getAI_RESEARCH_WEIGHT_BASE_MOD() + fAdditionalTurnCostFactor;	// 0.15
-
-		fWeightDivisor = pow((double) iTurnsLeft, fTotalCostFactor);
-
-		int iNewWeight;
-		if (bNeedExpensiveTechs)
-		{
-			iNewWeight = int(double(m_ResearchableTechs.GetWeight(iI)) * fWeightDivisor);
-		}
-		else
-		{
-			iNewWeight = int(double(m_ResearchableTechs.GetWeight(iI)) / fWeightDivisor);
-		}
-
-		// Now actually change the weight
-		m_ResearchableTechs.SetWeight(iI, iNewWeight);
-	}
+	ReweightByAdvisor(*pPlayer, &m_ResearchableTechs);
 }
 
 /// Log all possible tech choices

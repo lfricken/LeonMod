@@ -156,7 +156,7 @@ int CvDllCity::GetY() const
 //------------------------------------------------------------------------------
 int CvDllCity::GetStrengthValue(bool bForRangeStrike) const
 {
-	return m_pCity->getStrengthValue(bForRangeStrike);
+	return m_pCity->getStrengthValueT100(bForRangeStrike);
 }
 //------------------------------------------------------------------------------
 int CvDllCity::FoodDifference(bool bBottom) const

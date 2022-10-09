@@ -396,7 +396,7 @@ void CvFlavorManager::AdjustWeightsForMap()
 		// We want this to be logarithmic, since that is the curve between lots of players on a duel map
 		// and a few player on a huge map.  "FLAVOR_STANDARD_LOG10_TILES_PER_PLAYER" is the typical log10 of
 		// tiles per player.  We go up and down from this point (multiplying by a coefficient) from here
-		fAdjust = log10(iTilesPerPlayer) - GC.getFLAVOR_STANDARD_LOG10_TILES_PER_PLAYER();
+		fAdjust = log10(iTilesPerPlayer) - (GC.getFLAVOR_STANDARD_LOG10_TILES_PER_PLAYERT100() / 100.0);
 		fAdjust *= (double)GC.getFLAVOR_EXPANDGROW_COEFFICIENT();
 		iAdjust = (int)fAdjust;
 

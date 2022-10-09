@@ -132,7 +132,7 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		int iMaxCityHP = pkCity->GetMaxHitPoints();
 
 		int iAttackerStrength = kAttacker.GetMaxAttackStrength(kAttacker.plot(), &plot, NULL);
-		int iDefenderStrength = pkCity->getStrengthValue();
+		int iDefenderStrength = pkCity->getStrengthValueT100();
 
 		int iAttackerDamageInflicted = kAttacker.getCombatDamage(iAttackerStrength, iDefenderStrength, kAttacker.getDamage(), /*bIncludeRand*/ true, /*bAttackerIsCity*/ false, /*bDefenderIsCity*/ true);
 		int iDefenderDamageInflicted = kAttacker.getCombatDamage(iDefenderStrength, iAttackerStrength, pkCity->getDamage(), /*bIncludeRand*/ true, /*bAttackerIsCity*/ true, /*bDefenderIsCity*/ false);
@@ -3956,9 +3956,9 @@ void CvUnitCombat::ApplyPostCombatTraitEffects(CvUnit* pkWinner, CvUnit* pkLoser
 			if(pkWinner->getOwner() == GC.getGame().getActivePlayer())
 			{
 				char text[256] = {0};
-				float fDelay = GC.getPOST_COMBAT_TEXT_DELAY() * 1.5f;
+				float fDelay = GC.getPOST_COMBAT_TEXT_DELAYT100() * 1.5f;
 				sprintf_s(text, yieldString, iValue);
-				GC.GetEngineUserInterface()->AddPopupText(pkLoser->getX(), pkLoser->getY(), text, fDelay);
+				GC.GetEngineUserInterface()->AddPopupText(pkLoser->getX(), pkLoser->getY(), text, fDelay / 100.0f);
 
 				iExistingDelay++;
 			}
@@ -4029,7 +4029,7 @@ void CvUnitCombat::ApplyPostCityCombatEffects(CvUnit* pkAttacker, CvCity* pkDefe
 {
 	CvString colorString;
 	int iPlunderModifier;
-	float fDelay = GC.getPOST_COMBAT_TEXT_DELAY() * 3;
+	float fDelay = GC.getPOST_COMBAT_TEXT_DELAYT100() * 3;
 	iPlunderModifier = pkAttacker->GetCityAttackPlunderModifier();
 	if(iPlunderModifier > 0)
 	{
@@ -4049,7 +4049,7 @@ void CvUnitCombat::ApplyPostCityCombatEffects(CvUnit* pkAttacker, CvCity* pkDefe
 				char text[256] = {0};
 				colorString = "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]";
 				sprintf_s(text, colorString, iGoldPlundered);
-				GC.GetEngineUserInterface()->AddPopupText(pkAttacker->getX(), pkAttacker->getY(), text, fDelay);
+				GC.GetEngineUserInterface()->AddPopupText(pkAttacker->getX(), pkAttacker->getY(), text, fDelay / 100.0f);
 			}
 		}
 	}

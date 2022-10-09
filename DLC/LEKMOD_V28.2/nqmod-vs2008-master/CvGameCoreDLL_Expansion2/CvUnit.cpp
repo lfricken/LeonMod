@@ -762,8 +762,8 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			{
 				char text[256] = {0};
 				sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR]", iScienceBonus);
-				float fDelay = GC.getPOST_COMBAT_TEXT_DELAY() * 2;
-				DLLUI->AddPopupText(plot()->getX(), plot()->getY(), text, fDelay);
+				int delayT100 = GC.getPOST_COMBAT_TEXT_DELAYT100() * 2;
+				DLLUI->AddPopupText(plot()->getX(), plot()->getY(), text, delayT100 / 100.0f);
 			}
 		}
 
@@ -8284,8 +8284,8 @@ bool CvUnit::DoSpreadReligion()
 				{
 					char text[256] = {0};
 					sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iScienceBonus);
-					float fDelay = GC.getPOST_COMBAT_TEXT_DELAY() * 2;
-					DLLUI->AddPopupText(pCity->getX(), pCity->getY(), text, fDelay);
+					int delayT100 = GC.getPOST_COMBAT_TEXT_DELAYT100() * 2;
+					DLLUI->AddPopupText(pCity->getX(), pCity->getY(), text, delayT100 / 100.0f);
 				}
 			}
 
@@ -10837,10 +10837,11 @@ int CvUnit::upgradePrice(UnitTypes eUnit) const
 	{
 		const EraTypes eUpgradeEra = (EraTypes) pkTechInfo->GetEra();
 
-		double fMultiplier = 1.0f;
-		fMultiplier += (eUpgradeEra* /*0.3*/ GC.getUNIT_UPGRADE_COST_MULTIPLIER_PER_ERA());
+		T100 multiplierT100 = 100;
+		multiplierT100 += (eUpgradeEra * GC.getUNIT_UPGRADE_COST_MULTIPLIER_PER_ERAT100());
 
-		iPrice = int(iPrice * fMultiplier);
+		iPrice *= multiplierT100;
+		iPrice /= 100;
 	}
 
 	if(!isHuman() && !kPlayer.IsAITeammateOfHuman() && !isBarbarian())
@@ -10861,7 +10862,8 @@ int CvUnit::upgradePrice(UnitTypes eUnit) const
 	iPrice /= 100;
 
 	// Apply exponent
-	iPrice = (int) pow((double) iPrice, (double) /*1.0f*/ GC.getUNIT_UPGRADE_COST_EXPONENT());
+	iPrice *= GC.getUNIT_UPGRADE_COST_EXPONENTT100();
+	iPrice /= 100;
 
 	// more expensive in this territory
 	if (isHardUpgradeTerritory(this))
@@ -11842,7 +11844,7 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 	// Tourism
 	if (pOtherUnit != NULL)
 	{
-		iModifier += GET_PLAYER(getOwner()).GetTourismCombatPenalty(pOtherUnit->getOwner());
+		iModifier += GET_PLAYER(getOwner()).GetTourismCombatPenaltyT100(pOtherUnit->getOwner());
 	}
 
 	// Over our strategic resource limit?
@@ -12541,7 +12543,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	// Tourism
 	if(pOtherUnit != NULL)
 	{
-		iModifier += GET_PLAYER(getOwner()).GetTourismCombatPenalty(pOtherUnit->getOwner());
+		iModifier += GET_PLAYER(getOwner()).GetTourismCombatPenaltyT100(pOtherUnit->getOwner());
 	}
 
 	// Over our strategic resource limit?
@@ -12918,7 +12920,7 @@ int CvUnit::GetAirCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bInc
 				iDefenderStrength = pDefender->GetMaxDefenseStrength(pDefender->plot(), this, /*bFromRangedAttack*/ true);
 		}
 		else
-			iDefenderStrength = pCity->getStrengthValue();
+			iDefenderStrength = pCity->getStrengthValueT100();
 	}
 
 
@@ -12988,7 +12990,7 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 	// City is Defender
 	else
 	{
-		iDefenderStrength = pCity->getStrengthValue();
+		iDefenderStrength = pCity->getStrengthValueT100();
 	}
 
 	// The roll will vary damage between 30 and 40 (out of 100) for two units of identical strength
@@ -15898,7 +15900,7 @@ void CvUnit::ShowDamageDeltaText(int iDelta, CvPlot* pkPlot, float fAdditionalTe
 			if(iDelta <= 0)
 			{
 				text.Format("[COLOR_GREEN]+%d", -iDelta);
-				fDelay = GC.getPOST_COMBAT_TEXT_DELAY() * 2;
+				fDelay = GC.getPOST_COMBAT_TEXT_DELAYT100() * 2;
 			}
 			else
 			{
@@ -15911,7 +15913,7 @@ void CvUnit::ShowDamageDeltaText(int iDelta, CvPlot* pkPlot, float fAdditionalTe
 			}
 			text += "[ENDCOLOR]";
 
-			DLLUI->AddPopupText(pkPlot->getX(), pkPlot->getY(), text.c_str(), fDelay);
+			DLLUI->AddPopupText(pkPlot->getX(), pkPlot->getY(), text.c_str(), fDelay / 100.0f);
 		}
 	}
 }
@@ -16270,7 +16272,7 @@ void CvUnit::setExperience(int iNewValue, int iMax)
 			{
 				Localization::String localizedText = Localization::Lookup("TXT_KEY_EXPERIENCE_POPUP");
 				localizedText << iExperienceChange;
-				float fDelay = GC.getPOST_COMBAT_TEXT_DELAY();
+				float fDelay = GC.getPOST_COMBAT_TEXT_DELAYT100();
 
 				int iX = m_iX;
 				int iY = m_iY;
@@ -16292,7 +16294,7 @@ void CvUnit::setExperience(int iNewValue, int iMax)
 					}
 				}
 
-				DLLUI->AddPopupText(iX, iY, localizedText.toUTF8(), fDelay);
+				DLLUI->AddPopupText(iX, iY, localizedText.toUTF8(), fDelay / 100.0f);
 
 				if(IsSelected())
 				{
@@ -16343,8 +16345,8 @@ void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInB
 
 						CvPromotionEntry* pkNewPromotionInfo = GC.getPromotionInfo(eNewPromotion);
 						Localization::String localizedText = Localization::Lookup(pkNewPromotionInfo->GetDescriptionKey());
-						float fDelay = GC.getPOST_COMBAT_TEXT_DELAY() * 2;
-						DLLUI->AddPopupText(getX(), getY(), localizedText.toUTF8(), fDelay);
+						float fDelay = GC.getPOST_COMBAT_TEXT_DELAYT100() * 2;
+						DLLUI->AddPopupText(getX(), getY(), localizedText.toUTF8(), fDelay / 100.0f);
 					}
 				}
 			}

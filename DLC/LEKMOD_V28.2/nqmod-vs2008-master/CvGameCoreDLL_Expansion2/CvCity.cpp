@@ -213,7 +213,7 @@ CvCity::CvCity() :
 	, m_iCultureUpdateTimer("CvCity::m_iCultureUpdateTimer", m_syncArchive)	// unused
 	, m_iCitySizeBoost("CvCity::m_iCitySizeBoost", m_syncArchive)
 	, m_iSpecialistFreeExperience("CvCity::m_iSpecialistFreeExperience", m_syncArchive)
-	, m_iStrengthValue("CvCity::m_iStrengthValue", m_syncArchive, true)
+	, m_iStrengthValueT100("CvCity::m_iStrengthValue", m_syncArchive, true)
 	, m_iDamage("CvCity::m_iDamage", m_syncArchive)
 	, m_iThreatValue("CvCity::m_iThreatValue", m_syncArchive, true)
 	, m_iGarrisonedUnit("CvCity::m_iGarrisonedUnit", m_syncArchive)   // unused
@@ -948,7 +948,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iCultureUpdateTimer = 0;
 	m_iCitySizeBoost = 0;
 	m_iSpecialistFreeExperience = 0;
-	m_iStrengthValue = 0;
+	m_iStrengthValueT100 = 0;
 	m_iDamage = 0;
 	m_iThreatValue = 0;
 	m_iGarrisonedUnit = -1;    // unused
@@ -1839,12 +1839,12 @@ void CvCity::doTurn()
 		{
 			iHitsHealed++;
 		}
-		int iBuildingDefense = m_pCityBuildings->GetBuildingDefense();
+		int iBuildingDefense = m_pCityBuildings->GetBuildingDefenseT100();
 #ifdef NQ_BUILDING_DEFENSE_FROM_CITIZENS
 		// add in defense per citizen here
-		iBuildingDefense += (m_pCityBuildings->GetBuildingDefensePerCitizen() * getPopulation());
+		iBuildingDefense += (m_pCityBuildings->GetBuildingDefensePerCitizenT100() * getPopulation());
 #endif
-		iBuildingDefense *= (100 + m_pCityBuildings->GetBuildingDefenseMod());
+		iBuildingDefense *= (100 + m_pCityBuildings->GetBuildingDefenseModT100());
 		iBuildingDefense /= 100;
 		iHitsHealed += iBuildingDefense / 500;
 		changeDamage(-iHitsHealed);
@@ -5585,7 +5585,7 @@ int CvCity::GetPurchaseCostFromProduction(int iProduction) const
 	// Gold per Production
 	int iPurchaseCostBase = iProduction* /*30*/ GC.getGOLD_PURCHASE_GOLD_PER_PRODUCTION();
 	// Cost ramps up
-	iPurchaseCost = (int) pow((double) iPurchaseCostBase, (double) /*0.75f*/ GC.getHURRY_GOLD_PRODUCTION_EXPONENT());
+	iPurchaseCost = (int) pow((double) iPurchaseCostBase, ((double) /*0.75f*/ GC.getHURRY_GOLD_PRODUCTION_EXPONENTT100()) / 100.0);
 
 	// Hurry Mod (Policies, etc.)
 	HurryTypes eHurry = (HurryTypes) GC.getInfoTypeForString("HURRY_GOLD");
@@ -7465,7 +7465,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 
 	if(!bObsolete)
 	{
-		m_pCityBuildings->ChangeBuildingDefense(pBuildingInfo->GetDefenseModifier() * iChange);
+		m_pCityBuildings->ChangeBuildingDefenseT100(pBuildingInfo->GetDefenseModifierT100() * iChange);
 #ifdef NQ_BUILDING_DEFENSE_FROM_CITIZENS
 		m_pCityBuildings->ChangeBuildingDefensePerCitizen(pBuildingInfo->GetDefensePerCitizen() * iChange);
 #endif
@@ -12005,22 +12005,22 @@ void CvCity::updateStrengthValue()
 	VALIDATE_OBJECT
 	AI_PERF_FORMAT("City-AI-perf.csv", ("CvCity::updateStrengthValue, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
 	// Default Strength
-	int iStrengthValue = /*600*/ GC.getCITY_STRENGTH_DEFAULT();
+	int iStrengthValueT100 = /*600*/ GC.getCITY_STRENGTH_DEFAULT();
 
 	// Population mod
-	iStrengthValue += getPopulation() * /*25*/ GC.getCITY_STRENGTH_POPULATION_CHANGE();
+	iStrengthValueT100 += getPopulation() * /*25*/ GC.getCITY_STRENGTH_POPULATION_CHANGE();
 
 	// Building Defense
-	int iBuildingDefense = m_pCityBuildings->GetBuildingDefense();
+	T100 iBuildingDefenseT100 = m_pCityBuildings->GetBuildingDefenseT100();
 #ifdef NQ_BUILDING_DEFENSE_FROM_CITIZENS
 	// add in defense per citizen here
-	iBuildingDefense += (m_pCityBuildings->GetBuildingDefensePerCitizen() * getPopulation());
+	iBuildingDefenseT100 += (m_pCityBuildings->GetBuildingDefensePerCitizenT100() * getPopulation());
 #endif
 
-	iBuildingDefense *= (100 + m_pCityBuildings->GetBuildingDefenseMod());
-	iBuildingDefense /= 100;
+	iBuildingDefenseT100 *= (100 + m_pCityBuildings->GetBuildingDefenseModT100());
+	iBuildingDefenseT100 /= 100;
 
-	iStrengthValue += iBuildingDefense;
+	iStrengthValueT100 += iBuildingDefenseT100;
 
 	// Garrisoned Unit
 	CvUnit* pGarrisonedUnit = GetGarrisonedUnit();
@@ -12031,27 +12031,15 @@ void CvCity::updateStrengthValue()
 		iStrengthFromUnits = pGarrisonedUnit->GetBaseCombatStrength() * 100 * (iMaxHits - pGarrisonedUnit->getDamage()) / iMaxHits;
 	}
 
-	iStrengthValue += ((iStrengthFromUnits * 100) / /*300*/ GC.getCITY_STRENGTH_UNIT_DIVISOR());
+	iStrengthValueT100 += ((iStrengthFromUnits * 100) / /*300*/ GC.getCITY_STRENGTH_UNIT_DIVISOR());
 
 	// Tech Progress increases City Strength
-	int iTechProgress = GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100 / GC.getNumTechInfos();
+	int iTechProgressT100 = GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100 / GC.getNumTechInfos();
 
-	// Want progress to be a value between 0 and 5
-	double fTechProgress = iTechProgress / 100.0 * /*5*/ GC.getCITY_STRENGTH_TECH_BASE();
-	double fTechExponent = /*2.0f*/ GC.getCITY_STRENGTH_TECH_EXPONENT();
-	int iTechMultiplier = /*2*/ GC.getCITY_STRENGTH_TECH_MULTIPLIER();
 
-	// The way all of this adds up...
-	// 25% of the way through the game provides an extra 3.12
-	// 50% of the way through the game provides an extra 12.50
-	// 75% of the way through the game provides an extra 28.12
-	// 100% of the way through the game provides an extra 50.00
+	//int techModT100 = ((iTechProgressT100 * GC.getCITY_STRENGTH_TECH_MULTIPLIERT100()) / 100);
 
-	double fTechMod = pow(fTechProgress, fTechExponent);
-	fTechMod *= iTechMultiplier;
-
-	fTechMod *= 100;	// Bring it back into hundreds
-	iStrengthValue += (int)(fTechMod + 0.005);	// Adding a small amount to prevent small fp accuracy differences from generating a different integer result on the Mac and PC. Assuming fTechMod is positive, round to nearest hundredth
+	iStrengthValueT100 += iTechProgressT100;	// Adding a small amount to prevent small fp accuracy differences from generating a different integer result on the Mac and PC. Assuming fTechMod is positive, round to nearest hundredth
 
 	int iStrengthMod = 0;
 
@@ -12059,33 +12047,33 @@ void CvCity::updateStrengthValue()
 	iStrengthMod += GET_PLAYER(getOwner()).GetCityStrengthMod();
 
 	// Apply Mod
-	iStrengthValue *= (100 + iStrengthMod);
-	iStrengthValue /= 100;
+	iStrengthValueT100 *= (100 + iStrengthMod);
+	iStrengthValueT100 /= 100;
 
-	m_iStrengthValue = iStrengthValue;
+	m_iStrengthValueT100 = iStrengthValueT100;
 
 	// Terrain mod
 	if(plot()->isHills())
 	{
-		m_iStrengthValue += /*3*/ GC.getCITY_STRENGTH_HILL_CHANGE();
+		m_iStrengthValueT100 += /*500*/ GC.getCITY_STRENGTH_HILL_CHANGET100();
 	}
 
 	DLLUI->setDirty(CityInfo_DIRTY_BIT, true);
 }
 
 //	--------------------------------------------------------------------------------
-int CvCity::getStrengthValue(bool bForRangeStrike) const
+int CvCity::getStrengthValueT100(bool bForRangeStrike) const
 {
 	VALIDATE_OBJECT
 	// Strike strikes are weaker
 	if(bForRangeStrike)
 	{
-		int iValue = m_iStrengthValue;
+		int iValue = m_iStrengthValueT100;
 
-		iValue -= m_pCityBuildings->GetBuildingDefense();
+		iValue -= m_pCityBuildings->GetBuildingDefenseT100();
 #ifdef NQ_BUILDING_DEFENSE_FROM_CITIZENS
 		// subtract defense per citizen here as well (city strikes don't use defense values)
-		iValue -= (m_pCityBuildings->GetBuildingDefensePerCitizen() * getPopulation());
+		iValue -= (m_pCityBuildings->GetBuildingDefensePerCitizenT100() * getPopulation());
 #endif
 
 		CvAssertMsg(iValue > 0, "City strength should always be greater than zero. Please show Jon this and send your last 5 autosaves.");
@@ -12124,14 +12112,14 @@ int CvCity::getStrengthValue(bool bForRangeStrike) const
 		return iValue;
 	}
 
-	return m_iStrengthValue;
+	return m_iStrengthValueT100;
 }
 
 //	--------------------------------------------------------------------------------
 int CvCity::GetPower() const
 {
 	VALIDATE_OBJECT
-	return int(pow((double) getStrengthValue() / 100, 1.5));		// This is the same math used to calculate Unit Power in CvUnitEntry
+	return int(pow((double) getStrengthValueT100() / 100, 1.5));		// This is the same math used to calculate Unit Power in CvUnitEntry
 }
 
 
@@ -12165,18 +12153,18 @@ void CvCity::setDamage(int iValue, bool noMessage)
 			text[0] = NULL;
 			int iNewValue = MIN(GetMaxHitPoints(),iValue);
 			int iDiff = iOldValue - iNewValue;
-			float fDelay = 0.0f;
+			int delayT100 = 0;
 			if(iNewValue < iOldValue)
 			{
 				sprintf_s(text, "[COLOR_GREEN]+%d[ENDCOLOR]", iDiff);
-				fDelay = GC.getPOST_COMBAT_TEXT_DELAY() * 2;
+				delayT100 = GC.getPOST_COMBAT_TEXT_DELAYT100() * 2;
 			}
 			else
 			{
 				sprintf_s(text, "[COLOR_RED]%d[ENDCOLOR]", iDiff);
 			}
 
-			DLLUI->AddPopupText(m_iX, m_iY, text, fDelay);
+			DLLUI->AddPopupText(m_iX, m_iY, text, delayT100 / 100.0f);
 		}
 		m_iDamage = iValue;
 		DLLUI->setDirty(CityInfo_DIRTY_BIT, true);
@@ -15836,7 +15824,7 @@ void CvCity::read(FDataStream& kStream)
 	kStream >> m_iCultureUpdateTimer;
 	kStream >> m_iCitySizeBoost;
 	kStream >> m_iSpecialistFreeExperience;
-	kStream >> m_iStrengthValue;
+	kStream >> m_iStrengthValueT100;
 	kStream >> m_iDamage;
 	kStream >> m_iThreatValue;
 	kStream >> m_iGarrisonedUnit;
@@ -16174,7 +16162,7 @@ void CvCity::write(FDataStream& kStream) const
 	kStream << m_iCultureUpdateTimer;
 	kStream << m_iCitySizeBoost;
 	kStream << m_iSpecialistFreeExperience;
-	kStream << m_iStrengthValue;
+	kStream << m_iStrengthValueT100;
 	kStream << m_iDamage;
 	kStream << m_iThreatValue;
 	kStream << m_iGarrisonedUnit;
@@ -16864,7 +16852,7 @@ int CvCity::rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncl
 	VALIDATE_OBJECT
 	int iAttackerStrength;
 
-	iAttackerStrength = getStrengthValue(true);
+	iAttackerStrength = getStrengthValueT100(true);
 
 	int iDefenderStrength;
 
@@ -16883,7 +16871,7 @@ int CvCity::rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncl
 	// City
 	else
 	{
-		iDefenderStrength = pCity->getStrengthValue();
+		iDefenderStrength = pCity->getStrengthValueT100();
 	}
 
 	// The roll will vary damage between 30 and 40 (out of 100) for two units of identical strength
@@ -16934,7 +16922,7 @@ int CvCity::rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncl
 int CvCity::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand) const
 {
 	int iAttackerStrength = pAttacker->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true, false);
-	int iDefenderStrength = getStrengthValue(false);
+	int iDefenderStrength = getStrengthValueT100(false);
 
 	// The roll will vary damage between 2 and 3 (out of 10) for two units of identical strength
 

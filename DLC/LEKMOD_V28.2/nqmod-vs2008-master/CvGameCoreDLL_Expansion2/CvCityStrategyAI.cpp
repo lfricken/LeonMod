@@ -734,16 +734,16 @@ double CvCityStrategyAI::GetDeficientYieldValue(YieldTypes eYieldType)
 	switch(eYieldType)
 	{
 	case YIELD_FOOD:
-		fDesiredYield = GC.getAI_CITYSTRATEGY_YIELD_DEFICIENT_FOOD();
+		fDesiredYield = GC.getAI_CITYSTRATEGY_YIELD_DEFICIENT_FOODT100() / 100.0;
 		break;
 	case YIELD_PRODUCTION:
-		fDesiredYield = GC.getAI_CITYSTRATEGY_YIELD_DEFICIENT_PRODUCTION();
+		fDesiredYield = GC.getAI_CITYSTRATEGY_YIELD_DEFICIENT_PRODUCTIONT100() / 100.0;
 		break;
 	case YIELD_SCIENCE:
-		fDesiredYield = GC.getAI_CITYSTRATEGY_YIELD_DEFICIENT_SCIENCE();
+		fDesiredYield = GC.getAI_CITYSTRATEGY_YIELD_DEFICIENT_SCIENCET100() / 100.0;
 		break;
 	case YIELD_GOLD:
-		fDesiredYield = GC.getAI_CITYSTRATEGY_YIELD_DEFICIENT_GOLD();
+		fDesiredYield = GC.getAI_CITYSTRATEGY_YIELD_DEFICIENT_GOLDT100() / 100.0;
 		break;
 		// OK if deficient in the newer (bonus) yields
 	case YIELD_CULTURE:
@@ -2105,8 +2105,8 @@ void CvCityStrategyAI::LogSpecializationChange(CitySpecializationTypes eSpeciali
 int CityStrategyAIHelpers::ReweightByTurnsLeft(int iOriginalWeight, int iTurnsLeft)
 {
 	// 10 turns will add 0.02; 80 turns will add 0.16
-	double fAdditionalTurnCostFactor = GC.getAI_PRODUCTION_WEIGHT_MOD_PER_TURN_LEFT() * iTurnsLeft;	// 0.004
-	double fTotalCostFactor = GC.getAI_PRODUCTION_WEIGHT_BASE_MOD() + fAdditionalTurnCostFactor;	// 0.15
+	double fAdditionalTurnCostFactor = (GC.getAI_PRODUCTION_WEIGHT_MOD_PER_TURN_LEFTT100() / 100.0) * iTurnsLeft;	// 0.004
+	double fTotalCostFactor = (GC.getAI_PRODUCTION_WEIGHT_BASE_MODT100() / 100.0) + fAdditionalTurnCostFactor;	// 0.15
 	double fWeightDivisor = pow((double) iTurnsLeft, fTotalCostFactor);
 
 	/* Commented out for now: useful debug code for tweaking the exact effect of this function

@@ -737,7 +737,7 @@ public:
 	int GetTourismBonusTurns() const;
 	void ChangeTourismBonusTurns(int iChange);
 	// Returns the combat modifier this unit recieves based on tourism between the other player (100 would be +100% combat strength)
-	int GetTourismCombatPenalty(const PlayerTypes eOtherPlayerId) const;
+	T100 GetTourismCombatPenaltyT100(const PlayerTypes eOtherPlayerId) const;
 
 	// Golden Age Stuff
 

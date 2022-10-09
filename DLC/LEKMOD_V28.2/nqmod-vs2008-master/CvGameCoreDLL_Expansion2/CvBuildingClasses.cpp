@@ -101,7 +101,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iGold(0),
 	m_bNearbyMountainRequired(false),
 	m_bAllowsRangeStrike(false),
-	m_iDefenseModifier(0),
+	m_iDefenseModifierT100(0),
 #ifdef NQ_BUILDING_DEFENSE_FROM_CITIZENS
 	m_iDefensePerCitizen(0),
 #endif
@@ -391,7 +391,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iGold = kResults.GetInt("Gold");
 	m_bNearbyMountainRequired = kResults.GetInt("NearbyMountainRequired");
 	m_bAllowsRangeStrike = kResults.GetInt("AllowsRangeStrike");
-	m_iDefenseModifier = kResults.GetInt("Defense");
+	m_iDefenseModifierT100 = kResults.GetInt("Defense");
 #ifdef NQ_BUILDING_DEFENSE_FROM_CITIZENS
 	m_iDefensePerCitizen = kResults.GetInt("DefensePerCitizen");
 #endif
@@ -1417,9 +1417,9 @@ bool CvBuildingEntry::IsAllowsRangeStrike() const
 }
 
 /// Modifier to city defense
-int CvBuildingEntry::GetDefenseModifier() const
+T100 CvBuildingEntry::GetDefenseModifierT100() const
 {
-	return m_iDefenseModifier;
+	return m_iDefenseModifierT100;
 }
 
 #ifdef NQ_BUILDING_DEFENSE_FROM_CITIZENS
@@ -2482,7 +2482,7 @@ CvCityBuildings::CvCityBuildings():
 	m_iNumBuildings(0),
 	m_iBuildingMaintenance(0),
 	m_iBuildingProductionModifier(0),
-	m_iBuildingDefense(0),
+	m_iBuildingDefenseT100(0),
 #ifdef NQ_BUILDING_DEFENSE_FROM_CITIZENS
 	m_iBuildingDefensePerCitizen(0),
 #endif
@@ -2566,7 +2566,7 @@ void CvCityBuildings::Reset()
 	m_iNumBuildings = 0;
 	m_iBuildingMaintenance = 0;
 	m_iBuildingProductionModifier = 0;
-	m_iBuildingDefense = 0;
+	m_iBuildingDefenseT100 = 0;
 #ifdef NQ_BUILDING_DEFENSE_FROM_CITIZENS
 	m_iBuildingDefensePerCitizen = 0;
 #endif
@@ -2614,7 +2614,7 @@ void CvCityBuildings::Read(FDataStream& kStream)
 	//else
 	//	m_iBuildingProductionModifier = temp;
 
-	kStream >> m_iBuildingDefense;
+	kStream >> m_iBuildingDefenseT100;
 #ifdef NQ_BUILDING_DEFENSE_FROM_CITIZENS
 	kStream >> m_iBuildingDefensePerCitizen;
 #endif
@@ -2652,7 +2652,7 @@ void CvCityBuildings::Write(FDataStream& kStream)
 	kStream << m_iBuildingMaintenance;
 
 	kStream << m_iBuildingProductionModifier;
-	kStream << m_iBuildingDefense;
+	kStream << m_iBuildingDefenseT100;
 #ifdef NQ_BUILDING_DEFENSE_FROM_CITIZENS
 	kStream << m_iBuildingDefensePerCitizen;
 #endif
@@ -3997,18 +3997,18 @@ void CvCityBuildings::ChangeBuildingProductionModifier(int iChange)
 }
 
 /// Accessor: Get current defense boost from buildings
-int CvCityBuildings::GetBuildingDefense() const
+int CvCityBuildings::GetBuildingDefenseT100() const
 {
-	return m_iBuildingDefense;
+	return m_iBuildingDefenseT100;
 }
 
 /// Accessor: Change current defense boost from buildings
-void CvCityBuildings::ChangeBuildingDefense(int iChange)
+void CvCityBuildings::ChangeBuildingDefenseT100(int iChange)
 {
 	if(iChange != 0)
 	{
-		m_iBuildingDefense = (m_iBuildingDefense + iChange);
-		CvAssert(GetBuildingDefense() >= 0);
+		m_iBuildingDefenseT100 = (m_iBuildingDefenseT100 + iChange);
+		//CvAssert(GetBuildingDefenseT100() >= 0); // allow negative defense
 
 		m_pCity->plot()->plotAction(PUF_makeInfoBarDirty);
 	}
@@ -4016,7 +4016,7 @@ void CvCityBuildings::ChangeBuildingDefense(int iChange)
 
 #ifdef NQ_BUILDING_DEFENSE_FROM_CITIZENS
 /// Accessor: Get current defense boost from buildings
-int CvCityBuildings::GetBuildingDefensePerCitizen() const
+int CvCityBuildings::GetBuildingDefensePerCitizenT100() const
 {
 	return m_iBuildingDefensePerCitizen;
 }
@@ -4027,7 +4027,7 @@ void CvCityBuildings::ChangeBuildingDefensePerCitizen(int iChange)
 	if(iChange != 0)
 	{
 		m_iBuildingDefensePerCitizen = (m_iBuildingDefensePerCitizen + iChange);
-		CvAssert(GetBuildingDefensePerCitizen() >= 0);
+		CvAssert(GetBuildingDefensePerCitizenT100() >= 0);
 
 		m_pCity->plot()->plotAction(PUF_makeInfoBarDirty);
 	}
@@ -4036,7 +4036,7 @@ void CvCityBuildings::ChangeBuildingDefensePerCitizen(int iChange)
 
 
 /// Accessor: Get current defense boost Mod from buildings
-int CvCityBuildings::GetBuildingDefenseMod() const
+int CvCityBuildings::GetBuildingDefenseModT100() const
 {
 	return m_iBuildingDefenseMod;
 }

@@ -33,17 +33,17 @@ CvDangerPlots::CvDangerPlots(void)
 #endif
 	, m_bDirty(false)
 {
-	m_fMajorWarMod = GC.getAI_DANGER_MAJOR_APPROACH_WAR();
-	m_fMajorHostileMod = GC.getAI_DANGER_MAJOR_APPROACH_HOSTILE();
-	m_fMajorDeceptiveMod = GC.getAI_DANGER_MAJOR_APPROACH_DECEPTIVE();
-	m_fMajorGuardedMod = GC.getAI_DANGER_MAJOR_APPROACH_GUARDED();
-	m_fMajorAfraidMod = GC.getAI_DANGER_MAJOR_APPROACH_AFRAID();
-	m_fMajorFriendlyMod = GC.getAI_DANGER_MAJOR_APPROACH_FRIENDLY();
-	m_fMajorNeutralMod = GC.getAI_DANGER_MAJOR_APPROACH_NEUTRAL();
-	m_fMinorNeutralrMod = GC.getAI_DANGER_MINOR_APPROACH_NEUTRAL();
-	m_fMinorFriendlyMod = GC.getAI_DANGER_MINOR_APPROACH_FRIENDLY();
-	m_fMinorBullyMod = GC.getAI_DANGER_MINOR_APPROACH_BULLY();
-	m_fMinorConquestMod = GC.getAI_DANGER_MINOR_APPROACH_CONQUEST();
+	m_fMajorWarMod = GC.getAI_DANGER_MAJOR_APPROACH_WART100() / 100.0;
+	m_fMajorHostileMod = GC.getAI_DANGER_MAJOR_APPROACH_HOSTILET100() / 100.0;
+	m_fMajorDeceptiveMod = GC.getAI_DANGER_MAJOR_APPROACH_DECEPTIVET100() / 100.0;
+	m_fMajorGuardedMod = GC.getAI_DANGER_MAJOR_APPROACH_GUARDEDT100() / 100.0;
+	m_fMajorAfraidMod = GC.getAI_DANGER_MAJOR_APPROACH_AFRAIDT100() / 100.0;
+	m_fMajorFriendlyMod = GC.getAI_DANGER_MAJOR_APPROACH_FRIENDLYT100() / 100.0;
+	m_fMajorNeutralMod = GC.getAI_DANGER_MAJOR_APPROACH_NEUTRALT100() / 100.0;
+	m_fMinorNeutralrMod = GC.getAI_DANGER_MINOR_APPROACH_NEUTRALT100() / 100.0;
+	m_fMinorFriendlyMod = GC.getAI_DANGER_MINOR_APPROACH_FRIENDLYT100() / 100.0;
+	m_fMinorBullyMod = GC.getAI_DANGER_MINOR_APPROACH_BULLYT100() / 100.0;
+	m_fMinorConquestMod = GC.getAI_DANGER_MINOR_APPROACH_CONQUESTT100() / 100.0;
 }
 
 /// Destructor
@@ -739,7 +739,7 @@ void CvDangerPlots::AssignUnitDangerValue(CvUnit* pUnit, CvPlot* pPlot)
 /// Contains the calculations to do the danger value for the plot according to the city
 void CvDangerPlots::AssignCityDangerValue(CvCity* pCity, CvPlot* pPlot)
 {
-	int iCombatValue = pCity->getStrengthValue();
+	int iCombatValue = pCity->getStrengthValueT100();
 	iCombatValue = ModifyDangerByRelationship(pCity->getOwner(), pPlot, iCombatValue);
 	AddDanger(pPlot->getX(), pPlot->getY(), iCombatValue, false);
 }

@@ -178,7 +178,7 @@ public:
 	int GetGold() const;
 	bool IsNearbyMountainRequired() const;
 	bool IsAllowsRangeStrike() const;
-	int GetDefenseModifier() const;
+	T100 GetDefenseModifierT100() const;
 #ifdef NQ_BUILDING_DEFENSE_FROM_CITIZENS
 	int GetDefensePerCitizen() const;
 #endif
@@ -420,7 +420,7 @@ private:
 	int m_iGold;
 	bool m_bNearbyMountainRequired;
 	bool m_bAllowsRangeStrike;
-	int m_iDefenseModifier;
+	int m_iDefenseModifierT100;
 #ifdef NQ_BUILDING_DEFENSE_FROM_CITIZENS
 	int m_iDefensePerCitizen;
 #endif
@@ -722,13 +722,13 @@ public:
 	int GetBuildingProductionModifier() const;
 	void ChangeBuildingProductionModifier(int iChange);
 
-	int GetBuildingDefense() const;
-	void ChangeBuildingDefense(int iChange);
+	int GetBuildingDefenseT100() const;
+	void ChangeBuildingDefenseT100(int iChange);
 #ifdef NQ_BUILDING_DEFENSE_FROM_CITIZENS
-	int GetBuildingDefensePerCitizen() const;
+	int GetBuildingDefensePerCitizenT100() const;
 	void ChangeBuildingDefensePerCitizen(int iChange);
 #endif
-	int GetBuildingDefenseMod() const;
+	int GetBuildingDefenseModT100() const;
 	void ChangeBuildingDefenseMod(int iChange);
 
 	int GetMissionaryExtraSpreads() const;
@@ -748,7 +748,7 @@ private:
 	int m_iNumBuildings;
 	int m_iBuildingMaintenance;
 	int m_iBuildingProductionModifier;
-	int m_iBuildingDefense;
+	int m_iBuildingDefenseT100;
 #ifdef NQ_BUILDING_DEFENSE_FROM_CITIZENS
 	int m_iBuildingDefensePerCitizen;
 #endif

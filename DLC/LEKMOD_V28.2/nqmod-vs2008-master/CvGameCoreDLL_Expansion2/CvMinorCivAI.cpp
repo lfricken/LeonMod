@@ -8067,9 +8067,8 @@ void CvMinorCivAI::DoGoldGiftFromMajor(const PlayerTypes ePlayer, const int iGol
 int CvMinorCivAI::GetFriendshipFromGoldGift(PlayerTypes eMajor, int iGold)
 {
 	// The more Gold you spend the more Friendship you get!
-	iGold = (int) pow((double) iGold, (double) /*1.01*/ GC.getGOLD_GIFT_FRIENDSHIP_EXPONENT());
+	int iFriendship = (iGold * GC.getGOLD_GIFT_FRIENDSHIP_EXPONENTT100()) / 100;
 	// The higher this divisor the less Friendship is gained
-	float iFriendship = iGold;
 
 	// prevent bad progress factors
 	iFriendship *= GetGameProgressFactor();
@@ -8096,7 +8095,7 @@ int CvMinorCivAI::GetFriendshipFromGoldGift(PlayerTypes eMajor, int iGold)
 	iFriendship /= iVisibleDivisor;
 	iFriendship *= iVisibleDivisor;
 
-	return iFriendship / GC.getGOLD_GIFT_FRIENDSHIP_DIVISOR();
+	return (iFriendship * 100) / GC.getGOLD_GIFT_FRIENDSHIP_DIVISORT100();
 }
 
 int CvMinorCivAI::GetCappedGoldGift(PlayerTypes eMajor, int iMaxGoldToGive)

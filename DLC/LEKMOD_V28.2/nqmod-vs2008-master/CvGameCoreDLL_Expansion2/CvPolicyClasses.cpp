@@ -3563,7 +3563,7 @@ int CvPlayerPolicies::GetNextPolicyCost()
 	iCost += ((double)iNumPolicies / policyAdoptionIncrease * /*3*/ GC.getPOLICY_COST_INCREASE_TO_BE_EXPONENTED());
 
 	// Exponential cost scaling
-	iCost = pow((double)iCost, /*2.01*/(double)GC.getPOLICY_COST_EXPONENT());
+	iCost = pow((double)iCost, /*2.01*/(double)(GC.getPOLICY_COST_EXPONENTT100() / 100.0));
 
 	// Base cost that doesn't get exponent-ed
 	iCost += /*25*/ GC.getBASE_POLICY_COST();
@@ -3584,7 +3584,8 @@ int CvPlayerPolicies::GetNextPolicyCost()
 	iCost *= m_pPlayer->getHandicapInfo().getPolicyPercent();
 	iCost /= 100;
 
-	iCost *= GC.getPOLICY_COST_MULTIPLIER();
+	iCost *= GC.getPOLICY_COST_MULTIPLIERT100();
+	iCost /= 100;
 
 	//// Make the number nice and even
 	//int iDivisor = /*5*/ GC.getPOLICY_COST_VISIBLE_DIVISOR();

@@ -63,7 +63,7 @@ void CvHomelandAI::Init(CvPlayer* pPlayer)
 	m_iRandomRange = GC.getAI_HOMELAND_MOVE_PRIORITY_RANDOMNESS();
 	m_iDefensiveMoveTurns = GC.getAI_HOMELAND_MAX_DEFENSIVE_MOVE_TURNS();
 	m_iUpgradeMoveTurns = GC.getAI_HOMELAND_MAX_UPGRADE_MOVE_TURNS();
-	m_fFlavorDampening = GC.getAI_TACTICAL_FLAVOR_DAMPENING_FOR_MOVE_PRIORITIZATION();
+	m_fFlavorDampening = (GC.getAI_TACTICAL_FLAVOR_DAMPENING_FOR_MOVE_PRIORITIZATIONT100() / 100.0f);
 }
 
 /// Deallocate memory created in initialize
@@ -4854,7 +4854,7 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits)
 			CvCity* pCity = pLoopPlot->getPlotCity();
 			if(pCity && pCity->getTeam() == pUnit->getTeam())
 			{
-				iValue += pCity->getStrengthValue() * (GC.getMAX_CITY_DEFENSE_DAMAGE() - pCity->getDamage());
+				iValue += pCity->getStrengthValueT100() * (GC.getMAX_CITY_DEFENSE_DAMAGE() - pCity->getDamage());
 			}
 			else if(!bIgnoreUnits)
 			{
