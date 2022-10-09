@@ -1853,13 +1853,13 @@ void CvGame::updateScienceCatchup()
 {
 	int progresses [MAX_CIV_TEAMS];
 	// find winner
-	int best = 0;
+	int bestPercentTechTreeDone = 0;
 	for (TeamTypes team = (TeamTypes)0; team < MAX_CIV_TEAMS; team = (TeamTypes)(team + 1))
 	{
-		int progress = GET_TEAM(team).GetTeamTechs()->GetTreeProgressBeakers();
-		progresses[team] = progress;
-		if (progress > best)
-			best = progress;
+		const int percTechTreeDone = GET_TEAM(team).GetTeamTechs()->GetTreeProgressBeakers();
+		progresses[team] = percTechTreeDone;
+		if (percTechTreeDone > bestPercentTechTreeDone)
+			bestPercentTechTreeDone = percTechTreeDone;
 	}
 
 	// 
@@ -1867,7 +1867,7 @@ void CvGame::updateScienceCatchup()
 	{
 		CvPlayer& rPlayer = GET_PLAYER(player);
 		int progress = progresses[player];
-		float beakerDifference = best - progress;
+		int beakerDifference = bestPercentTechTreeDone - progress;
 
 		const T100 adjustedBeakerDifferenceT100 = (beakerDifference * (100 + rPlayer.GetPlayerTechs()->GetResearchCostIncreasePercentT100()));
 

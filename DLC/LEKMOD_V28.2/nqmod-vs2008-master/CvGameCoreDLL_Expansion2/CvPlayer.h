@@ -1295,7 +1295,7 @@ public:
 	// Science
 
 	void RecalculateNonLeaderBoost();
-	// [0, 1] where 1 would be a 100% science boost
+	// [0, 100] where 1 would be a 100% science boost
 	T100 GetNonLeaderBoostT100() const;
 	// How many turns we are behind in tech.
 	// If they have 9 techs and we have 7, and we get 0.5 techs per turn, this value would be ((9 - 7) / 0.5) * 100= 400
@@ -2115,7 +2115,7 @@ protected:
 	int m_iNumCitiesFreeWalls; // NQMP GJS - New Oligarchy add support for NumCitiesFreeWalls
 	int m_iNumCitiesFreeCultureBuilding;
 	int m_iNumCitiesFreeFoodBuilding;
-	float m_fScienceRubberBand;
+	int m_iScienceRubberBand;
 	FAutoVariable<int, CvPlayer> m_iUnitPurchaseCostModifier;
 	FAutoVariable<int, CvPlayer> m_iAllFeatureProduction;
 	FAutoVariable<int, CvPlayer> m_iCityDistanceHighwaterMark; // this is used to determine camera zoom
