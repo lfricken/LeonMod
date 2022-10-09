@@ -1562,7 +1562,7 @@ enum UnitAITypes
 	UNITAI_ATTACK,					// use these to attack other units
 	UNITAI_CITY_BOMBARD,			// use these to attack cities
 	UNITAI_FAST_ATTACK,				// use these to pillage enemy improvements and attack barbarians
-	UNITAI_DEFENSE,					// these are units that are mainly in the floating defense force
+	UNITAI_DEFENSE,					// these are units that are mainly in the dynamic defense force
 	UNITAI_COUNTER,					// these are counter-units to specific other units - these will likely need more logic in building and using
 	UNITAI_RANGED,					// units with ranged attacks
 	UNITAI_CITY_SPECIAL,			// more AA???

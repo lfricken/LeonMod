@@ -3134,19 +3134,6 @@ void CvDiplomacyAI::SetMajorCivOtherPlayerOpinion(PlayerTypes ePlayer, PlayerTyp
 	m_ppaaeOtherPlayerMajorCivOpinion[ePlayer][eWithPlayer] = ePlayerOpinion;
 }
 
-
-struct WarConsiderations
-{
-	PlayerTypes runawayLeader;
-	float runawayLeaderFactor;
-
-	PlayerTypes nearVictory;
-	float nearVictoryFactor;
-
-};
-
-// TODO adjust war odds (up or down) based on score
-
 /// Determine our general approach to each Player we've met
 void CvDiplomacyAI::DoUpdateMajorCivApproaches()
 {
@@ -3286,7 +3273,7 @@ MajorCivApproachTypes CvDiplomacyAI::GetApproachScratchPad(PlayerTypes ePlayer)
 	return (MajorCivApproachTypes)m_paeApproachScratchPad[ePlayer];
 }
 
-void applyDefaultApproach(CvDiplomacyAI& us, CvPlayer& them, FStaticVector<int, 128, true, c_eCiv5GameplayDLL>& viApproachWeights)
+void applyDefaultApproach(CvDiplomacyAI&, CvPlayer&, FStaticVector<int, 128, true, c_eCiv5GameplayDLL>& viApproachWeights)
 {
 	viApproachWeights.clear();
 	for (int iApproachLoop = 0; iApproachLoop < NUM_MAJOR_CIV_APPROACHES; iApproachLoop++)
@@ -3295,7 +3282,7 @@ void applyDefaultApproach(CvDiplomacyAI& us, CvPlayer& them, FStaticVector<int, 
 	}
 	viApproachWeights[MAJOR_CIV_APPROACH_NEUTRAL] += /*4*/ GC.getAPPROACH_NEUTRAL_DEFAULT();
 }
-void applyApproachBias(CvDiplomacyAI& us, CvPlayer& them, FStaticVector<int, 128, true, c_eCiv5GameplayDLL>& viApproachWeights)
+void applyApproachBias(CvDiplomacyAI& us, CvPlayer&, FStaticVector<int, 128, true, c_eCiv5GameplayDLL>& viApproachWeights)
 {
 	// Bias for our current Approach.  This should prevent it from jumping around from turn-to-turn as much
 	// We use the scratch pad here since the normal array has been cleared so that we have knowledge of who we've already assigned an Approach for this turn; this should be the only place the scratch pad is used
@@ -3329,7 +3316,7 @@ void applyApproachBias(CvDiplomacyAI& us, CvPlayer& them, FStaticVector<int, 128
 			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += /*5*/ GC.getAPPROACH_WAR_CONQUEST_GRAND_STRATEGY();
 	}
 }
-void applyPersonality(CvDiplomacyAI& us, CvPlayer& them, FStaticVector<int, 128, true, c_eCiv5GameplayDLL>& viApproachWeights)
+void applyPersonality(CvDiplomacyAI& us, CvPlayer&, FStaticVector<int, 128, true, c_eCiv5GameplayDLL>& viApproachWeights)
 {
 	for (int iApproachLoop = 0; iApproachLoop < NUM_MAJOR_CIV_APPROACHES; iApproachLoop++)
 	{
@@ -3608,19 +3595,19 @@ CvWeightedVector<PlayerTypes, MAX_MAJOR_CIVS, true> getScoreSortedCivs(CvDiploma
 	return scoreSortedCivs;
 }
 // given the top two players scores, give a weight for war with the top player
-int findWarWeightFromTopScoresRatio(float ratio)
+// [000 - 100] -> [0]
+// [100 - 200] -> [0 - 2x ScoreWarWeight]
+int findWarWeightFromTopScoresRatio(int ratioT100)
 {
-	float doubleScoreWarWeight = 50;
-	// [0 - 1] = [0]
-	// [1 - 2] = [0 - doubleScorePenalty]
-	float factor = (max(1.0f, ratio) - 1);
-	int weightChange = doubleScoreWarWeight * factor;
-	return weightChange;
+	int scoreWarWeight2x = 50;
+	T100 factorT100 = (max(100, ratioT100) - 100);
+	int weightChange = scoreWarWeight2x * factorT100;
+	return weightChange / 100;
 }
 ////////////////////////////////////
 // if the top players score is too high, increase war chance
 ////////////////////////////////////
-void applyScore(CvDiplomacyAI& us, CvPlayer& them, FStaticVector<int, 128, true, c_eCiv5GameplayDLL>& viApproachWeights, float* scoreRatio)
+void applyScore(CvDiplomacyAI& us, CvPlayer& them, FStaticVector<int, 128, true, c_eCiv5GameplayDLL>& viApproachWeights, int* scoreRatio)
 {
 	CvWeightedVector<PlayerTypes, MAX_MAJOR_CIVS, true> scoreSortedCivs = getScoreSortedCivs(us);
 	bool tooEarly = GC.onePerOnlineSpeedTurnT10000() < 40 * 100 * 100; // early game scores vary wildly, don't consider score yet
@@ -3628,8 +3615,8 @@ void applyScore(CvDiplomacyAI& us, CvPlayer& them, FStaticVector<int, 128, true,
 	if (!tooEarly && scoreSortedCivs.size() >= 2)
 	{
 		//fdloat topScore = scoreSortedCivs.GetElement(0);
-		float secondPlaceScore = scoreSortedCivs.GetElement(1);
-		*scoreRatio = them.GetScore() / secondPlaceScore;
+		int secondPlaceScore = scoreSortedCivs.GetElement(1);
+		*scoreRatio = (them.GetScore() * 100) / secondPlaceScore;
 		int weight = findWarWeightFromTopScoresRatio(*scoreRatio);
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += weight;
 	}
@@ -3693,7 +3680,7 @@ bool isNearVictory(CvPlayer& them)
 ////////////////////////////////////
 // if someone is about to win, go crazy
 ////////////////////////////////////
-void applyNearVictory(CvDiplomacyAI& us, CvPlayer& them, FStaticVector<int, 128, true, c_eCiv5GameplayDLL>& viApproachWeights)
+void applyNearVictory(CvDiplomacyAI&, CvPlayer& them, FStaticVector<int, 128, true, c_eCiv5GameplayDLL>& viApproachWeights)
 {	
 	if (isNearVictory(them))
 	{
@@ -3934,7 +3921,7 @@ void applyRecklessExpander(CvDiplomacyAI& us, CvPlayer& them, FStaticVector<int,
 ////////////////////////////////////
 // Is this player already in a war with someone who isn't us?
 ////////////////////////////////////
-void applyAreTheyAlreadyAtWar(CvDiplomacyAI& us, CvPlayer& them, FStaticVector<int, 128, true, c_eCiv5GameplayDLL>& viApproachWeights, float scoreRatio)
+void applyAreTheyAlreadyAtWar(CvDiplomacyAI& us, CvPlayer& them, FStaticVector<int, 128, true, c_eCiv5GameplayDLL>& viApproachWeights, int scoreRatioT100)
 {
 	bool atWarWithAnother = false;
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -3952,12 +3939,12 @@ void applyAreTheyAlreadyAtWar(CvDiplomacyAI& us, CvPlayer& them, FStaticVector<i
 				break;
 		}
 	}
-	if (atWarWithAnother && scoreRatio >= 1.2f) // dogpile possibly
+	if (atWarWithAnother && scoreRatioT100 >= 120) // dogpile possibly
 	{
 		// scoreRatio: more likely to dogpile winning players, less likely losers
-		viApproachWeights[MAJOR_CIV_APPROACH_WAR] *= 200 * scoreRatio;
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] *= (200 * scoreRatioT100) / 100;
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] /= 100;
-		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] *= 150 * scoreRatio;
+		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] *= (150 * scoreRatioT100) / 100;
 		viApproachWeights[MAJOR_CIV_APPROACH_DECEPTIVE] /= 100;
 	}
 }
@@ -4011,7 +3998,7 @@ void applyPeaceTreaty(CvDiplomacyAI& us, CvPlayer& them, FStaticVector<int, 128,
 ////////////////////////////////////
 // DUEL - If there's only 2 players in this game, no friendly or deceptive
 ////////////////////////////////////
-void applyDuel(CvDiplomacyAI& us, CvPlayer& them, FStaticVector<int, 128, true, c_eCiv5GameplayDLL>& viApproachWeights)
+void applyDuel(CvDiplomacyAI&, CvPlayer&, FStaticVector<int, 128, true, c_eCiv5GameplayDLL>& viApproachWeights)
 {
 	int iNumMajorsLeft = GC.getGame().countMajorCivsAlive();
 	if (iNumMajorsLeft == 2)
@@ -4087,7 +4074,7 @@ void applySameTeam(CvDiplomacyAI& us, CvPlayer& them, FStaticVector<int, 128, tr
 ////////////////////////////////////
 // MODIFY WAR BASED ON HUMAN DIFFICULTY LEVEL
 ////////////////////////////////////
-void applyDifficulty(CvDiplomacyAI& us, CvPlayer& them, FStaticVector<int, 128, true, c_eCiv5GameplayDLL>& viApproachWeights)
+void applyDifficulty(CvDiplomacyAI&, CvPlayer& them, FStaticVector<int, 128, true, c_eCiv5GameplayDLL>& viApproachWeights)
 {
 	if (them.isHuman())
 	{
@@ -4106,8 +4093,8 @@ void applyDifficulty(CvDiplomacyAI& us, CvPlayer& them, FStaticVector<int, 128, 
 }
 // If we're going to war then update how we're acting
 void findNewApproach(
-	CvDiplomacyAI& us,
-	CvPlayer& them,
+	CvDiplomacyAI&,
+	CvPlayer&,
 	FStaticVector<int, 128, true, c_eCiv5GameplayDLL>& viApproachWeights,
 	CvWeightedVector<MajorCivApproachTypes, 128>& vApproachWeightsForSorting,
 	int& iHighestWeight,
@@ -4207,7 +4194,8 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	CvPlayer& them = GET_PLAYER(ePlayer);
 	// This vector is what we'll stuff the values into first, and pass it into our logging function (which can't take a CvWeightedVector, which we need to sort...)
 	FStaticVector< int, 128, true, c_eCiv5GameplayDLL > viApproachWeights;
-	float scoreRatio;
+	// if this player has score 150 and second place has 75, scoreRatio will be 200
+	int scoreRatio = 0;
 
 	applyDefaultApproach(us, them, viApproachWeights);
 	applyApproachBias(us, them, viApproachWeights);
@@ -7172,7 +7160,7 @@ void CvDiplomacyAI::DoUpdateOnePlayerMilitaryStrength(PlayerTypes ePlayer)
 		//if (GetPlayer()->GetMilitaryMight() > 0)
 		{
 			iOtherPlayerMilitary = GET_PLAYER(ePlayer).GetMilitaryMight() + iBase;
-			// Example: If another player has double the Military strength of us, the Ratio will be 200
+			// Example: If another player has twice the Military strength of us, the Ratio will be 200
 			iMilitaryRatio = iOtherPlayerMilitary* /*100*/ GC.getMILITARY_STRENGTH_RATIO_MULTIPLIER() / iMilitaryStrength;
 		}
 		//else
@@ -7254,7 +7242,7 @@ void CvDiplomacyAI::DoUpdateOnePlayerEconomicStrength(PlayerTypes ePlayer)
 		if(GetPlayer()->GetEconomicMight() > 0)
 		{
 			iOtherPlayerEconomy = GET_PLAYER(ePlayer).GetEconomicMight();
-			// Example: If another player has double the Economic strength of us, the Ratio will be 200
+			// Example: If another player has twice the Economic strength of us, the Ratio will be 200
 			iEconomicRatio = iOtherPlayerEconomy* /*100*/ GC.getECONOMIC_STRENGTH_RATIO_MULTIPLIER() / GetPlayer()->GetEconomicMight();
 		}
 		else
@@ -7389,7 +7377,7 @@ void CvDiplomacyAI::DoUpdateOnePlayerTargetValue(PlayerTypes ePlayer)
 	}
 
 	iMilitaryRatio = iOtherPlayerMilitaryStrength* /*100*/ GC.getMILITARY_STRENGTH_RATIO_MULTIPLIER() / iMyMilitaryStrength;
-	// Example: If another player has double the Military strength of us, the Ratio will be 200
+	// Example: If another player has twice the Military strength of us, the Ratio will be 200
 
 	iTargetValue += iMilitaryRatio;
 
@@ -7574,7 +7562,7 @@ void CvDiplomacyAI::DoUpdateMilitaryThreats()
 
 			iOtherPlayerMilitaryStrength = GET_PLAYER(eLoopPlayer).getPower();
 
-			// Example: If another player has double the Military strength of us, the Ratio will be 200
+			// Example: If another player has twice the Military strength of us, the Ratio will be 200
 			iMilitaryRatio = iOtherPlayerMilitaryStrength* /*100*/ GC.getMILITARY_STRENGTH_RATIO_MULTIPLIER() / iMyMilitaryStrength;
 
 			iMilitaryThreat += iMilitaryRatio;
@@ -7746,7 +7734,7 @@ void CvDiplomacyAI::DoUpdateEstimateOtherPlayerMilitaryThreats()
 
 						iThirdPlayerMilitaryStrength = GET_PLAYER(eLoopOtherPlayer).GetMilitaryMight();
 
-						// Example: If another player has double the Military strength of us, the Ratio will be 200
+						// Example: If another player has twice the Military strength of us, the Ratio will be 200
 						iMilitaryRatio = iThirdPlayerMilitaryStrength* /*100*/ GC.getMILITARY_STRENGTH_RATIO_MULTIPLIER() / iPlayerMilitaryStrength;
 
 						iMilitaryThreat += iMilitaryRatio;
@@ -8311,7 +8299,7 @@ bool CvDiplomacyAI::IsPlayerRecklessExpander(PlayerTypes ePlayer)
 	if(iNumCities < 4)
 		return false;
 
-	double fAverageNumCities = 0;
+	T100 averageNumCitiesT100 = 0;
 	int iNumPlayers = 0;
 
 	// Find out what the average is (minus the player we're looking at)
@@ -8331,7 +8319,7 @@ bool CvDiplomacyAI::IsPlayerRecklessExpander(PlayerTypes ePlayer)
 			continue;
 
 		iNumPlayers++;
-		fAverageNumCities += pPlayer->getNumCities();
+		averageNumCitiesT100 += pPlayer->getNumCities() * 100;
 	}
 
 	// Not sure how this would happen, but we'll be safe anyways since we'll be dividing by this value
@@ -8341,10 +8329,10 @@ bool CvDiplomacyAI::IsPlayerRecklessExpander(PlayerTypes ePlayer)
 		return false;
 	}
 
-	fAverageNumCities /= iNumPlayers;
+	averageNumCitiesT100 /= iNumPlayers;
 
 	// Must have way more cities than the average player in the game
-	if(iNumCities < fAverageNumCities * 1.5)
+	if((iNumCities * 100 * 100) < (averageNumCitiesT100 * 150))
 		return false;
 
 	// If this guy's military is as big as ours, then it probably means he's just stronger than us
@@ -12525,9 +12513,9 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 //--------------------------------------------------------------------------------------------------------
 // adjust weight based on gold needed to become allies
 int CvDiplomacyAI::weightFriendshipNeeded(
-	MinorCivApproachTypes approach,
+	MinorCivApproachTypes,
 	PlayerTypes minor,
-	CvWeightedVector<MinorGoldGiftInfo, MAX_PLAYERS, true>& veMinorsToGiveGold,
+	CvWeightedVector<MinorGoldGiftInfo, MAX_PLAYERS, true>&,
 	int& weight,
 	PlayerTypes& majorRival
 )
@@ -12535,7 +12523,6 @@ int CvDiplomacyAI::weightFriendshipNeeded(
 	const PlayerTypes eID = GetPlayer()->GetID();
 	const CvPlayer* pMinor = &GET_PLAYER(minor);
 	CvMinorCivAI* const pMinorCivAI = pMinor->GetMinorCivAI();
-	const TeamTypes eMinorTeam = pMinor->getTeam();
 	const int iSmallGiftGold = /*250*/ GC.getMINOR_GOLD_GIFT_SMALL();
 	const int ourFriendship = pMinorCivAI->GetEffectiveFriendshipWithMajor(eID);
 	const int smallGiftFriendship = pMinorCivAI->GetFriendshipFromGoldGift(eID, iSmallGiftGold);
@@ -12579,12 +12566,12 @@ int CvDiplomacyAI::weightFriendshipNeeded(
 		if (friendshipToBeatHighest < GC.getMINOR_CIV_MAX_GOLD_FRIENDSHIP())
 		{
 			// how many small gifts are needed to beat the highest player
-			const float friendshipNeeded = max(smallGiftFriendship, friendshipToBeatHighest - ourFriendship);
-			numSmallGiftsNeeded = ceil((float)friendshipNeeded / (float)smallGiftFriendship);
+			const int friendshipNeeded = max(smallGiftFriendship, 1 + (friendshipToBeatHighest - ourFriendship)); // +1 to beat
+			numSmallGiftsNeeded = 1 + (friendshipNeeded / smallGiftFriendship); // +1 since int division will FLOOR the decimal value, and we need to BEAT them
 
 			// weight based on gift needed
-			const float basePassWeight = GC.getMC_SMALL_GIFT_WEIGHT_PASS_OTHER_PLAYER(); // 30
-			weight += basePassWeight - (numSmallGiftsNeeded - 1) * basePassWeight / 2.0f; // 2500 gold > 10 gifts > 30-135 > -105 weight
+			const int basePassWeight = GC.getMC_SMALL_GIFT_WEIGHT_PASS_OTHER_PLAYER(); // 30
+			weight += basePassWeight - (numSmallGiftsNeeded - 1) * basePassWeight / 2; // 2500 gold > 10 gifts > 30-135 > -105 weight
 
 			// do we have enough gold?
 			const int goldNeeded = numSmallGiftsNeeded * iSmallGiftGold;
@@ -12617,17 +12604,13 @@ bool CvDiplomacyAI::considerGivingGift(
 )
 {
 	bool wantsToGiveGold = false;
-	int iSmallGiftGold = /*250*/ GC.getMINOR_GOLD_GIFT_SMALL();
 	CvPlayer* pMinor = &GET_PLAYER(minor);
-	CvMinorCivAI* pMinorCivAI = pMinor->GetMinorCivAI();		
-	TeamTypes eMinorTeam = pMinor->getTeam();
+	CvMinorCivAI* pMinorCivAI = pMinor->GetMinorCivAI();
 	PlayerTypes eID = GetPlayer()->GetID();
 	int iGrowthFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
 	CvMinorCivInfo* pMinorInfo = GC.getMinorCivInfo(pMinorCivAI->GetMinorCivType());
 	int playerGold = GetPlayer()->GetTreasury()->GetGold();
-	int ourFriendship = pMinorCivAI->GetEffectiveFriendshipWithMajor(eID);
 	bool empireIsHappy = !GetPlayer()->IsEmpireUnhappy();
-	int smallGiftFriendship = pMinorCivAI->GetFriendshipFromGoldGift(eID, iSmallGiftGold);
 	MinorGoldGiftInfo giftData;
 	giftData.eMinor = minor;
 	giftData.eMajorRival = NO_PLAYER;
@@ -12641,14 +12624,14 @@ bool CvDiplomacyAI::considerGivingGift(
 	// if making lots of money, 150 gpt -> 100
 	weight += min(max(0, m_pPlayer->calculateGoldRate() - 50), 100);
 	// if large bank, 2500 -> 100
-	weight += playerGold / 25.0f;
+	weight += playerGold / 25;
 
 
 	// leagues increase desire
 	if (GC.getGame().IsWorldCongressActive())
-		weight += 0.50f * GC.getMC_GIFT_WEIGHT_DIPLO_VICTORY(); /*100*/
+		weight += GC.getMC_GIFT_WEIGHT_DIPLO_VICTORY() / 2; /*100*/
 	if (GC.getGame().IsUnitedNationsActive())
-		weight += 1.00f * GC.getMC_GIFT_WEIGHT_DIPLO_VICTORY(); /*100*/
+		weight += GC.getMC_GIFT_WEIGHT_DIPLO_VICTORY(); /*100*/
 
 
 	// focus culture
@@ -12777,8 +12760,6 @@ void CvDiplomacyAI::DoContactMinorCivs()
 {
 	int iSmallGiftGold = /*250*/ GC.getMINOR_GOLD_GIFT_SMALL();
 
-	int iGoldReserve = GetPlayer()->GetTreasury()->GetGold();
-
 	// If the player has deleted the DIPLOMACY Flavor we have to account for that
 	int iDiplomacyFlavor = /*5*/ GC.getDEFAULT_FLAVOR_VALUE();
 	int iGoldFlavor = /*5*/ GC.getDEFAULT_FLAVOR_VALUE();
@@ -12876,8 +12857,8 @@ void CvDiplomacyAI::DoContactMinorCivs()
 	// **************************
 	bool bWantsToBullyUnit = false;
 
-	if (pEconomicAI->GetWorkersToCitiesRatio() < 0.25 &&  //antonjs: todo: XML
-		pEconomicAI->GetImprovedToImprovablePlotsRatio() < 0.50) //antonjs: todo: XML
+	if (pEconomicAI->GetWorkersToCitiesRatioT100() < 25 &&  //antonjs: todo: XML
+		pEconomicAI->GetImprovedToImprovablePlotsRatioT100() < 50) //antonjs: todo: XML
 	{
 		bWantsToBullyUnit = true;
 	}
@@ -12942,8 +12923,6 @@ void CvDiplomacyAI::DoContactMinorCivs()
 	bool bWantsToConnect;
 
 	MinorCivApproachTypes eApproach;
-
-	int iGrowthFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) GC.getInfoTypeForString("FLAVOR_GROWTH"));
 
 	// Loop through all (known) Minors
 	PlayerTypes eMinor;
@@ -13319,9 +13298,9 @@ void CvDiplomacyAI::DoContactMinorCivs()
 		{
 			int iGoldLeft = GetPlayer()->GetTreasury()->GetGold();
 			MinorGoldGiftInfo sGift = veMinorsToGiveGold.GetElement(i);
-			int goldToGift = GC.round(sGift.numSmallGiftsNeeded) * iSmallGiftGold; // round gifts and calc gold
+			int goldToGift = sGift.numSmallGiftsNeeded * iSmallGiftGold; // round gifts and calc gold
 			int iOldFriendship = GET_PLAYER(sGift.eMinor).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(eID);
-			bool isBoost = sGift.numSmallGiftsNeeded;
+			bool isBoost = sGift.numSmallGiftsNeeded > 0;
 
 			// Able to give a gift?
 			if(iGoldLeft > goldToGift)
@@ -13342,8 +13321,8 @@ void CvDiplomacyAI::DoContactMinorCivs()
 					int iPriority = GC.getAI_GOLD_PRIORITY_DIPLOMACY_BASE();
 					iPriority += GC.getAI_GOLD_PRIORITY_DIPLOMACY_PER_FLAVOR_POINT() * iDiplomacyFlavor;
 					GetPlayer()->GetEconomicAI()->StartSaveForPurchase(PURCHASE_TYPE_MINOR_CIV_GIFT, iAmountToSaveFor, iPriority);
-					break; // we shouldn't save up for more than one purchase
 					LogMinorCivGiftGold(sGift.eMinor, iOldFriendship, iAmountToSaveFor, /*bSaving*/ true, isBoost, sGift.eMajorRival);
+					break; // we shouldn't save up for more than one purchase
 				}
 			}
 		}

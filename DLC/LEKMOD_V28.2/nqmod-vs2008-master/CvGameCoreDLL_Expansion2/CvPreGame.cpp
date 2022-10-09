@@ -197,7 +197,7 @@ PREGAMEVAR(int,                                s_advancedStartPoints,    0);
 PREGAMEVARDEFAULT(CvString,                           s_alias);
 PREGAMEVAR(std::vector<ArtStyleTypes>,         s_artStyles,              MAX_PLAYERS);
 PREGAMEVAR(bool,                               s_autorun,                false);
-PREGAMEVAR(float,                              s_autorunTurnDelay,       0.0f);
+PREGAMEVAR(decimal,                            s_autorunTurnDelay,       0);
 PREGAMEVAR(int,                                s_autorunTurnLimit,       0);
 PREGAMEVAR(BandwidthType,                      s_bandwidth,              NO_BANDWIDTH);
 PREGAMEVAR(CalendarTypes,                      s_calendar,               NO_CALENDAR);
@@ -211,7 +211,7 @@ PREGAMEVAR(ClimateTypes,                       s_climate,                NO_CLIM
 PREGAMEVARDEFAULT(CvClimateInfo,                      s_climateInfo);
 PREGAMEVAR(EraTypes,                           s_era,                    NO_ERA);
 PREGAMEVAR(std::vector<CvString>,              s_emailAddresses,         MAX_PLAYERS);
-PREGAMEVAR(float,                              s_endTurnTimerLength,     0.0f);
+PREGAMEVAR(decimal,                            s_endTurnTimerLength,     0);
 PREGAMEVAR(std::vector<CvString>,              s_flagDecals,             MAX_PLAYERS);
 PREGAMEVAR(std::vector<bool>,                  s_DEPRECATEDforceControls, 7);			//This was removed during the Day 0 patch since it is no longer used anywhere.
 PREGAMEVAR(GameMode,                           s_gameMode,               NO_GAMEMODE);
@@ -675,7 +675,7 @@ bool autorun()
 	return s_autorun;
 }
 
-float autorunTurnDelay()
+decimal autorunTurnDelay()
 {
 	return s_autorunTurnDelay;
 }
@@ -854,7 +854,7 @@ const CvString& emailAddress()
 	return s_localPlayerEmailAddress;
 }
 
-float endTurnTimerLength()
+decimal endTurnTimerLength()
 {
 	return s_endTurnTimerLength;
 }
@@ -2013,7 +2013,7 @@ void resetGame()
 	s_transferredMap = false;
 
 	s_autorunTurnLimit = 0;
-	s_autorunTurnDelay = 0.f;
+	s_autorunTurnDelay = 0;
 	s_gameUpdateTime = 0;
 
 	s_bandwidth = NO_BANDWIDTH;
@@ -2024,7 +2024,7 @@ void resetGame()
 	s_loadFileName = "";
 	s_loadFileStorage = STORAGE_LOCAL;
 
-	s_endTurnTimerLength = 0.0f;
+	s_endTurnTimerLength = 0;
 
 	s_privateGame = false;
 	s_isInternetGame = false;
@@ -2308,7 +2308,7 @@ void setAutorun(bool isEnabled)
 	s_autorun = isEnabled;
 }
 
-void setAutorunTurnDelay(float turnDelay)
+void setAutorunTurnDelay(decimal turnDelay)
 {
 	s_autorunTurnDelay = turnDelay;
 }
@@ -2457,7 +2457,7 @@ void setEmailAddress(const CvString& address)
 	s_localPlayerEmailAddress = address;
 }
 
-void setEndTurnTimerLength(float f)
+void setEndTurnTimerLength(decimal f)
 {
 	s_endTurnTimerLength = f;
 }

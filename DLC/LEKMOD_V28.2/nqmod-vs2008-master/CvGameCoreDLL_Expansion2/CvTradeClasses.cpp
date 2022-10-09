@@ -550,7 +550,7 @@ bool CvGameTrade::IsDestinationExclusive(const TradeConnection& kTradeConnection
 
 		if (pConnection->m_iDestX == kTradeConnection.m_iDestX && pConnection->m_iDestY == kTradeConnection.m_iDestY)
 		{
-			// if we're double counting the same route, ignore
+			// if we're twice counting the same route, ignore
 			if (pConnection->m_iOriginX == kTradeConnection.m_iOriginX && pConnection->m_iOriginY == kTradeConnection.m_iOriginY)
 			{
 				continue;
@@ -643,7 +643,7 @@ void CvGameTrade::CopyPathIntoTradeConnection(const CvAStarNode* pNode, TradeCon
 	pTradeConnection->m_aPlotList.clear();
 	for (int i = 0; i < iPathSteps; i++)
 	{
-		TradeConnectionPlot kTradeConnectionPlot;
+		TradeConnectionPlot kTradeConnectionPlot = TradeConnectionPlot();
 		pTradeConnection->m_aPlotList.push_back(kTradeConnectionPlot);
 	}
 
@@ -1721,7 +1721,8 @@ CvUnit* CvGameTrade::GetVis(int iIndex)
 void CvGameTrade::DisplayTemporaryPopupTradeRoute(int iDestX, int iDestY, TradeConnectionType type, DomainTypes eDomain)
 {
 	int i,n;
-	int plotsX[MAX_PLOTS_TO_DISPLAY], plotsY[MAX_PLOTS_TO_DISPLAY];
+	int plotsX[MAX_PLOTS_TO_DISPLAY] = {};
+	int plotsY[MAX_PLOTS_TO_DISPLAY] = {};
 
 	int iOriginX,iOriginY;
 	PlayerTypes eOriginPlayer;
@@ -1838,8 +1839,8 @@ void CvGameTrade::LogTradeMsg(CvString& strMsg)
 /// Serialization read
 FDataStream& operator>>(FDataStream& loadFrom, CvGameTrade& writeTo)
 {
-	int plotsX[MAX_PLOTS_TO_DISPLAY];
-	int plotsY[MAX_PLOTS_TO_DISPLAY];
+	int plotsX[MAX_PLOTS_TO_DISPLAY] = {};
+	int plotsY[MAX_PLOTS_TO_DISPLAY] = {};
 	int nPlots;
 
 	uint uiVersion;
@@ -1895,7 +1896,7 @@ FDataStream& operator>>(FDataStream& loadFrom, CvGameTrade& writeTo)
 
 		for (int i2 = 0; i2 < iNum2; i2++)
 		{
-			TradeConnectionPlot kTradeConnectionPlot;
+			TradeConnectionPlot kTradeConnectionPlot = TradeConnectionPlot();
 			writeTo.m_aTradeConnections[i].m_aPlotList.push_back(kTradeConnectionPlot);
 			loadFrom >> writeTo.m_aTradeConnections[i].m_aPlotList[i2].m_iX;
 			loadFrom >> writeTo.m_aTradeConnections[i].m_aPlotList[i2].m_iY;
@@ -2154,7 +2155,7 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 				int iAdjustedTechDifference = 0;
 				if (iTechDifference > 0)
 				{
-					int iCeilTechDifference = (int)ceil(iTechDifference / 2.0f);
+					int iCeilTechDifference = ((iTechDifference * 100 + 99) / 200); // +99 for ceiling
 					iAdjustedTechDifference = max(iCeilTechDifference, 1);
 				}
 
@@ -2174,7 +2175,7 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 			int iAdjustedTechDifference = 0;
 			if (iTechDifference > 0)
 			{
-				int iCeilTechDifference = (int)ceil(iTechDifference / 2.0f);
+				int iCeilTechDifference = ((iTechDifference * 100 + 99) / 200); // +99 for ceiling
 				iAdjustedTechDifference = max(iCeilTechDifference, 1);
 			}
 
@@ -2535,7 +2536,7 @@ int CvPlayerTrade::GetTradeConnectionOtherTraitValueTimes100(const TradeConnecti
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayerTrade::GetTradeConnectionDomainValueModifierTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield) const
+int CvPlayerTrade::GetTradeConnectionDomainValueModifierTimes100(const TradeConnection& kTradeConnection, YieldTypes) const
 {
 	// unnecessary code to make it compile for now
 	if (eYield != NO_YIELD)
@@ -2549,39 +2550,23 @@ int CvPlayerTrade::GetTradeConnectionDomainValueModifierTimes100(const TradeConn
 //	--------------------------------------------------------------------------------
 int CvPlayerTrade::GetTradeConnectionRiverValueModifierTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer) const
 {
-	// unnecessary code to make it compile for now
-	if (eYield != NO_YIELD)
-	{
-		eYield = eYield;
-	}
-
 	int iModifier = 0;
-	if (eYield == YIELD_GOLD && kTradeConnection.m_eDomain == DOMAIN_LAND)
+	// boost gold output for city owner when city is next to river
+	if (eYield == YIELD_GOLD)
 	{
+		const CvCity* pCity = NULL;
 		if (bAsOriginPlayer)
-		{
-			CvCity* pOriginCity = CvGameTrade::GetOriginCity(kTradeConnection);
-			CvAssert(pOriginCity != NULL);
-			if (pOriginCity)
-			{
-				CvPlot* pOriginCityPlot = pOriginCity->plot();
-				if (pOriginCityPlot->isRiver())
-				{
-					iModifier = 25;
-				}
-			}
-		}
+			pCity = CvGameTrade::GetOriginCity(kTradeConnection);
 		else
+			pCity = CvGameTrade::GetDestCity(kTradeConnection);
+
+		CvAssert(pCity != NULL);
+		if (pCity)
 		{
-			CvCity* pDestCity = CvGameTrade::GetDestCity(kTradeConnection);
-			CvAssert(pDestCity != NULL);
-			if (pDestCity)
+			const CvPlot* pPlot = pCity->plot();
+			if (pPlot->isRiver())
 			{
-				CvPlot* pDestCityPlot = pDestCity->plot();
-				if (pDestCityPlot->isRiver())
-				{
-					iModifier = 25;
-				}
+				iModifier = 25;
 			}
 		}
 	}
@@ -2797,8 +2782,9 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100(const TradeConnection& kTrade
 	const CvCity* pCityOrigin = CvGameTrade::GetOriginCity(kTradeConnection);
 	if (pCityOrigin != NULL)
 	{
-		const double factor = pow(0.85, GetNumTradeRoutesOriginatingFrom(pCityOrigin));
+		const T100 factor = iPow(85, GetNumTradeRoutesOriginatingFrom(pCityOrigin));
 		iValue *= factor;
+		iValue /= 100;
 	}
 
 	return iValue;	
@@ -3040,7 +3026,8 @@ bool CvPlayerTrade::CanCreateTradeRoute(DomainTypes eDomain) const
 //	--------------------------------------------------------------------------------
 bool CvPlayerTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, TradeConnectionType eConnectionType)
 {
-	int plotsX[MAX_PLOTS_TO_DISPLAY], plotsY[MAX_PLOTS_TO_DISPLAY];
+	int plotsX[MAX_PLOTS_TO_DISPLAY] = {};
+	int plotsY[MAX_PLOTS_TO_DISPLAY] = {};
 
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 	int iRouteID = -1;
@@ -3526,13 +3513,12 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 	iPlunderGoldValue /= 100;
 	m_pPlayer->GetTreasury()->ChangeGold(iPlunderGoldValue);
 
-	// do the floating popup
+	// do the hovering popup
 	if (GC.getGame().getActivePlayer() == m_pPlayer->GetID())
 	{
 		char text[256] = {0};
 		sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iPlunderGoldValue);
-		float fDelay = 0.0f;
-		DLLUI->AddPopupText(pPlunderPlot->getX(), pPlunderPlot->getY(), text, fDelay);
+		DLLUI->AddPopupText(pPlunderPlot->getX(), pPlunderPlot->getY(), text, 0);
 		CvString strBuffer;
 		if (eDomain == DOMAIN_LAND)
 		{
@@ -4783,7 +4769,7 @@ int CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeConnection) con
 	// if we have any tourism and the destination owner is not a minor civ
 	if (m_pPlayer->GetCulture()->GetOurNetTourismT100() / 100 > 0 && !GET_PLAYER(kTradeConnection.m_eDestOwner).isMinorCiv())
 	{
-		// if we're not connected to a player, double the value to that player
+		// if we're not connected to a player, twice the value to that player
 		if (!GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(m_pPlayer->GetID(), kTradeConnection.m_eDestOwner))
 		{
 			iScore *= 2;

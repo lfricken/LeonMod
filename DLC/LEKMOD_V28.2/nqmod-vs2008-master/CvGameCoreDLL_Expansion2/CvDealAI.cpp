@@ -1042,7 +1042,7 @@ int CvDealAI::GetGPTforForValueExchange(int iGPTorValue, bool bNumGPTFromValue, 
 		// Example: want amount of GPT for 100 value.
 		// 100v * 1 = 100
 		// 100 * 100 / 80 = 125
-		// 125 / 20 turns = 6.25GPT
+		// 125 / 20 turns = 625 / 100 GPT
 	}
 	// We passed in an amount of GPT, we want to know how much it's worth
 	else
@@ -2357,12 +2357,12 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 			CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 			if (pLeague)
 			{
-				float fVotesRatio = (float)iNumVotes / (float)pLeague->CalculateStartingVotesForMember(eOtherPlayer);
-				if (fVotesRatio > 0.5f)
+				T100 votesRatio = (iNumVotes * 100) / pLeague->CalculateStartingVotesForMember(eOtherPlayer);
+				if (votesRatio > 50)
 				{
 					// More than half their votes...they probably aren't going to screw us
 				}
-				else if (fVotesRatio > 0.25f)
+				else if (votesRatio > 25)
 				{
 					// They have a lot of remaining votes
 					iValue += -20;

@@ -106,9 +106,9 @@ unsigned short CvDllRandom::Get(unsigned short usNum, const char* pszLog)
 	return m_pRandom->get(usNum, CvRandom::MutateSeed, pszLog);
 }
 //------------------------------------------------------------------------------
-float CvDllRandom::GetFloat()
+decimal CvDllRandom::GetFloat() // safe decimal
 {
-	return m_pRandom->getFloatSafe(GC.getFakeSeed());
+	return m_pRandom->getDecimalSafe(GC.getFakeSeed());
 }
 //------------------------------------------------------------------------------
 unsigned long CvDllRandom::GetSeed() const

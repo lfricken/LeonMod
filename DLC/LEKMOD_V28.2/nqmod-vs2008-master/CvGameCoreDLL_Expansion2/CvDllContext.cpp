@@ -567,24 +567,24 @@ int CvDllGameContext::GetMAX_CITY_HIT_POINTS_AI_BONUS() const
 	return GC.getMAX_CITY_HIT_POINTS_AI_BONUS();
 }
 //------------------------------------------------------------------------------
-float CvDllGameContext::GetCITY_ZOOM_OFFSET() const
+decimal CvDllGameContext::GetCITY_ZOOM_OFFSET() const // safe decimal
 {
-	return GC.getCITY_ZOOM_OFFSETT100() / 100.0f;
+	return GC.getCITY_ZOOM_OFFSETT100() / f100; // safe decimal
 }
 //------------------------------------------------------------------------------
-float CvDllGameContext::GetCITY_ZOOM_LEVEL_1() const
+decimal CvDllGameContext::GetCITY_ZOOM_LEVEL_1() const // safe decimal
 {
-	return GC.getCITY_ZOOM_LEVEL_1T100() / 100.0f;
+	return GC.getCITY_ZOOM_LEVEL_1T100() / f100; // safe decimal
 }
 //------------------------------------------------------------------------------
-float CvDllGameContext::GetCITY_ZOOM_LEVEL_2() const
+decimal CvDllGameContext::GetCITY_ZOOM_LEVEL_2() const // safe decimal
 {
-	return GC.getCITY_ZOOM_LEVEL_2T100() / 100.0f;
+	return GC.getCITY_ZOOM_LEVEL_2T100() / f100; // safe decimal
 }
 //------------------------------------------------------------------------------
-float CvDllGameContext::GetCITY_ZOOM_LEVEL_3() const
+decimal CvDllGameContext::GetCITY_ZOOM_LEVEL_3() const // safe decimal
 {
-	return GC.getCITY_ZOOM_LEVEL_3T100() / 100.0f;
+	return GC.getCITY_ZOOM_LEVEL_3T100() / f100; // safe decimal
 }
 //------------------------------------------------------------------------------
 int CvDllGameContext::GetRUINS_IMPROVEMENT() const
@@ -677,7 +677,7 @@ const char** CvDllGameContext::GetHexDebugLayerNames()
 	return GC.GetHexDebugLayerNames();
 }
 //------------------------------------------------------------------------------
-float CvDllGameContext::GetHexDebugLayerScale(const char* szLayerName)
+decimal CvDllGameContext::GetHexDebugLayerScale(const char* szLayerName) // safe decimal
 {
 	return GC.GetHexDebugLayerScale(szLayerName);
 }

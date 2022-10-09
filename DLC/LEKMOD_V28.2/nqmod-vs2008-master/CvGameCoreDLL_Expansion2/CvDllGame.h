@@ -65,8 +65,8 @@ public:
 	void DLLCALL HandleAction(int iAction);
 	bool DLLCALL HasTurnTimerExpired();
 	bool DLLCALL HasTurnTimerExpired(PlayerTypes playerID);
-	void DLLCALL TurnTimerSync(float fCurTurnTime, float fTurnStartTime);
-	void DLLCALL GetTurnTimerData(float& fCurTurnTime, float& fTurnStartTime);
+	void DLLCALL TurnTimerSync(decimal fCurTurnTime, decimal fTurnStartTime); // safe decimal
+	void DLLCALL GetTurnTimerData(decimal& fCurTurnTime, decimal& fTurnStartTime); // safe decimal
 	void DLLCALL Init(HandicapTypes eHandicap);
 	bool DLLCALL Init2();
 	void DLLCALL InitScoreCalculation();

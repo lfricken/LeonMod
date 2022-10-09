@@ -115,10 +115,10 @@ public:
 	int DLLCALL GetMOVE_DENOMINATOR() const;
 	int DLLCALL GetMAX_CITY_HIT_POINTS() const;
 	int DLLCALL GetMAX_CITY_HIT_POINTS_AI_BONUS() const;
-	float DLLCALL GetCITY_ZOOM_OFFSET() const;
-	float DLLCALL GetCITY_ZOOM_LEVEL_1() const;
-	float DLLCALL GetCITY_ZOOM_LEVEL_2() const;
-	float DLLCALL GetCITY_ZOOM_LEVEL_3() const;
+	decimal DLLCALL GetCITY_ZOOM_OFFSET() const; // safe decimal
+	decimal DLLCALL GetCITY_ZOOM_LEVEL_1() const; // safe decimal
+	decimal DLLCALL GetCITY_ZOOM_LEVEL_2() const; // safe decimal
+	decimal DLLCALL GetCITY_ZOOM_LEVEL_3() const; // safe decimal
 	int DLLCALL GetRUINS_IMPROVEMENT() const;
 	int DLLCALL GetSHALLOW_WATER_TERRAIN() const;
 	int DLLCALL GetDEFICIT_UNIT_DISBANDING_THRESHOLD() const;
@@ -138,7 +138,7 @@ public:
 	int DLLCALL GetNUM_CITY_PLOTS() const;
 
 	const char** DLLCALL GetHexDebugLayerNames();
-	float DLLCALL GetHexDebugLayerScale(const char* szLayerName);
+	decimal DLLCALL GetHexDebugLayerScale(const char* szLayerName); // safe decimal
 	bool DLLCALL GetHexDebugLayerString(ICvPlot1* pPlot, const char* szLayerName, PlayerTypes ePlayer, char* szBuffer, unsigned int uiBufferLength);
 
 	void DLLCALL Init();

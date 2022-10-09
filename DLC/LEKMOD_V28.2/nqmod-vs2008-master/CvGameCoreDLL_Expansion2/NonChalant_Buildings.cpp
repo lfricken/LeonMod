@@ -43,9 +43,9 @@ BuildingClassTypes BuildingClass(const string name)
 int CvPlayer::GetExtraYieldForBuilding
 (
 	const CvCity* pCity,
-	const BuildingTypes eBuilding,
+	const BuildingTypes,
 	const BuildingClassTypes eBuildingClass,
-	const CvBuildingEntry* pBuildingInfo,
+	const CvBuildingEntry*,
 	const YieldTypes eYieldType,
 	const bool isPercentMod
 ) const
@@ -321,7 +321,7 @@ int CvPlayer::GetExtraYieldForBuilding
 
 	return yieldChange;
 }
-bool CvPlayer::ShouldHaveBuilding(const CvPlayer& rPlayer, const CvCity& rCity, const bool isYourCapital, const bool isConquered, const bool isNewlyFounded, const BuildingClassTypes eBuildingClass)
+bool CvPlayer::ShouldHaveBuilding(const CvPlayer& rPlayer, const CvCity& rCity, const bool isYourCapital, const bool, const bool, const BuildingClassTypes eBuildingClass)
 {
 	{// POLICY_MERCHANT_CONFEDERACY gives BUILDING_MERCHANT_CONFEDERACY_TRADE_ROUTE to Capital
 		const bool isMerchantConfederacyBuilding = eBuildingClass == BuildingClass("BUILDINGCLASS_MERCHANT_CONFEDERACY_TRADE_ROUTE");	
@@ -375,10 +375,10 @@ bool CvPlayer::ShouldHaveBuilding(const CvPlayer& rPlayer, const CvCity& rCity, 
 
 	return false;
 }
-int CvPlayer::getSpecialistGpp(const CvCity* pCity, const SpecialistTypes eSpecialist, const SpecialistTypes eGppType, const bool isPercentMod) const
+int CvPlayer::getSpecialistGpp(const CvCity* pCity, const SpecialistTypes eSpecialist, const SpecialistTypes eGppType, const bool) const
 {
 	const CvSpecialistInfo* pkSpecialist = GC.getSpecialistInfo(eSpecialist);
-	float change = 0;
+	int change = 0;
 	if (pkSpecialist == NULL)
 	{
 		return change;
@@ -389,17 +389,17 @@ int CvPlayer::getSpecialistGpp(const CvCity* pCity, const SpecialistTypes eSpeci
 		change += pkSpecialist->getGreatPeopleRateChange();
 	}
 
-	const bool isUnemployed = eSpecialist == 0;
-	const bool isWriter = eSpecialist == 1;
-	const bool isArtist = eSpecialist == 2;
-	const bool isMusician = eSpecialist == 3;
-	const bool isScientist = eSpecialist == 4;
-	const bool isMerchant = eSpecialist == 5;
-	const bool isEngineer = eSpecialist == 6;
-	const CvPlayer& player = *this;
+	//const bool isUnemployed = eSpecialist == 0;
+	//const bool isWriter = eSpecialist == 1;
+	//const bool isArtist = eSpecialist == 2;
+	//const bool isMusician = eSpecialist == 3;
+	//const bool isScientist = eSpecialist == 4;
+	//const bool isMerchant = eSpecialist == 5;
+	//const bool isEngineer = eSpecialist == 6;
+	//const CvPlayer& player = *this;
 	if (pCity != NULL)
 	{
-		const CvCity& city = *pCity;
+		//const CvCity& city = *pCity;
 		// logic that references city
 
 
@@ -411,13 +411,13 @@ int CvPlayer::getSpecialistGpp(const CvCity* pCity, const SpecialistTypes eSpeci
 
 	return change;
 }
-int CvPlayer::getSpecialistYieldHardcoded(const CvCity* pCity, const SpecialistTypes eSpecialist, const YieldTypes eYield, const bool isPercent) const
+int CvPlayer::getSpecialistYieldHardcoded(const CvCity* pCity, const SpecialistTypes eSpecialist, const YieldTypes eYield, const bool) const
 {
 	// <Table name="Specialists">
-	float change = 0;
+	int change = 0;
 	const CvPlayer& player = *this;
 
-	const bool isUnemployed = eSpecialist == 0;
+	//const bool isUnemployed = eSpecialist == 0;
 	const bool isWriter = eSpecialist == 1;
 	const bool isArtist = eSpecialist == 2;
 	const bool isMusician = eSpecialist == 3;
@@ -427,7 +427,7 @@ int CvPlayer::getSpecialistYieldHardcoded(const CvCity* pCity, const SpecialistT
 
 	if (pCity != NULL)
 	{
-		const CvCity& city = *pCity;
+		//const CvCity& city = *pCity;
 		// logic that references city
 
 
@@ -533,11 +533,11 @@ int CvPlayer::getSpecialistYieldHardcoded(const CvCity* pCity, const SpecialistT
 			change += 1;
 	}
 
-	return GC.round(change);
+	return change;
 }
 int CvPlayer::getGreatWorkYieldTotal(const CvCity* pCity, const CvGreatWork* pWork, const YieldTypes eYield) const
 {
-	float change = 0;
+	int change = 0;
 	const CvPlayer& player = *this;
 
 	{ // base
@@ -559,7 +559,7 @@ int CvPlayer::getGreatWorkYieldTotal(const CvCity* pCity, const CvGreatWork* pWo
 
 	if (pCity != NULL)
 	{
-		const CvCity& city = *pCity;
+		//const CvCity& city = *pCity;
 		// logic that references city
 
 
@@ -632,5 +632,5 @@ int CvPlayer::getGreatWorkYieldTotal(const CvCity* pCity, const CvGreatWork* pWo
 			change += 1;
 	}
 
-	return GC.round(change);
+	return change;
 }

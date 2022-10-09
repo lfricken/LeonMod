@@ -637,7 +637,7 @@ void CvPlot::updateVisibility()
 				{
 					// This unit has visibility rules, send a message that it needs to update itself.
 					auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
-					gDLL->GameplayUnitVisibility(pDllUnit.get(), (pLoopUnit->getTeam() == eActiveTeam)?true:isInvisibleVisible(eActiveTeam, eInvisibleType), true, 0.01f);
+					gDLL->GameplayUnitVisibility(pDllUnit.get(), (pLoopUnit->getTeam() == eActiveTeam)?true:isInvisibleVisible(eActiveTeam, eInvisibleType), true, 1 / f100); // safe decimal
 				}
 			}
 		}
@@ -658,7 +658,7 @@ void CvPlot::updateVisibility()
 					{
 						// This unit has visibility rules, send a message that it needs to update itself.
 						auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
-						gDLL->GameplayUnitVisibility(pDllUnit.get(), (pLoopUnit->getTeam() == eActiveTeam)?true:isInvisibleVisible(eActiveTeam, eInvisibleType), true, 0.01f);
+						gDLL->GameplayUnitVisibility(pDllUnit.get(), (pLoopUnit->getTeam() == eActiveTeam)?true:isInvisibleVisible(eActiveTeam, eInvisibleType), true, 1 / f100); // safe decimal
 					}
 				}
 			}
@@ -732,11 +732,11 @@ void CvPlot::updateCenterUnit()
 
 			if(pCenterUnit == pLoopUnit)
 			{
-				gDLL->GameplayUnitVisibility(pDllUnit.get(), true, false, 0.01f);
+				gDLL->GameplayUnitVisibility(pDllUnit.get(), true, false, 1 / f100); // safe decimal
 			}
 			else
 			{
-				gDLL->GameplayUnitVisibility(pDllUnit.get(), false, false, 0.01f);
+				gDLL->GameplayUnitVisibility(pDllUnit.get(), false, false, 1 / f100); // safe decimal
 			}
 		}
 	}
@@ -752,7 +752,6 @@ void CvPlot::verifyUnitValidPlot()
 	CvUnit* pLoopUnit;
 
 	oldUnitList.clear();
-
 	pUnitNode = headUnitNode();
 
 	while(pUnitNode != NULL)
@@ -1844,44 +1843,44 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 					int iThisPlotLevel = pPlotToCheck->seeThroughLevel(thisRing != iRangeWithOneExtraRing);
 					if(iFirstInwardLevel != INVALID_RING && iSecondInwardLevel != INVALID_RING && iFirstInwardLevel != iSecondInwardLevel && !bFirstHalfBlocked && !bSecondHalfBlocked)
 					{
-						double fP0X = (double) getX();
-						double fP0Y = (double) getY();
-						double fP1X = (double) pPlotToCheck->getX();
-						double fP1Y = (double) pPlotToCheck->getY();
-						if(getY() & 1)
+						T100 p0XT100 = getX() * 100;
+						T100 p0YT100 = getY() * 100;
+						T100 p1XT100 = pPlotToCheck->getX();
+						T100 p1YT100 = pPlotToCheck->getY();
+						if(getY() & 1) // is odd?
 						{
-							fP0X += 0.5;
+							p0XT100 += 50;
 						}
-						if(pPlotToCheck->getY() & 1)
+						if(pPlotToCheck->getY() & 1) // is odd?
 						{
-							fP1X += 0.5;
+							p1XT100 += 50;
 						}
 
-						double a = fP1Y - fP0Y;
-						double b = fP0X - fP1X;
-						double c = fP0Y * fP1X - fP1Y * fP0X;
+						T100 a = p1YT100 - p0YT100;
+						T100 b = p0XT100 - p1XT100;
+						T100 c = ((p0YT100 * p1XT100) / 100) - ((p1YT100 * p0XT100) / 100);
 
-						double fFirstInwardX = (double) pFirstInwardPlot->getX();
-						double fFirstInwardY = (double) pFirstInwardPlot->getY();
+						T100 firstInwardX = pFirstInwardPlot->getX() * 100;
+						T100 firstInwardY = pFirstInwardPlot->getY() * 100;
 						if(pFirstInwardPlot->getY() & 1)
 						{
-							fFirstInwardX += 0.5;
+							firstInwardX += 50;
 						}
-						double fFirstDist = a * fFirstInwardX + b * fFirstInwardY + c;
-						fFirstDist = abs(fFirstDist);
+						T100 firstDist = ((a * firstInwardX) / 100) + ((b * firstInwardY) / 100) + c;
+						firstDist = abs(firstDist);
 						// skip the extra distance since it is the same for both equations
 
-						double fSecondInwardX = (double) pSecondInwardPlot->getX();
-						double fSecondInwardY = (double) pSecondInwardPlot->getY();
+						T100 secondInwardX = pSecondInwardPlot->getX() * 100;
+						T100 secondInwardY = pSecondInwardPlot->getY() * 100;
 						if(pSecondInwardPlot->getY() & 1)
 						{
-							fSecondInwardX += 0.5;
+							secondInwardX += 50;
 						}
-						double fSecondDist = a * fSecondInwardX + b * fSecondInwardY + c;
-						fSecondDist = abs(fSecondDist);
+						T100 secondDist = ((a * secondInwardX) / 100) + ((b * secondInwardY) / 100) + c;
+						secondDist = abs(secondDist);
 						// skip the extra distance since it is the same for both equations
 
-						if(fFirstDist - fSecondDist > 0.05)  // we are closer to the second point
+						if(firstDist - secondDist > 5)  // we are closer to the second point
 						{
 							int iHighestLevel = (iSecondInwardLevel > iThisPlotLevel) ? iSecondInwardLevel : iThisPlotLevel;
 							pPlotToCheck->setScratchPad(iHighestLevel);
@@ -1890,7 +1889,7 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 								pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, (bBasedOnUnit && thisRing < 2)?true:false);
 							}
 						}
-						else if(fSecondDist - fFirstDist > 0.05)   // we are closer to the first point
+						else if(secondDist - firstDist > 5)   // we are closer to the first point
 						{
 							int iHighestLevel = (iFirstInwardLevel > iThisPlotLevel) ? iFirstInwardLevel : iThisPlotLevel;
 							pPlotToCheck->setScratchPad(iHighestLevel);
@@ -2087,22 +2086,22 @@ bool CvPlot::shouldProcessDisplacementPlot(int dx, int dy, int, DirectionTypes e
 	else
 	{
 		//							NE					E		SE					SW					W		NW
-		double displacements[6][2] = { {0.5f, 0.866025f}, {1, 0}, {0.5f, -0.866025f}, {-0.5f, -0.866025f}, {-1, 0}, {-0.5f, -0.866025f}};
+		bigdecimal displacements[6][2] = { {0.5, 0.866025}, {1.0, 0.0}, {0.5, -0.866025}, {-0.5, -0.866025}, {-1.0, 0.0}, {-0.5, -0.866025}}; // SORT OF safe decimal
 
-		double directionX = displacements[eFacingDirection][0];
-		double directionY = displacements[eFacingDirection][1];
+		bigdecimal directionX = displacements[eFacingDirection][0];
+		bigdecimal directionY = displacements[eFacingDirection][1];
 
 		//compute angle off of direction
-		double crossProduct = directionX * dy - directionY * dx; //cross product
-		double dotProduct = directionX * dx + directionY * dy; //dot product
+		bigdecimal crossProduct = directionX * dy - directionY * dx; //cross product
+		bigdecimal dotProduct = directionX * dx + directionY * dy; //dot product
 
 #ifdef AUI_PLOT_VISIBILITY_OPTIMIZATIONS
-		double theta = abs(atan2(crossProduct, dotProduct));
-		double spread = 37.5 * M_PI / 180.0;
+		bigdecimal theta = abs(atan2(crossProduct, dotProduct));
+		bigdecimal spread = (37.5 * M_PI) / 180.0; // safe decimal
 #if 0 // Enable if 8 or more directions
 		if ((abs(dx) <= 1) && (abs(dy) <= 1)) //close plots use wider spread
 		{
-			spread = 90 * (double)M_PI / 180;
+			spread = 90 * (bigdecimal)M_PI / 180;
 		}
 #endif
 
@@ -2111,11 +2110,11 @@ bool CvPlot::shouldProcessDisplacementPlot(int dx, int dy, int, DirectionTypes e
 		else
 			return false;
 #else
-		double theta = atan2(crossProduct, dotProduct);
-		double spread = 75 * (double) M_PI / 180;
+		bigdecimal theta = atan2(crossProduct, dotProduct);
+		bigdecimal spread = 75 * (bigdecimal) M_PI / 180;
 		if((abs(dx) <= 1) && (abs(dy) <= 1)) //close plots use wider spread
 		{
-			spread = 90 * (double) M_PI / 180;
+			spread = 90 * (bigdecimal) M_PI / 180;
 		}
 
 		if((theta >= -spread / 2) && (theta <= spread / 2))
@@ -2953,7 +2952,7 @@ int CvPlot::getBuildTime(BuildTypes eBuild, PlayerTypes ePlayer) const
 
 
 //	--------------------------------------------------------------------------------
-int CvPlot::getBuildTurnsLeft(BuildTypes eBuild, PlayerTypes ePlayer, int iNowExtra, int iThenExtra) const
+int CvPlot::getBuildTurnsLeft(BuildTypes eBuild, PlayerTypes ePlayer, int, int iThenExtra) const
 {
 #ifdef NQ_FIX_BUILD_TIMES_UI
 	// work rate
@@ -3468,7 +3467,6 @@ bool CvPlot::IsEnemyTerritory(const PlayerTypes ePlayer) const
 			return !IsFriendlyTerritory(ePlayer);
 		}
 	}
-	return false;
 }
 // --------------------------------------------------------------------------------- // from Izy
 bool CvPlot::IsAllowsSailLand(PlayerTypes ePlayer) const
@@ -5043,23 +5041,17 @@ bool CvPlot::isValidDomainForAction(const CvUnit& unit) const
 		{
 		case DOMAIN_SEA:
 			return (unit.canMoveAllTerrain());
-			break;
 
 		case DOMAIN_AIR:
 			return CanHoldThisAircraft(&unit);
-			break;
 
 		case DOMAIN_LAND:
 		case DOMAIN_IMMOBILE:
 			return (unit.IsHoveringUnit() || unit.canMoveAllTerrain() || unit.isEmbarked());
-			break;
 
 		default:
 			return false;
-			break;
 		}
-
-		return false;
 	}
 }
 
@@ -6745,7 +6737,7 @@ void CvPlot::setNumResource(int iNum)
 {
 	m_iResourceNum = iNum;
 	CvAssert(getNumResource() >= 0);
-	FAssertMsg(getResourceType() == NO_RESOURCE || m_iResourceNum > 0, "If a plot contains a Resource it should always have a quantity of at least 1.");
+	FAssertMsg(getResourceType() == NO_RESOURCE || m_iResourceNum > 0, "If a plot contains a Resource it should always have a quantity of at least 1");
 }
 
 //	--------------------------------------------------------------------------------
@@ -9413,7 +9405,7 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly, Tea
 									int delayT100 = GC.getPOST_COMBAT_TEXT_DELAYT100() * 3;
 									text[0] = NULL;
 									sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iFinderGold);
-									GC.GetEngineUserInterface()->AddPopupText(getX(), getY(), text, delayT100 / 100.0f);
+									GC.GetEngineUserInterface()->AddPopupText(getX(), getY(), text, delayT100 / f100);
 								}
 							}
 						}
@@ -10963,7 +10955,7 @@ void CvPlot::write(FDataStream& kStream) const
 	for(uint i = 0; i < MAX_MAJOR_CIVS; i++)
 		kStream << m_abNoSettling[i];
 
-	// char * should have died in 1989...
+	// char * should have died in 1989
 	bool hasScriptData = (m_szScriptData != NULL);
 	kStream << hasScriptData;
 	if(hasScriptData)

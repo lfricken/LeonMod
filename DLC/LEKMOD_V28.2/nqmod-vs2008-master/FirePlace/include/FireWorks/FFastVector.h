@@ -424,7 +424,7 @@ protected:
 		if( m_uiCurrMaxSize == 0 ) m_uiCurrMaxSize = 1;
 		while( uiFit >= m_uiCurrMaxSize ){
 
-			//Try to double size...
+			//Try to 2x size...
 			UINT uiNewSize = m_uiCurrMaxSize<<1;
 
 			//...on overflow bail and set to exact size
@@ -433,7 +433,7 @@ protected:
 				break;
 			}
 
-			//...otherwise use the doubled size
+			//...otherwise use the 2x size
 			m_uiCurrMaxSize = uiNewSize;
 		}
 
@@ -745,7 +745,7 @@ protected:
 		if( m_uiCurrMaxSize == 0 ) m_uiCurrMaxSize = 1;
 		while( uiFit >= m_uiCurrMaxSize ){
 
-			//Try to double size...
+			//Try to 2x size...
 			UINT uiNewSize = m_uiCurrMaxSize<<1;
 
 			//...on overflow bail and set to exact size
@@ -754,7 +754,7 @@ protected:
 				break;
 			}
 
-			//...otherwise use the doubled size
+			//...otherwise use the 2x size
 			m_uiCurrMaxSize = uiNewSize;
 		}
 

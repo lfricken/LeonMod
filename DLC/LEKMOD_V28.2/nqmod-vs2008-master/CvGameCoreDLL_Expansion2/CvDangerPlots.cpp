@@ -33,17 +33,17 @@ CvDangerPlots::CvDangerPlots(void)
 #endif
 	, m_bDirty(false)
 {
-	m_fMajorWarMod = GC.getAI_DANGER_MAJOR_APPROACH_WART100() / 100.0;
-	m_fMajorHostileMod = GC.getAI_DANGER_MAJOR_APPROACH_HOSTILET100() / 100.0;
-	m_fMajorDeceptiveMod = GC.getAI_DANGER_MAJOR_APPROACH_DECEPTIVET100() / 100.0;
-	m_fMajorGuardedMod = GC.getAI_DANGER_MAJOR_APPROACH_GUARDEDT100() / 100.0;
-	m_fMajorAfraidMod = GC.getAI_DANGER_MAJOR_APPROACH_AFRAIDT100() / 100.0;
-	m_fMajorFriendlyMod = GC.getAI_DANGER_MAJOR_APPROACH_FRIENDLYT100() / 100.0;
-	m_fMajorNeutralMod = GC.getAI_DANGER_MAJOR_APPROACH_NEUTRALT100() / 100.0;
-	m_fMinorNeutralrMod = GC.getAI_DANGER_MINOR_APPROACH_NEUTRALT100() / 100.0;
-	m_fMinorFriendlyMod = GC.getAI_DANGER_MINOR_APPROACH_FRIENDLYT100() / 100.0;
-	m_fMinorBullyMod = GC.getAI_DANGER_MINOR_APPROACH_BULLYT100() / 100.0;
-	m_fMinorConquestMod = GC.getAI_DANGER_MINOR_APPROACH_CONQUESTT100() / 100.0;
+	m_majorWarModT100 = GC.getAI_DANGER_MAJOR_APPROACH_WART100();
+	m_majorHostileModT100 = GC.getAI_DANGER_MAJOR_APPROACH_HOSTILET100();
+	m_majorDeceptiveModT100 = GC.getAI_DANGER_MAJOR_APPROACH_DECEPTIVET100();
+	m_majorGuardedModT100 = GC.getAI_DANGER_MAJOR_APPROACH_GUARDEDT100();
+	m_majorAfraidModT100 = GC.getAI_DANGER_MAJOR_APPROACH_AFRAIDT100();
+	m_majorFriendlyModT100 = GC.getAI_DANGER_MAJOR_APPROACH_FRIENDLYT100();
+	m_majorNeutralModT100 = GC.getAI_DANGER_MAJOR_APPROACH_NEUTRALT100();
+	m_minorNeutralrModT100 = GC.getAI_DANGER_MINOR_APPROACH_NEUTRALT100();
+	m_minorFriendlyModT100 = GC.getAI_DANGER_MINOR_APPROACH_FRIENDLYT100();
+	m_minorBullyModT100 = GC.getAI_DANGER_MINOR_APPROACH_BULLYT100();
+	m_minorConquestModT100 = GC.getAI_DANGER_MINOR_APPROACH_CONQUESTT100();
 }
 
 /// Destructor
@@ -308,7 +308,6 @@ void CvDangerPlots::AddDanger(int iPlotX, int iPlotY, int iValue, bool bWithinOn
 /// Return the danger value of a given plot
 int CvDangerPlots::GetDanger(const CvPlot& pPlot) const
 {
-	return 0; // prevent desync. I do not understand why this value desyncs.
 	const int idx = pPlot.getX() + pPlot.getY() * GC.getMap().getGridWidth();
 	return m_DangerPlots[idx];
 }
@@ -391,30 +390,30 @@ int CvDangerPlots::ModifyDangerByRelationship(PlayerTypes ePlayer, CvPlot* pPlot
 		switch(GET_PLAYER(m_ePlayer).GetDiplomacyAI()->GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false))
 		{
 		case MAJOR_CIV_APPROACH_WAR:
-			iResult = (int)(iResult * m_fMajorWarMod);
+			iResult = (iResult * m_majorWarModT100) / 100;
 			break;
 		case MAJOR_CIV_APPROACH_HOSTILE:
-			iResult = (int)(iResult * m_fMajorHostileMod);
+			iResult = (iResult * m_majorHostileModT100) / 100;
 			bIgnoreInFriendlyTerritory = true;
 			break;
 		case MAJOR_CIV_APPROACH_DECEPTIVE:
-			iResult = (int)(iResult * m_fMajorDeceptiveMod);
+			iResult = (iResult * m_majorDeceptiveModT100) / 100;
 			bIgnoreInFriendlyTerritory = true;
 			break;
 		case MAJOR_CIV_APPROACH_GUARDED:
-			iResult = (int)(iResult * m_fMajorGuardedMod);
+			iResult = (iResult * m_majorGuardedModT100) / 100;
 			bIgnoreInFriendlyTerritory = true;
 			break;
 		case MAJOR_CIV_APPROACH_AFRAID:
-			iResult = (int)(iResult * m_fMajorAfraidMod);
+			iResult = (iResult * m_majorAfraidModT100) / 100;
 			bIgnoreInFriendlyTerritory = true;
 			break;
 		case MAJOR_CIV_APPROACH_FRIENDLY:
-			iResult = (int)(iResult * m_fMajorFriendlyMod);
+			iResult = (iResult * m_majorFriendlyModT100) / 100;
 			bIgnoreInFriendlyTerritory = true;
 			break;
 		case MAJOR_CIV_APPROACH_NEUTRAL:
-			iResult = (int)(iResult * m_fMajorNeutralMod);
+			iResult = (iResult * m_majorNeutralModT100) / 100;
 			bIgnoreInFriendlyTerritory = true;
 			break;
 		}
@@ -424,18 +423,18 @@ int CvDangerPlots::ModifyDangerByRelationship(PlayerTypes ePlayer, CvPlot* pPlot
 		switch(GET_PLAYER(m_ePlayer).GetDiplomacyAI()->GetMinorCivApproach(ePlayer))
 		{
 		case MINOR_CIV_APPROACH_IGNORE:
-			iResult = (int)(iResult * m_fMinorNeutralrMod);
+			iResult = (iResult * m_minorNeutralrModT100) / 100;
 			bIgnoreInFriendlyTerritory = true;
 			break;
 		case MINOR_CIV_APPROACH_FRIENDLY:
-			iResult = (int)(iResult * m_fMinorFriendlyMod);
+			iResult = (iResult * m_minorFriendlyModT100) / 100;
 			bIgnoreInFriendlyTerritory = true;
 			break;
 		case MINOR_CIV_APPROACH_BULLY:
-			iResult = (int)(iResult * m_fMinorBullyMod);
+			iResult = (iResult * m_minorBullyModT100) / 100;
 			break;
 		case MINOR_CIV_APPROACH_CONQUEST:
-			iResult = (int)(iResult * m_fMinorConquestMod);
+			iResult = (iResult * m_minorConquestModT100) / 100;
 			break;
 		}
 	}
@@ -496,30 +495,30 @@ bool CvDangerPlots::IsDangerByRelationshipZero(PlayerTypes ePlayer, CvPlot* pPlo
 		switch(GET_PLAYER(m_ePlayer).GetDiplomacyAI()->GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false))
 		{
 		case MAJOR_CIV_APPROACH_WAR:
-			bResultMultiplierIsZero = m_fMajorWarMod == 0.f;
+			bResultMultiplierIsZero = m_majorWarModT100 == 0;
 			break;
 		case MAJOR_CIV_APPROACH_HOSTILE:
-			bResultMultiplierIsZero = m_fMajorHostileMod == 0.f;
+			bResultMultiplierIsZero = m_majorHostileModT100 == 0;
 			bIgnoreInFriendlyTerritory = true;
 			break;
 		case MAJOR_CIV_APPROACH_DECEPTIVE:
-			bResultMultiplierIsZero = m_fMajorDeceptiveMod == 0.f;
+			bResultMultiplierIsZero = m_majorDeceptiveModT100 == 0;
 			bIgnoreInFriendlyTerritory = true;
 			break;
 		case MAJOR_CIV_APPROACH_GUARDED:
-			bResultMultiplierIsZero = m_fMajorGuardedMod == 0.f;
+			bResultMultiplierIsZero = m_majorGuardedModT100 == 0;
 			bIgnoreInFriendlyTerritory = true;
 			break;
 		case MAJOR_CIV_APPROACH_AFRAID:
-			bResultMultiplierIsZero = m_fMajorAfraidMod == 0.f;
+			bResultMultiplierIsZero = m_majorAfraidModT100 == 0;
 			bIgnoreInFriendlyTerritory = true;
 			break;
 		case MAJOR_CIV_APPROACH_FRIENDLY:
-			bResultMultiplierIsZero = m_fMajorFriendlyMod == 0.f;
+			bResultMultiplierIsZero = m_majorFriendlyModT100 == 0;
 			bIgnoreInFriendlyTerritory = true;
 			break;
 		case MAJOR_CIV_APPROACH_NEUTRAL:
-			bResultMultiplierIsZero = m_fMajorNeutralMod == 0.f;
+			bResultMultiplierIsZero = m_majorNeutralModT100 == 0;
 			bIgnoreInFriendlyTerritory = true;
 			break;
 		}
@@ -529,18 +528,18 @@ bool CvDangerPlots::IsDangerByRelationshipZero(PlayerTypes ePlayer, CvPlot* pPlo
 		switch(GET_PLAYER(m_ePlayer).GetDiplomacyAI()->GetMinorCivApproach(ePlayer))
 		{
 		case MINOR_CIV_APPROACH_IGNORE:
-			bResultMultiplierIsZero = m_fMinorNeutralrMod == 0.f;
+			bResultMultiplierIsZero = m_minorNeutralrModT100 == 0;
 			bIgnoreInFriendlyTerritory = true;
 			break;
 		case MINOR_CIV_APPROACH_FRIENDLY:
-			bResultMultiplierIsZero = m_fMinorFriendlyMod == 0.f;
+			bResultMultiplierIsZero = m_minorFriendlyModT100 == 0;
 			bIgnoreInFriendlyTerritory = true;
 			break;
 		case MINOR_CIV_APPROACH_BULLY:
-			bResultMultiplierIsZero = (m_fMinorBullyMod == 0.f);
+			bResultMultiplierIsZero = (m_minorBullyModT100 == 0);
 			break;
 		case MINOR_CIV_APPROACH_CONQUEST:
-			bResultMultiplierIsZero = m_fMinorConquestMod == 0.f;
+			bResultMultiplierIsZero = m_minorConquestModT100 == 0;
 			break;
 		}
 	}

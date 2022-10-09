@@ -213,14 +213,8 @@ void CvBuilderTaskingAI::Update(void)
 
 			LogInfo(str, m_pPlayer, bShowOutput);
 
-#ifdef AUI_WARNING_FIXES
 			for (int ui = 0; ui < NUM_YIELD_TYPES; ui++)
-#else
-			for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
-#endif
 			{
-				//double fYield = pLoopCity->GetCityStrategyAI()->GetYieldAverage((YieldTypes)ui);
-				//double fYieldDeficient = pLoopCity->GetCityStrategyAI()->GetDeficientYieldValue((YieldTypes)ui);
 				CvString strYield;
 				switch(ui)
 				{
@@ -247,28 +241,12 @@ void CvBuilderTaskingAI::Update(void)
 				CvString strNumbers;
 				strNumbers.Format("%d, %d", pLoopCity->GetCityStrategyAI()->GetBestYieldAverageTimes100((YieldTypes)ui), pLoopCity->GetCityStrategyAI()->GetYieldDeltaTimes100((YieldTypes)ui));
 
-				//int iYieldAdjusted = (int)workerround(fYield * 100);
-				//int iYieldDeficientAdjacent = (int)workerround(fYieldDeficient * 100);
-
-				//strNumbers.Format("%d / %d", iYieldAdjusted, iYieldDeficientAdjacent);
 				strYield += strNumbers;
 
 				if(ui == pLoopCity->GetCityStrategyAI()->GetFocusYield())
 				{
 					strYield += " *";
 				}
-
-				//if (iYieldAdjusted < iYieldDeficientAdjacent)
-				//{
-				//if (GetDeficientYield(pLoopCity, false) != GetDeficientYield(pLoopCity, true))
-				//{
-				//	strYield += "  Problem, but happiness over is overriding it";
-				//}
-				//else
-				//{
-				//	strYield += "  PROBLEM!!";
-				//}
-				//}
 				LogInfo(strYield, m_pPlayer, bShowOutput);
 			}
 
@@ -2712,12 +2690,6 @@ int CvBuilderTaskingAI::GetResourceWeight(ResourceTypes eResource, ImprovementTy
 				iModifier = iModifier * (m_pPlayer->GetPlayerTraits()->GetLuxuryHappinessRetention() + pkResource->getHappiness()) / pkResource->getHappiness();
 			iModifier += GC.getBUILDER_TASKING_PLOT_EVAL_MULTIPLIER_LUXURY_RESOURCE() * GC.getHAPPINESS_PER_EXTRA_LUXURY();
 #endif
-#ifdef AUI_WORKER_GET_RESOURCE_WEIGHT_INCREASE_UNOWNED_LUXURY_WEIGHT
-			if (m_pPlayer->GetExcessHappiness() < -GC.getVERY_UNHAPPY_THRESHOLD())
-			{
-				iModifier = int(iModifier * pow(AUI_WORKER_GET_RESOURCE_WEIGHT_INCREASE_UNOWNED_LUXURY_WEIGHT, 1.0 - (double)m_pPlayer->GetExcessHappiness() / -(double)GC.getVERY_UNHAPPY_THRESHOLD()) + 0.5);
-			}
-#endif
 		}
 		else
 		{
@@ -2987,13 +2959,6 @@ int CvBuilderTaskingAI::ScorePlot() const
 		int iMultiplier = pCityStrategy->GetYieldDeltaTimes100((YieldTypes)ui);
 		int iAbsMultiplier = abs(iMultiplier);
 		int iYieldDelta = m_aiProjectedPlotYields[ui] - m_aiCurrentPlotYields[ui];
-#ifdef AUI_WORKER_SCORE_PLOT_CHOP
-		double dFlatBonus = 0;
-		if (ePlotFeature != NO_FEATURE && pkBuild->isFeatureRemove(ePlotFeature) && ui == YIELD_PRODUCTION && iYieldDelta >= 0)
-		{
-			dFlatBonus = AUI_WORKER_SCORE_PLOT_CHOP;
-		}
-#endif
 
 		// the multiplier being lower than zero means that we need more of this resource
 		if(iMultiplier < 0)
@@ -3001,24 +2966,6 @@ int CvBuilderTaskingAI::ScorePlot() const
 			bAnyNegativeMultiplier = true;
 			if(iYieldDelta > 0)  // this would be an improvement to the yield
 			{
-#ifdef AUI_WORKER_SCORE_PLOT_CHOP
-				iScore += int((m_aiProjectedPlotYields[ui] + dFlatBonus) * iAbsMultiplier + 0.5);
-			}
-			else if (iYieldDelta < 0)  // the yield would go down
-			{
-				iScore += int((iYieldDelta + dFlatBonus) * iAbsMultiplier - 0.5);
-			}
-		}
-		else
-		{
-			if (iYieldDelta >= 0)
-			{
-				iScore += int(m_aiProjectedPlotYields[ui] + dFlatBonus + 0.5); // provide a nominal score to plots that improve anything
-			}
-			else if (iYieldDelta < 0)
-			{
-				iScore += int((iYieldDelta + dFlatBonus) * iAbsMultiplier - 0.5);
-#else
 				iScore += m_aiProjectedPlotYields[ui] * iAbsMultiplier;
 			}
 			else if(iYieldDelta < 0)  // the yield would go down
@@ -3035,7 +2982,6 @@ int CvBuilderTaskingAI::ScorePlot() const
 			else if(iYieldDelta < 0)
 			{
 				iScore += iYieldDelta * iAbsMultiplier;
-#endif
 			}
 		}
 	}

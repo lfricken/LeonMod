@@ -1639,7 +1639,6 @@ bool CvGameReligions::IsPantheonBeliefAvailable(BeliefTypes eBelief) const
 	return false;
 }
 
-/// Number of followers of this religion
 int CvGameReligions::GetNumFollowers(ReligionTypes eReligion) const
 {
 	int iRtnValue = 0;
@@ -1662,7 +1661,6 @@ int CvGameReligions::GetNumFollowers(ReligionTypes eReligion) const
 	return iRtnValue;
 }
 
-/// Number of cities following this religion
 int CvGameReligions::GetNumCitiesFollowing(ReligionTypes eReligion, const bool onlyCityStates) const
 {
 	int iRtnValue = 0;
@@ -3094,7 +3092,6 @@ void CvCityReligions::Copy(CvCityReligions* pOldCity)
 	}
 }
 
-/// How many citizens here are following this religion?
 int CvCityReligions::GetNumFollowers(ReligionTypes eReligion) const
 {
 	ReligionInCityList::const_iterator religionIt;
@@ -4328,7 +4325,7 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 				{
 					char text[256] = {0};
 					sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iGoldBonus);
-					GC.GetEngineUserInterface()->AddPopupText(m_pCity->getX(), m_pCity->getY(), text, 0.5f);
+					GC.GetEngineUserInterface()->AddPopupText(m_pCity->getX(), m_pCity->getY(), text, 50 / f100);
 				}
 			}
 		}

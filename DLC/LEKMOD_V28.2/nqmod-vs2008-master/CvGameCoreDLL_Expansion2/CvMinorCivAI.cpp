@@ -36,26 +36,29 @@ const int minAnchorT100 = -200 * 100;
 
 
 
-
-float GetGameProgressFactor()
+// adjusts gold gift price/reward based on game progress (things get more expensive)
+// this value shrinks as the game continues
+T100 GetGameProgressFactorT100()
 {
 	// Game progress factor based on how far into the game we are
-	double fGameProgressFactor = float(GC.getGame().getElapsedGameTurns()) / GC.getGame().getEstimateEndTurn();
-	fGameProgressFactor = min(fGameProgressFactor, 1.0); // Don't count above 1.0, otherwise it will end up negative!
+	T100 progressT100 = (GC.getGame().getElapsedGameTurns() * 100) / GC.getGame().getEstimateEndTurn();
+	progressT100 = min((T100)100, progressT100); // Don't count above 1, otherwise it will end up negative!
 
 	// Tweak factor slightly, otherwise Gold will do literally NOTHING once we reach the end of the game!
-	fGameProgressFactor *= /*2*/ GC.getMINOR_CIV_GOLD_GIFT_GAME_MULTIPLIER();
-	fGameProgressFactor /= /*3*/ GC.getMINOR_CIV_GOLD_GIFT_GAME_DIVISOR();
-	fGameProgressFactor = 1 - fGameProgressFactor;
-	fGameProgressFactor = max(0.2, fGameProgressFactor);
+	progressT100 *= /*2*/ GC.getMINOR_CIV_GOLD_GIFT_GAME_MULTIPLIER();
+	progressT100 /= /*3*/ GC.getMINOR_CIV_GOLD_GIFT_GAME_DIVISOR();
+	// inverse (so it becomes smaller as game continues)
+	progressT100 = 100 - progressT100;
+	progressT100 = max((T100)20, progressT100); // minimum value
 
 	// Game Speed Mod
-	fGameProgressFactor *= GC.getGame().getGameSpeedInfo().getGoldGiftMod();
-	fGameProgressFactor /= 100;
+	progressT100 *= GC.getGame().getGameSpeedInfo().getGoldGiftMod();
+	progressT100 /= 100;
 
-	return fGameProgressFactor;
+	return progressT100;
 }
 
+// given a religion, returns the string name
 string religionToReligionName(const ReligionTypes eReligion)
 {
 	string strReligionName = "";
@@ -82,6 +85,7 @@ string religionToReligionName(const ReligionTypes eReligion)
 	return strReligionName;
 }
 
+// shows how many turns remain for a given quest
 string txtTurnsRemain(int turns)
 {
 	stringstream s;
@@ -89,11 +93,13 @@ string txtTurnsRemain(int turns)
 	return s.str();
 }
 
-int CvMinorCivQuest::GetGoldForInvest(const PlayerTypes ePlayer)
+// NOT T100
+int CvMinorCivQuest::GetGoldForInvest(const PlayerTypes)
 {
-	int iGold = 400;
-	iGold /= GetGameProgressFactor();
-	return iGold;
+	int gold = 400;
+	gold *= 100;
+	gold /= GetGameProgressFactorT100();
+	return gold;
 }
 
 string CvMinorCivQuest::GetCompetitionStatusText(const PlayerTypes ePlayer) const
@@ -962,7 +968,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 	else if (m_eType == QUEST_GIFT_GOLD)
 	{
 		int iGoldAlreadyGiven = pMinor->GetMinorCivAI()->GetNumGoldGifted(m_eAssignedPlayer);
-		const int goldNeeded = GetGoldForInvest(m_eAssignedPlayer) / GetGameProgressFactor(); // XML
+		const int goldNeeded = (GetGoldForInvest(m_eAssignedPlayer) * 100) / GetGameProgressFactorT100(); // XML
 		m_iData1 = goldNeeded;
 		m_iData2 = iGoldAlreadyGiven;
 	}
@@ -1001,8 +1007,6 @@ void CvMinorCivQuest::DoStartQuestUsingExistingData(CvMinorCivQuest* pExistingQu
 
 	Localization::String strMessage;
 	Localization::String strSummary;
-	int iNotificationX = -1;
-	int iNotificationY = -1;
 
 	// Other global quests (ie. contests) - Quest data is initialized as normal except for the start turn, which was in the past
 	if(pMinor->GetMinorCivAI()->IsGlobalQuest(pExistingQuest->GetType()))
@@ -1020,7 +1024,7 @@ void CvMinorCivQuest::DoStartQuestUsingExistingData(CvMinorCivQuest* pExistingQu
 
 // Awards influence and sends notification to player.
 // Should only be called once.
-bool CvMinorCivQuest::DoFinishQuest(const float bonusFactor)
+bool CvMinorCivQuest::DoFinishQuest(const T100 bonusFactorT100)
 {
 	if (IsHandled())
 		return false;
@@ -1030,21 +1034,21 @@ bool CvMinorCivQuest::DoFinishQuest(const float bonusFactor)
 	CvPlayer* pMinor = &GET_PLAYER(m_eMinor);
 	CvPlayer* pMajor = &GET_PLAYER(m_eAssignedPlayer);
 	const PlayerTypes eMajor = pMajor->GetID();
-	const int friendshipRewardT100 = 100 * m_rewards.friendship * bonusFactor;
-	const int diplomaticSupportReward = m_rewards.support * bonusFactor;
+	const int friendshipRewardT100 = m_rewards.friendship * bonusFactorT100;
+	const int diplomaticSupportReward = (m_rewards.support * bonusFactorT100) / 100;
 
 	// apply rewards
 	pMinor->GetMinorCivAI()->ChangeFriendshipWithMajorTimes100Instant(m_eAssignedPlayer, friendshipRewardT100, /*bFromQuest*/ true);
 
 	pMajor->ChangeDiplomaticInfluence(diplomaticSupportReward);
 
-	pMajor->ChangeScientificInfluence(m_rewards.insight * bonusFactor);
+	pMajor->ChangeScientificInfluence((m_rewards.insight * bonusFactorT100) / 100);
 
-	pMajor->GetTreasury()->ChangeGold(m_rewards.gold * bonusFactor);
+	pMajor->GetTreasury()->ChangeGold((m_rewards.gold * bonusFactorT100) / 100);
 
 	CvTeam* pTeam = &GET_TEAM(pMajor->getTeam());
 	TechTypes eCurrentTech = pMajor->GetPlayerTechs()->GetCurrentResearch();
-	int iBeakers = m_rewards.beakers * bonusFactor;
+	int iBeakers = (m_rewards.beakers * bonusFactorT100) / 100;
 	if (eCurrentTech == NO_TECH)
 		pMajor->changeOverflowResearch(iBeakers);
 	else
@@ -1054,12 +1058,9 @@ bool CvMinorCivQuest::DoFinishQuest(const float bonusFactor)
 	bool bWasFriends = pMinor->GetMinorCivAI()->IsFriends(m_eAssignedPlayer);
 	bool bWasAllies = pMinor->GetMinorCivAI()->IsAllies(m_eAssignedPlayer);
 	PlayerTypes eOldAlly = pMinor->GetMinorCivAI()->GetAlly();
-	int iOldInf = pMinor->GetMinorCivAI()->GetEffectiveFriendshipWithMajor(m_eAssignedPlayer);
 	bool bNowFriends = pMinor->GetMinorCivAI()->IsFriends(m_eAssignedPlayer);
 	bool bNowAllies = pMinor->GetMinorCivAI()->IsAllies(m_eAssignedPlayer);
 	PlayerTypes eNewAlly = pMinor->GetMinorCivAI()->GetAlly();
-	int iNewInf = pMinor->GetMinorCivAI()->GetEffectiveFriendshipWithMajor(m_eAssignedPlayer);
-	int iInfChange = iNewInf - iOldInf;
 	
 	// log?
 	//GET_PLAYER(m_eAssignedPlayer).GetDiplomacyAI()->LogMinorCivQuestFinished(GetPlayer()->GetID(), iOldFriendshipTimes100, iNewFriendshipTimes100, itr_quest->GetType());
@@ -3007,7 +3008,7 @@ bool CvMinorCivAI::IsPersonalQuest(MinorCivQuestTypes eQuest) const
 	return (!IsGlobalQuest(eQuest));
 }
 
-int CvMinorCivAI::GetMinPlayersNeededForQuest(MinorCivQuestTypes eQuest) const
+int CvMinorCivAI::GetMinPlayersNeededForQuest(MinorCivQuestTypes) const
 {
 	return 1;
 }
@@ -3020,7 +3021,10 @@ int CvMinorCivAI::GetPersonalityQuestBias(MinorCivQuestTypes eQuest)
 
 
 	if (eQuest == QUEST_GIFT_GOLD)
-		iCount *= GC.getMINOR_CIV_QUEST_WEIGHT_MULTIPLIER_OTHER_GIVE_GOLD() / 100.f;
+	{
+		iCount *= GC.getMINOR_CIV_QUEST_WEIGHT_MULTIPLIER_OTHER_GIVE_GOLD();
+		iCount /= 100;
+	}
 
 
 	return iCount / 10;
@@ -4079,7 +4083,6 @@ void CvMinorCivAI::DoFriendship()
 {
 	Localization::String strMessage;
 	Localization::String strSummary;
-	const char* strMinorsNameKey = GetPlayer()->getNameKey();
 
 	// calculate changes
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -5504,7 +5507,7 @@ void CvMinorCivAI::DoChangeProtectionFromMajor(PlayerTypes eMajor, bool bProtect
 	GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
 }
 
-bool CvMinorCivAI::CanMajorProtect(PlayerTypes eMajor)
+bool CvMinorCivAI::CanMajorProtect(PlayerTypes)
 {
 	return false; // remove pledge to protect
 	
@@ -6947,23 +6950,12 @@ void CvMinorCivAI::DoAcquire(PlayerTypes eMajor, int &iNumUnits, int& iCapitalX,
 int CvMinorCivAI::GetBullyGoldAmount(PlayerTypes /*eBullyPlayer*/)
 {
 	int iGold = GC.getMINOR_BULLY_GOLD();
-	int iGoldGrowthFactor = 350; // XML
 
-	// Add gold, more if later in game
-	float fGameProgressFactor = ((float) GC.getGame().getElapsedGameTurns() / (float) GC.getGame().getEstimateEndTurn());
-	CvAssertMsg(fGameProgressFactor >= 0.0f, "fGameProgressFactor is not expected to be negative! Please send Anton your save file and version.");
-	if(fGameProgressFactor > 1.0f)
-		fGameProgressFactor = 1.0f;
+	// increase gold as game continues
+	iGold *= 100;
+	iGold /= GetGameProgressFactorT100();
 
-	iGold += (int)(fGameProgressFactor * iGoldGrowthFactor);
-
-	// UA, SP Mods
-
-	// Game Speed Mod
-	iGold *= GC.getGame().getGameSpeedInfo().getGoldGiftMod(); //antonjs: consider: separate XML
-	iGold /= 100;
-
-	// Rounding
+	// round
 	int iVisibleDivisor = /*5*/ GC.getMINOR_CIV_GOLD_GIFT_VISIBLE_DIVISOR(); //antonjs: consider: separate XML
 	iGold /= iVisibleDivisor;
 	iGold *= iVisibleDivisor;
@@ -7000,11 +6992,10 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	// +0 ~ +75
 	// **************************
 	CvWeightedVector<PlayerTypes, MAX_MAJOR_CIVS, true> veMilitaryRankings;
-	PlayerTypes eMajorLoop;
-	int iGlobalMilitaryScore = 0;
+
 	for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 	{
-		eMajorLoop = (PlayerTypes) iMajorLoop;
+		const PlayerTypes eMajorLoop = (PlayerTypes) iMajorLoop;
 		if(GET_PLAYER(eMajorLoop).isAlive() && !GET_PLAYER(eMajorLoop).isMinorCiv())
 		{
 			veMilitaryRankings.push_back(eMajorLoop, GET_PLAYER(eMajorLoop).GetMilitaryMight()); // Don't recalculate within a turn, can cause inconsistency
@@ -7012,17 +7003,19 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	}
 	CvAssertMsg(veMilitaryRankings.size() > 0, "WeightedVector of military might rankings not expected to be size 0");
 	veMilitaryRankings.SortItems();
+	// military strength of the player that is bullying us
+	T100 iGlobalMilitaryScore = 0;
 	for(int iRanking = 0; iRanking < veMilitaryRankings.size(); iRanking++)
 	{
 		if(veMilitaryRankings.GetElement(iRanking) == eBullyPlayer)
 		{
-			float fRankRatio = (float)(veMilitaryRankings.size() - iRanking) / (float)(veMilitaryRankings.size());
+			T100 rankRatioT100 = ((veMilitaryRankings.size() - iRanking) * 100) / veMilitaryRankings.size();
 #ifdef NQ_TRIBUTE_EASIER_WITH_LOCAL_POWER
-			iGlobalMilitaryScore = (int)(fRankRatio * 50); // A score between 50*(1 / num majors alive) and 50, with the highest rank major getting 50
+			iGlobalMilitaryScore = (rankRatioT100 * 50); // A score between 50*(1 / num majors alive) and 50, with the highest rank major getting 50
 #else
-			iGlobalMilitaryScore = (int)(fRankRatio * 75); // A score between 75*(1 / num majors alive) and 75, with the highest rank major getting 75
+			T100 iGlobalMilitaryScore = (rankRatioT100 * 75); // A score between 75*(1 / num majors alive) and 75, with the highest rank major getting 75
 #endif
-			iScore += iGlobalMilitaryScore;
+			iScore += (iGlobalMilitaryScore / 100);
 			break;
 		}
 	}
@@ -7109,9 +7102,9 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 			}
 		}
 	}
-	float fLocalPowerRatio = (float)iBullyLocalPower / (float)iMinorLocalPower;
+	const T100 localPowerRatioT100 = (iBullyLocalPower * 100) / iMinorLocalPower;
 	int iLocalPowerScore = 0;
-	if(fLocalPowerRatio >= 3.0)
+	if(localPowerRatioT100 >= 300)
 	{
 #ifdef NQ_TRIBUTE_EASIER_WITH_LOCAL_POWER
 		iLocalPowerScore += 150;
@@ -7119,7 +7112,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 		iLocalPowerScore += 125;
 #endif
 	}
-	else if(fLocalPowerRatio >= 2.0)
+	else if(localPowerRatioT100 >= 200)
 	{
 #ifdef NQ_TRIBUTE_EASIER_WITH_LOCAL_POWER
 		iLocalPowerScore += 120;
@@ -7127,7 +7120,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 		iLocalPowerScore += 100;
 #endif
 	}
-	else if(fLocalPowerRatio >= 1.5)
+	else if(localPowerRatioT100 >= 150)
 	{
 #ifdef NQ_TRIBUTE_EASIER_WITH_LOCAL_POWER
 		iLocalPowerScore += 90;
@@ -7135,7 +7128,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 		iLocalPowerScore += 75;
 #endif
 	}
-	else if(fLocalPowerRatio >= 1.0)
+	else if(localPowerRatioT100 >= 100)
 	{
 #ifdef NQ_TRIBUTE_EASIER_WITH_LOCAL_POWER
 		iLocalPowerScore += 60;
@@ -7143,7 +7136,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 		iLocalPowerScore += 50;
 #endif
 	}
-	else if(fLocalPowerRatio >= 0.5)
+	else if(localPowerRatioT100 >= 50)
 	{
 #ifdef NQ_TRIBUTE_EASIER_WITH_LOCAL_POWER
 		iLocalPowerScore += 30;
@@ -7170,7 +7163,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	int iPoliciesMod = GET_PLAYER(eBullyPlayer).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_MINOR_BULLY_SCORE_MODIFIER);
 	if (iPoliciesMod != 0)
 	{
-		iPoliciesScore += iGlobalMilitaryScore;
+		iPoliciesScore += iGlobalMilitaryScore / 100;
 		iPoliciesScore += iLocalPowerScore;
 
 		iPoliciesScore *= iPoliciesMod;
@@ -7319,7 +7312,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 	{
 		int iProtectionScore = 0;
-		eMajorLoop = (PlayerTypes) iMajorLoop;
+		const PlayerTypes eMajorLoop = (PlayerTypes)iMajorLoop;
 		if(eMajorLoop != eBullyPlayer && IsProtectedByMajor(eMajorLoop))
 		{
 			iProtectionScore += -20;
@@ -7919,7 +7912,7 @@ void CvMinorCivAI::DoUnitGiftFromMajor(PlayerTypes eFromPlayer, CvUnit* pGiftUni
 	for (itr_quest = m_QuestsGiven[eFromPlayer].begin(); itr_quest != m_QuestsGiven[eFromPlayer].end(); itr_quest++)
 	{
 		const MinorCivQuestTypes thisType = itr_quest->GetType();
-		float rewardFactor = 1.0f;
+		T100 rewardFactor = 100;
 		bool thisSatisfied =
 		(
 			(thisType == QUEST_GIFT_GREAT_PERSON && isGreat) ||
@@ -7933,7 +7926,7 @@ void CvMinorCivAI::DoUnitGiftFromMajor(PlayerTypes eFromPlayer, CvUnit* pGiftUni
 			// but is this the right great person type?
 			thisSatisfied = true;
 			const bool isGreatCorrect = pGiftUnit->getUnitType() == itr_quest->m_iData1;
-			if (!isGreatCorrect) rewardFactor = 1.0f;
+			if (!isGreatCorrect) rewardFactor = 100;
 		}
 
 		if (thisSatisfied)
@@ -8071,7 +8064,8 @@ int CvMinorCivAI::GetFriendshipFromGoldGift(PlayerTypes eMajor, int iGold)
 	// The higher this divisor the less Friendship is gained
 
 	// prevent bad progress factors
-	iFriendship *= GetGameProgressFactor();
+	iFriendship *= GetGameProgressFactorT100();
+	iFriendship /= 100;
 
 	// Mod (Policies, etc.)
 	int iFriendshipMod = GET_PLAYER(eMajor).getMinorGoldFriendshipMod();
@@ -8080,7 +8074,8 @@ int CvMinorCivAI::GetFriendshipFromGoldGift(PlayerTypes eMajor, int iGold)
 	{
 		iFriendship *= (100 + iFriendshipMod);
 		iFriendship /= 100;
-		iFriendship *= !GET_PLAYER(eMajor).isHuman() ? 1.5 : 1.0; // non humans get 50% more friendship from gold gifts
+		iFriendship *= !GET_PLAYER(eMajor).isHuman() ? 150 : 100; // non humans get 50% more friendship from gold gifts
+		iFriendship /= 100;
 	}
 
 	if(IsActiveQuestForPlayer(eMajor, MINOR_CIV_QUEST_INVEST))
@@ -8100,13 +8095,13 @@ int CvMinorCivAI::GetFriendshipFromGoldGift(PlayerTypes eMajor, int iGold)
 
 int CvMinorCivAI::GetCappedGoldGift(PlayerTypes eMajor, int iMaxGoldToGive)
 {
-	const float friendshipFromGift = GetFriendshipFromGoldGift(eMajor, iMaxGoldToGive);	
-	const float remainingAllowed = (float)GC.getMINOR_CIV_MAX_GOLD_FRIENDSHIP() - (GetEffectiveFriendshipWithMajorTimes100(eMajor) / 100.0f);
-	if (friendshipFromGift <= 0 || remainingAllowed <= 0)
+	const T100 friendshipFromGiftT100 = max(1, 100 * GetFriendshipFromGoldGift(eMajor, iMaxGoldToGive));
+	const T100 remainingAllowedT100 = (GC.getMINOR_CIV_MAX_GOLD_FRIENDSHIP() * 100) - GetEffectiveFriendshipWithMajorTimes100(eMajor);
+	if (friendshipFromGiftT100 <= 0 || remainingAllowedT100 <= 0)
 		return 0;
 
-	const float fractionAllowed = min(1.0f, remainingAllowed / friendshipFromGift);
-	return ceil(fractionAllowed * iMaxGoldToGive);
+	const T100 fractionAllowedT100 = min((T100)100, (remainingAllowedT100 * 100) / friendshipFromGiftT100);
+	return (fractionAllowedT100 * iMaxGoldToGive) / 100;
 }
 
 #ifdef NQ_BELIEF_TOGGLE_ALLOW_FAITH_GIFTS_TO_MINORS
@@ -8861,8 +8856,8 @@ CvString CvMinorCivAI::GetStatusChangeDetails(PlayerTypes ePlayer, bool bAdd, bo
 
 		// Now that we've changed the gameplay, add together the two so the DISPLAY looks right
 		iCapitalFoodTimes100 += iOtherCitiesFoodTimes100;
-		float fCapitalFood = float(iCapitalFoodTimes100) / 100;
-		float fOtherCitiesFood = float(iOtherCitiesFoodTimes100) / 100;
+		decimal fCapitalFood = decimal(iCapitalFoodTimes100) / 100; // just for display
+		decimal fOtherCitiesFood = decimal(iOtherCitiesFoodTimes100) / 100; // just for display
 		//iCapitalFood += iOtherCitiesFood;
 
 		if(bAllies && bAdd)		// Now Allies (includes jump from nothing through Friends to Allies)

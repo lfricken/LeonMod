@@ -997,7 +997,6 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 	int iAttackerFearDamageInflicted = 0;//pInfo->getFearDamageInflicted( BATTLE_UNIT_ATTACKER );
 #endif
 
-	ICvUserInterface2* pkDLLInterface = GC.GetEngineUserInterface();
 	CvString strBuffer;
 
 	if(pkTargetPlot)
@@ -1274,7 +1273,6 @@ void CvUnitCombat::ResolveRangedCityVsUnitCombat(const CvCombatInfo& kCombatInfo
 	CvPlot* pkTargetPlot = kCombatInfo.getPlot();
 	CvAssert_Debug(pkTargetPlot);
 
-	ICvUserInterface2* pkDLLInterface = GC.GetEngineUserInterface();
 	int iActivePlayerID = GC.getGame().getActivePlayer();
 
 #ifdef DEL_RANGED_COUNTERATTACKS
@@ -1598,7 +1596,7 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 
 
 	//////////////////////////////////////////////////////////////////////
-	float attackInterceptModifier = 1; // we will deal this much less damage than we otherwise would have due to interception
+	T100 attackInterceptModT100 = 100; // we will deal this much less damage than we otherwise would have due to interception
 	int iInterceptionDamage = 0; // how much damage does the attacker take from the interception
 	{
 		CvUnit* pInterceptor = kAttacker.GetBestInterceptor(plot, pkDefender);
@@ -1615,8 +1613,8 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 			const int interception = pInterceptor->currInterceptionProbability();
 			if (evasion > 0 && interception > 0)
 			{
-				float total = evasion + interception;
-				attackInterceptModifier = evasion / total;
+				const int total = evasion + interception;
+				attackInterceptModT100 = (evasion * 100) / total;
 			}
 		}
 	}
@@ -1627,7 +1625,7 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 		bool wasShotDown = interceptor != NULL;
 		if (wasShotDown)
 		{
-			attackInterceptModifier = 0;
+			attackInterceptModT100 = 0;
 			pkCombatInfo->setUnit(BATTLE_UNIT_INTERCEPTOR, interceptor);
 			pkCombatInfo->setDamageInflicted(BATTLE_UNIT_INTERCEPTOR, kAttacker.GetMaxHitPoints());
 		}
@@ -1729,7 +1727,8 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 		}
 	}
 
-	iAttackerDamageInflicted *= attackInterceptModifier;
+	iAttackerDamageInflicted *= attackInterceptModT100;
+	iAttackerDamageInflicted /= 100;
 
 	//////////////////////////////////////////////////////////////////////
 
@@ -2644,34 +2643,45 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(uint uiParentEventID, CvPlot* pkT
 	return ApplyNuclearExplosionDamage(uiParentEventID, &kDamageMembers[0], iDamageMembers, NULL, pkTargetPlot, iDamageLevel);
 }
 
+const T100 reductionPerTile = 60; // reduce by 60% by each tile
+T100 getNukeDistFactorT100(int dist)
+{
+	T100 distReductT100 = 100; // (start at 1 since x^0 = 1
+	for (int p = dist; p > 0; --p)
+	{
+		distReductT100 *= reductionPerTile;
+		distReductT100 /= 100;
+	}
+	return distReductT100;
+}
 // find how much population to remove from this city
 int getNukePopulationDamage(const CvCity* nukedCity, const int dist)
 {
-	float distanceReduction = 0.50f;
+	const T100 cityNukeDefenseModT100 = max(0, nukedCity->getNukeModifier() + 100); // -75 -> 25
+	const T100 nukePopPercentBase = GC.getNUKE_LEVEL1_POPULATION_DEATH_BASE(); // 25
+	const T100 nukePopPercentRand = GC.rand(GC.getNUKE_LEVEL1_POPULATION_DEATH_RAND_1(), "Pop Nuked 1"); // 10
+	const T100 baseRemovalT100 = nukePopPercentBase + nukePopPercentRand; // 35
 
-	float nukePopPercentModifier = max(0.0f, nukedCity->getNukeModifier() / 100.0f + 1.0f);
-	float nukePopPercentBase = GC.getNUKE_LEVEL1_POPULATION_DEATH_BASE() / 100.0f;
-	float nukePopPercentRand = GC.rand(GC.getNUKE_LEVEL1_POPULATION_DEATH_RAND_1(), "Pop Nuked 1") / 100.0f;
-	float percentToRemove = pow(distanceReduction, dist) * nukePopPercentModifier * (nukePopPercentBase + nukePopPercentRand);
+	const T100 percentToRemoveT100 = (getNukeDistFactorT100(dist) * cityNukeDefenseModT100 * baseRemovalT100) / (100 * 100);
 
-	int startPop = nukedCity->getPopulation();
-	int popToRemove = startPop * percentToRemove;
-	popToRemove = max(1, popToRemove); // remove at least 1 pop
+	const int startPop = nukedCity->getPopulation();
+	const int popToRemove = max(1, (int)((startPop * percentToRemoveT100) / 100)); // always remove at least 1 pop
 	return min((startPop - 1), popToRemove); // don't go lower than 1 pop
 }
 
 // damage done to units from a nuke
 int getNukeUnitDamage(int dist, const CvCity* cityOnHex)
 {
-	float distanceReduction = 0.50f;
-
 	int damage = GC.getNUKE_UNIT_DAMAGE_BASE() + GC.rand(GC.getNUKE_UNIT_DAMAGE_RAND_1(), "Nuke Damage 1");
-	damage *= pow(distanceReduction, dist);
+
+	damage *= getNukeDistFactorT100(dist);
+	damage /= 100;
 
 	if (cityOnHex) // do less damage to units in a city
 	{
-		float cityModifier = max(0.0f, cityOnHex->getNukeModifier() / 100.0f + 1.0f); // like 0.25 if modifier was -75
-		damage *= cityModifier * distanceReduction; // reduce damage for units in a city by 1 distance always
+		const T100 cityNukeDefenseModT100 = max(0, cityOnHex->getNukeModifier() + 100); // like 25 if modifier was -75
+		damage *= cityNukeDefenseModT100 * getNukeDistFactorT100(1); // reduce damage for units in a city by 1 additional distance always
+		damage /= 100;
 	}
 	return damage;
 }
@@ -2679,16 +2689,18 @@ int getNukeUnitDamage(int dist, const CvCity* cityOnHex)
 // find how many hitpoints should be removed from this city
 int getNukeCityHitpointDamage(const CvCity* nukedCity, const int dist)
 {
-	float distanceReduction = 0.50f;
+	int damage = nukedCity->GetMaxHitPoints() - nukedCity->getDamage();
+	damage *= GC.getNUKE_CITY_HIT_POINT_DAMAGE();
+	damage /= 100;
 
-	int damage = (nukedCity->GetMaxHitPoints() - nukedCity->getDamage()) * (GC.getNUKE_CITY_HIT_POINT_DAMAGE() / 100.0f);
-	damage *= pow(distanceReduction, dist);
+	damage *= getNukeDistFactorT100(dist);
+	damage /= 100;
 
 	return damage;
 }
 
 //	-------------------------------------------------------------------------------------
-uint CvUnitCombat::ApplyNuclearExplosionDamage(uint uiParentEventID, const CvCombatMemberEntry* pkDamageArray, int iDamageMembers, CvUnit* pkAttacker, CvPlot* pkTargetPlot, int iDamageLevel)
+uint CvUnitCombat::ApplyNuclearExplosionDamage(uint uiParentEventID, const CvCombatMemberEntry* pkDamageArray, int iDamageMembers, CvUnit* pkAttacker, CvPlot* pkTargetPlot, int)
 {
 	CvString attackerName = pkAttacker->getVisualCivAdjective(pkAttacker->getTeam());
 
@@ -3956,9 +3968,8 @@ void CvUnitCombat::ApplyPostCombatTraitEffects(CvUnit* pkWinner, CvUnit* pkLoser
 			if(pkWinner->getOwner() == GC.getGame().getActivePlayer())
 			{
 				char text[256] = {0};
-				float fDelay = GC.getPOST_COMBAT_TEXT_DELAYT100() * 1.5f;
 				sprintf_s(text, yieldString, iValue);
-				GC.GetEngineUserInterface()->AddPopupText(pkLoser->getX(), pkLoser->getY(), text, fDelay / 100.0f);
+				GC.GetEngineUserInterface()->AddPopupText(pkLoser->getX(), pkLoser->getY(), text, (GC.getPOST_COMBAT_TEXT_DELAYT100() * 150) / (f100 * f100)); // safe decimal
 
 				iExistingDelay++;
 			}
@@ -4029,7 +4040,6 @@ void CvUnitCombat::ApplyPostCityCombatEffects(CvUnit* pkAttacker, CvCity* pkDefe
 {
 	CvString colorString;
 	int iPlunderModifier;
-	float fDelay = GC.getPOST_COMBAT_TEXT_DELAYT100() * 3;
 	iPlunderModifier = pkAttacker->GetCityAttackPlunderModifier();
 	if(iPlunderModifier > 0)
 	{
@@ -4049,7 +4059,7 @@ void CvUnitCombat::ApplyPostCityCombatEffects(CvUnit* pkAttacker, CvCity* pkDefe
 				char text[256] = {0};
 				colorString = "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]";
 				sprintf_s(text, colorString, iGoldPlundered);
-				GC.GetEngineUserInterface()->AddPopupText(pkAttacker->getX(), pkAttacker->getY(), text, fDelay / 100.0f);
+				GC.GetEngineUserInterface()->AddPopupText(pkAttacker->getX(), pkAttacker->getY(), text, GC.getPOST_COMBAT_TEXT_DELAYT100() * 3 / f100); // safe decimal
 			}
 		}
 	}

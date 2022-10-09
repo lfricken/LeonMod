@@ -411,12 +411,12 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 		while(pMovementRates->Step())
 		{
 			int f0 = pMovementRates->GetInt("NumHexes") - 1;
-			float f1 = pMovementRates->GetFloat("TotalTime");
-			float f2 = pMovementRates->GetFloat("EaseIn");
-			float f3 = pMovementRates->GetFloat("EaseOut");
-			float f4 = pMovementRates->GetFloat("IndividualOffset");
-			float f5 = pMovementRates->GetFloat("RowOffset");
-			float f6 = pMovementRates->GetFloat("CurveRoll");
+			decimal f1 = pMovementRates->GetFloat("TotalTime"); // safe decimal
+			decimal f2 = pMovementRates->GetFloat("EaseIn"); // safe decimal
+			decimal f3 = pMovementRates->GetFloat("EaseOut"); // safe decimal
+			decimal f4 = pMovementRates->GetFloat("IndividualOffset"); // safe decimal
+			decimal f5 = pMovementRates->GetFloat("RowOffset"); // safe decimal
+			decimal f6 = pMovementRates->GetFloat("CurveRoll"); // safe decimal
 			int   iPathSubdivision = pMovementRates->GetInt("PathSubdivision");
 			if(f0 >= 0 && f0 <= 11)
 			{
@@ -1194,7 +1194,6 @@ int CvUnitEntry::GetCargoSpace() const
 	return rtnValue;
 }
 
-/// Military might or "power" - returns cache
 int CvUnitEntry::GetPower() const
 {
 	return m_iCachedPower;
@@ -1210,10 +1209,12 @@ void CvUnitEntry::DoUpdatePower()
 // ***************
 
 	// We want a Unit that has twice the strength to be roughly worth 3x as much with regards to Power
-	iPower = int(pow((double) GetCombat(), 1.5));
+	iPower = iPow1p5(100 * GetCombat()) / 100;//int(pbow((dbouble)GetCombat(), one point 5));
 
 	// Ranged Strength
-	int iRangedStrength = int(pow((double) GetRangedCombat(), 1.45));
+	int iRangedStrength = iPow1p5(100 * GetCombat()) / 100;
+	iRangedStrength *= 90;
+	iRangedStrength /= 100;
 
 	// Naval ranged attacks are less useful
 	if(GetDomainType() == DOMAIN_SEA)
@@ -1227,8 +1228,9 @@ void CvUnitEntry::DoUpdatePower()
 		iPower = iRangedStrength;
 	}
 
-	// We want Movement rate to be important, but not a dominating factor; a Unit with double the moves of a similarly-strengthed Unit should be ~1.5x as Powerful
-	iPower = int((float) iPower * pow(min(1.0,(double) GetMoves()), 0.3));
+	// We want Movement rate to be important, but not a dominating factor; a Unit with twice the moves of a similarly-strengthed Unit should be ~1.5x as Powerful
+	iPower *= max(100, 100 + (GetMoves() * 100) / 4);
+	iPower /= 100;
 
 // ***************
 // Other modifiers

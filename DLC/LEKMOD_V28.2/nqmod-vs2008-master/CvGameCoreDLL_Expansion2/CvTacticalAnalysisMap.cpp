@@ -969,7 +969,7 @@ void CvTacticalAnalysisMap::PrioritizeZones()
 
 			if(pClosestCity)
 			{
-				iBaseValue += (1 + (int)sqrt((float)pZone->GetClosestCity()->getPopulation()));
+				iBaseValue += (1 + (iSquareRoot(100 * pZone->GetClosestCity()->getPopulation()) / 100));
 
 				if(pClosestCity->isCapital() && !pClosestCity->GetPlayer()->isMinorCiv())
 				{

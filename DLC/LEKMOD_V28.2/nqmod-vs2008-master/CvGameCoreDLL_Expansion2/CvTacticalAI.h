@@ -1002,7 +1002,7 @@ private:
 	int m_iRepositionRange;
 	int m_iDeployRadius;
 	int m_iRandomRange;
-	double m_fFlavorDampening;
+	int m_fFlavorDampening;
 
 	// Dominance zone info
 	int m_iCurrentZoneIndex;

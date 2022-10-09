@@ -339,7 +339,7 @@ private:
 	int m_iRandomRange;
 	int m_iDefensiveMoveTurns;
 	int m_iUpgradeMoveTurns;
-	double m_fFlavorDampening;
+	int m_flavorDampeningT100;
 };
 
 namespace HomelandAIHelpers

@@ -160,13 +160,13 @@ unsigned short CvRandom::get(unsigned short usMaxExclusive, const unsigned long 
 	}
 	return us;
 }
-//float CvRandom::getFloat(const unsigned long extraSeed)
+//decimal CvRandom::getDecimal(const unsigned long extraSeed)
 //{
-//	return (((float)(get(MAX_UNSIGNED_SHORT, extraSeed))) / ((float)MAX_UNSIGNED_SHORT));
+//	return (((decimal)(get(MAX_UNSIGNED_SHORT, extraSeed))) / ((decimal)MAX_UNSIGNED_SHORT));
 //}
-float CvRandom::getFloatSafe(const unsigned long extraSeed) const
+decimal CvRandom::getDecimalSafe(const unsigned long extraSeed) const
 {
-	return (((float)(getSafe(MAX_UNSIGNED_SHORT, extraSeed))) / ((float)MAX_UNSIGNED_SHORT));
+	return (((decimal)(getSafe(MAX_UNSIGNED_SHORT, extraSeed))) / ((decimal)MAX_UNSIGNED_SHORT));
 }
 
 void CvRandom::reseed(unsigned long ulNewValue)

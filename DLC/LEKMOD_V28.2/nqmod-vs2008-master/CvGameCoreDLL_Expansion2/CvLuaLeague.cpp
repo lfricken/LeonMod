@@ -588,7 +588,7 @@ int CvLuaLeague::lGetProjectCostPerPlayer(lua_State* L)
 	CvLeague* pLeague = GetInstance(L);
 	const LeagueProjectTypes eLeagueProject = (LeagueProjectTypes) lua_tointeger(L, 2);
 
-	const int iValue = pLeague->GetProjectCostPerPlayer(eLeagueProject);
+	const int iValue = pLeague->GetProjectCostPerPlayerT100(eLeagueProject);
 	lua_pushinteger(L, iValue);
 	return 1;
 }
@@ -610,7 +610,7 @@ int CvLuaLeague::lGetProjectCost(lua_State* L)
 	CvLeague* pLeague = GetInstance(L);
 	const LeagueProjectTypes eLeagueProject = (LeagueProjectTypes) lua_tointeger(L, 2);
 
-	const int iValue = pLeague->GetProjectCost(eLeagueProject);
+	const int iValue = pLeague->GetProjectCostT100(eLeagueProject);
 	lua_pushinteger(L, iValue);
 	return 1;
 }
@@ -622,7 +622,7 @@ int CvLuaLeague::lGetMemberContribution(lua_State* L)
 	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
 	const LeagueProjectTypes eLeagueProject = (LeagueProjectTypes) lua_tointeger(L, 3);
 
-	const int iValue = pLeague->GetMemberContribution(ePlayer, eLeagueProject);
+	const int iValue = pLeague->GetMemberContributionT100(ePlayer, eLeagueProject);
 	lua_pushinteger(L, iValue);
 	return 1;
 }
@@ -646,9 +646,8 @@ int CvLuaLeague::lGetContributionTierThreshold(lua_State* L)
 	const CvLeague::ContributionTier eTier = (CvLeague::ContributionTier) lua_tointeger(L, 2);
 	const LeagueProjectTypes eLeagueProject = (LeagueProjectTypes) lua_tointeger(L, 3);
 
-	float fValue = pLeague->GetContributionTierThreshold(eTier, eLeagueProject);
-	const int iValue = (int) fValue;
-	lua_pushinteger(L, iValue);
+	int value = pLeague->GetContributionTierThresholdT100(eTier, eLeagueProject);
+	lua_pushinteger(L, value);
 	return 1;
 }
 //------------------------------------------------------------------------------

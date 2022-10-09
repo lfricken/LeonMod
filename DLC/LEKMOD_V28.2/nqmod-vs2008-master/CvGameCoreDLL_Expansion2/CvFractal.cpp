@@ -16,7 +16,7 @@
 #include "LintFree.h"
 
 
-#define FLOAT_PRECISION		(1000)
+#define DECIMAL_PRECISION (1000)
 
 
 // Public Functions...
@@ -122,8 +122,8 @@ void CvFractal::fracInitInternal(int iNewXs, int iNewYs, int iGrain, CvRandom& r
 	m_iXs = iNewXs;
 	m_iYs = iNewYs;
 	m_iFlags = iFlags;
-	m_iXInc = ((m_iFracX * FLOAT_PRECISION) / m_iXs);
-	m_iYInc = ((m_iFracY * FLOAT_PRECISION) / m_iYs);
+	m_iXInc = ((m_iFracX * DECIMAL_PRECISION) / m_iXs);
+	m_iYInc = ((m_iFracY * DECIMAL_PRECISION) / m_iYs);
 
 #ifdef NQM_FAST_COMP
 	int iMinExp = MIN(m_iFracXExp, m_iFracYExp);
@@ -319,30 +319,30 @@ int CvFractal::getHeight(int iX, int iY)
 	CvAssertMsg(0 <= iY && iY < m_iYs, "iY out of range");
 	if(!(0 <= iY && iY < m_iYs)) return 0;
 
-	iLowX = ((m_iXInc * iX) / FLOAT_PRECISION);
+	iLowX = ((m_iXInc * iX) / DECIMAL_PRECISION);
 	if(iLowX > m_iFracX - 1)
 	{
 		iLowX = m_iFracX - 1;	// clamp so that iLowX+1 doesn't overrun array
 	}
 
-	iLowY = ((m_iYInc * iY) / FLOAT_PRECISION);
+	iLowY = ((m_iYInc * iY) / DECIMAL_PRECISION);
 	if(iLowY > m_iFracY - 1)
 	{
 		iLowY = m_iFracY - 1;	// clamp so that iLowY+1 doesn't overrun array
 	}
-	iErrX = ((m_iXInc * iX) - (iLowX * FLOAT_PRECISION));
-	iErrY = ((m_iYInc * iY) - (iLowY * FLOAT_PRECISION));
+	iErrX = ((m_iXInc * iX) - (iLowX * DECIMAL_PRECISION));
+	iErrY = ((m_iYInc * iY) - (iLowY * DECIMAL_PRECISION));
 
 	if(iLowX < 0 || iLowX > FRACTAL_MAX_DIMS) return 0; // array is defined as FRACTAL_MAX_DIMS+1
 	if(iLowY < 0 || iLowY > FRACTAL_MAX_DIMS) return 0; // array is defined as FRACTAL_MAX_DIMS+1
 
 	iSum = 0;
-	iSum += ((FLOAT_PRECISION - iErrX) * (FLOAT_PRECISION - iErrY) * m_aaiFrac[iLowX    ][iLowY    ]);
-	iSum += ((iErrX) * (FLOAT_PRECISION - iErrY) * m_aaiFrac[iLowX + 1][iLowY    ]);
-	iSum += ((FLOAT_PRECISION - iErrX) * (iErrY) * m_aaiFrac[iLowX    ][iLowY + 1]);
+	iSum += ((DECIMAL_PRECISION - iErrX) * (DECIMAL_PRECISION - iErrY) * m_aaiFrac[iLowX    ][iLowY    ]);
+	iSum += ((iErrX) * (DECIMAL_PRECISION - iErrY) * m_aaiFrac[iLowX + 1][iLowY    ]);
+	iSum += ((DECIMAL_PRECISION - iErrX) * (iErrY) * m_aaiFrac[iLowX    ][iLowY + 1]);
 	iSum += ((iErrX) * (iErrY) * m_aaiFrac[iLowX + 1][iLowY + 1]);
 
-	iSum /= (FLOAT_PRECISION * FLOAT_PRECISION);
+	iSum /= (DECIMAL_PRECISION * DECIMAL_PRECISION);
 
 	iHeight = range(iSum, 0, 255);
 

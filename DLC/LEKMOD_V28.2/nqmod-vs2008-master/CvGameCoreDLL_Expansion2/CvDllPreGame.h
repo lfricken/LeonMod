@@ -27,7 +27,7 @@ public:
 	PlayerTypes DLLCALL activePlayer();
 	int DLLCALL advancedStartPoints();
 	bool DLLCALL autorun();
-	float DLLCALL autorunTurnDelay();
+	decimal DLLCALL autorunTurnDelay(); // safe decimal
 	int DLLCALL autorunTurnLimit();
 	CalendarTypes DLLCALL calendar();
 	bool DLLCALL canReadyLocalPlayer();
@@ -48,7 +48,7 @@ public:
 	void DLLCALL closeInactiveSlots();
 	const CvString DLLCALL emailAddress(PlayerTypes p);
 	const CvString DLLCALL emailAddress();
-	float DLLCALL endTurnTimerLength();
+	decimal DLLCALL endTurnTimerLength(); // safe decimal
 	EraTypes DLLCALL era();
 	PlayerTypes DLLCALL findPlayerByNickname(const char* const name);
 	GameMode DLLCALL gameMode();
@@ -127,7 +127,7 @@ public:
 	void DLLCALL setAdvancedStartPoints(int a);
 	void DLLCALL setAlias(const CvString& a);
 	void DLLCALL setAutorun(bool isAutoStart);
-	void DLLCALL setAutorunTurnDelay(float turnDelay);
+	void DLLCALL setAutorunTurnDelay(decimal turnDelay); // safe decimal
 	void DLLCALL setAutorunTurnLimit(int turnLimit);
 	void DLLCALL setBandwidth(BandwidthType b);
 	void DLLCALL setBandwidth(const CvString& b);
@@ -147,7 +147,7 @@ public:
 	void DLLCALL setEarthMap(bool bIsEarthMap);
 	void DLLCALL setEmailAddress(PlayerTypes p, const CvString& a);
 	void DLLCALL setEmailAddress(const CvString& a);
-	void DLLCALL setEndTurnTimerLength(float f);
+	void DLLCALL setEndTurnTimerLength(decimal f); // safe decimal
 	void DLLCALL setEra(EraTypes e);
 	void DLLCALL setEra(const CvString& e);
 	void DLLCALL setGameMode(GameMode g);

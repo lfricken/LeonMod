@@ -30,7 +30,7 @@ public:
 private:
 	void DLLCALL Destroy();
 
-	// pass the slot status thats in memory to handle kicked players. only used in multiplayer -tsmith 8.10.2010
+	// pass the slot status thats in memory to handle kicked players. only used in multiplayer -tsmith 8,10,2010
 	std::vector<SlotStatus> m_slotStatus;
 
 	unsigned int m_uiRefCount;

@@ -1,0 +1,29 @@
+
+
+Descriptions of obscure behavior and functionality code locations:
+
+
+
+
+CityStrategyAIHelpers::ReweightByTurnsLeft was trashed so AI will no longer respect this.
+
+Unit maintenance increases exponentially
+CvTreasury::CalculateUnitCost
+
+
+NUKE_CITY_HIT_POINT_DAMAGE is the percentage of remaining health of a city a nuke will remove, ignoring modifiers
+LEVEL1_POPULATION_DEATH_BASE is the start population percentage a nuke may consider removing. It can only decrease.
+NukeModifier on a building needs to be negative to reduce population loss.
+
+
+Tied world project contributions both win rewards.
+CvVotingClasses::GetMemberContributionTier
+
+
+DefensePerCitizen
+
+
+Player must secure MORE than DIPLO_VICTORY_DEFAULT_VOTE_PERCENT of CURRENTLY possible votes.
+Dead/Bought civs do not count for votes.
+CvGame::DoUpdateDiploVictory
+

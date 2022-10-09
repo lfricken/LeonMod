@@ -48,8 +48,8 @@ public:
 	unsigned int getBinom(unsigned int uiNum, const char* pszLog = NULL); // Returns value from 0 to num-1 inclusive in binomial distribution
 #endif
 
-	//float getFloat(const unsigned long extraSeed);
-	float getFloatSafe(const unsigned long extraSeed) const;
+	//decimal getDecimal(const unsigned long extraSeed);
+	decimal getDecimalSafe(const unsigned long extraSeed) const;
 
 #ifdef AUI_USE_SFMT_RNG
 	void reseed(unsigned int uiNewSeed);

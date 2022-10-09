@@ -63,7 +63,7 @@ void CvHomelandAI::Init(CvPlayer* pPlayer)
 	m_iRandomRange = GC.getAI_HOMELAND_MOVE_PRIORITY_RANDOMNESS();
 	m_iDefensiveMoveTurns = GC.getAI_HOMELAND_MAX_DEFENSIVE_MOVE_TURNS();
 	m_iUpgradeMoveTurns = GC.getAI_HOMELAND_MAX_UPGRADE_MOVE_TURNS();
-	m_fFlavorDampening = (GC.getAI_TACTICAL_FLAVOR_DAMPENING_FOR_MOVE_PRIORITIZATIONT100() / 100.0f);
+	m_flavorDampeningT100 = GC.getAI_TACTICAL_FLAVOR_DAMPENING_FOR_MOVE_PRIORITIZATIONT100();
 }
 
 /// Deallocate memory created in initialize
@@ -270,12 +270,12 @@ void CvHomelandAI::EstablishHomelandPriorities()
 		if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_DEFENSE")
 		{
 			iFlavorDefense = m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)iFlavorLoop);
-			iFlavorDefense = (int)((double)iFlavorDefense * m_fFlavorDampening);
+			iFlavorDefense = (iFlavorDefense * m_flavorDampeningT100) / 100;
 		}
 		if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_OFFENSE")
 		{
 			iFlavorOffense = m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)iFlavorLoop);
-			iFlavorOffense = (int)((double)iFlavorOffense * m_fFlavorDampening);
+			iFlavorOffense = (iFlavorOffense * m_flavorDampeningT100) / 100;
 		}
 		else if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_EXPANSION")
 		{
@@ -284,7 +284,7 @@ void CvHomelandAI::EstablishHomelandPriorities()
 		else if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_RECON")
 		{
 			iFlavorExplore = m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)iFlavorLoop);
-			iFlavorExplore = (int)((double)iFlavorExplore * m_fFlavorDampening);
+			iFlavorExplore = (iFlavorExplore * m_flavorDampeningT100) / 100;
 		}
 		else if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_GOLD")
 		{
@@ -1064,7 +1064,7 @@ void CvHomelandAI::PlotMovesToSafety()
 				bool bAddUnit = false;
 
 				// If civilian (or embarked unit) always ready to flee
-				// slewis - 4.18.2013 - Problem here is that a combat unit that is a boat can get stuck in a city hiding from barbarians on the land
+				// slewis - 4,18,2013 - Problem here is that a combat unit that is a boat can get stuck in a city hiding from barbarians on the land
 				if(!pUnit->IsCanDefend())
 				{
 					if (pUnit->IsAutomated() && pUnit->GetBaseCombatStrength() > 0)
@@ -1100,12 +1100,7 @@ void CvHomelandAI::PlotMovesToSafety()
 				else if(!pUnit->isBarbarian())
 				{
 					int iAcceptableDanger;
-#ifdef AUI_HOMELAND_TWEAKED_ACCEPTABLE_DANGER
-					iAcceptableDanger = pUnit->GetBaseCombatStrengthConsideringDamage() * (int)(AUI_HOMELAND_TWEAKED_ACCEPTABLE_DANGER + 0.5 +
-						(100.0 - AUI_HOMELAND_TWEAKED_ACCEPTABLE_DANGER) * pow((double)pUnit->GetCurrHitPoints() / (double)pUnit->GetMaxHitPoints(), 2.0));
-#else
 					iAcceptableDanger = pUnit->GetBaseCombatStrengthConsideringDamage() * 100;
-#endif
 					if(iDangerLevel > iAcceptableDanger)
 					{
 						bAddUnit = true;
@@ -2307,8 +2302,8 @@ void CvHomelandAI::ExecuteExplorerMoves()
 		if (!m_pPlayer->isHuman() && pUnit->CanStartMission(CvTypes::getMISSION_SELL_EXOTIC_GOODS(), -1, -1))
 		{
 			// Far enough from home to get a good reward?
-			float fRewardFactor = pUnit->calculateExoticGoodsDistanceFactor(pUnit->plot());
-			if (fRewardFactor >= 0.5f)
+			T100 rewardFactorT100 = pUnit->calculateExoticGoodsDistanceFactorT100(pUnit->plot());
+			if (rewardFactorT100 >= 50)
 			{
 				pUnit->PushMission(CvTypes::getMISSION_SELL_EXOTIC_GOODS());
 				if(GC.getLogging() && GC.getAILogging())
@@ -2480,12 +2475,12 @@ void CvHomelandAI::ExecuteExplorerMoves()
 					{
 						if(pUnit->canSellExoticGoods(pEvalPlot))
 						{
-							float fRewardFactor = pUnit->calculateExoticGoodsDistanceFactor(pEvalPlot);
-							if (fRewardFactor >= 0.75f)
+							T100 fRewardFactor = pUnit->calculateExoticGoodsDistanceFactorT100(pEvalPlot);
+							if (fRewardFactor >= 75)
 							{
 								iScore += 150;
 							}
-							else if (fRewardFactor >= 0.5f)
+							else if (fRewardFactor >= 50)
 							{
 								iScore += 75;
 							}

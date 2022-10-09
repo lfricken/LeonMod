@@ -62,7 +62,7 @@ bool CvDllPreGame::autorun()
 	return CvPreGame::autorun();
 }
 //------------------------------------------------------------------------------
-float CvDllPreGame::autorunTurnDelay()
+decimal CvDllPreGame::autorunTurnDelay() // safe decimal
 {
 	return CvPreGame::autorunTurnDelay();
 }
@@ -167,7 +167,7 @@ const CvString CvDllPreGame::emailAddress()
 	return CvPreGame::emailAddress();
 }
 //------------------------------------------------------------------------------
-float CvDllPreGame::endTurnTimerLength()
+decimal CvDllPreGame::endTurnTimerLength() // safe decimal
 {
 	return CvPreGame::endTurnTimerLength();
 }
@@ -587,7 +587,7 @@ void CvDllPreGame::setAutorun(bool isAutoStart)
 	CvPreGame::setAutorun(isAutoStart);
 }
 //------------------------------------------------------------------------------
-void CvDllPreGame::setAutorunTurnDelay(float turnDelay)
+void CvDllPreGame::setAutorunTurnDelay(decimal turnDelay) // safe decimal
 {
 	CvPreGame::setAutorunTurnDelay(turnDelay);
 }
@@ -691,7 +691,7 @@ void CvDllPreGame::setEmailAddress(const CvString& a)
 	CvPreGame::setEmailAddress(a);
 }
 //------------------------------------------------------------------------------
-void CvDllPreGame::setEndTurnTimerLength(float f)
+void CvDllPreGame::setEndTurnTimerLength(decimal f) // safe decimal
 {
 	CvPreGame::setEndTurnTimerLength(f);
 }

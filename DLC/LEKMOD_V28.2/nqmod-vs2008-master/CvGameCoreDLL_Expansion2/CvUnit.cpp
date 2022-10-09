@@ -719,7 +719,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		kPlayer.GetCulture()->AddTourismAllKnownCivs(iTourism);
 	}
 
-#ifdef NQ_SCIENCE_PER_GREAT_PERSON_BORN || NQ_SCIENCE_PER_GREAT_PERSON_BORN_FROM_POLICIES || NQ_INFLUENCE_BOOST_PER_GREAT_PERSON_BORN_FROM_POLICIES
+#ifdef NQ_SCIENCE_PER_GREAT_PERSON_BORN // || NQ_SCIENCE_PER_GREAT_PERSON_BORN_FROM_POLICIES || NQ_INFLUENCE_BOOST_PER_GREAT_PERSON_BORN_FROM_POLICIES
 	if (IsGreatPerson())
 	{
 		int iScienceBonus = 0;
@@ -763,7 +763,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 				char text[256] = {0};
 				sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR]", iScienceBonus);
 				int delayT100 = GC.getPOST_COMBAT_TEXT_DELAYT100() * 2;
-				DLLUI->AddPopupText(plot()->getX(), plot()->getY(), text, delayT100 / 100.0f);
+				DLLUI->AddPopupText(plot()->getX(), plot()->getY(), text, delayT100 / f100);
 			}
 		}
 
@@ -875,7 +875,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	// always grant some friendly lands modifier
 	changeFriendlyLandsModifier(+15);
 }
-int CvUnit::getFakeRandUnit(const int max, string log, const CvPlot* plot, const int other) const
+int CvUnit::getFakeRandUnit(const int max, string log, const CvPlot* plot, const int) const
 {
 	if (plot == NULL)
 		plot = this->plot();
@@ -1132,7 +1132,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	{
 		m_Promotions.Reset();
 
-		CvAssertMsg((0 < GC.getNumTerrainInfos()), "GC.getNumTerrainInfos() is not greater than zero but a float array is being allocated in CvUnit::reset");
+		CvAssertMsg((0 < GC.getNumTerrainInfos()), "GC.getNumTerrainInfos() is not greater than zero but a fbloat array is being allocated in CvUnit::reset");
 		m_terrainDoubleMoveCount.clear();
 		m_terrainImpassableCount.clear();
 		m_extraTerrainAttackPercent.clear();
@@ -1155,7 +1155,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 			m_extraTerrainDefensePercent.setAt(i,0);
 		}
 
-		CvAssertMsg((0 < GC.getNumFeatureInfos()), "GC.getNumFeatureInfos() is not greater than zero but a float array is being allocated in CvUnit::reset");
+		CvAssertMsg((0 < GC.getNumFeatureInfos()), "GC.getNumFeatureInfos() is not greater than zero but a fbloat array is being allocated in CvUnit::reset");
 		m_featureDoubleMoveCount.clear();
 		m_featureImpassableCount.clear();
 		m_extraFeatureDefensePercent.clear();
@@ -3550,32 +3550,30 @@ int CvUnit::getCombatDamage(int iStrength, int iOpponentStrength, int iCurrentDa
 	VALIDATE_OBJECT
 	// The roll will vary damage between 40 and 60 (out of 100) for two units of identical strength
 
-	int iDamageRatio;
+	int iDamageRatioT100;
 
-	int iWoundedDamageMultiplier = /*50*/ GC.getWOUNDED_DAMAGE_MULTIPLIER();
+	int iWoundedDamageMultiplierT100 = /*50*/ GC.getWOUNDED_DAMAGE_MULTIPLIER();
 
 	if(bAttackerIsCity)
 	{
-		iDamageRatio = GC.getMAX_HIT_POINTS();		// JON: Cities don't do less damage when wounded
+		iDamageRatioT100 = 100;		// JON: Cities don't do less damage when wounded
 	}
 	else
 	{
 		// Mod (Policies, etc.)
-		iWoundedDamageMultiplier += GET_PLAYER(getOwner()).GetWoundedUnitDamageMod();
+		iWoundedDamageMultiplierT100 += GET_PLAYER(getOwner()).GetWoundedUnitDamageMod();
 
-		iDamageRatio = GC.getMAX_HIT_POINTS() - (iCurrentDamage * iWoundedDamageMultiplier / 100);
+		iDamageRatioT100 = GC.getMAX_HIT_POINTS() - (iCurrentDamage * iWoundedDamageMultiplierT100 / 100);
 	}
 
 #ifdef NQM_COMBAT_RNG_USE_BINOM_RNG_OPTION
-	int iDamage = /*400*/ GC.getATTACK_SAME_STRENGTH_MIN_DAMAGE();
+	int iDamageT100 = /*400*/ GC.getATTACK_SAME_STRENGTH_MIN_DAMAGE();
 #else
-	int iDamage = 0;
-
-	iDamage = /*400*/ GC.getATTACK_SAME_STRENGTH_MIN_DAMAGE() * iDamageRatio / GC.getMAX_HIT_POINTS();
+	int iDamageT100 = /*400*/ (GC.getATTACK_SAME_STRENGTH_MIN_DAMAGE() * iDamageRatioT100) / 100;
 #endif
 
 	// Don't use rand when calculating projected combat results
-	int iRoll = 0;
+	int iRollT100 = 0;
 	if(bIncludeRand)
 	{
 #ifdef NQM_COMBAT_RNG_USE_BINOM_RNG_OPTION
@@ -3588,24 +3586,24 @@ int CvUnit::getCombatDamage(int iStrength, int iOpponentStrength, int iCurrentDa
 		}
 		else
 #endif
-		iRoll = /*400*/ getFakeRandUnit(GC.getATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), "Unit Combat Damage", NULL, iStrength);
+		iRollT100 = /*400*/ getFakeRandUnit(GC.getATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), "Unit Combat Damage", NULL, iStrength);
 
 #ifndef NQM_COMBAT_RNG_USE_BINOM_RNG_OPTION
-		iRoll *= iDamageRatio;
-		iRoll /= GC.getMAX_HIT_POINTS();
+		iRollT100 *= iDamageRatioT100;
+		iRollT100 /= 100;
 #endif
 	}
 	else
 	{
-		iRoll = /*400*/ GC.getATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE();
-		iRoll -= 1;	// Subtract 1 here, because this is the amount normally "lost" when doing a rand roll
+		iRollT100 = /*400*/ GC.getATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE();
+		iRollT100 -= 1;	// Subtract 1 here, because this is the amount normally "lost" when doing a rand roll
 #ifndef NQM_COMBAT_RNG_USE_BINOM_RNG_OPTION
-		iRoll *= iDamageRatio;
-		iRoll /= GC.getMAX_HIT_POINTS();
+		iRollT100 *= iDamageRatioT100;
+		iRollT100 /= 100;
 #endif
-		iRoll /= 2;	// The divide by 2 is to provide the average damage
+		iRollT100 /= 2;	// The divide by 2 is to provide the average damage
 	}
-	iDamage += iRoll;
+	iDamageT100 += iRollT100;
 #ifdef NQM_COMBAT_RNG_USE_BINOM_RNG_OPTION
 	iDamage = MAX(1, MIN(iDamage, GC.getMAX_HIT_POINTS() * 100)) * iDamageRatio / GC.getMAX_HIT_POINTS();
 #endif
@@ -3616,31 +3614,30 @@ int CvUnit::getCombatDamage(int iStrength, int iOpponentStrength, int iCurrentDa
 	// 1.301 = (((((9 / 6) + 3) / 4) ^ 4) + 1 / 2
 	// 17.5 = (((((40 / 6) + 3) / 4) ^ 4) + 1 / 2
 
-	// In case our strength is less than the other guy's, we'll do things in reverse then make the ratio 1 over the result (we need a # above 1.0)
+	// In case our strength is less than the other guy's, we'll do things in reverse then make the ratio 1 over the result (we need a # above 1)
 
-	const double fStrengthRatio = CvUnit::adjustedDamageRatio(iStrength, iOpponentStrength);
-	iDamage = int(iDamage * fStrengthRatio);
+	const T100 strengthRatioT100 = CvUnit::damageRatioT100(iStrength, iOpponentStrength);
+	iDamageT100 *= strengthRatioT100;
+	iDamageT100 /= 100;
 
 	// Modify damage for when a city "attacks" a unit
 	if(bAttackerIsCity)
 	{
-		iDamage *= /*50*/ GC.getCITY_ATTACKING_DAMAGE_MOD();
-		iDamage /= 100;
+		iDamageT100 *= /*50*/ GC.getCITY_ATTACKING_DAMAGE_MOD();
+		iDamageT100 /= 100;
 	}
 
 	// Modify damage for when unit is attacking a city
 	if(bDefenderIsCity)
 	{
-		iDamage *= /*100*/ GC.getATTACKING_CITY_MELEE_DAMAGE_MOD();
-		iDamage /= 100;
+		iDamageT100 *= /*100*/ GC.getATTACKING_CITY_MELEE_DAMAGE_MOD();
+		iDamageT100 /= 100;
 	}
 
 	// Bring it back out of hundreds
-	iDamage /= 100;
-
-	iDamage = iDamage > 0 ? iDamage : 1;
-
-	return iDamage;
+	int damage = iDamageT100 / 100;
+	damage = max(1, damage); // at least 1 damage
+	return damage;
 }
 
 //	--------------------------------------------------------------------------------
@@ -4283,7 +4280,7 @@ void CvUnit::gift(bool bTestTransport)
 
 //	--------------------------------------------------------------------------------
 // Long-distance gift to a city state
-bool CvUnit::CanDistanceGift(PlayerTypes eToPlayer) const
+bool CvUnit::CanDistanceGift(PlayerTypes) const
 {
 	VALIDATE_OBJECT
 
@@ -4723,16 +4720,16 @@ bool CvUnit::canAirPatrol(const CvPlot* pPlot) const
 		kGame.getPitbossTurnTime() == 0)
 #endif
 	{
-		float fGameTurnEnd = static_cast<float>(kGame.getMaxTurnLen());
+		decimal fGameTurnEnd = static_cast<decimal>(kGame.getMaxTurnLen());
 
 		//NOTE:  These times exclude the time used for AI processing.
 		//Time since the current player's turn started.  Used for measuring time for players in sequential turn mode.
-		float fTimeSinceCurrentTurnStart = kGame.m_curTurnTimer.Peek() + kGame.m_fCurrentTurnTimerPauseDelta;
+		decimal fTimeSinceCurrentTurnStart = kGame.m_curTurnTimer.Peek() + kGame.m_fCurrentTurnTimerPauseDelta;
 
 		//Time since the game (year) turn started.  Used for measuring time for players in simultaneous turn mode.
-		float fTimeSinceGameTurnStart = kGame.m_timeSinceGameTurnStart.Peek() + kGame.m_fCurrentTurnTimerPauseDelta;
+		decimal fTimeSinceGameTurnStart = kGame.m_timeSinceGameTurnStart.Peek() + kGame.m_fCurrentTurnTimerPauseDelta;
 
-		float fTimeElapsed = (GET_PLAYER(kGame.getActivePlayer()).isSimultaneousTurns() ? fTimeSinceGameTurnStart : fTimeSinceCurrentTurnStart);
+		decimal fTimeElapsed = (GET_PLAYER(kGame.getActivePlayer()).isSimultaneousTurns() ? fTimeSinceGameTurnStart : fTimeSinceCurrentTurnStart);
 
 		if (fTimeElapsed * 2 > fGameTurnEnd)
 		{
@@ -4835,8 +4832,8 @@ int CvUnit::GetCaptureChance(CvUnit *pEnemy)
 			if (iTheirCombat > 0)
 			{
 				int iMyCombat = m_pUnitInfo->GetCombat();
-				int iComputedChance = GC.getCOMBAT_CAPTURE_MIN_CHANCE() + (int)(((float)iMyCombat / (float)iTheirCombat) * GC.getCOMBAT_CAPTURE_RATIO_MULTIPLIER());
-				iRtnValue = min(GC.getCOMBAT_CAPTURE_MAX_CHANCE(), iComputedChance);
+				T100 computedChanceT100 = (GC.getCOMBAT_CAPTURE_MIN_CHANCE() * 100) + (((iMyCombat * 100) / iTheirCombat) * GC.getCOMBAT_CAPTURE_RATIO_MULTIPLIER());
+				iRtnValue = min((T100)GC.getCOMBAT_CAPTURE_MAX_CHANCE(), computedChanceT100 / 100);
 			}
 		}
 	}
@@ -5942,7 +5939,7 @@ void CvUnit::DoAttrition()
 			if(getFakeRandUnit(100, "Enemy Territory Damage Chance", NULL, 12) < getEnemyDamageChance())
 			{
 				strAppendText =  GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_ATTRITION");
-				changeDamage(getEnemyDamage(), NO_PLAYER, 0.0, &strAppendText);
+				changeDamage(getEnemyDamage(), NO_PLAYER, 0, &strAppendText);
 			}
 		}
 		else if(getNeutralDamageChance() > 0 && getNeutralDamage() > 0)
@@ -5950,7 +5947,7 @@ void CvUnit::DoAttrition()
 			if(getFakeRandUnit(100, "Neutral Territory Damage Chance", NULL, 19) < getNeutralDamageChance())
 			{
 				strAppendText =  GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_ATTRITION");
-				changeDamage(getNeutralDamage(), NO_PLAYER, 0.0, &strAppendText);
+				changeDamage(getNeutralDamage(), NO_PLAYER, 0, &strAppendText);
 			}
 		}
 	}
@@ -5959,7 +5956,7 @@ void CvUnit::DoAttrition()
 	if(getDomainType() == DOMAIN_LAND && pPlot->isMountain() && !canMoveAllTerrain())
 	{
 		strAppendText =  GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_ATTRITION");
-		changeDamage(50, NO_PLAYER, 0.0, &strAppendText);
+		changeDamage(50, NO_PLAYER, 0, &strAppendText);
 	}
 
 	if(getDamage() >= GC.getMAX_HIT_POINTS())
@@ -6015,8 +6012,7 @@ void CvUnit::DoAttrition()
 
 						char text[256];
 						sprintf_s (text, "%s [COLOR_WHITE]-%d [ICON_PEACE][ENDCOLOR]", string.toUTF8(), iStrengthLoss);
-						float fDelay = 0.0f;
-						DLLUI->AddPopupText(getX(), getY(), text, fDelay);
+						DLLUI->AddPopupText(getX(), getY(), text, 0);
 					}
 				}
 			}
@@ -6426,16 +6422,16 @@ bool CvUnit::canParadropAt(const CvPlot* pPlot, int iX, int iY) const
 		kGame.getPitbossTurnTime() == 0)
 #endif
 	{
-		float fGameTurnEnd = static_cast<float>(kGame.getMaxTurnLen());
+		decimal fGameTurnEnd = static_cast<decimal>(kGame.getMaxTurnLen());
 
 		//NOTE:  These times exclude the time used for AI processing.
 		//Time since the current player's turn started.  Used for measuring time for players in sequential turn mode.
-		float fTimeSinceCurrentTurnStart = kGame.m_curTurnTimer.Peek() + kGame.m_fCurrentTurnTimerPauseDelta;
+		decimal fTimeSinceCurrentTurnStart = kGame.m_curTurnTimer.Peek() + kGame.m_fCurrentTurnTimerPauseDelta;
 
 		//Time since the game (year) turn started.  Used for measuring time for players in simultaneous turn mode.
-		float fTimeSinceGameTurnStart = kGame.m_timeSinceGameTurnStart.Peek() + kGame.m_fCurrentTurnTimerPauseDelta;
+		decimal fTimeSinceGameTurnStart = kGame.m_timeSinceGameTurnStart.Peek() + kGame.m_fCurrentTurnTimerPauseDelta;
 
-		float fTimeElapsed = (GET_PLAYER(kGame.getActivePlayer()).isSimultaneousTurns() ? fTimeSinceGameTurnStart : fTimeSinceCurrentTurnStart);
+		decimal fTimeElapsed = (GET_PLAYER(kGame.getActivePlayer()).isSimultaneousTurns() ? fTimeSinceGameTurnStart : fTimeSinceCurrentTurnStart);
 
 		if (fTimeElapsed * 2 > fGameTurnEnd && !pTargetPlot->IsFriendlyTerritory(getOwner()))
 		{
@@ -7097,18 +7093,18 @@ void CvUnit::changeNumExoticGoods(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-float CvUnit::calculateExoticGoodsDistanceFactor(const CvPlot* pPlot)
+T100 CvUnit::calculateExoticGoodsDistanceFactorT100(const CvPlot* pPlot)
 {
-	float fDistanceFactor = 0.0f;
+	T100 fDistanceFactorT100 = 0;
 
 	CvCity* pCapital = GET_PLAYER(getOwner()).getCapitalCity();
 	if (pPlot && pCapital)
 	{
 		int iDistanceThreshold = (GC.getMap().getGridWidth() + GC.getMap().getGridHeight()) / 2;
-		fDistanceFactor = plotDistance(pPlot->getX(), pPlot->getY(), pCapital->getX(), pCapital->getY()) / (float) iDistanceThreshold;
+		fDistanceFactorT100 = (plotDistance(pPlot->getX(), pPlot->getY(), pCapital->getX(), pCapital->getY()) * 100) / iDistanceThreshold;
 	}
 
-	return fDistanceFactor;
+	return fDistanceFactorT100;
 }
 
 //	--------------------------------------------------------------------------------
@@ -7158,10 +7154,10 @@ int CvUnit::getExoticGoodsGoldAmount()
 	int iValue = 0;
 	if (canSellExoticGoods(plot()))
 	{
-		float fDistanceFactor = calculateExoticGoodsDistanceFactor(plot());
+		T100 fDistanceFactor = calculateExoticGoodsDistanceFactorT100(plot());
 
 		int iExtraGold = GC.getEXOTIC_GOODS_GOLD_MAX() - GC.getEXOTIC_GOODS_GOLD_MIN();
-		iValue = GC.getEXOTIC_GOODS_GOLD_MIN() + (int)(iExtraGold * fDistanceFactor);
+		iValue = GC.getEXOTIC_GOODS_GOLD_MIN() + ((iExtraGold * fDistanceFactor) / 100);
 		iValue = MIN(iValue, GC.getEXOTIC_GOODS_GOLD_MAX());
 	}
 	return iValue;
@@ -7173,10 +7169,10 @@ int CvUnit::getExoticGoodsXPAmount()
 	int iValue = 0;
 	if (canSellExoticGoods(plot()))
 	{
-		float fDistanceFactor = calculateExoticGoodsDistanceFactor(plot());
+		T100 fDistanceFactor = calculateExoticGoodsDistanceFactorT100(plot());
 
 		int iExtraXP = GC.getEXOTIC_GOODS_XP_MAX() - GC.getEXOTIC_GOODS_XP_MIN();
-		iValue = GC.getEXOTIC_GOODS_XP_MIN() + (int)(iExtraXP * fDistanceFactor);
+		iValue = GC.getEXOTIC_GOODS_XP_MIN() + ((iExtraXP * fDistanceFactor) / 100);
 		iValue = MIN(iValue, GC.getEXOTIC_GOODS_XP_MAX());
 	}
 	return iValue;
@@ -7193,8 +7189,7 @@ bool CvUnit::sellExoticGoods()
 		GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(iGold);
 		char text[256] = {0};
 		sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iGold);
-		float fDelay = 0.0f;
-		DLLUI->AddPopupText(getX(), getY(), text, fDelay);
+		DLLUI->AddPopupText(getX(), getY(), text, 0);
 
 		changeNumExoticGoods(-1);
 	}
@@ -7228,8 +7223,6 @@ bool CvUnit::canRebase(const CvPlot* /*pPlot*/) const
 //	--------------------------------------------------------------------------------
 bool CvUnit::canRebaseAt(const CvPlot* pPlot, int iX, int iY) const
 {
-	const PlayerTypes unitPlayer = getOwner();
-
 	// If we can't rebase ANYWHERE then we definitely can't rebase at this X,Y
 	if(!canRebase(pPlot))
 	{
@@ -8261,8 +8254,7 @@ bool CvUnit::DoSpreadReligion()
 				sprintf_s(text, "[COLOR_WHITE]%s: %d [ICON_PEACE][ENDCOLOR]",
 					strReligionName.toUTF8(),
 					iConversionStrength / GC.getRELIGION_MISSIONARY_PRESSURE_MULTIPLIER());
-				float fDelay = 0.0f;
-				DLLUI->AddPopupText(pCity->getX(), pCity->getY(), text, fDelay);
+				DLLUI->AddPopupText(pCity->getX(), pCity->getY(), text, 0);
 			}
 
 			if (iScienceBonus > 0)
@@ -8285,7 +8277,7 @@ bool CvUnit::DoSpreadReligion()
 					char text[256] = {0};
 					sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iScienceBonus);
 					int delayT100 = GC.getPOST_COMBAT_TEXT_DELAYT100() * 2;
-					DLLUI->AddPopupText(pCity->getX(), pCity->getY(), text, delayT100 / 100.0f);
+					DLLUI->AddPopupText(pCity->getX(), pCity->getY(), text, delayT100 / f100);
 				}
 			}
 
@@ -10019,8 +10011,7 @@ bool CvUnit::blastTourism()
 
  		char text[256] = {0};
 		sprintf_s(text, "[COLOR_WHITE]+%d [ICON_CULTURAL_INFLUENCE][ENDCOLOR]   %s", iTourismBlast, strInfluenceText.c_str());
- 		float fDelay = 0.0f;
- 		DLLUI->AddPopupText(pPlot->getX(), pPlot->getY(), text, fDelay);
+ 		DLLUI->AddPopupText(pPlot->getX(), pPlot->getY(), text, 0);
  	}
 
 	// Achievements
@@ -10867,7 +10858,10 @@ int CvUnit::upgradePrice(UnitTypes eUnit) const
 
 	// more expensive in this territory
 	if (isHardUpgradeTerritory(this))
-		iPrice *= 1.33f;
+	{
+		iPrice *= 133;
+		iPrice /= 100;
+	}
 
 	// Make the number not be funky
 	int iDivisor = /*5*/ GC.getUNIT_UPGRADE_COST_VISIBLE_DIVISOR();
@@ -11754,8 +11748,8 @@ int CvUnit::GetStrategicResourceCombatPenalty() const
 				if (iMissing <= 0)
 					continue;
 
-				double dDeficit = (double) iMissing / (double) iUsed;
-				iPenalty += (int) floor((dDeficit) * GC.getSTRATEGIC_RESOURCE_EXHAUSTED_PENALTY()); // round down (for larger negative penalty)
+				T100 deficitT100 = (iMissing * 100) / iUsed;
+				iPenalty += ((deficitT100) * GC.getSTRATEGIC_RESOURCE_EXHAUSTED_PENALTY()) / 100; // round down (for larger negative penalty)
 			}
 		}
 	}
@@ -12904,7 +12898,7 @@ bool CvUnit::canAirDefend(const CvPlot* pPlot) const
 
 
 //	--------------------------------------------------------------------------------
-int CvUnit::GetAirCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage) const
+int CvUnit::GetAirCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, int) const
 {
 	VALIDATE_OBJECT
 	// find strengths
@@ -12925,8 +12919,8 @@ int CvUnit::GetAirCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bInc
 
 
 	// find base damage
-	double fAttackerDamage = /*250*/ GC.getRANGE_ATTACK_SAME_STRENGTH_MIN_DAMAGE();
-	fAttackerDamage /= GC.getMAX_HIT_POINTS();
+	int attackerDamage = /*25 * 100*/ GC.getRANGE_ATTACK_SAME_STRENGTH_MIN_DAMAGE() / 100;
+	// now 25
 
 
 	// add random damage
@@ -12936,18 +12930,19 @@ int CvUnit::GetAirCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bInc
 		if (bIncludeRand) // find random damage
 			randBonusDamage = getFakeRandUnit(possibleBonusDamage, "Unit Ranged Combat Damage", NULL, 825) / 100;
 		else // find average bonus damage
-			randBonusDamage = possibleBonusDamage / 100.0f / 2.0f;
+			randBonusDamage = (possibleBonusDamage / 100) / 2;
 	}
 
-	const double fStrengthRatio = CvUnit::adjustedDamageRatio(iAttackerStrength, iDefenderStrength);
-	fAttackerDamage = (double)fAttackerDamage * fStrengthRatio;
+	const T100 strengthRatioT100 = CvUnit::damageRatioT100(iAttackerStrength, iDefenderStrength);
+	attackerDamage *= strengthRatioT100;
+	attackerDamage /= 100;
 
-	fAttackerDamage += randBonusDamage;
+	attackerDamage += randBonusDamage;
 
-	fAttackerDamage = min(999.0, fAttackerDamage); // dont deal more than 999 damage
-	fAttackerDamage = max(1.0, fAttackerDamage); // deal at least 1 damage
+	attackerDamage = min(999, attackerDamage); // dont deal more than 999 damage
+	attackerDamage = max(1, attackerDamage); // deal at least 1 damage
 
-	return fAttackerDamage;
+	return attackerDamage;
 }
 
 
@@ -13004,10 +12999,10 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 	if(iAttackerDamageRatio < 0)
 		iAttackerDamageRatio = 0;
 
-	double fAttackerDamage = /*250*/ GC.getRANGE_ATTACK_SAME_STRENGTH_MIN_DAMAGE();
+	int attackerDamage = /*250*/ GC.getRANGE_ATTACK_SAME_STRENGTH_MIN_DAMAGE();
 #ifndef NQM_COMBAT_RNG_USE_BINOM_RNG_OPTION
-	fAttackerDamage *= iAttackerDamageRatio;
-	fAttackerDamage /= GC.getMAX_HIT_POINTS();
+	attackerDamage *= iAttackerDamageRatio;
+	attackerDamage /= GC.getMAX_HIT_POINTS();
 #endif
 
 	int iAttackerRoll = 0;
@@ -13043,17 +13038,18 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 	iAttackerDamage = MAX(1, MIN(iAttackerDamage, GC.getMAX_HIT_POINTS() * 100)) * iAttackerDamageRatio / GetMaxHitPoints();
 #endif
 
-	const double fStrengthRatio = CvUnit::adjustedDamageRatio(iAttackerStrength, iDefenderStrength);
-	fAttackerDamage = fAttackerDamage * fStrengthRatio;
+	const T100 strengthRatioT100 = CvUnit::damageRatioT100(iAttackerStrength, iDefenderStrength);
+	attackerDamage *= strengthRatioT100;
+	attackerDamage /= 100;
 
-	fAttackerDamage += iAttackerRoll;
+	attackerDamage += iAttackerRoll;
 
 	// Bring it back out of hundreds
-	fAttackerDamage /= 100;
+	attackerDamage /= 100;
 
-	fAttackerDamage = max(1.0, fAttackerDamage);
+	attackerDamage = max(1, attackerDamage);
 
-	return fAttackerDamage;
+	return attackerDamage;
 }
 
 //	--------------------------------------------------------------------------------
@@ -13112,8 +13108,9 @@ int CvUnit::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand
 	iDefenderDamage = MAX(1, MIN(iDefenderDamage, GC.getMAX_HIT_POINTS() * 100)) * iDefenderDamageRatio / GetMaxHitPoints();
 #endif
 
-	double fStrengthRatio = CvUnit::adjustedDamageRatio(iDefenderStrength, iAttackerStrength);
-	iDefenderDamage = int(iDefenderDamage * fStrengthRatio);
+	const T100 strengthRatioT100 = CvUnit::damageRatioT100(iDefenderStrength, iAttackerStrength);
+	iDefenderDamage *= strengthRatioT100;
+	iDefenderDamage /= 100;
 
 	// Bring it back out of hundreds
 	iDefenderDamage /= 100;
@@ -13134,7 +13131,7 @@ bool isWithinRange(const CvUnit* possibleInterceptor, const CvPlot& interceptPlo
 // 0 if it cannot intercept
 int getInterceptionScore(int noIntercept, const CvPlot& interceptPlot, const CvUnit* interceptee, const CvUnit* possibleInterceptor, bool bLandInterceptorsOnly, bool bVisibleInterceptorsOnly)
 {
-	const float aircraftDamageFractionNoIntercept = 0.33f;
+	const T100 aircraftDamageFractionNoIntercept = 34;
 	int interceptScore = noIntercept;
 	bool isAircraft = possibleInterceptor->getDomainType() == DOMAIN_AIR;
 	// Must be able to intercept
@@ -13155,9 +13152,9 @@ int getInterceptionScore(int noIntercept, const CvPlot& interceptPlot, const CvU
 						{
 							if (isWithinRange(possibleInterceptor, interceptPlot))
 							{
-								float healthFraction = (float)possibleInterceptor->GetCurrHitPoints() / (float)possibleInterceptor->GetMaxHitPoints();
-								bool isBadlyDamagedAircraft = healthFraction <= aircraftDamageFractionNoIntercept && isAircraft;
-								if (!isBadlyDamagedAircraft) // dont allow badly damaged aircraft
+								const T100 healthFraction = (possibleInterceptor->GetCurrHitPoints() * 100) / possibleInterceptor->GetMaxHitPoints();
+								const bool isBadlyDamagedAircraft = healthFraction <= aircraftDamageFractionNoIntercept && isAircraft;
+								if (!isBadlyDamagedAircraft) // dont allow badly damaged aircraft to suicide defensively
 								{
 									int range = possibleInterceptor->getUnitInfo().GetAirInterceptRange();
 									interceptScore = possibleInterceptor->currInterceptionProbability();
@@ -13211,7 +13208,7 @@ CvUnit* CvUnit::WasMissileIntercepted(const CvPlot& interceptPlot) const
 }
 
 //	--------------------------------------------------------------------------------
-CvUnit* CvUnit::GetBestInterceptor(const CvPlot& interceptPlot, CvUnit* pkDefender /* = NULL */, bool bLandInterceptorsOnly /*false*/, bool bVisibleInterceptorsOnly /*false*/) const
+CvUnit* CvUnit::GetBestInterceptor(const CvPlot& interceptPlot, CvUnit* /* = NULL */, bool bLandInterceptorsOnly /*false*/, bool bVisibleInterceptorsOnly /*false*/) const
 {
 	VALIDATE_OBJECT
 
@@ -13246,11 +13243,10 @@ CvUnit* CvUnit::GetBestInterceptor(const CvPlot& interceptPlot, CvUnit* pkDefend
 }
 
 //	--------------------------------------------------------------------------------
-int CvUnit::GetInterceptorCount(const CvPlot& interceptPlot, CvUnit* pkDefender /* = NULL */, bool bLandInterceptorsOnly /*false*/, bool bVisibleInterceptorsOnly /*false*/) const
+int CvUnit::GetInterceptorCount(const CvPlot& interceptPlot, CvUnit* /* = NULL */, bool bLandInterceptorsOnly /*false*/, bool bVisibleInterceptorsOnly /*false*/) const
 {
 	VALIDATE_OBJECT
 	
-	CvUnit* pBestUnit = NULL;;
 	const int noIntercept = 0; // 0 means no intercept ability
 	int totalInterceptorCount = 0;
 
@@ -13281,10 +13277,10 @@ int CvUnit::GetInterceptorCount(const CvPlot& interceptPlot, CvUnit* pkDefender 
 
 //	--------------------------------------------------------------------------------
 /// Amount of damage done by this unit when intercepting pAttacker
-int CvUnit::GetInterceptionDamage(const CvUnit* pAttacker, bool bIncludeRand) const
+int CvUnit::GetInterceptionDamage(const CvUnit*, bool) const
 {
-	float damage = /*30*/ GC.getINTERCEPTION_SAME_STRENGTH_MIN_DAMAGE(); // base damage
-	float randomBonusDamage = getFakeRandUnit(/*10*/GC.getINTERCEPTION_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), "Interception Combat Damage", NULL, 834);
+	int damage = /*30*/ GC.getINTERCEPTION_SAME_STRENGTH_MIN_DAMAGE(); // base damage
+	int randomBonusDamage = getFakeRandUnit(/*10*/GC.getINTERCEPTION_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE(), "Interception Combat Damage", NULL, 834);
 	return damage + randomBonusDamage;
 //
 //	int iAttackerStrength = pAttacker->GetMaxRangedCombatStrength(this, /*pCity*/ NULL, true, /*bForRangedAttack*/ false);
@@ -13348,7 +13344,7 @@ int CvUnit::GetInterceptionDamage(const CvUnit* pAttacker, bool bIncludeRand) co
 //	iInterceptorDamage = MAX(1, MIN(iInterceptorDamage, GC.getMAX_HIT_POINTS() * 100)) * iInterceptorDamageRatio / GetMaxHitPoints();
 //#endif
 //
-//	double fStrengthRatio = CvUnit::adjustedDamageRatio(iInterceptorStrength, iAttackerStrength);
+//	dbouble fStrengthRatio = CvUnit::addjustedDamageRatio(iInterceptorStrength, iAttackerStrength);
 //	iInterceptorDamage = int(iInterceptorDamage * fStrengthRatio);
 //
 //	// Mod to interception damage
@@ -13362,7 +13358,7 @@ int CvUnit::GetInterceptionDamage(const CvUnit* pAttacker, bool bIncludeRand) co
 //	iInterceptorDamage *= (100 + pAttacker->GetInterceptionDefenseDamageModifier());
 //	iInterceptorDamage /= 100;
 //#endif
-//	float interceptionDamageFraction = GC.getINTERCEPTION_DAMAGE_MULTIPLIER();
+//	fbloat interceptionDamageFraction = GC.getINTERCEPTION_DAMAGE_MULTIPLIER();
 //	iInterceptorDamage *= interceptionDamageFraction;
 //	// Bring it back out of hundreds
 //	iInterceptorDamage /= 100;
@@ -13490,10 +13486,11 @@ int CvUnit::experienceNeeded() const
 	const int iModifier = GET_PLAYER(getOwner()).getLevelExperienceModifier();
 	if(0 != iModifier)
 	{
-		float fTemp = (float) iExperienceNeeded;
+		int fTemp = iExperienceNeeded;
 		fTemp *= (100 + iModifier);
+		fTemp += 99; // ceiling, round up
 		fTemp /= 100;
-		iExperienceNeeded = (int) ceil(fTemp); // Round up
+		iExperienceNeeded = fTemp;
 	}
 
 	return iExperienceNeeded;
@@ -14089,8 +14086,10 @@ int CvUnit::getNoRevealMapCount() const
 int CvUnit::maxInterceptionProbability() const
 {
 	VALIDATE_OBJECT
-	float modifier = (100.0f + GetInterceptionCombatModifier()) / 100.0f;
-	return std::max(0.0f, modifier * getExtraIntercept());
+	int extraIntercept = getExtraIntercept();
+	extraIntercept *= 100 + GetInterceptionCombatModifier();
+	extraIntercept /= 100;
+	return max(0, extraIntercept);
 }
 
 
@@ -15484,7 +15483,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 
 						// give extra city state gold
 						const int cityEncampmentDistance = 7;
-						float extraGoldPercent = 0;
+						T100 extraGoldPercentT100 = 0;
 						if (getOwner() < MAX_MAJOR_CIVS)
 						{
 #ifdef NQ_CLEARING_CAMPS_GIVES_INFLUENCE_NEARBY
@@ -15505,24 +15504,25 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 								CvCity* capital = minorPlayer.getCapitalCity();
 								if (cityEncampmentDistance >= plotDistance(capital->getX(), capital->getY(), pNewPlot->getX(), pNewPlot->getY()))
 								{
-									extraGoldPercent += 0.5f;
+									extraGoldPercentT100 += 50;
 									pMinorCivAI->DoThreateningBarbKilled(getOwner(), pNewPlot->getX(), pNewPlot->getY(), true);
 								}
 							}
 
-							iNumGold *= 1 + extraGoldPercent;
+							iNumGold *= 100 + extraGoldPercentT100;
+							iNumGold /= 100;
 
 							// message the player about gold reward
 							if (getOwner() == GC.getGame().getActivePlayer())
 							{
 								GC.messageUnit(0, GetIDInfo(), getOwner(), true, GC.getEVENT_MESSAGE_TIME(), GetLocalizedText("TXT_KEY_MISC_DESTROYED_BARBARIAN_CAMP", iNumGold));
-								if (extraGoldPercent != 0)
+								if (extraGoldPercentT100 != 0)
 								{
 									stringstream message;
 									message << "Killing the Encampment within ";
 									message << int(cityEncampmentDistance);
 									message << " tiles of city states yielded [COLOR_POSITIVE_TEXT]+";
-									message << int(extraGoldPercent * 100);
+									message << extraGoldPercentT100;
 									message << "%[ENDCOLOR] [ICON_GOLD]!";
 									GC.messageUnit(0, GetIDInfo(), getOwner(), true, GC.getEVENT_MESSAGE_TIME(), message.str().c_str());
 								}
@@ -15889,18 +15889,18 @@ int CvUnit::getDamage() const
     @param	fAdditionalTextDelay	The additional text delay.
     @param	pAppendText				The text to append or NULL.
  */
-void CvUnit::ShowDamageDeltaText(int iDelta, CvPlot* pkPlot, float fAdditionalTextDelay /* = 0.f */, const CvString* pAppendText /* = NULL */)
+void CvUnit::ShowDamageDeltaText(int iDelta, CvPlot* pkPlot, decimal fAdditionalTextDelay, const CvString* pAppendText /* = NULL */)
 {
 	if (pkPlot)
 	{
 		if(pkPlot->GetActiveFogOfWarMode() == FOGOFWARMODE_OFF)
 		{
-			float fDelay = 0.0f + fAdditionalTextDelay;
+			decimal delayT100 = fAdditionalTextDelay * 100;
 			CvString text;
 			if(iDelta <= 0)
 			{
 				text.Format("[COLOR_GREEN]+%d", -iDelta);
-				fDelay = GC.getPOST_COMBAT_TEXT_DELAYT100() * 2;
+				delayT100 = (decimal)GC.getPOST_COMBAT_TEXT_DELAYT100() * 2;
 			}
 			else
 			{
@@ -15913,7 +15913,7 @@ void CvUnit::ShowDamageDeltaText(int iDelta, CvPlot* pkPlot, float fAdditionalTe
 			}
 			text += "[ENDCOLOR]";
 
-			DLLUI->AddPopupText(pkPlot->getX(), pkPlot->getY(), text.c_str(), fDelay / 100.0f);
+			DLLUI->AddPopupText(pkPlot->getX(), pkPlot->getY(), text.c_str(), delayT100 / 100);
 		}
 	}
 }
@@ -15930,7 +15930,7 @@ void CvUnit::ShowDamageDeltaText(int iDelta, CvPlot* pkPlot, float fAdditionalTe
 
     @return	The difference in the damage.
  */
-int CvUnit::setDamage(int iNewValue, PlayerTypes ePlayer, float fAdditionalTextDelay, const CvString* pAppendText)
+int CvUnit::setDamage(int iNewValue, PlayerTypes ePlayer, decimal fAdditionalTextDelay, const CvString* pAppendText)
 {
 	VALIDATE_OBJECT
 	int iOldValue;
@@ -15979,8 +15979,7 @@ int CvUnit::setDamage(int iNewValue, PlayerTypes ePlayer, float fAdditionalTextD
 		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitSetDamage(pDllUnit.get(), m_iDamage, iOldValue);
 
-		if(!IsDead() && !isSuicide() && 
-			fAdditionalTextDelay >= 0.f)		// A negative delay signifies that the caller does not want automatic popup text.
+		if(!IsDead() && !isSuicide() && fAdditionalTextDelay >= 0) // A negative delay signifies that the caller does not want automatic popup text.
 		{
 			ShowDamageDeltaText(iDiff, plot(), fAdditionalTextDelay, pAppendText);
 		}
@@ -16037,7 +16036,7 @@ int CvUnit::setDamage(int iNewValue, PlayerTypes ePlayer, float fAdditionalTextD
 
     @return	the final delta change to the units damage.
  */
-int CvUnit::changeDamage(int iChange, PlayerTypes ePlayer, float fAdditionalTextDelay, const CvString* pAppendText)
+int CvUnit::changeDamage(int iChange, PlayerTypes ePlayer, decimal fAdditionalTextDelay, const CvString* pAppendText)
 {
 	VALIDATE_OBJECT;
 #ifdef DEL_RANGED_COUNTERATTACKS
@@ -16272,7 +16271,6 @@ void CvUnit::setExperience(int iNewValue, int iMax)
 			{
 				Localization::String localizedText = Localization::Lookup("TXT_KEY_EXPERIENCE_POPUP");
 				localizedText << iExperienceChange;
-				float fDelay = GC.getPOST_COMBAT_TEXT_DELAYT100();
 
 				int iX = m_iX;
 				int iY = m_iY;
@@ -16294,7 +16292,7 @@ void CvUnit::setExperience(int iNewValue, int iMax)
 					}
 				}
 
-				DLLUI->AddPopupText(iX, iY, localizedText.toUTF8(), fDelay / 100.0f);
+				DLLUI->AddPopupText(iX, iY, localizedText.toUTF8(), GC.getPOST_COMBAT_TEXT_DELAYT100() / f100);
 
 				if(IsSelected())
 				{
@@ -16345,8 +16343,7 @@ void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInB
 
 						CvPromotionEntry* pkNewPromotionInfo = GC.getPromotionInfo(eNewPromotion);
 						Localization::String localizedText = Localization::Lookup(pkNewPromotionInfo->GetDescriptionKey());
-						float fDelay = GC.getPOST_COMBAT_TEXT_DELAYT100() * 2;
-						DLLUI->AddPopupText(getX(), getY(), localizedText.toUTF8(), fDelay / 100.0f);
+						DLLUI->AddPopupText(getX(), getY(), localizedText.toUTF8(), GC.getPOST_COMBAT_TEXT_DELAYT100() * 2 / f100);
 					}
 				}
 			}

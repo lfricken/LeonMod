@@ -107,7 +107,7 @@ public:
 	void ChangeBaseImprovementGoldMaintenance(int iChange);
 
 	// Methods to query financial history
-	double AverageIncome(int iTurns);
+	int AverageIncome(int iTurns);
 	void CvTreasury::LogExpenditure(CvString strExpenditure, int iAmount, int iColumn);
 
 protected:
@@ -137,7 +137,7 @@ namespace TreasuryHelpers
 {
 	void AppendToLog (CvString& strHeader, CvString& strLog, CvString strHeaderValue, CvString strValue);
 	void AppendToLog (CvString& strHeader, CvString& strLog, CvString strHeaderValue, int iValue);
-	void AppendToLog (CvString& strHeader, CvString& strLog, CvString strHeaderValue, float fValue);
+	void AppendToLog (CvString& strHeader, CvString& strLog, CvString strHeaderValue, decimal fValue);
 }
 
 #endif // CV_TREASURY_H

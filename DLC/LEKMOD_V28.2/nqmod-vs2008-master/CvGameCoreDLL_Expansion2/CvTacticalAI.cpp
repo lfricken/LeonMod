@@ -253,7 +253,7 @@ void CvTacticalAI::Init(CvPlayer* pPlayer)
 	m_iRepositionRange = GC.getAI_TACTICAL_REPOSITION_RANGE();
 	m_iDeployRadius = GC.getAI_OPERATIONAL_CITY_ATTACK_DEPLOY_RANGE();
 	m_iRandomRange = GC.getAI_TACTICAL_MOVE_PRIORITY_RANDOMNESS();
-	m_fFlavorDampening = GC.getAI_TACTICAL_FLAVOR_DAMPENING_FOR_MOVE_PRIORITIZATIONT100() / 100.0f;
+	m_fFlavorDampening = GC.getAI_TACTICAL_FLAVOR_DAMPENING_FOR_MOVE_PRIORITIZATIONT100();
 
 	// cache TypeInfos rather than doing a hash map look up of the string every time it is being used
 	m_CachedInfoTypes[eTACTICAL_UNASSIGNED] = GC.getInfoTypeForString("TACTICAL_UNASSIGNED");
@@ -993,7 +993,7 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 			}
 		}
 
-		// Destroy units then assault - for first time need dominance in total strength but not enemy dominance in ranged units OR just double total strength
+		// Destroy units then assault - for first time need dominance in total strength but not enemy dominance in ranged units OR just twice total strength
 		else if (pZone->GetEnemyUnitCount() > 0 && pZone->GetDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY &&
 			(eRangedDominance != TACTICAL_DOMINANCE_ENEMY || pZone->GetFriendlyStrength() > pZone->GetEnemyStrength() * 2))
 		{

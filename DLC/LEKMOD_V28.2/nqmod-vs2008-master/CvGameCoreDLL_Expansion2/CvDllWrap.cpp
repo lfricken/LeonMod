@@ -23,11 +23,11 @@ void DllWrapper::PublishActivePlayerTurnEnd(PlayerTypes ePlayer)
 void DllWrapper::PublishPlayerTurnStatus(PlayerTypes ePlayer, CvDLLInterfaceIFaceBase::TURN_STATUS_TYPE eStatus, const char* pszTag)
 {
 	string status = "ERROR";
-	if (eStatus == CvDLLInterfaceIFaceBase::TURN_STATUS_TYPE::TURN_START)
+	if (eStatus == CvDLLInterfaceIFaceBase::TURN_START)
 		status = "START";
-	else if (eStatus == CvDLLInterfaceIFaceBase::TURN_STATUS_TYPE::TURN_END)
+	else if (eStatus == CvDLLInterfaceIFaceBase::TURN_END)
 		status = "END";
-	else if (eStatus == CvDLLInterfaceIFaceBase::TURN_STATUS_TYPE::TURN_STEP)
+	else if (eStatus == CvDLLInterfaceIFaceBase::TURN_STEP)
 		status = "STEP";
 
 	stringstream ss;

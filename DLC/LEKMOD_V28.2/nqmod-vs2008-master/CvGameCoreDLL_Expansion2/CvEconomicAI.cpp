@@ -887,9 +887,9 @@ void AppendToLog(CvString& strHeader, CvString& strLog, CvString strHeaderValue,
 }
 
 #ifdef AUI_WARNING_FIXES
-void AppendToLog(CvString& strHeader, CvString& strLog, const CvString& strHeaderValue, float fValue)
+void AppendToLog(CvString& strHeader, CvString& strLog, const CvString& strHeaderValue, decimal fValue) // safe decimal
 #else
-void AppendToLog(CvString& strHeader, CvString& strLog, CvString strHeaderValue, float fValue)
+void AppendToLog(CvString& strHeader, CvString& strLog, CvString strHeaderValue, decimal fValue) // safe decimal
 #endif
 {
 	strHeader += strHeaderValue;
@@ -1228,17 +1228,17 @@ int CvEconomicAI::AmountAvailableForPurchase(PurchaseType ePurchase) const
 }
 
 /// What is the ratio of workers we have to the number of cities we have?
-double CvEconomicAI::GetWorkersToCitiesRatio() const
+T100 CvEconomicAI::GetWorkersToCitiesRatioT100() const
 {
 	int iNumWorkers = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_WORKER, true, false); // includes workers currently being produced
 	int iNumCities = m_pPlayer->getNumCities();
-	double fCurrentRatio = iNumWorkers / (double)iNumCities;
+	T100 fCurrentRatio = (iNumWorkers * 100) / max(1, iNumCities);
 
 	return fCurrentRatio;
 }
 
 /// What is the ratio of our improved plots to all the plots we are able to improve?
-double CvEconomicAI::GetImprovedToImprovablePlotsRatio() const
+T100 CvEconomicAI::GetImprovedToImprovablePlotsRatioT100() const
 {
 	const CvPlotsVector& aiPlots = m_pPlayer->GetPlots();
 	int iNumValidPlots = 0;
@@ -1271,9 +1271,9 @@ double CvEconomicAI::GetImprovedToImprovablePlotsRatio() const
 	// Avoid potential division by 0
 	if(iNumValidPlots <= 0)
 	{
-		return 1.0;
+		return 100;
 	}
-	double fCurrentRatio = iNumImprovedPlots / (double)iNumValidPlots;
+	T100 fCurrentRatio = (iNumImprovedPlots * 100) / max(1, iNumValidPlots);
 
 	return fCurrentRatio;
 }
@@ -1528,7 +1528,7 @@ void CvEconomicAI::LogCityMonitor()
 
 	CvString str;
 
-	float fRatio;
+	T100 fRatio;
 
 	// per city
 	int iLoopCity = 0;
@@ -1598,10 +1598,10 @@ void CvEconomicAI::LogCityMonitor()
 		//	yields / pop
 		for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
 		{
-			fRatio = 0.0f;
+			fRatio = 0;
 			if(pLoopCity->getPopulation() > 0)
 			{
-				fRatio = aiCityYields[ui] / (float)pLoopCity->getPopulation();
+				fRatio = aiCityYields[ui] * 100 / pLoopCity->getPopulation();
 			}
 
 			switch(ui)
@@ -1657,10 +1657,10 @@ void CvEconomicAI::LogCityMonitor()
 		// ratio from specialists
 		for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
 		{
-			fRatio = 0.0f;
+			fRatio = 0;
 			if(aiCityYields[ui] > 0)
 			{
-				fRatio = aiSpecialistsYields[ui] / (float)aiCityYields[ui];
+				fRatio = aiSpecialistsYields[ui] * 100 / aiCityYields[ui];
 			}
 			switch(ui)
 			{
@@ -1734,10 +1734,10 @@ void CvEconomicAI::LogCityMonitor()
 
 		// % of worked tiles that are improved
 		// improved / worked tiles
-		fRatio = 0.0f;
+		fRatio = 0;
 		if(iWorkedTiles > 0)
 		{
-			fRatio = iImprovedTiles / (float)iWorkedTiles;
+			fRatio = iImprovedTiles * 100 / iWorkedTiles;
 		}
 		AppendToLog(strHeader, strLog, "improved / worked", fRatio);
 
@@ -2030,7 +2030,7 @@ void CvEconomicAI::DoReconState()
 	iStrategyWeight *= iNumLandPlotsWithAdjacentFog;
 	int iNumExplorerDivisor = iNumExploringUnits + /*1*/ GC.getAI_STRATEGY_EARLY_EXPLORATION_EXPLORERS_WEIGHT_DIVISOR();
 	iStrategyWeight /= (iNumExplorerDivisor * iNumExplorerDivisor);
-	iStrategyWeight /= (int)sqrt((double)iNumLandPlotsRevealed);
+	iStrategyWeight /= (iSquareRoot(100 * iNumLandPlotsRevealed)) / 100;
 
 	if(iStrategyWeight > iWeightThreshold)
 	{
@@ -2108,7 +2108,7 @@ void CvEconomicAI::DoReconState()
 		iStrategyWeight *= iNumCoastalTilesWithAdjacentFog;
 		iNumExplorerDivisor = iNumExploringUnits + /*1*/ GC.getAI_STRATEGY_EARLY_EXPLORATION_EXPLORERS_WEIGHT_DIVISOR();
 		iStrategyWeight /= (iNumExplorerDivisor * iNumExplorerDivisor);
-		iStrategyWeight /= (int)sqrt((double)iNumCoastalTilesRevealed);
+		iStrategyWeight /= (iSquareRoot(100 * iNumCoastalTilesRevealed)) / 100;
 
 		if(iStrategyWeight > iWeightThreshold/* || iNumExploringUnits == 0 && iNumCoastalTilesWithAdjacentFog > 50*/)
 		{
@@ -2196,11 +2196,11 @@ void CvEconomicAI::DisbandExtraWorkers()
 
 	//antonjs: consider: make calls to GetWorkersToCitiesRatio and GetImprovedToImprovablePlotsRatio instead, is the code similar enough?
 
-	double fWorstCaseRatio = 0.25; // one worker for four cities
+	T100 fWorstCaseRatio = 25; // one worker for four cities
 	int iNumWorkers = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_WORKER, true, false);
 	int iNumCities = m_pPlayer->getNumCities();
 
-	double fCurrentRatio = iNumWorkers / (double)iNumCities;
+	T100 fCurrentRatio = (iNumWorkers * 100) / iNumCities;
 	if(fCurrentRatio <= fWorstCaseRatio || iNumWorkers == 1)
 	{
 		return;
@@ -2244,8 +2244,8 @@ void CvEconomicAI::DisbandExtraWorkers()
 	int iNumUnimprovedPlots = iNumValidPlots - iNumImprovedPlots;
 
 	// less than two thirds of the plots are improved, don't discard anybody
-	double fRatio = iNumImprovedPlots / (double)iNumValidPlots;
-	if(fRatio < 2/(double)3)
+	T100 fRatio = (iNumImprovedPlots * 100) / iNumValidPlots;
+	if(fRatio < 66)
 	{
 		return;
 	}
@@ -2297,7 +2297,7 @@ void CvEconomicAI::DisbandExtraWorkers()
 }
 void CvEconomicAI::DisbandExtraArchaeologists(){
 	int iNumSites = GC.getGame().GetNumArchaeologySites();
-	double dMaxRatio = .5; //Ratio of archaeologists to sites
+	T100 dMaxRatio = 50; //Ratio of archaeologists to sites
 	int iNumArchaeologists = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_ARCHAEOLOGIST, true);
 	PolicyTypes eExpFinisher = (PolicyTypes) GC.getInfoTypeForString("POLICY_EXPLORATION_FINISHER", true /*bHideAssert*/);
 	if (eExpFinisher != NO_POLICY)	
@@ -2313,7 +2313,8 @@ void CvEconomicAI::DisbandExtraArchaeologists(){
 	if(eArch == NO_UNIT){
 		return;
 	}
-	if ((double)iNumSites * dMaxRatio + 1 < iNumArchaeologists ){
+	const int numSites = (iNumSites * dMaxRatio) / 100;
+	if (numSites + 1 < iNumArchaeologists ){
 		pUnit = FindArchaeologistToScrap();
 	
 		if(!pUnit)
@@ -3098,10 +3099,10 @@ bool EconomicAIHelpers::IsTestStrategy_TechLeader(CvPlayer* pPlayer)
 		}
 		CvAssertMsg(eFlavorEspionage != NO_FLAVOR, "Could not find espionage flavor!");
 
-		float fRatio = iNumPlayersAheadInTech / (float)iNumOtherPlayers;
-		float fCutOff = (0.05f * pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor(eFlavorEspionage));
+		T100 ratioT100 = iNumPlayersAheadInTech * 100 / iNumOtherPlayers;
+		T100 cutOffT100 = (5 * pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor(eFlavorEspionage));
 
-		if (fRatio < fCutOff)
+		if (ratioT100 < cutOffT100)
 		{
 			return true;
 		}
@@ -3750,7 +3751,7 @@ bool EconomicAIHelpers::IsTestStrategy_LosingMoney(EconomicAIStrategyTypes eStra
 	}
 
 	// Is average income below desired threshold over past X turns?
-	return (pPlayer->GetTreasury()->AverageIncome(iInterval) < (double)pStrategy->GetWeightThreshold() /* 2 */);
+	return (pPlayer->GetTreasury()->AverageIncome(iInterval) < pStrategy->GetWeightThreshold() /* 2 */);
 }
 
 /// "Halt Growth Buildings" Player Strategy: Stop building granaries if working on a wonder that provides them for free
@@ -4139,7 +4140,7 @@ bool EconomicAIHelpers::IsTestStrategy_NeedArchaeologists(CvPlayer* pPlayer)
 bool EconomicAIHelpers::IsTestStrategy_EnoughArchaeologists(CvPlayer* pPlayer)
 {
 	int iNumSites = GC.getGame().GetNumArchaeologySites();
-	double iMaxRatio = .5; //Ratio of archaeologists to sites
+	T100 iMaxRatio = 50; //Ratio of archaeologists to sites
 	int iNumArchaeologists = pPlayer->GetNumUnitsWithUnitAI(UNITAI_ARCHAEOLOGIST, true);
 	PolicyTypes eExpFinisher = (PolicyTypes) GC.getInfoTypeForString("POLICY_EXPLORATION_FINISHER", true /*bHideAssert*/);
 	
@@ -4150,8 +4151,9 @@ bool EconomicAIHelpers::IsTestStrategy_EnoughArchaeologists(CvPlayer* pPlayer)
 			iNumSites += GC.getGame().GetNumHiddenArchaeologySites();
 		}
 	}
-		
-	if ((double)iNumSites * iMaxRatio + 1 < iNumArchaeologists)
+	
+	const int sites = (iNumSites * iMaxRatio) / 100;
+	if (sites + 1 < iNumArchaeologists)
 	{
 		return true;
 	}

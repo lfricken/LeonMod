@@ -640,22 +640,13 @@ CvString CvCityStrategyAI::GetLogFileName(CvString& playerName, CvString& cityNa
 	return strLogName;
 }
 
-//Helper functions to round
-static double citystrategyround(double x)
-{
-	return (x >= 0) ? floor(x + .5) : ceil(x - .5);
-};
-
 /// Determines if the yield is below a sustainable amount
 bool CvCityStrategyAI::IsYieldDeficient(YieldTypes eYieldType)
 {
-	double fDesiredYield = GetDeficientYieldValue(eYieldType);
-	double fYieldAverage = GetYieldAverage(eYieldType);
+	T100 fDesiredYield = GetDeficientYieldValue(eYieldType);
+	T100 fYieldAverage = GetYieldAverage(eYieldType);
 
-	int iDesiredYield = (int)citystrategyround(fDesiredYield * 100);
-	int iYieldAverage = (int)citystrategyround(fYieldAverage * 100);
-
-	if(iYieldAverage < iDesiredYield)
+	if (fYieldAverage < fDesiredYield)
 	{
 		return true;
 	}
@@ -691,11 +682,10 @@ YieldTypes CvCityStrategyAI::GetDeficientYield(void)
 	return NO_YIELD;
 }
 
-/// Get the average value of the yield for this city
-double CvCityStrategyAI::GetYieldAverage(YieldTypes eYieldType)
+T100 CvCityStrategyAI::GetYieldAverage(YieldTypes eYieldType)
 {
-	CvPlayer* pPlayer = &GET_PLAYER(m_pCity->getOwner());
-	CvPlotsVector& aiPlots = pPlayer->GetPlots();
+	const CvPlayer* pPlayer = &GET_PLAYER(m_pCity->getOwner());
+	const CvPlotsVector& aiPlots = pPlayer->GetPlots();
 
 	int iTilesWorked = 0;
 	int iYieldAmount = 0;
@@ -717,33 +707,32 @@ double CvCityStrategyAI::GetYieldAverage(YieldTypes eYieldType)
 		iYieldAmount += pPlot->calculateYield(eYieldType);
 	}
 
-	double fRatio = 0.0;
+	T100 ratioT100 = 0;
 	if(iTilesWorked > 0)
 	{
-		fRatio = iYieldAmount / (double)iTilesWorked;
+		ratioT100 = (iYieldAmount * 100) / iTilesWorked;
 	}
 
-	return fRatio;
+	return ratioT100;
 }
 
-/// Get the deficient value of the yield for this city
-double CvCityStrategyAI::GetDeficientYieldValue(YieldTypes eYieldType)
+T100 CvCityStrategyAI::GetDeficientYieldValue(YieldTypes eYieldType)
 {
-	double fDesiredYield = -999.0;
+	T100 fDesiredYield = -99999;
 
 	switch(eYieldType)
 	{
 	case YIELD_FOOD:
-		fDesiredYield = GC.getAI_CITYSTRATEGY_YIELD_DEFICIENT_FOODT100() / 100.0;
+		fDesiredYield = GC.getAI_CITYSTRATEGY_YIELD_DEFICIENT_FOODT100();
 		break;
 	case YIELD_PRODUCTION:
-		fDesiredYield = GC.getAI_CITYSTRATEGY_YIELD_DEFICIENT_PRODUCTIONT100() / 100.0;
+		fDesiredYield = GC.getAI_CITYSTRATEGY_YIELD_DEFICIENT_PRODUCTIONT100();
 		break;
 	case YIELD_SCIENCE:
-		fDesiredYield = GC.getAI_CITYSTRATEGY_YIELD_DEFICIENT_SCIENCET100() / 100.0;
+		fDesiredYield = GC.getAI_CITYSTRATEGY_YIELD_DEFICIENT_SCIENCET100();
 		break;
 	case YIELD_GOLD:
-		fDesiredYield = GC.getAI_CITYSTRATEGY_YIELD_DEFICIENT_GOLDT100() / 100.0;
+		fDesiredYield = GC.getAI_CITYSTRATEGY_YIELD_DEFICIENT_GOLDT100();
 		break;
 		// OK if deficient in the newer (bonus) yields
 	case YIELD_CULTURE:
@@ -984,32 +973,12 @@ EndHarborLoop:;
 					iTempWeight = 0;
 				}
 #endif
-#ifdef AUI_CITYSTRATEGY_FIX_CHOOSE_PRODUCTION_SLIDING_LOGISTIC_MAINTENANCE_SCALE
-				int iEffectiveMaintenanceT100 = pkBuildingInfo->GetGoldMaintenance(kPlayer) * (100 + GetCity()->GetPlayer()->GetBuildingGoldMaintenanceMod());
-				int iBonusGoldFromYield = pkBuildingInfo->GetYieldChange(YIELD_GOLD) + GetCity()->getPopulation() * pkBuildingInfo->GetYieldChangePerPop(YIELD_GOLD);
-				iBonusGoldFromYield += GetCity()->GetCityBuildings()->GetBuildingYieldChange((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType(), YIELD_GOLD);
-				iBonusGoldFromYield *= GetCity()->getYieldRateModifier(YIELD_GOLD) + pkBuildingInfo->GetYieldModifier(YIELD_GOLD);
-				iEffectiveMaintenanceT100 -= iBonusGoldFromYield;
-
-				int iBonusGoldFromModifier = GetCity()->getBaseYieldRate(YIELD_GOLD) * 100;
-				iBonusGoldFromModifier += GetCity()->GetYieldPerPopTimes100(YIELD_GOLD) * GetCity()->getPopulation();
-				iBonusGoldFromModifier += GetCity()->GetYieldPerReligionTimes100(YIELD_GOLD) * GetCity()->GetCityReligions()->GetNumReligionsWithFollowers();
-				iBonusGoldFromModifier *= pkBuildingInfo->GetYieldModifier(YIELD_GOLD);
-				iEffectiveMaintenanceT100 -= iBonusGoldFromModifier;
-
-				if (bCapitolConnectedHasHarbor && pkBuildingInfo->AllowsWaterRoutes())
-				{
-					iEffectiveMaintenanceT100 -= GetCity()->GetPlayer()->GetTreasury()->GetCityConnectionRouteGoldTimes100(GetCity());
-				}
-				
-				iTempWeight *= int(2.0 / (1.0 + exp(double(iEffectiveMaintenanceT100) / 200.0)) + 0.5);
-#else
 				// they also like stuff that won't burden the empire with maintenance costs
 				if(pkBuildingInfo->GetGoldMaintenance(GET_PLAYER(m_pCity->getOwner())) == 0)
 				{
 					iTempWeight *= 2;
 				}
-#endif
+
 				// and they avoid any buildings that require resources
 				int iNumResources = GC.getNumResourceInfos();
 				for(int iResourceLoop = 0; iResourceLoop < iNumResources; iResourceLoop++)
@@ -2102,36 +2071,10 @@ void CvCityStrategyAI::LogSpecializationChange(CitySpecializationTypes eSpeciali
 // b) allow their general use by other classes
 
 /// Routine to reweight a city buildable based on time to build
-int CityStrategyAIHelpers::ReweightByTurnsLeft(int iOriginalWeight, int iTurnsLeft)
+int CityStrategyAIHelpers::ReweightByTurnsLeft(int iOriginalWeight, int)
 {
-	// 10 turns will add 0.02; 80 turns will add 0.16
-	double fAdditionalTurnCostFactor = (GC.getAI_PRODUCTION_WEIGHT_MOD_PER_TURN_LEFTT100() / 100.0) * iTurnsLeft;	// 0.004
-	double fTotalCostFactor = (GC.getAI_PRODUCTION_WEIGHT_BASE_MODT100() / 100.0) + fAdditionalTurnCostFactor;	// 0.15
-	double fWeightDivisor = pow((double) iTurnsLeft, fTotalCostFactor);
-
-	/* Commented out for now: useful debug code for tweaking the exact effect of this function
-
-	iTurnsLeft = 10;
-	fAdditionalTurnCostFactor = 0.004f * iTurnsLeft;
-	fTotalCostFactor = 0.15f + fAdditionalTurnCostFactor;
-	fWeightDivisor = pow((double) iTurnsLeft, fTotalCostFactor);
-
-	iTurnsLeft = 20;
-	fAdditionalTurnCostFactor = 0.004f * iTurnsLeft;
-	fTotalCostFactor = 0.15f + fAdditionalTurnCostFactor;
-	fWeightDivisor = pow((double) iTurnsLeft, fTotalCostFactor);
-
-	iTurnsLeft = 40;
-	fAdditionalTurnCostFactor = 0.004f * iTurnsLeft;
-	fTotalCostFactor = 0.15f + fAdditionalTurnCostFactor;
-	fWeightDivisor = pow((double) iTurnsLeft, fTotalCostFactor);
-
-	iTurnsLeft = 80;
-	fAdditionalTurnCostFactor = 0.004f * iTurnsLeft;
-	fTotalCostFactor = 0.15f + fAdditionalTurnCostFactor;
-	fWeightDivisor = pow((double) iTurnsLeft, fTotalCostFactor);*/
-
-	return int(double(iOriginalWeight) / fWeightDivisor);
+	// a bunch of code was deleted from here
+	return iOriginalWeight;
 }
 
 // Figure out what the WeightThreshold Mod should be by looking at the Flavors for this player & the Strategy

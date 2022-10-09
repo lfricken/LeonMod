@@ -590,12 +590,13 @@ public:
 
 	void updateTurnTimer();
 	bool hasTurnTimerExpired(PlayerTypes playerID);
-	void TurnTimerSync(float fCurTurnTime, float fTurnStartTime);
-	void GetTurnTimerData(float& fCurTurnTime, float& fTurnStartTime);
+	void TurnTimerSync(decimal fCurTurnTime, decimal fTurnStartTime);
+	void GetTurnTimerData(decimal& fCurTurnTime, decimal& fTurnStartTime);
 
 	int GetDealDuration();
 	int GetPeaceDuration();
 
+	// would return 5 if there were 5 end game techs unlocked
 	int GetVpAdjustment() const;
 	void ChangeVpAdjustment(const int change);
 	int GetVpAcceleration() const;
@@ -622,7 +623,7 @@ public:
 	int     m_endTurnTimerSemaphore;
 	FTimer  m_curTurnTimer;
 	FTimer  m_timeSinceGameTurnStart;		//time since game turn started for human players
-	float	m_fCurrentTurnTimerPauseDelta;
+	decimal	m_fCurrentTurnTimerPauseDelta;
 #endif
 	bool AnyoneHasBuildingClass(BuildingClassTypes iBuildingClassType) const;
 
@@ -808,7 +809,7 @@ protected:
 	FTimer  m_timeSinceGameTurnStart;		//time since game turn started for human players
 #endif
 #if !defined (CAN_PARADROP_HALF_TIMER) || !defined (CAN_SET_INTERCEPT_HALF_TIMER)
-	float	m_fCurrentTurnTimerPauseDelta;	//
+	decimal	m_fCurrentTurnTimerPauseDelta;	//
 #endif
 	bool    m_sentAutoMoves;
 	bool	m_bForceEndingTurn;

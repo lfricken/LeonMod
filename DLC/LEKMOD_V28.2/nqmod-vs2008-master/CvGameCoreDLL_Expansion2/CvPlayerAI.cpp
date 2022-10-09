@@ -601,7 +601,7 @@ void CvPlayerAI::AI_considerAnnex()
 	std::stable_sort(aCityAndProductions.begin(), aCityAndProductions.end(), CityAndProductionEval());
 	
 	CvCity* pTargetCity = NULL;
-	float fCutoffValue = GC.getNORMAL_ANNEXT100() / 100.0f;
+	T100 cutoffValueT100 = GC.getNORMAL_ANNEXT100();
 	BuildingClassTypes eCourthouseType = NO_BUILDINGCLASS;
 	// find courthouse
 #ifdef AUI_WARNING_FIXES
@@ -634,10 +634,10 @@ void CvPlayerAI::AI_considerAnnex()
 
 	if (bCourthouseImprovement)
 	{
-		fCutoffValue = GC.getAGGRESIVE_ANNEXT100() / 100.0f;
+		cutoffValueT100 = GC.getAGGRESIVE_ANNEXT100();
 	}
 
-	uint uiCutOff = (uint)(aCityAndProductions.size() * fCutoffValue);
+	uint uiCutOff = (uint)(aCityAndProductions.size() * cutoffValueT100) / 100;
 	for (uint ui = 0; ui < uiCutOff; ui++)
 	{
 		if (aCityAndProductions[ui].pCity->IsPuppet())

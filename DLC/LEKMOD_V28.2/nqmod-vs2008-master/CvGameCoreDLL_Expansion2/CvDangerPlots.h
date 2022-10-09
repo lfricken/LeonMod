@@ -64,17 +64,17 @@ protected:
 	bool m_bArrayAllocated;
 #endif
 	bool m_bDirty;
-	double m_fMajorWarMod;
-	double m_fMajorHostileMod;
-	double m_fMajorDeceptiveMod;
-	double m_fMajorGuardedMod;
-	double m_fMajorAfraidMod;
-	double m_fMajorFriendlyMod;
-	double m_fMajorNeutralMod;
-	double m_fMinorNeutralrMod;
-	double m_fMinorFriendlyMod;
-	double m_fMinorBullyMod;
-	double m_fMinorConquestMod;
+	int m_majorWarModT100;
+	int m_majorHostileModT100;
+	int m_majorDeceptiveModT100;
+	int m_majorGuardedModT100;
+	int m_majorAfraidModT100;
+	int m_majorFriendlyModT100;
+	int m_majorNeutralModT100;
+	int m_minorNeutralrModT100;
+	int m_minorFriendlyModT100;
+	int m_minorBullyModT100;
+	int m_minorConquestModT100;
 
 #ifdef AUI_DANGER_PLOTS_FIX_USE_ARRAY_NOT_FFASTVECTOR
 	uint* m_DangerPlots;

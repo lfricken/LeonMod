@@ -1343,13 +1343,13 @@ int CvPolicyEntry::GetGoldPerMilitaryUnit() const
 	return m_iGoldPerMilitaryUnit;
 }
 
-/// City strength modifier (e.g. 100 = double strength)
+/// City strength modifier (e.g. 100 = 2x strength)
 int CvPolicyEntry::GetCityStrengthMod() const
 {
 	return m_iCityStrengthMod;
 }
 
-/// City growth food modifier (e.g. 100 = double growth rate)
+/// City growth food modifier (e.g. 100 = 2x growth rate)
 int CvPolicyEntry::GetCityGrowthMod() const
 {
 	return m_iCityGrowthMod;
@@ -2929,14 +2929,9 @@ int CvPlayerPolicies::GetNumPoliciesOwned() const
 {
 	int rtnValue = 0;
 
-#ifdef AUI_WARNING_FIXES
-	for (uint i = 0; i < m_pPolicies->GetNumPolicies(); i++)
-#else
-	for(int i = 0; i < m_pPolicies->GetNumPolicies(); i++)
-#endif
+	for (int i = 0; i < m_pPolicies->GetNumPolicies(); i++)
 	{
-		// Do we have this policy?
-		if(m_pabHasPolicy[i])
+		if(m_pabHasPolicy[i]) // Do we have this policy?
 		{
 			rtnValue++;
 		}
@@ -3511,19 +3506,21 @@ int CvPlayerPolicies::GetTourismFromUnitCreation(UnitClassTypes eUnitClass) cons
 
 int CvPlayerPolicies::GetPolicyModifierForCityCountNormalT100() const
 {
-	const float iNumCities = m_pPlayer->GetMaxEffectiveCities();
-	const float perCityPercentChange = GC.getMap().getWorldInfo().GetNumCitiesPolicyCostMod() / 100.0f;
+	const int iNumCities = m_pPlayer->GetMaxEffectiveCities();
+	const T100 perCityPercentChangeT100 = GC.getMap().getWorldInfo().GetNumCitiesPolicyCostMod();
 
-	return 100 * perCityPercentChange * max(0.0f, iNumCities - 1);
+	return perCityPercentChangeT100 * max(0, iNumCities - 1);
 }
 
 int CvPlayerPolicies::GetPolicyModifierForCityCountModT100() const
 {
-	const float iNumCities = m_pPlayer->GetMaxEffectiveCities();
-	float perCityPercentChange = GC.getMap().getWorldInfo().GetNumCitiesPolicyCostMod() / 100.0f;
-	perCityPercentChange *= m_pPlayer->GetNumCitiesPolicyCostDiscount() / 100.0f;
+	const int iNumCities = m_pPlayer->GetMaxEffectiveCities();
+	T100 perCityPercentChangeT100 = GC.getMap().getWorldInfo().GetNumCitiesPolicyCostMod();
 
-	return 100 * perCityPercentChange * max(0.0f, iNumCities - 1);
+	perCityPercentChangeT100 *= m_pPlayer->GetNumCitiesPolicyCostDiscount();
+	perCityPercentChangeT100 /= 100;
+
+	return perCityPercentChangeT100 * max(0, iNumCities - 1);
 }
 
 int CvPlayerPolicies::GetPolicyModifierForCityCount() const
@@ -3533,66 +3530,75 @@ int CvPlayerPolicies::GetPolicyModifierForCityCount() const
 	return change; // eg 25
 }
 
+const int maxNumPolicies = 51;
+// Online speed policy costs.
+// These values MUST NOT exceed 200,000
+// wolframalpha.com
+// 
+// If you like magic numbers, i'm david blane (this was reverse engineered from previous equation).
+// y=floor((((x / s * v)^o) + 25)*(1 + ((c - 1) * 0.1))*0.5*0.9/s) where x=Range[0,50,1] o=2.01 v=3 c=1 s=1.2 // safe decimal
+const long policyCosts[] = {
+	9, 11, 18, 30, 47, 
+	69, 96, 127, 163, 205, 
+	251, 302, 358, 419, 485, 
+	556, 631, 712, 798, 888, 
+	984, 1084, 1190, 1300, 1415, 
+	1536, 1661, 1791, 1926, 2066, 
+	2211, 2361, 2516, 2676, 2841, 
+	3011, 3186, 3366, 3551, 3741, 
+	3936, 4135, 4340, 4550, 4765, 
+	4985, 5209, 5439, 5674, 5913, 
+	6158 
+};
+
 /// How much will the next policy cost?
-int CvPlayerPolicies::GetNextPolicyCost()
+T100 CvPlayerPolicies::GetNextPolicyCostT100()
 {
-	const double policyAdoptionIncrease = (100.f + 20.f) / 100.f;
-	double iNumPolicies = GetNumPoliciesOwned();
-
+	int iNumPolicies = GetNumPoliciesOwned();
 	// Reduce count by however many free Policies we've had in this game
+	// why are we subtracting so many things like this? I have no idea
 	iNumPolicies -= (m_pPlayer->GetNumFreePoliciesEver() - m_pPlayer->GetNumFreePolicies() - m_pPlayer->GetNumFreeTenets());
+	// put in index range
+	iNumPolicies = max(0, min(maxNumPolicies, iNumPolicies));
 
-	// Each branch we unlock (after the first) costs us a buy, so add that in; JON: not any more
-	//if (GetNumPolicyBranchesUnlocked() > 0)
-	//{
-	//	iNumPolicies += (GetNumPolicyBranchesUnlocked() - 1);
-	//}
+	T100 iCost = policyCosts[iNumPolicies] * 100;
 
-	// wolframalpha.com
-	// y=floor((((x / s * v)^o) + 25)*(1 + ((c - 1) * 0.1))*0.5*0.9/s) where x=Range[0,30,1] o=2.01 v=3 c=1 s=1.2
 
-	const int increaseThreshold = 1 + GC.getPOLICY_NUM_FOR_IDEOLOGY();
-	if (iNumPolicies >= increaseThreshold)
-	{
-		const double numPoliciesOver = iNumPolicies - increaseThreshold;
-		// each policy will actually count for more than just 1 policy increase
-		iNumPolicies += numPoliciesOver * GC.getPOLICY_INCREASE_LATE_GAME();
-	}
-
-	double iCost = 0;
-	iCost += ((double)iNumPolicies / policyAdoptionIncrease * /*3*/ GC.getPOLICY_COST_INCREASE_TO_BE_EXPONENTED());
-
-	// Exponential cost scaling
-	iCost = pow((double)iCost, /*2.01*/(double)(GC.getPOLICY_COST_EXPONENTT100() / 100.0));
-
-	// Base cost that doesn't get exponent-ed
-	iCost += /*25*/ GC.getBASE_POLICY_COST();
+	// Game Speed Mod
+	iCost *= (GC.getGame().getGameSpeedInfo().getCulturePercent() * 2); // x2 since we want those costs to be online speed
+	iCost /= 100;
 
 	// Mod for City Count
 	iCost *= (100 + GetPolicyModifierForCityCount());
 	iCost /= 100;
 
+	// Mod for late game ideology
+	const int increaseThreshold = 1 + GC.getPOLICY_NUM_FOR_IDEOLOGY();
+	if (iNumPolicies >= increaseThreshold)
+	{
+		// each policy will actually count for more than just 1 policy increase
+		iCost *= GC.getPOLICY_MOD_LATE_GAME();
+	}
+
 	// Policy Cost Mod
 	iCost *= (100 + m_pPlayer->getPolicyCostModifier());
-	iCost /= 100;
-
-	// Game Speed Mod
-	iCost *= GC.getGame().getGameSpeedInfo().getCulturePercent();
 	iCost /= 100;
 
 	// Handicap Mod
 	iCost *= m_pPlayer->getHandicapInfo().getPolicyPercent();
 	iCost /= 100;
 
+	// XML adjustment
 	iCost *= GC.getPOLICY_COST_MULTIPLIERT100();
 	iCost /= 100;
 
-	//// Make the number nice and even
-	//int iDivisor = /*5*/ GC.getPOLICY_COST_VISIBLE_DIVISOR();
-	//iCost /= iDivisor;
-	//iCost *= iDivisor;
+	// Make room for rebate
+	iCost *= (100 + GC.getPOLICY_REBATE_VARIATION_T100());
+	iCost /= 100;
 
-	return int(0.5 + (iCost / policyAdoptionIncrease));
+	return max((T100)100, iCost);
+	// GC.getPOLICY_COST_INCREASE_TO_BE_EXPONENTED());
+	// GC.getPOLICY_COST_VISIBLE_DIVISOR();
 }
 
 /// Can we adopt this policy?

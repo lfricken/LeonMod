@@ -26,10 +26,10 @@ public:
 	void EndPerfTest();
 	void SetText(const char* szName) { m_szName = szName; }
 
-	double GetDeltaInSeconds() const;
+	long long GetDeltaInSeconds() const;
 
 protected:
-	void PerfLog(const char* szName, double dtSeconds);
+	void PerfLog(const char* szName, long long dtSeconds);
 
 private:
 	static bool ms_bPerfInit;
@@ -37,7 +37,7 @@ private:
 
 	const char* m_szName;
 	const char* m_szLogFile;
-	double m_dtseconds;
+	long long m_dtseconds;
 	uint m_logFlags;
 	int m_nesting;
 	bool m_bStarted;

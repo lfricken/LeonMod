@@ -2183,7 +2183,7 @@ void CvMilitaryAI::UpdateBaseData()
 		}
 	}
 
-	float fMultiplier;
+	int unitsNeededModT100;
 	int iNumUnitsWanted = 0;
 	bool bNavalMap = false;
 	EconomicAIStrategyTypes eStrategyNavalMap = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NAVAL_MAP");
@@ -2194,8 +2194,9 @@ void CvMilitaryAI::UpdateBaseData()
 	int iFlavorOffense = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
 	int iFlavorDefense = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DEFENSE"));
 
+	unitsNeededModT100 = m_pPlayer->GetMilitaryAI()->GetHighestThreat() + iFlavorOffense + iFlavorDefense;
 	// Scale up or down based on true threat level and a bit by flavors (multiplier should range from about 0.5 to about 1.5)
-	fMultiplier = (float)0.40 + (((float)(m_pPlayer->GetMilitaryAI()->GetHighestThreat() + iFlavorOffense + iFlavorDefense)) / (float)100.0);
+	unitsNeededModT100 += 40;
 
 	// first get the number of defenders that we think we need
 
@@ -2206,7 +2207,9 @@ void CvMilitaryAI::UpdateBaseData()
 	iNumUnitsWanted += (m_pPlayer->getNumCities() * /*100*/ GC.getAI_STRATEGY_DEFEND_MY_LANDS_UNITS_PER_CITYT100()) / 100;
 	iNumUnitsWanted += m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_SETTLE, true);
 
-	m_iMandatoryReserveSize = (int)((float)iNumUnitsWanted * fMultiplier);
+	m_iMandatoryReserveSize = iNumUnitsWanted;
+	m_iMandatoryReserveSize *= unitsNeededModT100;
+	m_iMandatoryReserveSize /= 100;
 
 	// add in a few for the difficulty level (all above Chieftain are boosted)
 	int iDifficulty = max(0,GC.getGame().getHandicapInfo().GetID() - 1);
@@ -2245,11 +2248,13 @@ void CvMilitaryAI::UpdateBaseData()
 		// add in more if we are playing on a high difficulty
 		iNumUnitsWanted += iDifficulty;
 
-		iNumUnitsWanted = (int)((float)iNumUnitsWanted * fMultiplier);
+		iNumUnitsWanted *= unitsNeededModT100;
+		iNumUnitsWanted /= 100;
 
 		iNumUnitsWanted = max(1,iNumUnitsWanted);
 	}
 
+	// reduce since we will have some ships instead
 	if (bNavalMap)
 	{
 		iNumUnitsWanted *= 2;

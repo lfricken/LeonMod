@@ -77,8 +77,8 @@ function InitMajorCivList()
 				controlTable.Button:RegisterCallback(Mouse.eLClick, LeaderSelected);
 				
 				-- Policies
-				local iTotalPolicies = 0;
-				for pPolicyBranch in GameInfo.PolicyBranchTypes() do
+				local iTotalPolicies = pOtherPlayer:GetNumPolicies();
+				--[[for pPolicyBranch in GameInfo.PolicyBranchTypes() do
 					local iPolicyBranch = pPolicyBranch.ID;
 					
 					local iCount = 0;
@@ -94,15 +94,13 @@ function InitMajorCivList()
 						end
 					end
 					-- hide exact policy details
-					--[[
 					if (iCount > 0) then
 						local textControls = {};
 						ContextPtr:BuildInstanceForControl("LTextEntry", textControls, controlTable.PoliciesStack);
 						local strText = Locale.ConvertTextKey(pPolicyBranch.Description) .. ": " .. iCount;
 						textControls.Text:SetText(strText);
 					end
-					]]--
-				end
+				end--]]
 				-- how many policies do we have?
 				local textControls = {};
 				ContextPtr:BuildInstanceForControl("LTextEntry", textControls, controlTable.PoliciesStack);

@@ -179,8 +179,8 @@ public:
 	bool CanWithdrawMoneyForPurchase(PurchaseType ePurchase, int iAmount, int iPriority = -1);
 	int AmountAvailableForPurchase(PurchaseType ePurchase) const;
 
-	double GetWorkersToCitiesRatio() const;
-	double GetImprovedToImprovablePlotsRatio() const;
+	T100 GetWorkersToCitiesRatioT100() const;
+	T100 GetImprovedToImprovablePlotsRatioT100() const;
 
 	void LogMonitor();
 	void LogCityMonitor();

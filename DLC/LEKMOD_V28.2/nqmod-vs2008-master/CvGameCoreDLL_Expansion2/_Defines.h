@@ -7,24 +7,16 @@
 
 // New mathematical constants
 // Delnar: these could be calculated at compile-time instead of needing defines, but I don't trust the VC compiler
-#define M_E			2.71828182845904523536
-#define fM_E		2.718281828f		//!< e (float)
-#define M_SQRT2		1.41421356237309504880
-#define fM_SQRT2	1.414213562f		//!< sqrt(2) (float)
-#define M_SQRT3		1.73205080756887729353
-#define fM_SQRT3	1.732050808f		//!< sqrt(3) (float)
-#define M_LN2		0.693147180559945309417
-#define fM_LN2		0.6931471806f		//!< ln(2) (float)
-#define M_GLDNRT	1.61803398874989484820
-#define fM_GLDNRT	1.618033989f		//!< (1 + sqrt(5))/2 (float), aka The Golden Ratio
 
 // Technical Improvements
 /// New GUID for NQMod
 #define NQM_GUID
 /// Enables Minidump Generation (originally for Civ4 by terkhen, ported to Civ5 by ls612)
 #define NQM_MINIDUMPS
+/// Optimized parts of functions responsible for updating plot vision code
+#define AUI_PLOT_VISIBILITY_OPTIMIZATIONS
 /*
-/// Can cache doubles from XML (Delnar: DatabaseUtility actually supports double-type, don't know why Firaxis didn't bother putting this in for good measure)
+/// Can cache dboubles from XML (Delnar: DatabaseUtility actually supports dbouble-type, don't know why Firaxis didn't bother putting this in for good measure)
 #define NQM_CACHE_DOUBLE
 /// Replaces instances of vector loops using indeces with ones that use iterators
 #define AUI_ITERATORIZE
@@ -36,7 +28,7 @@
 #define AUI_SCOPE_FIXES
 /// Replaces all instances of iterators with postfix incrementors to have prefix incrementors, increasing performance
 #define AUI_ITERATOR_POSTFIX_INCREMENT_OPTIMIZATIONS
-/// Fast comparison functions (to be used for built-in types like int, float, double, etc.)
+/// Fast comparison functions (to be used for built-in types like int, fbloat, dbouble, etc.)
 #define NQM_FAST_COMP
 /// Performance optimizations related to bit twiddling (http://www.graphics.stanford.edu/~seander/bithacks.html)
 #define NQM_GAME_CORE_UTILS_OPTIMIZATIONS
@@ -46,14 +38,12 @@
 #define AUI_FIX_HEX_DISTANCE_INSTEAD_OF_PLOT_DISTANCE
 /// Tweaks to make performance logs a bit more consistent and easier to read
 #define AUI_PERF_LOGGING_FORMATTING_TWEAKS
-/// Slightly increases stopwatch (performance counter) precision by performing the time delta subtraction bit before casting the result as a double
+/// Slightly increases stopwatch (performance counter) precision by performing the time delta subtraction bit before casting the result as a dbouble
 #define AUI_STOPWATCH_SUBTRACT_BEFORE_DELTA_CAST
 /// Implements the missing iterator typedefs for BaseVector
 #define AUI_FIX_FFASTVECTOR_BASEVECTOR_ITERATOR
 /// Functions that called ints for variables used for indexes and choice numbers now call unsigned ints instead
 #define AUI_FIX_FFASTVECTOR_USE_UNSIGNED
-/// Optimized parts of functions responsible for updating plot vision code
-#define AUI_PLOT_VISIBILITY_OPTIMIZATIONS
 /// Optimizes loops that iterate over relative coordinates to hexspace
 #define AUI_HEXSPACE_DX_LOOPS
 /// CvUnit::canMoveOrAttackInto() no longer calls certain expensive calls twice (also improves pathfinder performance)
@@ -123,7 +113,7 @@
 /// Turn timers are paused when a player is reconnecting
 #define AUI_GAME_SET_PAUSED_TURN_TIMERS_PAUSE_ON_RECONNECT
 */
-/// If the player receives a yield from a goody hut, floating text appears above the plot indicating the number and type of yields received
+/// If the player receives a yield from a goody hut, hover text appears above the plot indicating the number and type of yields received
 #define AUI_PLAYER_RECEIVE_GOODY_PLOT_MESSAGE_FOR_YIELD
 /// Disables the check for whether a unit is currently embarked for triggering Denmark's UA, so the pathfinder can use it properly
 #define AUI_UNIT_MOVEMENT_FIX_BAD_VIKING_DISEMBARK_PREVIEW
@@ -215,7 +205,7 @@
 /// Hovering units will no longer embark on shallow water, but will embark in deep water
 #define AUI_UNIT_FIX_HOVERING_EMBARK
 */
-/// Research overflow will no longer double-dip with research modifiers (once for the tech that generated it, once for the tech for which it is used). This also stops overflow from multiplying in ways that are exploitable and needed a band-aid fix from Firaxis.
+/// Research overflow will no longer 2x-dip with research modifiers (once for the tech that generated it, once for the tech for which it is used). This also stops overflow from multiplying in ways that are exploitable and needed a band-aid fix from Firaxis.
 #define AUI_PLAYER_FIX_NO_RESEARCH_OVERFLOW_DOUBLE_DIP
 /// When war is manually declared by a player against another (i.e. not through a defensive pact), if the defender has any trade routes to the attacker, those trade routes get cancelled instead of destroyed. This applies to both sides of a Defensive Pact DoW.
 #define NQM_TEAM_TRADE_ROUTES_CANCELLED_NOT_DESTROYED_FOR_WAR_DEFENDER_ON_DOW
@@ -556,7 +546,7 @@
 /// Returns score of 0 for improvement if built for a city being razed
 #define AUI_WORKER_SCORE_PLOT_NO_SCORE_FROM_RAZE
 /// If building an improvement also generates flat hammers, consider the effect as flat +parameter hammer yield
-#define AUI_WORKER_SCORE_PLOT_CHOP (0.5)
+#define AUI_WORKER_SCORE_PLOT_CHOPT100 (50)
 /// Removes the bias to chop forests after optics (since it doesn't actually offer a gameplay improvement)
 #define AUI_WORKER_NO_CHOP_BIAS
 /// Faith now affects tile evaluation for workers, it pulls from culture multiplier though
@@ -576,7 +566,7 @@
 /// New function that is called by AI/Automated workers to construct non-road improvements in a minor's territory (eg. for Portugal)
 #define AUI_WORKER_ADD_IMPROVING_MINOR_PLOTS_DIRECTIVES
 /// Multiplies the weight of unowned luxury resources for plot directives depending on the empire's happiness (value is the multiplier at 0 happiness)
-#define AUI_WORKER_GET_RESOURCE_WEIGHT_INCREASE_UNOWNED_LUXURY_WEIGHT (2.0)
+#define AUI_WORKER_GET_RESOURCE_WEIGHT_INCREASE_UNOWNED_LUXURY_WEIGHT (2)
 /// Consider extra sources of happiness once a resource is obtained (eg. extra happiness from luxury resources via policy, extra happiness from resource variety)
 #define AUI_WORKER_GET_RESOURCE_WEIGHT_CONSIDER_EXTRAS_FOR_HAPPINESS_FROM_RESOURCE
 /// Removes the isAdjacent check for whether a work boat can access an area different from its current one (pathfinder takes care of bad cases anyway, it's just a bit slower)
@@ -602,7 +592,7 @@
 /// Tweaks the algorithm for Plot Heal Moves to keep March promotions in mind and make sure we don't overheal if we're under threat
 #define AUI_HOMELAND_TWEAKED_HEAL_MOVES
 /// Changes the AcceptableDanger value in PlotDangerMoves to be a function of the unit's current HP percent
-#define AUI_HOMELAND_TWEAKED_ACCEPTABLE_DANGER (1.0)
+#define AUI_HOMELAND_TWEAKED_ACCEPTABLE_DANGER (1)
 /// When finding patrol targets for civilian units, subtract off danger value from plot score
 #define AUI_HOMELAND_TWEAKED_FIND_PATROL_TARGET_CIVILIAN_NO_DANGER
 /// Border plots, plots containing routes, and plots containing civilians are preferred over others when patrolling
@@ -624,7 +614,7 @@
 
 // Voting/League AI Stuff for when a player is defeated but their AI can still vote on proposals
 /// When voting for a player, the AI will now adjust for the fact that the voting system is First-Past-The-Post (so it will try to vote against players as well)
-#define AUI_VOTING_SCORE_VOTING_CHOICE_PLAYER_ADJUST_FOR_FPTP
+#define AUI_VOTING_SCORE_VOTING_CHOICE_PLAYER_ADJUST_FOR_FPTP // REMOVED CODE
 /// Uses a different algorithm for scoring voting on world ideology
 #define AUI_VOTING_TWEAKED_WORLD_IDEOLOGY
 /// Uses a different algorithm for scoring voting on world religion
@@ -832,6 +822,6 @@
 #define NQ_ADJACENT_MOD_REQUIRES_SAME_COMBAT_TYPE
 // taken from vox populi 4-30 changes by LoneGazebo, raphaell666, davenye
 // https://forums.civfanatics.com/threads/multiplayer-stability-thread.632082/
-// Workaround for the AI double turn when loading MP games with simultaneous/hybrid turns
+// Workaround for the AI 2x turn when loading MP games with simultaneous/hybrid turns
 #define MOD_BUGFIX_AI_DOUBLE_TURN_MP_LOAD (true)
 #endif

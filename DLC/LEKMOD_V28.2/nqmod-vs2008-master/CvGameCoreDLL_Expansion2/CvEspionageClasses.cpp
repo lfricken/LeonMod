@@ -1719,6 +1719,22 @@ bool CvPlayerEspionage::CanStageCoup(uint uiSpyIndex)
 	return false;
 }
 
+int getSpyValue(int rank)
+{
+	int value = GC.getESPIONAGE_COUP_SPY_LEVEL_DELTA_ZEROT100();
+	if (rank == 0)
+		value = GC.getESPIONAGE_COUP_SPY_LEVEL_DELTA_ZEROT100();
+	else if (rank == 1)
+		value = GC.getESPIONAGE_COUP_SPY_LEVEL_DELTA_ONET100();
+	else if (rank == 2)
+		value = GC.getESPIONAGE_COUP_SPY_LEVEL_DELTA_TWOT100();
+	else if (rank == 3)
+		value = GC.getESPIONAGE_COUP_SPY_LEVEL_DELTA_THREET100();
+	else if (rank == 4)
+		value = GC.getESPIONAGE_COUP_SPY_LEVEL_DELTA_FOURT100();
+	return value;
+}
+
 /// GetCoupChangeOfSuccess - What is the % chance of success that a spy will be able to pull off a coup?
 int CvPlayerEspionage::GetCoupChanceOfSuccess(uint uiSpyIndex)
 {
@@ -1776,82 +1792,33 @@ int CvPlayerEspionage::GetCoupChanceOfSuccess(uint uiSpyIndex)
 
 	int iDeltaInfluence = iAllyInfluence - iMyInfluence;
 
-	//float fNobodyBonus = 0.5;
-	//float fMultiplyConstant = 3.0f;
-	//float fSpyLevelDeltaZero = 0.0f;
-	//float fSpyLevelDeltaOne = 1.5f;
-	//float fSpyLevelDeltaTwo = 2.25;
-	//float fSpyLevelDeltaThree = 3.0f;
-
-	float fNobodyBonus = GC.getESPIONAGE_COUP_NOBODY_BONUST100() / 100.0f;
-	float fMultiplyConstant = GC.getESPIONAGE_COUP_MULTIPLY_CONSTANTT100() / 100.0f;
-	float fSpyLevelDeltaZero = GC.getESPIONAGE_COUP_SPY_LEVEL_DELTA_ZEROT100() / 100.0f;
-	float fSpyLevelDeltaOne = GC.getESPIONAGE_COUP_SPY_LEVEL_DELTA_ONET100() / 100.0f;
-	float fSpyLevelDeltaTwo = GC.getESPIONAGE_COUP_SPY_LEVEL_DELTA_TWOT100() / 100.0f;
-#ifndef NQM_PRUNING
-	float fSpyLevelDeltaThree = GC.getESPIONAGE_COUP_SPY_LEVEL_DELTA_THREET100() / 100.0f;
-	float fSpyLevelDeltaFour = GC.getESPIONAGE_COUP_SPY_LEVEL_DELTA_FOURT100() / 100.0f;
-#endif
-
-	float fAllySpyValue = 0.0f;
-	float fMySpyValue = 0.0;
-
 	int iMySpyRank = m_aSpyList[uiSpyIndex].m_eRank;
 	iMySpyRank += m_pPlayer->GetCulture()->GetInfluenceCityStateSpyRankBonus(eCityOwner);
-	switch (iMySpyRank)
-	{
-	case 0:
-		fMySpyValue = fSpyLevelDeltaZero;
-		break;
-	case 1:
-		fMySpyValue = fSpyLevelDeltaOne;
-		break;
-	case 2:
-		fMySpyValue = fSpyLevelDeltaTwo;
-		break;
-#ifndef NQM_PRUNING
-	case 3:
-		fMySpyValue = fSpyLevelDeltaThree;
-		break;
-	case 4:
-		fMySpyValue = fSpyLevelDeltaFour;
-		break;
-#endif
-	}
 
-	switch (iAllySpyRank)
-	{
-	case 0:
-		fAllySpyValue = fSpyLevelDeltaZero;
-		break;
-	case 1:
-		fAllySpyValue = fSpyLevelDeltaOne;
-		break;
-	case 2:
-		fAllySpyValue = fSpyLevelDeltaTwo;
-		break;
-	}	
+	// the spy of current friend
+	T100 allySpyValueT100 = getSpyValue(iAllySpyRank);
+	// our spy value
+	T100 fMySpyValueT100 = getSpyValue(iMySpyRank);
 
-	float fSpyMultipier = fAllySpyValue - fMySpyValue + fMultiplyConstant;
+	T100 spyMultipierT100 = GC.getESPIONAGE_COUP_MULTIPLY_CONSTANTT100(); // 300
+	spyMultipierT100 += allySpyValueT100 - fMySpyValueT100; // 100
+	// 400
+
 	if (bNoAllySpy)
 	{
-		fSpyMultipier *= fNobodyBonus;
+		spyMultipierT100 *= 100 + GC.getESPIONAGE_COUP_NOBODY_BONUST100();
+		spyMultipierT100 /= 100;
 	}
 
-	int iResultPercentage = 100 - (int)((iDeltaInfluence * fSpyMultipier) / 100);
+	// reduce our odds
+	int iResultPercentage = 100 - ((iDeltaInfluence * spyMultipierT100) / (100 * 100));
 
 #ifdef NQ_COUP_CHANCE_MODIFIER_FROM_POLICIES
 	iResultPercentage += m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_COUP_CHANCE_MODIFIER);
 #endif
 
-	if(iResultPercentage > 85)
-	{
-		iResultPercentage = 85;
-	}
-	else if(iResultPercentage < 0)
-	{
-		iResultPercentage = 0;
-	}
+	// bound to [0, 85]
+	iResultPercentage = max(0, min(85, iResultPercentage));
 
 	//int iAdjustedAllyInfluenceTimes100 = iAllyInfluence * (100 + m_aSpyList[uiSpyIndex].m_eRank * 100);
 	//int iAdjustedAllyInfluence = iAdjustedAllyInfluenceTimes100 / 100;
@@ -4660,13 +4627,13 @@ void CvEspionageAI::FindTargetSpyNumbers(int* piTargetOffensiveSpies, int* piTar
 	bool bAllocatedDefensiveSpies = false;
 	bool bAllocatedCityStateSpies = false;
 	bool bAllocatedDiplomatSpies  = false;
-	float fTechPositionRatio = m_pPlayer->GetPlayerTechs()->GetTechAI()->GetTechRatio();
+	T100 fTechPositionRatio = m_pPlayer->GetPlayerTechs()->GetTechAI()->GetTechRatio();
 
 	// if going for diplo or conquest, evaluate the offensive spies before assigning CS spies
 	if (pDiploAI->IsGoingForDiploVictory())
 	{
 		// find out how many diplomats we need
-		float fNumDiplomats = 0.0f;
+		T100 numDiplomatsT100 = 0;
 		for (uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
 		{
 			PlayerTypes ePlayer = (PlayerTypes)ui;
@@ -4680,13 +4647,13 @@ void CvEspionageAI::FindTargetSpyNumbers(int* piTargetOffensiveSpies, int* piTar
 			switch (eUsefulnessLevel)
 			{
 			case CvLeagueAI::DIPLOMAT_USEFULNESS_HIGH:
-				fNumDiplomats += 1.0f;
+				numDiplomatsT100 += 100;
 				break;
 			case CvLeagueAI::DIPLOMAT_USEFULNESS_MEDIUM:
-				fNumDiplomats += 0.5f;
+				numDiplomatsT100 += 50;
 				break;
 			case CvLeagueAI::DIPLOMAT_USEFULNESS_LOW:
-				fNumDiplomats += 0.25f;
+				numDiplomatsT100 += 25;
 				break;
 			case CvLeagueAI::DIPLOMAT_USEFULNESS_NONE:
 				break;
@@ -4694,13 +4661,13 @@ void CvEspionageAI::FindTargetSpyNumbers(int* piTargetOffensiveSpies, int* piTar
 		}
 
 		// assign spies to be diplomats
-		int iNumDiplomats = (int)floor(fNumDiplomats);
+		int iNumDiplomats = numDiplomatsT100 / 100;
 		*piTargetDiplomatSpies = min(iNumRemainingSpies, iNumDiplomats);
 		bAllocatedDiplomatSpies = true;
 		iNumRemainingSpies -= *piTargetDiplomatSpies;
 
 		// assign offensive spies according to tech position
-		*piTargetOffensiveSpies = (int)ceil(fTechPositionRatio * iNumRemainingSpies);
+		*piTargetOffensiveSpies = ((fTechPositionRatio * iNumRemainingSpies) + 99) / 100;
 		bAllocatedOffensiveSpies = true;
 		iNumRemainingSpies -= *piTargetOffensiveSpies;
 
@@ -4736,7 +4703,7 @@ void CvEspionageAI::FindTargetSpyNumbers(int* piTargetOffensiveSpies, int* piTar
 	else if (pDiploAI->IsGoingForWorldConquest())
 	{
 		// assign offensive spies according to tech position
-		*piTargetOffensiveSpies = (int)ceil(fTechPositionRatio * iNumRemainingSpies);
+		*piTargetOffensiveSpies = ((fTechPositionRatio * iNumRemainingSpies) + 99) / 100;
 		bAllocatedOffensiveSpies = true;
 		iNumRemainingSpies -= *piTargetOffensiveSpies;
 
@@ -4800,7 +4767,7 @@ void CvEspionageAI::FindTargetSpyNumbers(int* piTargetOffensiveSpies, int* piTar
 	iNumRemainingSpies -= *piTargetCityStateSpies;
 	if (!bAllocatedOffensiveSpies)
 	{
-		*piTargetOffensiveSpies = (int)ceil(fTechPositionRatio * iNumRemainingSpies);
+		*piTargetOffensiveSpies = ((fTechPositionRatio * iNumRemainingSpies) + 99) / 100;
 		bAllocatedOffensiveSpies = true;
 		iNumRemainingSpies -= *piTargetOffensiveSpies;
 	}

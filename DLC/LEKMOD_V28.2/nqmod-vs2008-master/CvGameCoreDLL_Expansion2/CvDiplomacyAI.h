@@ -52,7 +52,7 @@ struct MinorGoldGiftInfo
 {
 	PlayerTypes eMinor;
 	PlayerTypes eMajorRival;
-	float numSmallGiftsNeeded;
+	int numSmallGiftsNeeded;
 };
 class CvDiplomacyAI
 {

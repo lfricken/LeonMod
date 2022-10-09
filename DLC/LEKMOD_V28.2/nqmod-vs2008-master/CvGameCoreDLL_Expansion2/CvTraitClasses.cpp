@@ -2611,12 +2611,12 @@ bool CvPlayerTraits::NoTrain(UnitClassTypes eUnitClassType)
 
 // MAYA TRAIT SPECIAL METHODS
 
-const float CALENDAR_START = -3112.3973f;  // Actual date is August 11, 3114 BCE.  This float is reversed engineered to come out to Dec 21, 2012 as 13.0.0.0.0
-const float DAYS_IN_BAKTUN = 144000.0f;
-const float DAYS_IN_KATUN = 7200.0f;
-const float DAYS_IN_TUN = 360.0f;
-const float DAYS_IN_WINAL = 20.0f;
-const float DAYS_IN_YEAR = 365.242199f;
+const int CALENDAR_START = -3112; // switched to an int // Actual date is August 11, 3114 BCE.  This fbloat WAS reversed engineered to come out to Dec 21, 2012 as 13 0 0 0 0
+const int DAYS_IN_BAKTUN = 144000;
+const int DAYS_IN_KATUN = 7200;
+const int DAYS_IN_TUN = 360;
+const int DAYS_IN_WINAL = 20;
+const int DAYS_IN_YEAR = 365;
 
 /// Is the Maya calendar active for this player?
 bool CvPlayerTraits::IsUsingMayaCalendar() const
@@ -2867,23 +2867,22 @@ void CvPlayerTraits::ChooseMayaBoost()
 /// Converts current game year to Maya date information for use by other functions
 void CvPlayerTraits::ComputeMayaDate()
 {
-	float fCalendarStart = CALENDAR_START;
+	int fCalendarStart = CALENDAR_START;
 	int iYear = GC.getGame().getGameTurnYear();
-	float fYear = (float)iYear;
 
-	if(fYear >= fCalendarStart)
+	if(iYear >= fCalendarStart)
 	{
 		// Days since calendar start
-		float fDays = (fYear - fCalendarStart) * DAYS_IN_YEAR;
-		m_iBaktun = (int)(fDays / DAYS_IN_BAKTUN);
-		fDays = fDays - ((float)m_iBaktun * DAYS_IN_BAKTUN);
-		m_iKatun = (int)(fDays / DAYS_IN_KATUN);
-		fDays = fDays - ((float)m_iKatun * DAYS_IN_KATUN);
-		m_iTun = (int)(fDays / DAYS_IN_TUN);
-		fDays = fDays - ((float)m_iTun * DAYS_IN_TUN);
-		m_iWinal = (int)(fDays / DAYS_IN_WINAL);
-		fDays = fDays - ((float)m_iWinal * DAYS_IN_WINAL);
-		m_iKin = (int)fDays;
+		int fDays = (iYear - fCalendarStart) * DAYS_IN_YEAR;
+		m_iBaktun = fDays / DAYS_IN_BAKTUN;
+		fDays = fDays - (m_iBaktun * DAYS_IN_BAKTUN);
+		m_iKatun = (fDays / DAYS_IN_KATUN);
+		fDays = fDays - (m_iKatun * DAYS_IN_KATUN);
+		m_iTun = (fDays / DAYS_IN_TUN);
+		fDays = fDays - (m_iTun * DAYS_IN_TUN);
+		m_iWinal = (fDays / DAYS_IN_WINAL);
+		fDays = fDays - (m_iWinal * DAYS_IN_WINAL);
+		m_iKin = fDays;
 	}
 }
 
@@ -2893,11 +2892,7 @@ int CvPlayerTraits::GetUnitBaktun(UnitTypes eUnit) const
 	std::vector<MayaBonusChoice>::const_iterator it;
 
 	// Loop through all units available to tactical AI this turn
-#ifdef AUI_ITERATOR_POSTFIX_INCREMENT_OPTIMIZATIONS
 	for (it = m_aMayaBonusChoices.begin(); it != m_aMayaBonusChoices.end(); ++it)
-#else
-	for(it = m_aMayaBonusChoices.begin(); it != m_aMayaBonusChoices.end(); it++)
-#endif
 	{
 		if(it->m_eUnitType == eUnit)
 		{

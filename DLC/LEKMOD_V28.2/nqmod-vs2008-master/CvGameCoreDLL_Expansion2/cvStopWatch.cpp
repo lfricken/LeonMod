@@ -22,7 +22,7 @@ static int ms_nesting = 0;
 cvStopWatch::cvStopWatch(const char* szName, const char* szLogFile /* = NULL */, uint logFlags /* = 0 */, bool bDisable /* = false */, bool bShowNesting /* = false */):
 	m_szName(szName),
 	m_szLogFile(szLogFile),
-	m_dtseconds(0.0),
+	m_dtseconds(0),
 	m_logFlags(logFlags),
 	m_bDisable(bDisable),
 	m_bShowNesting(bShowNesting)
@@ -63,23 +63,23 @@ void cvStopWatch::EndPerfTest()
 	QueryPerformanceCounter(&newTimerVal);
 
 #ifdef AUI_STOPWATCH_SUBTRACT_BEFORE_DELTA_CAST
-	double dtTime = (double)(newTimerVal.QuadPart - m_oldTimerVal.QuadPart);
+	long long dtTime = (newTimerVal.QuadPart - m_oldTimerVal.QuadPart);
 #else
-	double dtTime = (double)newTimerVal.QuadPart - m_oldTimerVal.QuadPart;
+	long long dtTime = newTimerVal.QuadPart - m_oldTimerVal.QuadPart;
 #endif
-	double dTicksPerSecond = (double)ms_ticksPerSecond.QuadPart;
+	long long dTicksPerSecond = ms_ticksPerSecond.QuadPart;
 
-	m_dtseconds = dtTime/dTicksPerSecond;
+	m_dtseconds = dtTime / dTicksPerSecond;
 
 	PerfLog(m_szName, m_dtseconds);
 }
 //------------------------------------------------------------------------------
-double cvStopWatch::GetDeltaInSeconds() const
+long long cvStopWatch::GetDeltaInSeconds() const
 {
 	return m_dtseconds;
 }
 //------------------------------------------------------------------------------
-void cvStopWatch::PerfLog(const char* szName, double dtSeconds)
+void cvStopWatch::PerfLog(const char* szName, long long dtSeconds)
 {
 	if (!m_bDisable)
 	{

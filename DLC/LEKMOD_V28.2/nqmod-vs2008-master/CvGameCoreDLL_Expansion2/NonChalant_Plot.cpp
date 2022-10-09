@@ -43,7 +43,7 @@ int CvPlot::getExtraYield
 	// type of improvement
 	const ImprovementTypes eImprovement,
 	// type of route (road, railroad, none)
-	const RouteTypes eRouteType,
+	const RouteTypes,
 	// owning player
 	const PlayerTypes tileOwner
 )
@@ -52,11 +52,11 @@ int CvPlot::getExtraYield
 	// city that is/could work this tile
 	const CvCity* pWorkingCity = plot.getWorkingCity();
 	// true if a is/could work this tile
-	const bool hasAWorkingCity = pWorkingCity != NULL;
+	//const bool hasAWorkingCity = pWorkingCity != NULL;
 	// true if this tile is not pillaged
-	const bool isNotPillaged = !plot.IsRoutePillaged() && !plot.IsImprovementPillaged();
+	//const bool isNotPillaged = !plot.IsRoutePillaged() && !plot.IsImprovementPillaged();
 	// true if we have a road or railroad
-	const bool hasAnyRoute = eRouteType != NO_ROUTE && isNotPillaged;
+	//const bool hasAnyRoute = eRouteType != NO_ROUTE && isNotPillaged;
 	// true if this tile has any improvements
 	const bool hasAnyImprovement = eImprovement != NO_IMPROVEMENT;
 	// true if this is the actual city tile (not just a surrounding tile)
@@ -78,7 +78,7 @@ int CvPlot::getExtraYield
 
 
 	const bool isTundra = plot.HasTerrain(TERRAIN_TUNDRA);
-	const bool isSnow = plot.HasTerrain(TERRAIN_SNOW);
+	//const bool isSnow = plot.HasTerrain(TERRAIN_SNOW);
 	const bool isDesert = plot.HasTerrain(TERRAIN_DESERT);
 	const bool hasBonus = plot.HasResourceClass("RESOURCECLASS_BONUS"); // has a bonus resource
 	const bool hasLuxury = plot.HasResourceClass("RESOURCECLASS_LUXURY"); // has a luxury resource
@@ -95,12 +95,13 @@ int CvPlot::getExtraYield
 		{
 			const CvCity& city = *pWorkingCity;
 			const ReligionTypes majorityReligion = city.GetCityReligions()->GetReligiousMajority(); // the majority religion in this city
-			const int numCitiesFollowing = GC.getGame().GetGameReligions()->GetNumCitiesFollowing(majorityReligion); // number of cities with this as majority
+			//const int numCitiesFollowing = GC.getGame().GetGameReligions()->GetNumCitiesFollowing(majorityReligion); // number of cities with this as majority
 			const int numCityStatesFollowing = GC.getGame().GetGameReligions()->GetNumCitiesFollowing(majorityReligion, true); // number of city states with this as majority
 			const bool isHolyCity = city.GetCityReligions()->IsHolyCityForReligion(majorityReligion); // true if this is the holy city of the majority religion in this city
 			const int numFollowersLocal = city.GetCityReligions()->GetNumFollowers(majorityReligion); // number of people following the majority religion in this city
-			const int numFollowersGlobal = city.GetCityReligions()->GetNumFollowers(majorityReligion); // number of people following the majority religion in this city globaly
-			const int cityPopulation = city.getPopulation(); // number of people in this city
+			const CvGameReligions& worldReligions = *GC.getGame().GetGameReligions();
+			const int numFollowersGlobal = worldReligions.GetNumFollowers(majorityReligion); // number of people following the majority religion in this city globaly
+			//const int cityPopulation = city.getPopulation(); // number of people in this city
 			const int numTradeCityStates = player.GetTrade()->GetNumberOfCityStateTradeRoutes(); // number of trade routes we have with city states
 			const int numTradeMajorCivs = player.GetTrade()->GetNumForeignTradeRoutes(player.GetID()) - numTradeCityStates; // number of trade routes we have with other civ players (not city states)
 			//player.IsCiv("CIVILIZATION_AMERICA");
@@ -331,7 +332,7 @@ int CvPlot::getExtraYield
 
 			{// POLICY_EXPLORATION_FINISHER gives +1C from Coastal Luxuries, +1PD from Atolls, 2PD, 2G from DryDocks				
 				const bool hasExplorationFinisher = player.HasPolicy("POLICY_EXPLORATION_FINISHER");
-				const bool isFish = plot.HasResource("RESOURCE_FISH"); 
+				//const bool isFish = plot.HasResource("RESOURCE_FISH"); 
 				const bool isCoastalLuxury = (plot.HasResource("RESOURCE_CRAB") || plot.HasResource("RESOURCE_WHALE") || plot.HasResource("RESOURCE_PEARLS")
 					|| plot.HasResource("RESOURCE_CORAL"));
 				const bool isDryDock = (plot.HasImprovement("IMPROVEMENT_DOCK") || plot.HasImprovement("IMPROVEMENT_CHILE_DOCK"));

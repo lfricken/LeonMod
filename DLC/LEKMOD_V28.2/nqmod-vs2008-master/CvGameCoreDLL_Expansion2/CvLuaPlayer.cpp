@@ -2591,10 +2591,10 @@ int CvLuaPlayer::lGetTourismModifierWith(lua_State* L)
 //CvString GetTourismModifierWithTooltip();
 int CvLuaPlayer::lGetTourismModifierWithTooltip(lua_State* L)
 {
-	int newTourismT100 = 0;
+	T100 newTourismT100 = 0;
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
-	lua_pushstring(L, pkPlayer->GetCulture()->GetTourismModifierWith_Tooltip(ePlayer, newTourismT100));
+	lua_pushstring(L, pkPlayer->GetCulture()->GetNetTourismT100With_AndReturnTooltip(ePlayer, newTourismT100));
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -4192,7 +4192,7 @@ int CvLuaPlayer::lGetTradeToYouRoutesTTString(lua_State* L)
 	return 1;
 }
 
-void getDeltas(const CvCity* from, const CvCity* to, int& toDelta, int& fromDelta)
+void getDeltas(const CvCity*, const CvCity*, int& toDelta, int& fromDelta)
 {
 	// don't consider trade route for tourism
 	toDelta = 0; // = from->GetCityCulture()->GetNetTourism() * GET_PLAYER(from->getOwner()).GetCulture()->GetTourismModifierWithT100(to->getOwner()) / 100;
@@ -8933,8 +8933,8 @@ int CvLuaPlayer::lGetRecommendedWorkerPlots(lua_State* L)
 	const size_t cuiMaxDirectives = 3;
 	const size_t cuiDirectiveSize = 4;
 	BuilderDirective aDirective[ cuiDirectiveSize ];
-	bool bUseDirective[cuiDirectiveSize];
-	CvPlot* pDirectivePlots[cuiDirectiveSize] = {0};
+	bool bUseDirective[cuiDirectiveSize] = { 0, 0, 0, 0 };
+	CvPlot* pDirectivePlots[cuiDirectiveSize] = { 0 };
 
 	pkPlayer->GetBuilderTaskingAI()->EvaluateBuilder(pWorkerUnit, aDirective, cuiDirectiveSize, true);
 
@@ -9116,8 +9116,8 @@ int CvLuaPlayer::lGetRecommendedFoundCityPlots(lua_State* L)
 
 	int iReturnSize = 0;
 	int iFailLimit = 20;		// Paths can be really slow to create, bail if we fail too many times.
-	#define MAX_RECCOMEND_RETURN 3
-	CvPlot* aPlots[MAX_RECCOMEND_RETURN];
+	const int MAX_RECCOMEND_RETURN = 3;
+	CvPlot* aPlots[MAX_RECCOMEND_RETURN] = {0, 0, 0};
 
 	uint uiListSize;
 	if ((uiListSize = aBestPlots.size()) > 0)

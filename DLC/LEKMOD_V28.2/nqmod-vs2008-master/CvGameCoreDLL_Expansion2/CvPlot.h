@@ -168,7 +168,7 @@ public:
 	bool isShallowWater() const;
 	bool isAdjacentToShallowWater() const;
 	bool isAdjacentToIce() const;
-	// true if an adjacent tile could float a ship
+	// true if an adjacent tile could support ship movement
 	bool isCoastalLand(int iMinWaterSize = -1) const;
 	int GetSizeLargestAdjacentWater() const;
 
@@ -475,6 +475,7 @@ public:
 	{
 		return (PlotTypes)m_ePlotType == PLOT_MOUNTAIN;
 	};
+	// true if there is an adjacent river
 	bool isRiver()          const
 	{
 		return m_iRiverCrossingCount > 0;

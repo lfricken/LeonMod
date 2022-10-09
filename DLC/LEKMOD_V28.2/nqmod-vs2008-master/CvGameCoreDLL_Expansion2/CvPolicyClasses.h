@@ -845,7 +845,7 @@ public:
 	int GetPolicyModifierForCityCountModT100() const;
 	// player determined policy cost increase due to cities
 	int GetPolicyModifierForCityCount() const;
-	int GetNextPolicyCost();
+	T100 GetNextPolicyCostT100();
 	bool CanAdoptPolicy(PolicyTypes eIndex, bool bIgnoreCost = false) const;
 	int GetNumPoliciesCanBeAdopted();
 

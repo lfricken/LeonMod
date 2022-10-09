@@ -49,7 +49,7 @@ public:
 
 	int GetWeight(TechTypes eTech);
 
-	float GetTechRatio();
+	T100 GetTechRatio();
 
 private:
 	// Internal methods

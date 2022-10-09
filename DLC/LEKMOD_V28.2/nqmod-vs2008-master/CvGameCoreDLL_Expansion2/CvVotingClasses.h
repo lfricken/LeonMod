@@ -564,16 +564,16 @@ public:
 	// Projects
 	bool IsProjectActive(LeagueProjectTypes eLeagueProject) const;
 	bool IsProjectComplete(LeagueProjectTypes eLeagueProject) const;
-	int GetProjectCostPerPlayer(LeagueProjectTypes eLeagueProject) const;
+	int GetProjectCostPerPlayerT100(LeagueProjectTypes eLeagueProject) const;
 	int GetProjectBuildingCostPerPlayer(BuildingTypes eRewardBuilding) const;
-	int GetProjectCost(LeagueProjectTypes eLeagueProject) const;
-	int GetProjectProgress(LeagueProjectTypes eLeagueProject);
+	int GetProjectCostT100(LeagueProjectTypes eLeagueProject) const;
+	int GetProjectProgressT100(LeagueProjectTypes eLeagueProject);
 	bool CanMemberContribute(PlayerTypes ePlayer, LeagueProjectTypes eLeagueProject) const;
-	int GetMemberContribution(PlayerTypes ePlayer, LeagueProjectTypes eLeagueProject) const;
-	void SetMemberContribution(PlayerTypes ePlayer, LeagueProjectTypes eLeagueProject, int iValue);
-	void ChangeMemberContribution(PlayerTypes ePlayer, LeagueProjectTypes eLeagueProject, int iChange);
+	int GetMemberContributionT100(PlayerTypes ePlayer, LeagueProjectTypes eLeagueProject) const;
+	void SetMemberContributionT100(PlayerTypes ePlayer, LeagueProjectTypes eLeagueProject, int iValue);
+	void ChangeMemberContributionT100(PlayerTypes ePlayer, LeagueProjectTypes eLeagueProject, int iChange);
 	ContributionTier GetMemberContributionTier(PlayerTypes ePlayer, LeagueProjectTypes eLeagueProject);
-	float GetContributionTierThreshold(ContributionTier eTier, LeagueProjectTypes eLeagueProject);
+	T100 GetContributionTierThresholdT100(ContributionTier eTier, LeagueProjectTypes eLeagueProject);
 
 	// Resolution Effect Queries
 	bool IsTradeEmbargoed(PlayerTypes eTrader, PlayerTypes eRecipient);
@@ -732,7 +732,7 @@ public:
 
 	// Projects
 	bool CanContributeToLeagueProject(PlayerTypes ePlayer, LeagueProjectTypes eLeagueProject);
-	void DoLeagueProjectContribution(PlayerTypes ePlayer, LeagueProjectTypes eLeagueProject, int iValue);
+	void DoLeagueProjectContributionT100(PlayerTypes ePlayer, LeagueProjectTypes eLeagueProject, int iValue);
 
 	// Resolution Effects
 	PlayerTypes GetDiplomaticVictor() const;

@@ -989,6 +989,7 @@ public:
 	int getCreatePercent() const;
 	int getResearchPercent() const;
 	int getGoldPercent() const;
+	// T100
 	int getGoldGiftMod() const;
 	int getBuildPercent() const;
 	int getImprovementPercent() const;
@@ -1798,6 +1799,7 @@ public:
 	int getResearchPercent() const;
 	int getAdvancedStartPointsMod() const;
 	int getNumCitiesUnhappinessPercent() const;
+	// T100
 	int GetNumCitiesPolicyCostMod() const;
 	int GetNumCitiesTechCostMod() const;
 	int GetEstimatedNumCities() const;
@@ -1872,41 +1874,6 @@ public:
 		return m_iMountainPercent;
 	}
 
-	float getSnowLatitudeChange() const
-	{
-		return m_fDesertBottomLatitudeChange;
-	}
-
-	float getTundraLatitudeChange() const
-	{
-		return m_fTundraLatitudeChange;
-	}
-
-	float getGrassLatitudeChange() const
-	{
-		return m_fGrassLatitudeChange;
-	}
-
-	float getDesertBottomLatitudeChange() const
-	{
-		return m_fDesertBottomLatitudeChange;
-	}
-
-	float getDesertTopLatitudeChange() const
-	{
-		return m_fDesertTopLatitudeChange;
-	}
-
-	float getIceLatitude() const
-	{
-		return m_fIceLatitude;
-	}
-
-	float getRandIceLatitude() const
-	{
-		return m_fRandIceLatitude;
-	}
-
 	//Cached result overrides.
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
@@ -1919,13 +1886,13 @@ protected:
 	int m_iHillRange;
 	int m_iMountainPercent;
 
-	float m_fSnowLatitudeChange;
-	float m_fTundraLatitudeChange;
-	float m_fGrassLatitudeChange;
-	float m_fDesertBottomLatitudeChange;
-	float m_fDesertTopLatitudeChange;
-	float m_fIceLatitude;
-	float m_fRandIceLatitude;
+	int m_fSnowLatitudeChange;
+	int m_fTundraLatitudeChange;
+	int m_fGrassLatitudeChange;
+	int m_fDesertBottomLatitudeChange;
+	int m_fDesertTopLatitudeChange;
+	int m_fIceLatitude;
+	int m_fRandIceLatitude;
 };
 
 FDataStream& operator<<(FDataStream&, const CvClimateInfo&);

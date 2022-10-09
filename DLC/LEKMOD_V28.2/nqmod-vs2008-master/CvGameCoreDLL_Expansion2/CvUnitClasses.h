@@ -122,9 +122,6 @@ public:
 	bool IsTrade() const;
 	int GetNumExoticGoods() const;
 
-	float GetUnitMaxSpeed() const;
-	float GetUnitPadTime() const;
-
 	int GetProjectPrereq() const;
 	int GetSpaceshipProject() const;
 
@@ -159,6 +156,7 @@ public:
 
 	// Derived fields (not in XML)
 	int GetCargoSpace() const;  // (from free promotions)
+	// approximately how strong the AI and calculations should consider this unit, ignoring health
 	int GetPower() const;
 	void DoUpdatePower();
 

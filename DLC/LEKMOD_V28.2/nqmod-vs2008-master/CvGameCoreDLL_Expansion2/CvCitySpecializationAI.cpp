@@ -1423,7 +1423,7 @@ int CvCitySpecializationAI::AdjustValueBasedOnBuildings(CvCity* pCity, YieldType
 	break;
 
 	case YIELD_PRODUCTION:
-		// Double production if any military training facilities present
+		// 2x production if any military training facilities present
 		if(pCity->getDomainFreeExperience(DOMAIN_LAND) > 0)
 		{
 			iRtnValue *= 2;

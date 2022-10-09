@@ -34,24 +34,6 @@ inline int range(int iNum, int iLow, int iHigh)
 	}
 }
 
-inline float range(float fNum, float fLow, float fHigh)
-{
-	CvAssertMsg(fHigh >= fLow, "High should be higher than low");
-
-	if(fNum < fLow)
-	{
-		return fLow;
-	}
-	else if(fNum > fHigh)
-	{
-		return fHigh;
-	}
-	else
-	{
-		return fNum;
-	}
-}
-
 inline int wrapCoordDifference(int iDiff, uint uiRange, bool bWrap)
 {
 	if(bWrap)

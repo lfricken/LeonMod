@@ -738,10 +738,6 @@ public:
 	bool CheckForAllWondersBuilt();
 	bool CheckForSevenAncientWondersBuilt();
 
-	/// CMP
-	const std::vector<BuildingTypes>& GetAllBuildingsHere() const { return m_buildingsThatExistAtLeastOnce; }
-
-
 private:
 	void NotifyNewBuildingStarted(BuildingTypes eIndex);
 
@@ -765,11 +761,6 @@ private:
 	int* m_paiBuildingOriginalTime;
 	int* m_paiNumRealBuilding;
 	int* m_paiNumFreeBuilding;
-
-/// CMP
-
-	std::vector<BuildingTypes> m_buildingsThatExistAtLeastOnce;
-	///
 
 	std::vector<BuildingYieldChange> m_aBuildingYieldChange;
 	std::vector<BuildingGreatWork> m_aBuildingGreatWork;

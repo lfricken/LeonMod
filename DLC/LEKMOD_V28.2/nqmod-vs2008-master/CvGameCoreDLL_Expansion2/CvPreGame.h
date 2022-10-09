@@ -53,7 +53,7 @@ int                                        advancedStartPoints();
 const CvString&                            alias();                             // setupdata
 ArtStyleTypes                              artStyle(PlayerTypes p);
 bool                                       autorun();                           // setupdata
-float                                      autorunTurnDelay();                  // setupdata
+decimal                                    autorunTurnDelay();                  // setupdata
 int                                        autorunTurnLimit();                  // setupdata
 CvString                                   bandwidthDescription();              // setupdata
 CalendarTypes                              calendar();
@@ -77,7 +77,7 @@ void                                       closeAllSlots();
 void                                       closeInactiveSlots();
 const CvString&                            emailAddress(PlayerTypes p);
 const CvString&                            emailAddress();                      // setupdata
-float                                      endTurnTimerLength();                // setupdata
+decimal                                    endTurnTimerLength();                // setupdata
 EraTypes                                   era();
 PlayerTypes                                findPlayerByNickname(const char* const name);
 void                                       ReseatConnectedPlayers();
@@ -176,7 +176,7 @@ void                                       setAdvancedStartPoints(int a);
 void                                       setAlias(const CvString& a);                           // setupdata
 void                                       setArtStyle(PlayerTypes p, ArtStyleTypes a);
 void                                       setAutorun(bool isAutoStart);                        // setupdata
-void                                       setAutorunTurnDelay(float turnDelay);               // setupdata
+void                                       setAutorunTurnDelay(decimal turnDelay);               // setupdata
 void                                       setAutorunTurnLimit(int turnLimit);               // setupdata
 void                                       setBandwidth(BandwidthType b);                      // setupdata
 void                                       setBandwidth(const CvString& b);                       // setupdata
@@ -195,7 +195,7 @@ void                                       setCustomWorldSize(int iWidth, int iH
 void										 setDLCAllowed(const GUID& kDLCID, bool bState);
 void                                       setEmailAddress(PlayerTypes p, const CvString& a);
 void                                       setEmailAddress(const CvString& a);                    // setupdata
-void                                       setEndTurnTimerLength(float f);             // setupdata
+void                                       setEndTurnTimerLength(decimal f);             // setupdata
 void                                       setEra(EraTypes e);
 void                                       setEra(const CvString& e);
 void                                       setFlagDecal(PlayerTypes p, const CvString& flagDecal);

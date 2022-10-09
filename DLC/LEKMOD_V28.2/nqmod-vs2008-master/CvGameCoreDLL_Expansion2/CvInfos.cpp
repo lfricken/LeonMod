@@ -772,7 +772,7 @@ int CvSpecialistInfo::getYieldChange(int i) const
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	int value = 0;
-	if (i == YieldTypes::YIELD_CULTURE)
+	if (i == YIELD_CULTURE)
 	{
 		value += getCulturePerTurn();
 	}
@@ -6028,13 +6028,13 @@ CvClimateInfo::CvClimateInfo() :
 	m_iJungleLatitude(0),
 	m_iHillRange(0),
 	m_iMountainPercent(0),
-	m_fSnowLatitudeChange(0.0f),
-	m_fTundraLatitudeChange(0.0f),
-	m_fGrassLatitudeChange(0.0f),
-	m_fDesertBottomLatitudeChange(0.0f),
-	m_fDesertTopLatitudeChange(0.0f),
-	m_fIceLatitude(0.0f),
-	m_fRandIceLatitude(0.0f)
+	m_fSnowLatitudeChange(0),
+	m_fTundraLatitudeChange(0),
+	m_fGrassLatitudeChange(0),
+	m_fDesertBottomLatitudeChange(0),
+	m_fDesertTopLatitudeChange(0),
+	m_fIceLatitude(0),
+	m_fRandIceLatitude(0)
 {
 }
 //------------------------------------------------------------------------------
@@ -6048,13 +6048,13 @@ bool CvClimateInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iHillRange					= kResults.GetInt("HillRange");
 	m_iMountainPercent					= kResults.GetInt("MountainPercent");
 
-	m_fSnowLatitudeChange			= kResults.GetFloat("SnowLatitudeChange");
-	m_fTundraLatitudeChange			= kResults.GetFloat("TundraLatitudeChange");
-	m_fGrassLatitudeChange			= kResults.GetFloat("GrassLatitudeChange");
-	m_fDesertBottomLatitudeChange	= kResults.GetFloat("DesertBottomLatitudeChange");
-	m_fDesertTopLatitudeChange		= kResults.GetFloat("DesertTopLatitudeChange");
-	m_fIceLatitude					= kResults.GetFloat("IceLatitude");
-	m_fRandIceLatitude				= kResults.GetFloat("RandIceLatitude");
+	m_fSnowLatitudeChange			= kResults.GetInt("SnowLatitudeChange");
+	m_fTundraLatitudeChange			= kResults.GetInt("TundraLatitudeChange");
+	m_fGrassLatitudeChange			= kResults.GetInt("GrassLatitudeChange");
+	m_fDesertBottomLatitudeChange	= kResults.GetInt("DesertBottomLatitudeChange");
+	m_fDesertTopLatitudeChange		= kResults.GetInt("DesertTopLatitudeChange");
+	m_fIceLatitude					= kResults.GetInt("IceLatitude");
+	m_fRandIceLatitude				= kResults.GetInt("RandIceLatitude");
 
 	return true;
 }
@@ -6746,10 +6746,10 @@ bool CvColorInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 		return false;
 	}
 
-	m_Color = CvColorA(kResults.GetFloat("Red"),
-	                   kResults.GetFloat("Green"),
-	                   kResults.GetFloat("Blue"),
-	                   kResults.GetFloat("Alpha"));
+	m_Color = CvColorA(kResults.GetFloat("Red"), // safe decimal
+	                   kResults.GetFloat("Green"), // safe decimal
+	                   kResults.GetFloat("Blue"), // safe decimal
+	                   kResults.GetFloat("Alpha")); // safe decimal
 
 	return true;
 }

@@ -492,7 +492,7 @@ void CvCombatInfo::setDamageMemberCount(int iDamageMemberCount)
 //! \brief      Default constructor.
 //------------------------------------------------------------------------------------------------
 CvMissionDefinition::CvMissionDefinition() :
-	m_fMissionTime(0.0f),
+	m_fMissionTime(0),
 	m_eMissionType(NO_MISSION),
 	m_pPlot(NULL),
 	m_pSecondaryPlot(NULL)
@@ -511,12 +511,12 @@ void CvMissionDefinition::setMissionType(MissionTypes missionType)
 	m_eMissionType = missionType;
 }
 
-float CvMissionDefinition::getMissionTime() const
+decimal CvMissionDefinition::getMissionTime() const
 {
 	return m_fMissionTime;
 }
 
-void CvMissionDefinition::setMissionTime(float time)
+void CvMissionDefinition::setMissionTime(decimal time)
 {
 	m_fMissionTime = time;
 }
@@ -563,7 +563,7 @@ CvAirMissionDefinition::CvAirMissionDefinition() :
 	, m_aDamage()		//!< The ending damage of the units
 #endif
 {
-	m_fMissionTime = 0.0f;
+	m_fMissionTime = 0;
 	m_eMissionType = CvTypes::getMISSION_AIRPATROL();
 }
 

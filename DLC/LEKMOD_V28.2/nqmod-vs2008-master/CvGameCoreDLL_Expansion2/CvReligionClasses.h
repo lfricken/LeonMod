@@ -195,9 +195,10 @@ public:
 	std::vector<BeliefTypes> GetAvailablePantheonBeliefs();
 	bool IsPantheonBeliefAvailable(BeliefTypes eBelief) const;
 
-	// Main religion information functions
+	/// Number of total followers of this religion
 	int GetNumFollowers(ReligionTypes eReligion) const;
 	int GetNumCityStatesFollowing(ReligionTypes eReligion) const;
+	/// Number of cities following this religion
 	int GetNumCitiesFollowing(ReligionTypes eReligion, const bool onlyCityStates = false) const;
 	bool HasCreatedReligion(PlayerTypes ePlayer) const;
 	bool HasAddedReformationBelief(PlayerTypes ePlayer) const;
@@ -348,7 +349,7 @@ public:
 	void Uninit();
 	void Copy(CvCityReligions* pOldCity);
 
-	// Data accessors
+	// How many citizens here are following this religion?
 	int GetNumFollowers(ReligionTypes eReligion) const;
 	int GetNumSimulatedFollowers(ReligionTypes eReligion) const;
 	int GetNumReligionsWithFollowers() const;

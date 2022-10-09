@@ -271,8 +271,8 @@ public:
 	// Net tourism with other
 	int GetNetTourismWith(const PlayerTypes eOtherPlayer, const bool ignoreVpCatchup = false) const;
 	// tourism mod with other
-	CvString GetTourismModifierWith_Tooltip(const PlayerTypes eOtherPlayer, int& newValue) const;
-	// tourism mod (eg 50.0) with other
+	CvString GetNetTourismT100With_AndReturnTooltip(const PlayerTypes eOtherPlayer, T100& newValue) const;
+	// tourism mod (eg 50) with other
 	int GetTourismModifierWithT100(PlayerTypes eOtherPlayer,
 		bool bIgnoreReligion = false,
 		bool bIgnoreOpenBorders = false,
@@ -282,23 +282,21 @@ public:
 		const bool ignoreVpCatchup = false) const;
 
 	// golden age boost
-	double GetTourismModifierTradeRoutesT100(const PlayerTypes eOtherPlayer) const;
+	T100 GetTourismModifierTradeRoutesT100(const PlayerTypes eOtherPlayer) const;
 	// golden age boost
-	double GetTourismModifierGoldenAgeT100(const PlayerTypes eOtherPlayer) const;
+	T100 GetTourismModifierGoldenAgeT100(const PlayerTypes eOtherPlayer) const;
 	// happiness boost
-	double GetTourismModifierHappinessT100(const PlayerTypes eOtherPlayer) const;
+	T100 GetTourismModifierHappinessT100(const PlayerTypes eOtherPlayer) const;
 	// who has a bigger city?
-	double GetTourismModifierLargeCityT100(const PlayerTypes eOtherPlayer) const;
-	double GetTourismModifierHammerCompetitionT100(const PlayerTypes eOtherPlayer) const;
+	T100 GetTourismModifierLargeCityT100(const PlayerTypes eOtherPlayer) const;
+	T100 GetTourismModifierHammerCompetitionT100(const PlayerTypes eOtherPlayer) const;
 	// who has more special great works?
-	double GetTourismModifierMoreSpecialGreatWorksT100(const PlayerTypes eOtherPlayer) const;
+	T100 GetTourismModifierMoreSpecialGreatWorksT100(const PlayerTypes eOtherPlayer) const;
 	// adjust for number of cities
-	float GetTourismModifierCityCount(const PlayerTypes eOtherPlayer) const;
-	// adjust for number of cities
-	int GetTourismModifierCityCountT100(const PlayerTypes eOtherPlayer) const;
+	T100 GetTourismModifierCityCountT100(const PlayerTypes eOtherPlayer) const;
 	// modifier IF we have a shared religion
 	int GetTourismModifierSharedReligion() const;
-	// modifier for tech
+	// modifier for tech, 50 would be +50%
 	int GetTourismModifierTechnologyT100(const PlayerTypes eOtherPlayer) const;
 
 
@@ -373,7 +371,6 @@ private:
 	void LogSwapWorks(PlayerTypes eOtherPlayer, int iWorkDiscarded, int iWorkAcquired);
 	void AppendToLog(CvString& strHeader, CvString& strLog, CvString strHeaderValue, CvString strValue);
 	void AppendToLog(CvString& strHeader, CvString& strLog, CvString strHeaderValue, int iValue);
-	void AppendToLog(CvString& strHeader, CvString& strLog, CvString strHeaderValue, float fValue);
 	CvString GetLogFileName(CvString& playerName) const;
 
 	CvPlayer *m_pPlayer;
@@ -418,8 +415,8 @@ public:
 
 	/// Compute raw tourism from this city
 	int GetBaseTourismBeforeModifiers() const;
-	// Multiplier (50.0) would mean +50%
-	double GetCityTourismMultiplierT100() const;
+	// Multiplier 50 would mean +50%
+	T100 GetCityTourismMultiplierT100() const;
 	/// Net city tourism output of this city (includes city specific bonuses)
 	int GetNetTourism() const;
 	CvString GetTourismTooltip();

@@ -70,7 +70,7 @@ bool isEmpty(const char* szString)
 	return szString == NULL || szString[0] == '\0';
 }
 
-void reveal(const TeamTypes forTeam, const CvPlot* center, const int radius, const float probability)
+void reveal(const TeamTypes forTeam, const CvPlot* center, const int radius, const T100 probabilityT100)
 {
 	for (int iDX = -(radius); iDX <= radius; iDX++)
 	{
@@ -82,7 +82,7 @@ void reveal(const TeamTypes forTeam, const CvPlot* center, const int radius, con
 			{
 				if (hexDistance(iDX, iDY) <= radius)
 				{
-					if (GC.getGame().getJonRandNum(100, "Reveal Plot Chance", pLoopPlot, radius + 1000 * probability) < (probability * 100))
+					if (GC.getGame().getJonRandNum(100, "Reveal Plot Chance", pLoopPlot, radius + 1000 * probabilityT100) < ((probabilityT100 * 100) / 100))
 					{
 						pLoopPlot->setRevealed(forTeam, true);
 					}
@@ -357,7 +357,7 @@ CvPlayer::CvPlayer() :
 	, m_iPopRushHurryCount("CvPlayer::m_iPopRushHurryCount", m_syncArchive)
 	, m_iTotalImprovementsBuilt("CvPlayer::m_iTotalImprovementsBuilt", m_syncArchive)
 	, m_iNextOperationID("CvPlayer::m_iNextOperationID", m_syncArchive)
-	, m_iCostNextPolicy("CvPlayer::m_iCostNextPolicy", m_syncArchive)
+	, m_iCostNextPolicyT100("CvPlayer::m_iCostNextPolicy", m_syncArchive)
 	, m_iNumBuilders("CvPlayer::m_iNumBuilders", m_syncArchive, true)
 	, m_iMaxNumBuilders("CvPlayer::m_iMaxNumBuilders", m_syncArchive)
 	, m_iCityStrengthMod("CvPlayer::m_iCityStrengthMod", m_syncArchive)
@@ -1061,7 +1061,7 @@ void CvPlayer::uninit()
 	m_uiStartTime = 0;
 	m_iTotalImprovementsBuilt = 0;
 	m_iNextOperationID = 0;
-	m_iCostNextPolicy = 0;
+	m_iCostNextPolicyT100 = 0;
 	m_iNumBuilders = 0;
 	m_iMaxNumBuilders = 0;
 	m_iCityStrengthMod = 0;
@@ -1903,10 +1903,10 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI, const bool i
 			pNewUnit->changeExtraMoves(extraMoves); // permanent boost
 
 			// reveal nearby
-			reveal(getTeam(), pBestPlot, sightBonus + 1, 0.10f);
-			reveal(getTeam(), pBestPlot, sightBonus + 0, 0.25f);
-			reveal(getTeam(), pBestPlot, sightBonus - 1, 0.75f);
-			reveal(getTeam(), pBestPlot, sightBonus - 3, 1.00f);
+			reveal(getTeam(), pBestPlot, sightBonus + 1, 10);
+			reveal(getTeam(), pBestPlot, sightBonus + 0, 25);
+			reveal(getTeam(), pBestPlot, sightBonus - 1, 75);
+			reveal(getTeam(), pBestPlot, sightBonus - 3, 100);
 		}
 
 		CvAssert(pNewUnit != NULL);
@@ -1983,7 +1983,6 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	int iPopulation;
 	int iHighestPopulation;
 	int iOldPopulation;
-	float previousDamagePercent = 0.0f;
 #ifdef AUI_WARNING_FIXES
 	uint iI;
 #else
@@ -2261,7 +2260,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	tempReligions.Init(pOldCity);
 	tempReligions.Copy(pOldCity->GetCityReligions());
 
-	previousDamagePercent = (float)pOldCity->getDamage() / (float)pOldCity->GetMaxHitPoints();
+	T100 previousDamagePercentT100 = (pOldCity->getDamage() * 100) / pOldCity->GetMaxHitPoints();
 
 	for(iI = 0; iI < MAX_PLAYERS; iI++)
 	{
@@ -2522,13 +2521,13 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	pNewCity->setName(strName);
 	pNewCity->setNeverLost(false);
 
-	float damageFraction = (GC.getCITY_CAPTURE_DAMAGE_PERCENT() / 100.0f);
-	if (bGift) // gifts should not heal at all
-		damageFraction = previousDamagePercent;
+	T100 damageFractionT100 = GC.getCITY_CAPTURE_DAMAGE_PERCENT();
+	if (bGift) // gifts should not heal or change health at all
+		damageFractionT100 = previousDamagePercentT100;
 
-	const float maxHp = pNewCity->GetMaxHitPoints();
-	float damage = maxHp * damageFraction;
-	pNewCity->setDamage(damage, true);
+	const int maxHp = pNewCity->GetMaxHitPoints();
+	const T100 damageT100 = maxHp * damageFractionT100;
+	pNewCity->setDamage(damageT100 / 100, true);
 	pNewCity->setMadeAttack(bHasMadeAttack);
 
 	for(iI = 0; iI < MAX_PLAYERS; iI++)
@@ -3030,7 +3029,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 				iResistanceTurns = pNewCity->getPopulation() * GC.getGame().getGameSpeedInfo().getVictoryDelayPercent();
 				iResistanceTurns *= (100 - iInfluenceReduction); // take tourism into account
 				if (iResistanceTurns % 20000 != 0)
-					iResistanceTurns += 20000; // acts as ceil(), but without any weird int <-> float conversions
+					iResistanceTurns += 20000; // acts as ceil(), but without any weird int <-> fbloat conversions
 				iResistanceTurns /= 20000;
 			}
 #else
@@ -3038,7 +3037,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			int iResistanceTurns = pNewCity->getPopulation() * GC.getGame().getGameSpeedInfo().getVictoryDelayPercent();
 			iResistanceTurns *= (100 - iInfluenceReduction); // take tourism into account
 			if (iResistanceTurns % 20000 != 0)
-				iResistanceTurns += 20000; // acts as ceil(), but without any weird int <-> float conversions
+				iResistanceTurns += 20000; // acts as ceil(), but without any weird int <-> fbloat conversions
 			iResistanceTurns /= 20000;
 			// NQMP GJS - reduce resistance time END
 #endif
@@ -5151,7 +5150,7 @@ void CvPlayer::DoUnitReset()
 		int iCitadelDamage;
 		if(pLoopUnit->IsNearEnemyCitadel(iCitadelDamage))
 		{
-			pLoopUnit->changeDamage(iCitadelDamage, NO_PLAYER, /*fAdditionalTextDelay*/ 0.5f);
+			pLoopUnit->changeDamage(iCitadelDamage, NO_PLAYER, /*fAdditionalTextDelay*/ 50 / f100);
 		}
 
 		// Finally (now that healing is done), restore movement points
@@ -6091,23 +6090,24 @@ void CvPlayer::ChangeDiplomaticInfluence(const int iChange)
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetDiplomaticInfluenceNeeded() const
 {
-	const float numCityStates = CvPreGame::numMinorCivs();
-	const float numTotalPlayers = GC.getGamePointer()->getNumMajorCivsStart();
-	const float numHumanPlayers = GC.getGamePointer()->getNumHumanPlayers();
+	const int numCityStates = CvPreGame::numMinorCivs();
+	//const int numTotalPlayers = GC.getGamePointer()->getNumMajorCivsStart();
+	const int numHumanPlayers = GC.getGamePointer()->getNumHumanPlayers();
 
-	const float effectiveNumCivs = (numHumanPlayers);
+	const int effectiveNumCivs = numHumanPlayers;
 
-	const float toWinBoost = 1.26;
-	const float expectedTurnFraction = 0.50;
-	const float totalGameTurns = GC.getGamePointer()->getMaxTurns();
-	const float expectedAllies = (numCityStates / effectiveNumCivs) * toWinBoost; // fair share + some percentage
-	const float influencePerTurnPerAlly = GC.getYIELD_PER_TURN_ALLY(YIELD_DIPLOMATIC_SUPPORT, NO_PLAYER, NO_PLAYER);
+	const T100 toWinBoostT100 = 126;
+	const T100 expectedTurnFractionT100 = 50;
+	const int totalGameTurns = GC.getGamePointer()->getMaxTurns();
+	const T100 expectedAlliesT100 = (((numCityStates * 100) / effectiveNumCivs) * toWinBoostT100) / 100; // fair share + some percentage
+	const int influencePerTurnPerAlly = GC.getYIELD_PER_TURN_ALLY(YIELD_DIPLOMATIC_SUPPORT, NO_PLAYER, NO_PLAYER);
 
-	int influenceNeeded = influencePerTurnPerAlly * expectedAllies * expectedTurnFraction * totalGameTurns;
-	influenceNeeded -= ((float)influenceNeeded / 1000.0f * (float)GC.getGame().GetVpAdjustment());
+	int influenceNeededT100 = (influencePerTurnPerAlly * expectedAlliesT100 * expectedTurnFractionT100 * totalGameTurns) / 100;
+	influenceNeededT100 -= (influenceNeededT100 * GC.getGame().GetVpAdjustment()) / 1000; // reduce by 0.1% per vp adjustment
 
-	const int truncate = 50;
-	return (influenceNeeded / truncate) * truncate;
+	// truncate FLOORs to the nearest value
+	const int truncate = 10;
+	return (influenceNeededT100 / truncate) * truncate;
 }
 //	--------------------------------------------------------------------------------
 void CvPlayer::GetScientificInfluencePerTurn(int* influenceThisTurn) const
@@ -6147,7 +6147,7 @@ void CvPlayer::ChangeScientificInfluence(const int iChange)
 int CvPlayer::GetScientificInfluenceNeeded() const
 {
 	int targetValue = 3500;
-	targetValue -= ((float)targetValue / 1000.0f * (float)GC.getGame().GetVpAdjustment());
+	targetValue -= (targetValue * GC.getGame().GetVpAdjustment()) / 1000;
 	return targetValue;
 }
 long long CvPlayer::GetCompetitionHammersT100(const HammerCompetitionTypes eType) const
@@ -6690,7 +6690,7 @@ void CvPlayer::disband(CvCity* pCity)
 
 //	--------------------------------------------------------------------------------
 /// Is a Particular Goody ID a valid Goody for a certain plot?
-bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pDiscoverUnit) const
+bool CvPlayer::canReceiveGoody(CvPlot*, GoodyTypes, CvUnit*) const
 {
 	return true;
 
@@ -7103,7 +7103,7 @@ int varyByPercent(int original, const CvPlot* pPlot)
 // Food a goody hut gives
 int hutFood(const CvPlot* pPlot)
 {
-	int value = (2 * (7 * t100 + 1.0 * GC.onePerOnlineSpeedTurnT10000()));
+	int value = (2 * (7 * t100 + GC.onePerOnlineSpeedTurnT10000()));
 	value *= GC.adjustForSpeedT100(YIELD_FOOD);
 	value /= 100;
 	return varyByPercent(value, pPlot) / (100 * 100);
@@ -7111,7 +7111,7 @@ int hutFood(const CvPlot* pPlot)
 // Production a goody hut gives
 int hutProduction(const CvPlot* pPlot)
 {
-	int valueT10000 = (2 * (7 * t100 + 1.0 * GC.onePerOnlineSpeedTurnT10000()));
+	int valueT10000 = (2 * (7 * t100 + GC.onePerOnlineSpeedTurnT10000()));
 	valueT10000 *= GC.adjustForSpeedT100(YIELD_PRODUCTION);
 	valueT10000 /= 100;
 	return varyByPercent(valueT10000, pPlot) / (100 * 100);
@@ -7119,7 +7119,7 @@ int hutProduction(const CvPlot* pPlot)
 // Gold a goody hut gives
 int hutGold(const CvPlot* pPlot)
 {
-	T100 valueT10000 = (2 * (60 * t100 + 1.0 * GC.onePerOnlineSpeedTurnT10000()));
+	T100 valueT10000 = (2 * (60 * t100 + GC.onePerOnlineSpeedTurnT10000()));
 	valueT10000 *= GC.adjustForSpeedT100(YIELD_GOLD);
 	valueT10000 /= 100;
 	return varyByPercent(valueT10000, pPlot) / (100 * 100);
@@ -7127,7 +7127,7 @@ int hutGold(const CvPlot* pPlot)
 // Science a goody hut gives
 int hutScience(const CvPlot* pPlot)
 {
-	T100 valueT10000 = (2 * (20 * t100 + 1 * GC.onePerOnlineSpeedTurnT10000()));
+	T100 valueT10000 = (2 * (20 * t100 + GC.onePerOnlineSpeedTurnT10000()));
 	valueT10000 *= GC.adjustForSpeedT100(YIELD_SCIENCE);
 	valueT10000 /= 100;
 	return varyByPercent(valueT10000, pPlot) / (100 * 100);
@@ -7157,7 +7157,7 @@ int hutMapRadius(const CvPlot* pPlot)
 	int turnsPerRadius = 12; // on average, will grant 1 more radius every 20 turns on online speed
 	int randValue = GC.getGame().getJonRandNum(turnsPerRadius + 1, "Goody Hut Map", pPlot, 35); // [1-20]
 	int bonusRadius = ((GC.onePerOnlineSpeedTurnT10000() / t100) + randValue) / turnsPerRadius;
-	float value = baseRadius + bonusRadius;
+	int value = baseRadius + bonusRadius;
 	return value;
 }
 // random tile offset
@@ -7166,18 +7166,18 @@ int hutMapOffset()
 	return 2;
 }
 // odds any individual tile will be revealed
-int hutMapHexProbability()
+T100 hutMapHexProbabilityT100()
 {
 	return 80;
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
+void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit*)
 {
 	//////////
 	// Load from database
 	//////////
-	CvAssertMsg(canReceiveGoody(pPlot, eGoody, pUnit), "Instance is expected to be able to recieve goody");
+	CvAssertMsg(canReceiveGoody(pPlot, eGoody), "Instance is expected to be able to recieve goody");
 	Database::SingleResult kResult;
 	CvGoodyInfo kGoodyInfo;
 	const bool bResult = DB.SelectAt(kResult, "GoodyHuts", eGoody);
@@ -7241,7 +7241,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 		{
 			CvLuaArgsHandle args;
 			args->Push(GetID());
-			args->Push(TechTypes::NO_TECH);
+			args->Push(NO_TECH);
 
 			bool bScriptResult;
 			LuaSupport::CallHook(pkScriptSystem, "GoodyHutTechResearched", args.get(), bScriptResult);
@@ -7290,50 +7290,8 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 	//////////
 	if(kGoodyInfo.isMap())
 	{
-		CvPlot* pBestPlot = NULL;
-		int iRange = hutMapRadius(pPlot);
-		int iOffset = hutMapOffset();
-		int hexProbability = hutMapHexProbability();
-
-		if(iOffset > 0)
-		{
-			int iBestValue = 0;
-			int iRandLimit;
-
-			for(int iDX = -(iOffset); iDX <= iOffset; iDX++)
-			{
-				for(int iDY = -(iOffset); iDY <= iOffset; iDY++)
-				{
-					CvPlot* pLoopPlot = plotXYWithRangeCheck(pPlot->getX(), pPlot->getY(), iDX, iDY, iOffset);
-					if(pLoopPlot != NULL)
-					{
-						if(!(pLoopPlot->isRevealed(getTeam())))
-						{
-							// Avoid water plots!
-							if(pPlot->isWater())
-								iRandLimit = 10;
-							else
-								iRandLimit = 10000;
-
-							int randValue = (1 + getFakeRand(iRandLimit, "Goody Map", pLoopPlot, 98412));
-							randValue *= plotDistance(pPlot->getX(), pPlot->getY(), pLoopPlot->getX(), pLoopPlot->getY());
-
-							if(randValue > iBestValue)
-							{
-								iBestValue = randValue;
-								pBestPlot = pLoopPlot;
-							}
-						}
-					}
-				}
-			}
-		}
-
-		if(pBestPlot == NULL)
-		{
-			pBestPlot = pPlot;
-		}
-		reveal(getTeam(), pBestPlot, iRange, hutMapHexProbability() / 100.f);
+		const int iRange = hutMapRadius(pPlot);
+		reveal(getTeam(), pPlot, iRange, hutMapHexProbabilityT100());
 	}
 	//////////
 	// Units
@@ -9991,8 +9949,8 @@ int CvPlayer::calculateResearchModifier(TechTypes eTech)
 		}
 		if(iPossibleKnownCount > 0)
 		{
-			const float percentCivsThatKnow = (float)iKnownCount / (float)iPossibleKnownCount;
-			iModifier +=  leagueModifier * percentCivsThatKnow * GC.getTECH_COST_TOTAL_KNOWN_TEAM_MODIFIER();
+			const T100 percentCivsThatKnowT100 = (iKnownCount * 100) / iPossibleKnownCount;
+			iModifier += (leagueModifier * percentCivsThatKnowT100 * GC.getTECH_COST_TOTAL_KNOWN_TEAM_MODIFIER()) / 100;
 		}	
 	}
 
@@ -10184,7 +10142,7 @@ int CvPlayer::getSpecialistYieldTotal(const CvCity* pCity, const SpecialistTypes
 
 
 
-int CvPlayer::getSpecialistYieldBase(const CvCity* pCity, const SpecialistTypes eSpecialist, const YieldTypes eYield, const bool isPercentMod) const
+int CvPlayer::getSpecialistYieldBase(const CvCity*, const SpecialistTypes eSpecialist, const YieldTypes eYield, const bool) const
 {
 	const CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
 	if (pkSpecialistInfo == NULL)
@@ -10196,7 +10154,7 @@ int CvPlayer::getSpecialistYieldBase(const CvCity* pCity, const SpecialistTypes 
 	int value = pkSpecialistInfo->getYieldChange(eYield);
 	return value;
 }
-int CvPlayer::getSpecialistYieldExtra(const CvCity* pCity, const SpecialistTypes eSpecialist, const YieldTypes eYield, const bool isPercentMod) const
+int CvPlayer::getSpecialistYieldExtra(const CvCity* pCity, const SpecialistTypes eSpecialist, const YieldTypes eYield, const bool) const
 {
 	int value = 0;
 	value += getSpecialistYieldExtraFromPolicies(eSpecialist, eYield);
@@ -10480,7 +10438,6 @@ map<BuildingTypes, int> CvPlayer::getBuildingCount() const
 	for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
 		// each building type
-		const vector<BuildingTypes>& buildings = pLoopCity->GetCityBuildings()->GetAllBuildingsHere();
 		for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
 		{
 			const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
@@ -11327,7 +11284,7 @@ void CvPlayer::ChangeAllCityFreeBuilding(BuildingClassTypes eBuildingClass, bool
 /// Handle earning yields from a combat win
 void CvPlayer::DoYieldsFromKill(UnitTypes eAttackingUnitType, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian, int iExistingDelay)
 {
-	int iNumBonuses = iExistingDelay; // Passed by reference below, incremented to stagger floating text in UI
+	int iNumBonuses = iExistingDelay; // Passed by reference below, incremented to stagger hovering text in UI
 	DoUnresearchedTechBonusFromKill(eKilledUnitType, iX, iY, iNumBonuses);
 	for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 	{
@@ -11519,7 +11476,7 @@ void CvPlayer::ReportYieldFromKill(YieldTypes eYield, int iValue, int iX, int iY
 			char text[256] = {0};
 			int delayT100 = GC.getPOST_COMBAT_TEXT_DELAYT100() * (100 + (iDelay * 50)) / 100; // 1 is added to avoid overlapping with XP text
 			sprintf_s(text, yieldString, iValue);
-			GC.GetEngineUserInterface()->AddPopupText(iX, iY, text, delayT100 / 100.0f);
+			GC.GetEngineUserInterface()->AddPopupText(iX, iY, text, delayT100 / f100);
 		}
 	}
 }
@@ -12562,7 +12519,7 @@ CvCity *CvPlayer::GetMostUnhappyCity()
 							if (iCapitalDistance < 100)
 							{
 								int iDistanceFactor = 100 - iCapitalDistance;
-								iDistanceFactor = (int)sqrt((float)iDistanceFactor);
+								iDistanceFactor = iDistanceFactor / 6; // (int)sqbrt(iDistanceFactor); // square root uses non ints
 								iUnhappiness += (iDistanceFactor * iCulturalDominanceOverUs);
 							}
 						}
@@ -13249,7 +13206,7 @@ int CvPlayer::GetUnhappinessFromCapturedCityCount(CvCity* pAssumeCityAnnexed, Cv
 
 //	--------------------------------------------------------------------------------
 /// Unhappiness from City Population
-int CvPlayer::GetUnhappinessFromCityPopulation(CvCity* pAssumeCityAnnexed, CvCity* pAssumeCityPuppeted, const CvCity* pAssumeCityGrows, const CvCity* pAssumeCityExtraSpecialist) const
+int CvPlayer::GetUnhappinessFromCityPopulation(CvCity* pAssumeCityAnnexed, CvCity* pAssumeCityPuppeted, const CvCity*, const CvCity*) const
 {
 	int iUnhappiness = 0;
 	int iUnhappinessFromThisCity;
@@ -13347,7 +13304,7 @@ int CvPlayer::GetUnhappinessFromPuppetCityPopulation() const
 			int iPopulation = pLoopCity->getPopulation();
 
 			// No Unhappiness from Specialist Pop? (Policies, etc.)
-			// slewis - 2013.5.7 
+			// slewis - 2013,5,7 
 			// This function, along with GetUnhappinessFromCitySpecialists, is only called through the UI to reflect 
 			// to the player what's going on with their happiness. So I removed the effect that specialists have on 
 			// puppeted cities and let the GetUnhappinessFromCitySpecialists correct that problem.
@@ -13452,7 +13409,7 @@ int CvPlayer::GetUnhappinessFromCitySpecialists(CvCity* pAssumeCityAnnexed, CvCi
 
 //	--------------------------------------------------------------------------------
 /// Unhappiness from City Population in Occupied Cities
-int CvPlayer::GetUnhappinessFromOccupiedCities(CvCity* pAssumeCityAnnexed, CvCity* pAssumeCityPuppeted, const CvCity* pAssumeCityGrows, const CvCity* pAssumeCityExtraSpecialist) const
+int CvPlayer::GetUnhappinessFromOccupiedCities(CvCity* pAssumeCityAnnexed, CvCity* pAssumeCityPuppeted, const CvCity*, const CvCity*) const
 {
 	int iUnhappinessT100 = 0;
 	int iUnhappinessFromThisCityT100;
@@ -14044,18 +14001,18 @@ void CvPlayer::setHasPolicy(PolicyTypes eIndex, bool bNewValue)
 //	--------------------------------------------------------------------------------
 int CvPlayer::getNextPolicyCost() const
 {
-	return m_iCostNextPolicy / 100;
+	return m_iCostNextPolicyT100 / 100;
 }
 T100 CvPlayer::getNextPolicyCostT100() const
 {
-	return m_iCostNextPolicy;
+	return m_iCostNextPolicyT100;
 }
 
 //	--------------------------------------------------------------------------------
 void CvPlayer::DoUpdateNextPolicyCost()
 {
 	// need to increase base costs since we need to refund stuff
-	m_iCostNextPolicy = GetPlayerPolicies()->GetNextPolicyCost() * (100 + GC.getPOLICY_REBATE_VARIATION_T100());
+	m_iCostNextPolicyT100 = GetPlayerPolicies()->GetNextPolicyCostT100();
 }
 
 //	--------------------------------------------------------------------------------
@@ -14109,7 +14066,7 @@ void CvPlayer::doAdoptPolicy(PolicyTypes ePolicy)
 	DoUpdateNextPolicyCost();
 
 	// Branch unlocked
-	PolicyBranchTypes ePolicyBranch = (PolicyBranchTypes) pkPolicyInfo->GetPolicyBranchType();
+	// PolicyBranchTypes ePolicyBranch = (PolicyBranchTypes) pkPolicyInfo->GetPolicyBranchType();
 	// do not "unlock" a branch just because you got a policy from it!
 	// GetPlayerPolicies()->SetPolicyBranchUnlocked(ePolicyBranch, true, false);
 
@@ -14269,7 +14226,7 @@ T100 CvPlayer::GetTourismCombatPenaltyT100(const PlayerTypes eOtherPlayerId) con
 	{
 		const T100 maxBonusT100 = GC.getTOURISM_COMBAT_MAXT100();
 		const T100 influenceDivisorT100 = GC.getTOURISM_COMBAT_DIVISORT100();
-		const T100 bonusT100 = (theirInfluenceT100 - ourInfluenceT100);
+		const T100 bonusT100 = ((theirInfluenceT100 - ourInfluenceT100) * influenceDivisorT100) / 100;
 		iRetVal = -1 * min(maxBonusT100, bonusT100);
 	}
 	return iRetVal;
@@ -16348,15 +16305,15 @@ void CvPlayer::ChangeDisablesResistanceTimeCount(int iChange)
 
 #ifdef NQ_PATRIOTIC_WAR
 //	--------------------------------------------------------------------------------
-int CvPlayer::GetDoubleTrainedMilitaryLandUnitCount() const
+int CvPlayer::Get2xTrainedMilitaryLandUnitCount() const
 {
 	return m_iDoubleTrainedMilitaryLandUnitCount;
 }
 
 //	--------------------------------------------------------------------------------
-bool CvPlayer::IsDoubleTrainedMilitaryLandUnit() const
+bool CvPlayer::Is2xTrainedMilitaryLandUnit() const
 {
-	return (GetDoubleTrainedMilitaryLandUnitCount() > 0);
+	return (Get2xTrainedMilitaryLandUnitCount() > 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -16365,7 +16322,7 @@ void CvPlayer::ChangeDoubleTrainedMilitaryLandUnitCount(int iChange)
 	if (iChange != 0)
 	{
 		m_iDoubleTrainedMilitaryLandUnitCount = m_iDoubleTrainedMilitaryLandUnitCount + iChange;
-		CvAssert(GetDoubleTrainedMilitaryLandUnitCount() >= 0);
+		CvAssert(Get2xTrainedMilitaryLandUnitCount() >= 0);
 	}
 }
 #endif
@@ -16944,7 +16901,6 @@ int CvPlayer::GetNumCapitals() const
 }
 int CvPlayer::GetNumTotalCapitalsInWorld() const
 {
-	const CvPlayer& us = *this;
 	int numCapitals = 0;
 	for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; ++iLoopPlayer)
 	{
@@ -16959,7 +16915,6 @@ int CvPlayer::GetNumTotalCapitalsInWorld() const
 }
 int CvPlayer::GetNumTotalCitiesInWorld() const
 {
-	const CvPlayer& us = *this;
 	int numCities = 0;
 	for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; ++iLoopPlayer)
 	{
@@ -17621,12 +17576,12 @@ int CvPlayer::calculateMilitaryMight() const
 		rtnValue += iPower;
 	}
 
+	// 
 	//Simplistic increase based on player's gold
 	//500 gold will increase might by 22%, 2000 by 45%, 8000 gold by 90%
-	float fGoldMultiplier = 1.0f + (sqrt((float)GetTreasury()->GetGold()) / 100.0f);
-	if(fGoldMultiplier > 2.0f) fGoldMultiplier = 2.0f;
-
-	rtnValue = (int)(rtnValue * fGoldMultiplier);
+	//fbloat fGoldMultiplier = 1 + (sqqrt((fbloat)GetTreasury()->GetGold()) / 100);
+	//if(fGoldMultiplier > 2) fGoldMultiplier = 2;
+	//rtnValue = (int)(rtnValue * fGoldMultiplier);
 
 	return rtnValue;
 }
@@ -18866,7 +18821,7 @@ bool CvPlayer::IsCramped() const
 }
 
 //	--------------------------------------------------------------------------------
-/// Determines if the player is cramped in his current area.  Not a perfect algorithm, as it will double-count Plots shared by different Cities, but it should be good enough
+/// Determines if the player is cramped in his current area.  Not a perfect algorithm, as it will twice-count Plots shared by different Cities, but it should be good enough
 void CvPlayer::DoUpdateCramped()
 {
 	CvCity* pLoopCity;
@@ -19094,7 +19049,7 @@ const CvColorA& CvPlayer::getPlayerTextColor() const
 	}
 
 	//Default to black text if no color exists.
-	static CvColorA black(0,0,0,1.0f);
+	static CvColorA black(0,0,0,1);
 	return black;
 }
 
@@ -20576,7 +20531,7 @@ int CvPlayer::getResourceFromMinors(ResourceTypes eIndex) const
 
 	int iNumResourceFromMinors = m_paiResourceFromMinors[eIndex];
 
-	// Resource bonus doubles quantity of Resources from Minors (Policies, etc.)
+	// Resource bonus 2x quantity of Resources from Minors (Policies, etc.)
 	if(IsMinorResourceBonus())
 	{
 		iNumResourceFromMinors *= /*200*/ GC.getMINOR_POLICY_RESOURCE_MULTIPLIER();
@@ -23996,12 +23951,6 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		}
 	}
 
-	BuildingClassTypes eBuildingClass = NO_BUILDINGCLASS;
-	BuildingTypes eBuilding = NO_BUILDING;
-	int iBuildingCount = 0;
-	int iYieldMod = 0;
-	int iYieldChange = 0;
-
 	// How many cities get free buildings?
 	int iNumCitiesFreeAestheticsSchools = pPolicy->GetNumCitiesFreeAestheticsSchools(); // NQMP GJS - add support for NumCitiesFreeAestheticsSchools
 	int iNumCitiesFreePietyGardens = pPolicy->GetNumCitiesFreePietyGardens();
@@ -24982,7 +24931,7 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_iLifetimeCombatExperience;
 	kStream >> m_iBorderObstacleCount;
 	kStream >> m_iNextOperationID;
-	kStream >> m_iCostNextPolicy;
+	kStream >> m_iCostNextPolicyT100;
 	kStream >> m_iNumBuilders;
 	kStream >> m_iMaxNumBuilders;
 	kStream >> m_iCityStrengthMod;
@@ -25550,7 +25499,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_iLifetimeCombatExperience;
 	kStream << m_iBorderObstacleCount;
 	kStream << m_iNextOperationID;
-	kStream << m_iCostNextPolicy;
+	kStream << m_iCostNextPolicyT100;
 	kStream << m_iNumBuilders;
 	kStream << m_iMaxNumBuilders;
 	kStream << m_iCityStrengthMod;
@@ -26190,7 +26139,8 @@ int CvPlayer::getGrowthThreshold(int iPopulation) const
 	int iExtraPopThreshold = ((iPopulation-1) * /*6*/ GC.getCITY_GROWTH_MULTIPLIERT100()) / 100;
 
 	iBaseThreshold += iExtraPopThreshold;
-	iExtraPopThreshold = (int) pow(double(iPopulation-1), (double) /*1.5*/ (GC.getCITY_GROWTH_EXPONENTT100() / 100.0));
+	const T100 extraPopT100 = (iPopulation - 1) * 100;
+	iExtraPopThreshold = iPow1p5(extraPopT100) / 100;
 
 	iThreshold = iBaseThreshold + iExtraPopThreshold;
 
@@ -26334,14 +26284,14 @@ int CvPlayer::GetNumPlots() const
 
 
 //	--------------------------------------------------------------------------------
-/// City strength mod (i.e. 100 = strength doubled)
+/// City strength mod (i.e. 100 = strength twice)
 int CvPlayer::GetCityStrengthMod() const
 {
 	return m_iCityStrengthMod;
 }
 
 //	--------------------------------------------------------------------------------
-/// Sets City strength mod (i.e. 100 = strength doubled)
+/// Sets City strength mod (i.e. 100 = strength twice)
 void CvPlayer::SetCityStrengthMod(int iValue)
 {
 	CvAssert(iValue >= 0);
@@ -26358,7 +26308,7 @@ void CvPlayer::SetCityStrengthMod(int iValue)
 }
 
 //	--------------------------------------------------------------------------------
-/// Changes City strength mod (i.e. 100 = strength doubled)
+/// Changes City strength mod (i.e. 100 = strength twice)
 void CvPlayer::ChangeCityStrengthMod(int iChange)
 {
 	if(iChange != 0)
@@ -26368,14 +26318,14 @@ void CvPlayer::ChangeCityStrengthMod(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-/// City growth percent mod (i.e. 100 = foodDifference doubled)
+/// City growth percent mod (i.e. 100 = foodDifference twice)
 int CvPlayer::GetCityGrowthMod() const
 {
 	return m_iCityGrowthMod;
 }
 
 //	--------------------------------------------------------------------------------
-/// Sets City growth percent mod (i.e. 100 = foodDifference doubled)
+/// Sets City growth percent mod (i.e. 100 = foodDifference twice)
 void CvPlayer::SetCityGrowthMod(int iValue)
 {
 	CvAssert(iValue >= 0);
@@ -26383,7 +26333,7 @@ void CvPlayer::SetCityGrowthMod(int iValue)
 }
 
 //	--------------------------------------------------------------------------------
-/// Changes City growth percent mod (i.e. 100 = foodDifference doubled)
+/// Changes City growth percent mod (i.e. 100 = foodDifference twice)
 void CvPlayer::ChangeCityGrowthMod(int iChange)
 {
 	if(iChange != 0)
@@ -26394,14 +26344,14 @@ void CvPlayer::ChangeCityGrowthMod(int iChange)
 
 
 //	--------------------------------------------------------------------------------
-/// Capital growth percent mod (i.e. 100 = foodDifference doubled)
+/// Capital growth percent mod (i.e. 100 = foodDifference twice)
 int CvPlayer::GetCapitalGrowthMod() const
 {
 	return m_iCapitalGrowthMod;
 }
 
 //	--------------------------------------------------------------------------------
-/// Sets Capital growth percent mod (i.e. 100 = foodDifference doubled)
+/// Sets Capital growth percent mod (i.e. 100 = foodDifference twice)
 void CvPlayer::SetCapitalGrowthMod(int iValue)
 {
 	CvAssert(iValue >= 0);
@@ -26409,7 +26359,7 @@ void CvPlayer::SetCapitalGrowthMod(int iValue)
 }
 
 //	--------------------------------------------------------------------------------
-/// Changes Capital growth percent mod (i.e. 100 = foodDifference doubled)
+/// Changes Capital growth percent mod (i.e. 100 = foodDifference twice)
 void CvPlayer::ChangeCapitalGrowthMod(int iChange)
 {
 	if(iChange != 0)

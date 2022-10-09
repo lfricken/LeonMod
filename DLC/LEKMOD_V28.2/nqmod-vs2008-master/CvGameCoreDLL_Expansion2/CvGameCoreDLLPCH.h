@@ -71,7 +71,6 @@ typedef wchar_t          wchar;
 
 #define LIMIT_RANGE(low, value, high) value = (value < low ? low : (value > high ? high : value));
 #define M_PI       3.14159265358979323846
-#define fM_PI		3.141592654f		//!< Pi (float)
 
 #define STDEXT stdext
 #ifdef NQM_FAST_COMP

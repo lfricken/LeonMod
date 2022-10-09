@@ -402,8 +402,8 @@ public:
 	MissionTypes getMissionType() const;
 	void setMissionType(MissionTypes missionType);
 
-	float getMissionTime() const;
-	void setMissionTime(float time);
+	decimal getMissionTime() const;
+	void setMissionTime(decimal time);
 
 	CvUnit* getUnit(BattleUnitTypes unitType) const;
 	void setUnit(BattleUnitTypes unitType, CvUnit* unit);
@@ -417,7 +417,7 @@ public:
 protected:
 	MissionTypes		m_eMissionType;					//!< The type of event
 	CvUnit*				m_aUnits[BATTLE_UNIT_COUNT];	//!< The units involved
-	float				m_fMissionTime;					//!< The amount of time that the event will take
+	decimal				m_fMissionTime;					//!< The amount of time that the event will take
 	const CvPlot*		m_pPlot;						//!< The plot associated with the event
 	const CvPlot*		m_pSecondaryPlot;				//!< The other plot (rarely) associated with the event
 };

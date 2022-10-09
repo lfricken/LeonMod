@@ -1751,7 +1751,7 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 										if(pMusterPlot != NULL)
 										{
 											iDistance = plotDistance(pkLoopUnitPlot->getX(), pkLoopUnitPlot->getY(), pMusterPlot->getX(), pMusterPlot->getY());
-											// Double the distance if this is a land unit on a different landmass (it's dangerous to go over water!)
+											// 2x the distance if this is a land unit on a different landmass (it's dangerous to go over water!)
 											if(pMusterPlot != NULL && pLoopUnit->getDomainType() == DOMAIN_LAND && pkLoopUnitPlot->getArea() != pMusterPlot->getArea())
 											{
 												iDistance *= 2;
@@ -1829,7 +1829,7 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 										if(pMusterPlot != NULL)
 										{
 											iDistance = plotDistance(pkLoopUnitPlot->getX(), pkLoopUnitPlot->getY(), pMusterPlot->getX(), pMusterPlot->getY());
-											// Double the distance if this is a land unit on a different landmass (it's dangerous to go over water!)
+											// 2x the distance if this is a land unit on a different landmass (it's dangerous to go over water!)
 											if(pMusterPlot != NULL && pLoopUnit->getDomainType() == DOMAIN_LAND && pkLoopUnitPlot->getArea() != pMusterPlot->getArea())
 											{
 												iDistance *= 2;
@@ -2650,7 +2650,7 @@ void CvAIOperationPillageEnemy::Write(FDataStream& kStream) const
 	kStream << uiVersion;
 }
 
-/// Every time the army moves on its way to the destination lets double-check that we don't have a better target
+/// Every time the army moves on its way to the destination lets check that we don't have a better target
 bool CvAIOperationPillageEnemy::ArmyMoved(CvArmyAI* pArmy)
 {
 	bool bStateChanged = false;
@@ -4986,7 +4986,7 @@ bool CvAIOperationRapidResponse::ArmyInPosition(CvArmyAI* pArmy)
 	return bStateChanged;
 }
 
-/// Every time the army moves on its way to the destination lets double-check that we don't have a better target
+/// Every time the army moves on its way to the destination lets check that we don't have a better target
 bool CvAIOperationRapidResponse::ArmyMoved(CvArmyAI* pArmy)
 {
 	bool bStateChanged = false;

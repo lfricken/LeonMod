@@ -1139,8 +1139,8 @@ bool CvEnactProposal::IsPassed(int iTotalSessionVotes) const
 		return false;
 	}
 
-	int iQuorumPercent = pInfo->GetQuorumPercent();
-	bool bQuorum = ((float)GetVoterDecision()->GetVotesCast() / (float)iTotalSessionVotes) >= ((float)iQuorumPercent / 100.0f);
+	T100 iQuorumPercent = pInfo->GetQuorumPercent();
+	bool bQuorum = (GetVoterDecision()->GetVotesCast() * 100) / iTotalSessionVotes >= iQuorumPercent;
 	if (!bQuorum)
 	{
 		return false;
@@ -1740,7 +1740,7 @@ bool CvRepealProposal::IsPassed(int iTotalSessionVotes) const
 	}
 
 	int iQuorumPercent = pInfo->GetQuorumPercent();
-	bool bQuorum = ((float)GetRepealDecision()->GetVotesCast() / (float)iTotalSessionVotes) >= ((float)iQuorumPercent / 100.0f);
+	bool bQuorum = (GetRepealDecision()->GetVotesCast() * 100) / iTotalSessionVotes >= iQuorumPercent;
 	if (!bQuorum)
 	{
 		return false;
@@ -3739,7 +3739,7 @@ bool CvLeague::IsProjectComplete(LeagueProjectTypes eLeagueProject) const
 	return false;
 }
 
-int CvLeague::GetProjectCostPerPlayer(LeagueProjectTypes eLeagueProject) const
+int CvLeague::GetProjectCostPerPlayerT100(LeagueProjectTypes eLeagueProject) const
 {
 	CvLeagueProjectEntry* pProjectInfo = GC.getLeagueProjectInfo(eLeagueProject);
 	CvAssertMsg(pProjectInfo != NULL, "Looking up project cost for a project that does not exist. Please send Anton your save file and version.");
@@ -3777,7 +3777,7 @@ int CvLeague::GetProjectBuildingCostPerPlayer(BuildingTypes eRewardBuilding) con
 			CvLeagueProjectRewardEntry* pRewardInfo = GC.getLeagueProjectRewardInfo(pProjectInfo->GetRewardTier3());
 			if (pRewardInfo != NULL && pRewardInfo->GetBuilding() == eRewardBuilding)
 			{
-				iCost = GetProjectCostPerPlayer(eProject) / 100;
+				iCost = GetProjectCostPerPlayerT100(eProject) / 100;
 				break;
 			}
 		}
@@ -3786,23 +3786,23 @@ int CvLeague::GetProjectBuildingCostPerPlayer(BuildingTypes eRewardBuilding) con
 	return iCost;
 }
 
-int CvLeague::GetProjectCost(LeagueProjectTypes eLeagueProject) const
+int CvLeague::GetProjectCostT100(LeagueProjectTypes eLeagueProject) const
 {
 	CvLeagueProjectEntry* pProjectInfo = GC.getLeagueProjectInfo(eLeagueProject);
 	CvAssertMsg(pProjectInfo != NULL, "Looking up project cost for a project that does not exist. Please send Anton your save file and version.");
 	int iCost = 0;
 	if (pProjectInfo)
 	{
-		iCost += GetProjectCostPerPlayer(eLeagueProject) * GC.getGame().countMajorCivsEverAlive();
+		iCost += GetProjectCostPerPlayerT100(eLeagueProject) * GC.getGame().countMajorCivsEverAlive();
 	}
 	return iCost;
 }
 
-int CvLeague::GetProjectProgress(LeagueProjectTypes eProject)
+int CvLeague::GetProjectProgressT100(LeagueProjectTypes eProject)
 {
 	CvLeagueProjectEntry* pProjectInfo = GC.getLeagueProjectInfo(eProject);
 	CvAssertMsg(pProjectInfo != NULL, "Looking up project progress for a project that does not exist. Please send Anton your save file and version.");
-	int iProgress = 0;
+	T100 iProgressT100 = 0;
 	if (pProjectInfo)
 	{
 		if (IsProjectActive(eProject) || IsProjectComplete(eProject))
@@ -3813,12 +3813,12 @@ int CvLeague::GetProjectProgress(LeagueProjectTypes eProject)
 			{
 				for (uint i = 0; i < pProject->vProductionList.size(); i++)
 				{
-					iProgress += pProject->vProductionList[i];
+					iProgressT100 += pProject->vProductionList[i];
 				}
 			}
 		}
 	}
-	return iProgress;
+	return iProgressT100;
 }
 
 bool CvLeague::CanMemberContribute(PlayerTypes ePlayer, LeagueProjectTypes eLeagueProject) const
@@ -3836,7 +3836,7 @@ bool CvLeague::CanMemberContribute(PlayerTypes ePlayer, LeagueProjectTypes eLeag
 	return false;
 }
 
-int CvLeague::GetMemberContribution(PlayerTypes ePlayer, LeagueProjectTypes eLeagueProject) const
+int CvLeague::GetMemberContributionT100(PlayerTypes ePlayer, LeagueProjectTypes eLeagueProject) const
 {
 	int iValue = 0;
 	if (ePlayer >= 0 && ePlayer < MAX_MAJOR_CIVS)
@@ -3857,7 +3857,7 @@ int CvLeague::GetMemberContribution(PlayerTypes ePlayer, LeagueProjectTypes eLea
 	return iValue;
 }
 
-void CvLeague::SetMemberContribution(PlayerTypes ePlayer, LeagueProjectTypes eLeagueProject, int iValue)
+void CvLeague::SetMemberContributionT100(PlayerTypes ePlayer, LeagueProjectTypes eLeagueProject, int iValueT100)
 {
 	bool bCanContribute = CanMemberContribute(ePlayer, eLeagueProject);
 	CvAssertMsg(bCanContribute, "Attempting to make a contribution to a League Project when not allowed. Please send Anton your save file and version.");
@@ -3873,34 +3873,34 @@ void CvLeague::SetMemberContribution(PlayerTypes ePlayer, LeagueProjectTypes eLe
 		if (it->eType == eLeagueProject)
 		{
 			iMatches++;
-			it->vProductionList[ePlayer] = iValue;
+			it->vProductionList[ePlayer] = iValueT100;
 		}
 	}
 	CvAssertMsg(iMatches == 1, "Unexpected case when contributing to a League Project. Please send Anton your save file and version.");
 }
 
-void CvLeague::ChangeMemberContribution(PlayerTypes ePlayer, LeagueProjectTypes eLeagueProject, int iChange)
+void CvLeague::ChangeMemberContributionT100(PlayerTypes ePlayer, LeagueProjectTypes eLeagueProject, int iChangeT100)
 {
 	bool bCanContribute = CanMemberContribute(ePlayer, eLeagueProject);
 	CvAssertMsg(bCanContribute, "Attempting to make a contribution to a League Project when not allowed. Please send Anton your save file and version.");
 	if (!bCanContribute) return;
 
-	SetMemberContribution(ePlayer, eLeagueProject, GetMemberContribution(ePlayer, eLeagueProject) + iChange);
+	SetMemberContributionT100(ePlayer, eLeagueProject, GetMemberContributionT100(ePlayer, eLeagueProject) + iChangeT100);
 }
 
 CvLeague::ContributionTier CvLeague::GetMemberContributionTier(PlayerTypes ePlayer, LeagueProjectTypes eLeagueProject)
 {
-	float fContribution = (float) GetMemberContribution(ePlayer, eLeagueProject);
+	const T100 contributionT100 = GetMemberContributionT100(ePlayer, eLeagueProject);
 	ContributionTier eTier = CONTRIBUTION_TIER_0;
-	if (fContribution >= GetContributionTierThreshold(CONTRIBUTION_TIER_3, eLeagueProject))
+	if (contributionT100 >= GetContributionTierThresholdT100(CONTRIBUTION_TIER_3, eLeagueProject))
 	{
 		eTier = CONTRIBUTION_TIER_3;
 	}
-	else if (fContribution >= GetContributionTierThreshold(CONTRIBUTION_TIER_2, eLeagueProject))
+	else if (contributionT100 >= GetContributionTierThresholdT100(CONTRIBUTION_TIER_2, eLeagueProject))
 	{
 		eTier = CONTRIBUTION_TIER_2;
 	}
-	else if (fContribution >= GetContributionTierThreshold(CONTRIBUTION_TIER_1, eLeagueProject))
+	else if (contributionT100 >= GetContributionTierThresholdT100(CONTRIBUTION_TIER_1, eLeagueProject))
 	{
 		eTier = CONTRIBUTION_TIER_1;
 	}
@@ -3908,43 +3908,44 @@ CvLeague::ContributionTier CvLeague::GetMemberContributionTier(PlayerTypes ePlay
 }
 
 // Get the contribution value which a player needs to meet or exceed to qualify for a reward tier level
-float CvLeague::GetContributionTierThreshold(ContributionTier eTier, LeagueProjectTypes eLeagueProject)
+T100 CvLeague::GetContributionTierThresholdT100(ContributionTier eTier, LeagueProjectTypes eLeagueProject)
 {
-	float fThreshold = 0.0f;
+	int thresholdT100 = 0;
 	Project* pProject = GetProject(eLeagueProject);
 	CvAssertMsg(pProject, "Could not find league project. Please send Anton your save file and version.");
-	if (!pProject) return 0.0f;
+	if (!pProject) return 0;
 
 	switch (eTier)
 	{
 	case CONTRIBUTION_TIER_1:
 		{
-			fThreshold = (GC.getLEAGUE_PROJECT_REWARD_TIER_1_THRESHOLDT100() / 100.0f) * GetProjectCostPerPlayer(eLeagueProject);
+			thresholdT100 = (GC.getLEAGUE_PROJECT_REWARD_TIER_1_THRESHOLDT100()) * GetProjectCostPerPlayerT100(eLeagueProject) / 100;
 			break;
 		}
 	case CONTRIBUTION_TIER_2:
 		{
-			fThreshold = (GC.getLEAGUE_PROJECT_REWARD_TIER_2_THRESHOLDT100() / 100.0f) * GetProjectCostPerPlayer(eLeagueProject);
+			thresholdT100 = (GC.getLEAGUE_PROJECT_REWARD_TIER_2_THRESHOLDT100()) * GetProjectCostPerPlayerT100(eLeagueProject) / 100;
 			break;
 		}
 	case CONTRIBUTION_TIER_3:
 		{
-			int iBestContribution = 0;
+			T100 bestContributionT100 = 0;
 			for (uint i = 0; i < pProject->vProductionList.size(); i++)
 			{
-				int iContribution = pProject->vProductionList[i];
-				if (iContribution > iBestContribution && GET_PLAYER((PlayerTypes)i).isAlive() && IsMember((PlayerTypes)i))
+				T100 contributionT100 = pProject->vProductionList[i];
+				if (contributionT100 > bestContributionT100 && GET_PLAYER((PlayerTypes)i).isAlive() && IsMember((PlayerTypes)i))
 				{
-					iBestContribution = iContribution;
+					bestContributionT100 = contributionT100;
 				}
 			}
-			fThreshold = MAX((float)iBestContribution, (GC.getLEAGUE_PROJECT_REWARD_TIER_2_THRESHOLDT100() / 100.0f) * GetProjectCostPerPlayer(eLeagueProject));
+			// to get best, you have to be the highest
+			thresholdT100 = max(bestContributionT100, GC.getLEAGUE_PROJECT_REWARD_TIER_2_THRESHOLDT100() * GetProjectCostPerPlayerT100(eLeagueProject) / 100);
 			break;
 		}
 	default:
 		break;
 	}
-	return fThreshold;
+	return thresholdT100;
 }
 
 bool CvLeague::IsTradeEmbargoed(PlayerTypes eTrader, PlayerTypes eRecipient)
@@ -4777,17 +4778,17 @@ CvString CvLeague::GetProjectProgressDetails(LeagueProjectTypes eProject, Player
 	// Total cost
 	if (eObserver != NO_PLAYER && IsProjectActive(eProject))
 	{
-		int iPercentCompleted = (int) (((float)GetProjectProgress(eProject) / (float)GetProjectCost(eProject)) * 100);
-		iPercentCompleted = MIN(100, iPercentCompleted);
+		T100 percCompleteT100 = GetProjectProgressT100(eProject) * 100 / GetProjectCostT100(eProject);
+		percCompleteT100 = max((T100)0, min((T100)100, percCompleteT100));
 		Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_PROJECT_POPUP_PROGRESS_COST");
-		sTemp << iPercentCompleted;
-		sTemp << GetMemberContribution(eObserver, eProject) / 100;
+		sTemp << percCompleteT100;
+		sTemp << GetMemberContributionT100(eObserver, eProject) / 100;
 		s += sTemp.toUTF8();
 	}
 	else
 	{
 		Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_PROJECT_POPUP_TOTAL_COST");
-		sTemp << GetProjectCost(eProject) / 100;
+		sTemp << GetProjectCostT100(eProject) / 100;
 		s += sTemp.toUTF8();
 	}
 
@@ -4844,7 +4845,7 @@ CvString CvLeague::GetProjectRewardTierDetails(int iTier, LeagueProjectTypes ePr
 		pRewardInfo = GC.getLeagueProjectRewardInfo(pInfo->GetRewardTier2());
 		sRewardIcon = "[ICON_TROPHY_SILVER]";
 		Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_PROJECT_REWARD_TIER_2");
-		sTemp << GetContributionTierThreshold(CONTRIBUTION_TIER_2, eProject) / 100;
+		sTemp << GetContributionTierThresholdT100(CONTRIBUTION_TIER_2, eProject) / 100;
 		sContribution = sTemp.toUTF8();
 	}
 	else if (iTier == 1)
@@ -4852,7 +4853,7 @@ CvString CvLeague::GetProjectRewardTierDetails(int iTier, LeagueProjectTypes ePr
 		pRewardInfo = GC.getLeagueProjectRewardInfo(pInfo->GetRewardTier1());
 		sRewardIcon = "[ICON_TROPHY_BRONZE]";
 		Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_PROJECT_REWARD_TIER_1");
-		sTemp << GetContributionTierThreshold(CONTRIBUTION_TIER_1, eProject) / 100;
+		sTemp << GetContributionTierThresholdT100(CONTRIBUTION_TIER_1, eProject) / 100;
 		sContribution = sTemp.toUTF8();
 	}
 
@@ -6205,7 +6206,7 @@ void CvLeague::NotifyProjectProgress(LeagueProjectTypes eProject)
 					CvNotifications* pNotifications = kPlayer.GetNotifications();
 					if (pNotifications)
 					{
-						int iPercentCompleted = (int) (((float)GetProjectProgress(eProject) / (float)GetProjectCost(eProject)) * 100);
+						int iPercentCompleted = (GetProjectProgressT100(eProject) * 100) / GetProjectCostT100(eProject);
 						iPercentCompleted = MIN(100, iPercentCompleted);
 
 						Localization::String sSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_LEAGUE_PROJECT_PROGRESS");
@@ -6247,11 +6248,11 @@ void CvLeague::CheckProjectsProgress()
 			if (pProjectInfo)
 			{
 				// How much do we need?
-				int iNeeded = GetProjectCost(it->eType);
+				int iNeeded = GetProjectCostT100(it->eType);
 				CvAssertMsg(iNeeded != 0, "Invalid cost for League Project. Please send Anton your save file and version.");
 
 				// How much do we have?
-				int iTotal = GetProjectProgress(it->eType);
+				int iTotal = GetProjectProgressT100(it->eType);
 
 				// Is it finished?
 				if (iTotal >= iNeeded)
@@ -6277,7 +6278,7 @@ void CvLeague::CheckProjectsProgress()
 				// How close is it?
 				else
 				{
-					int iPercentCompleted = (int) (((float)iTotal / (float)iNeeded) * 100);
+					int iPercentCompleted = (iTotal * 100) / iNeeded;
 					iPercentCompleted = MIN(100, iPercentCompleted);
 
 					if (!it->bProgressWarningSent && iPercentCompleted >= LeagueHelpers::PROJECT_PROGRESS_PERCENT_WARNING)
@@ -7420,7 +7421,7 @@ bool CvGameLeagues::CanContributeToLeagueProject(PlayerTypes ePlayer, LeagueProj
 	return false;
 }
 
-void CvGameLeagues::DoLeagueProjectContribution(PlayerTypes ePlayer, LeagueProjectTypes eLeagueProject, int iValue)
+void CvGameLeagues::DoLeagueProjectContributionT100(PlayerTypes ePlayer, LeagueProjectTypes eLeagueProject, int iValueT100)
 {
 	int iMatches = 0;
 #ifdef AUI_LEAGUES_FIX_POSSIBLE_DEALLOCATION_CRASH
@@ -7435,7 +7436,7 @@ void CvGameLeagues::DoLeagueProjectContribution(PlayerTypes ePlayer, LeagueProje
 		if (it->CanMemberContribute(ePlayer, eLeagueProject))
 		{
 			iMatches++;
-			it->ChangeMemberContribution(ePlayer, eLeagueProject, iValue);
+			it->ChangeMemberContributionT100(ePlayer, eLeagueProject, iValueT100);
 		}
 	}
 	CvAssertMsg(iMatches == 1, "Unexpected case when contributing to a League Project. Please send Anton your save file and version.");
@@ -9461,22 +9462,21 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(const CvProposal* pProposal, int iChoice, b
 		bool bStrongProduction = false;
 		if (iAliveCivs > 0)
 		{
-			float fProductionMightRatio = ((float)iAliveCivs - (float)iHigherProductionCivs) / ((float)iAliveCivs);
-			CvAssertMsg(0.0f <= fProductionMightRatio && fProductionMightRatio <= 1.0f, "Error when evaluating delegates for an international project. Please send Anton your save file and version.");
-			fProductionMightRatio = MAX(fProductionMightRatio, 0.0f);
-			fProductionMightRatio = MIN(fProductionMightRatio, 1.0f);
+			T100 prodMightRatioT100 = ((iAliveCivs - iHigherProductionCivs) * 100) / iAliveCivs;
+			CvAssertMsg(0 <= prodMightRatioT100 && prodMightRatioT100 <= 100, "Error when evaluating delegates for an international project. Please send Anton your save file and version.");
+			prodMightRatioT100 = MAX((T100)0, MIN((T100)100, prodMightRatioT100));
 
-			if (fProductionMightRatio >= 0.75f)
+			if (prodMightRatioT100 >= 75)
 			{
 				iScore += 40;
 				bStrongProduction = true;
 			}
-			else if (fProductionMightRatio >= 0.50f)
+			else if (prodMightRatioT100 >= 50)
 			{
 				iScore += 20;
 				bStrongProduction = true;
 			}
-			else if (fProductionMightRatio >= 0.25f)
+			else if (prodMightRatioT100 >= 25)
 			{
 				iScore += -20;
 			}
@@ -9768,16 +9768,16 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(const CvProposal* pProposal, int iChoice, b
 		// What is the ratio of our current maintenance costs to our gross GPT?
 		int iUnitMaintenance = GetPlayer()->GetTreasury()->GetExpensePerTurnUnitMaintenance();
 		int iGPT = GetPlayer()->GetTreasury()->CalculateGrossGold();
-		float fRatio = ((float)iUnitMaintenance / (float)iGPT);
+		const T100 ratioT100 = (iUnitMaintenance * 100) / iGPT;
 		if ((iGPT - iUnitMaintenance) < 0)
 		{
 			iScore += -50 * iFactor;
 		}
-		else if (fRatio >= 0.5f)
+		else if (ratioT100 >= 50)
 		{
 			iScore += -40 * iFactor;
 		}
-		else if (fRatio >= 0.2f)
+		else if (ratioT100 >= 20)
 		{
 			iScore += -15 * iFactor;
 		}
@@ -9789,14 +9789,14 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(const CvProposal* pProposal, int iChoice, b
 	// Scholars in Residence
 	if (pProposal->GetEffects()->iMemberDiscoveredTechMod != 0)
 	{
-		float fTechRatio = GetPlayer()->GetPlayerTechs()->GetTechAI()->GetTechRatio();
-		fTechRatio = (fTechRatio - 0.5f) * 2.0f; // -1.0 if in first, 1.0 if in last
+		T100 techRatioT100 = GetPlayer()->GetPlayerTechs()->GetTechAI()->GetTechRatio();
+		techRatioT100 = (techRatioT100 - 50) * 2; // -100 if in first, 100 if in last
 		
 		// We are better than average
-		if (fTechRatio < 0.0f)
+		if (techRatioT100 < 0)
 		{
 			int iFactor = 30;
-			iScore += (int) (fTechRatio * iFactor);
+			iScore += techRatioT100 * iFactor;
 			if (bSeekingScienceVictory)
 			{
 				iScore += -30;
@@ -9806,7 +9806,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(const CvProposal* pProposal, int iChoice, b
 		else
 		{
 			int iFactor = 50;
-			iScore += (int) (fTechRatio * iFactor);
+			iScore += techRatioT100 * iFactor;
 			if (bSeekingScienceVictory)
 			{
 				iScore += 40;
@@ -10255,27 +10255,6 @@ int CvLeagueAI::ScoreVoteChoicePlayer(const CvProposal* pProposal, int iChoice, 
 	bool bSeekingDiploVictory = eGrandStrategy == GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS");
 #endif
 
-#ifdef AUI_VOTING_SCORE_VOTING_CHOICE_PLAYER_ADJUST_FOR_FPTP
-	CvWeightedVector<PlayerTypes, MAX_MAJOR_CIVS, true> vLeagueVoteCounts;
-	for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
-	{
-		if (pLeague->CanEverVote((PlayerTypes)iLoopPlayer))
-		{
-			vLeagueVoteCounts.push_back((PlayerTypes)iLoopPlayer, pLeague->CalculateStartingVotesForMember((PlayerTypes)iLoopPlayer));
-		}
-	}
-	vLeagueVoteCounts.SortItems();
-	int iVotesGainedOnFail = 0;
-	CvResolutionEntry* pInfo = GC.getResolutionInfo(pProposal->GetType());
-	if (pInfo)
-		iVotesGainedOnFail = pInfo->GetLeadersVoteBonusOnFail();
-	int iScoreForWinner = 0;
-	if (vLeagueVoteCounts.GetElement(0) != eChoicePlayer)
-	{
-		iScoreForWinner = MIN(0, ScoreVoteChoicePlayer(pProposal, vLeagueVoteCounts.GetElement(0), bEnact));
-	}
-#endif
-
 	// == Diplomatic Victory ==
 	if (pProposal->GetEffects()->bDiplomaticVictory)
 	{
@@ -10283,44 +10262,14 @@ int CvLeagueAI::ScoreVoteChoicePlayer(const CvProposal* pProposal, int iChoice, 
 		if (eAlignment == ALIGNMENT_LIBERATOR)
 		{
 			iScore += 200;
-#ifdef AUI_VOTING_SCORE_VOTING_CHOICE_PLAYER_ADJUST_FOR_FPTP
-			iScore += -iScoreForWinner;
-			if (GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategy(eChoicePlayer) == (AIGrandStrategyTypes)GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS"))
-			{
-				iScore += 100 * (1 + GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategyConfidence(eChoicePlayer)) / (1 + GUESS_CONFIDENCE_POSITIVE);
-			}
-#endif
 		}
 		else if (eAlignment == ALIGNMENT_LEADER)
 		{
 			iScore += 150;
-#ifdef AUI_VOTING_SCORE_VOTING_CHOICE_PLAYER_ADJUST_FOR_FPTP
-			iScore += -iScoreForWinner;
-#ifdef AUI_GS_PRIORITY_RATIO
-			iScore += int(100 * GetPlayer()->GetGrandStrategyAI()->GetGrandStrategyPriorityRatio((AIGrandStrategyTypes)GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS")) + 0.5);
-#else
-			if (bSeekingDiploVictory)
-			{
-				iScore += 100;
-			}
-#endif
-#endif
 		}
 		else if (eAlignment == ALIGNMENT_SELF)
 		{
 			iScore += 100;
-#ifdef AUI_VOTING_SCORE_VOTING_CHOICE_PLAYER_ADJUST_FOR_FPTP
-			iScore += -iScoreForWinner;
-#ifdef AUI_GS_PRIORITY_RATIO
-			iScore += int(100 * GetPlayer()->GetGrandStrategyAI()->GetGrandStrategyPriorityRatio((AIGrandStrategyTypes)GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS")) + 0.5);
-#else
-			if (bSeekingDiploVictory)
-			{
-				iScore += 100;
-			}
-#endif
-			iScore = iScore * (pLeague->CalculateStartingVotesForMember(eChoicePlayer) + iVotesGainedOnFail) / (vLeagueVoteCounts.GetWeight(1) + iVotesGainedOnFail);
-#endif
 		}
 		else if (eAlignment == ALIGNMENT_WAR)
 		{
@@ -10328,9 +10277,6 @@ int CvLeagueAI::ScoreVoteChoicePlayer(const CvProposal* pProposal, int iChoice, 
 		}
 		else
 		{
-#ifdef AUI_VOTING_SCORE_VOTING_CHOICE_PLAYER_ADJUST_FOR_FPTP
-			iScore += -iScoreForWinner;
-#else
 			iScore += -50;
 
 			if (bSeekingDiploVictory)
@@ -10344,7 +10290,6 @@ int CvLeagueAI::ScoreVoteChoicePlayer(const CvProposal* pProposal, int iChoice, 
 			{
 				iScore += -150;
 			}
-#endif
 			
 			switch (eAlignment)
 			{
@@ -10369,26 +10314,6 @@ int CvLeagueAI::ScoreVoteChoicePlayer(const CvProposal* pProposal, int iChoice, 
 			default:
 				break;
 			}
-#ifdef AUI_VOTING_SCORE_VOTING_CHOICE_PLAYER_ADJUST_FOR_FPTP
-			if (GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategy(eChoicePlayer) == (AIGrandStrategyTypes)GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS"))
-			{
-#ifdef AUI_GS_PRIORITY_RATIO
-				iScore -= int(100 * (1.0 + GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategyConfidence(eChoicePlayer)) / (1 + GUESS_CONFIDENCE_POSITIVE)
-					* GetPlayer()->GetGrandStrategyAI()->GetGrandStrategyPriorityRatio((AIGrandStrategyTypes)GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS")) + 0.5);
-#else
-				iScore -= 100 * (1 + GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategyConfidence(eChoicePlayer)) / (1 + GUESS_CONFIDENCE_POSITIVE)
-					/ (bSeekingDiploVictory ? 1 : 10);
-#endif
-			}
-			if (pLeague->CalculateStartingVotesForMember(GetPlayer()->GetID()) >= vLeagueVoteCounts.GetWeight(0))
-			{
-				iScore = MIN(0, iScore);
-			}
-			iScore = int(iScore * (vLeagueVoteCounts.GetWeight(1) + iVotesGainedOnFail) / double(pLeague->CalculateStartingVotesForMember(eChoicePlayer) + iVotesGainedOnFail) *
-				pow(3.0, 1.0 - double(pLeague->CalculateStartingVotesForMember(GetPlayer()->GetID()) + pLeague->CalculateStartingVotesForMember(GetPlayer()->GetID())) /
-				double(pLeague->CalculateStartingVotesForMember(eChoicePlayer) + pLeague->CalculateStartingVotesForMember(GetPlayer()->GetID()))) + 0.5);
-			iScore = MIN(MAX(iScore, -500), 300);
-#endif
 		}
 	}
 
@@ -10400,47 +10325,14 @@ int CvLeagueAI::ScoreVoteChoicePlayer(const CvProposal* pProposal, int iChoice, 
 		if (eAlignment == ALIGNMENT_LIBERATOR)
 		{
 			iScore += 200;
-#ifdef AUI_VOTING_SCORE_VOTING_CHOICE_PLAYER_ADJUST_FOR_FPTP
-			iScore += -iScoreForWinner;
-			if (GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategy(eChoicePlayer) == (AIGrandStrategyTypes)GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS"))
-			{
-				iScore += 100 * (1 + GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategyConfidence(eChoicePlayer)) / (1 + GUESS_CONFIDENCE_POSITIVE);
-			}
-#endif
 		}
 		else if (eAlignment == ALIGNMENT_SELF)
 		{
 			iScore += 100;
-#ifdef AUI_VOTING_SCORE_VOTING_CHOICE_PLAYER_ADJUST_FOR_FPTP
-			iScore += -iScoreForWinner;
-			if (pLeague->IsUnitedNations())
-			{
-#ifdef AUI_GS_PRIORITY_RATIO
-				iScore += int(100 * GetPlayer()->GetGrandStrategyAI()->GetGrandStrategyPriorityRatio((AIGrandStrategyTypes)GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS")) + 0.5);
-#else
-				if (bSeekingDiploVictory)
-				{
-					iScore += 100;
-				}
-#endif
-			}
-			iScore = iScore * (pLeague->CalculateStartingVotesForMember(eChoicePlayer) + iVotesGainedOnFail) / (vLeagueVoteCounts.GetWeight(0) + iVotesGainedOnFail);
-#endif
 		}
 		else if (eAlignment == ALIGNMENT_LEADER)
 		{
 			iScore += 50;
-#ifdef AUI_VOTING_SCORE_VOTING_CHOICE_PLAYER_ADJUST_FOR_FPTP
-			iScore += -iScoreForWinner;
-#ifdef AUI_GS_PRIORITY_RATIO
-			iScore += int(100 * GetPlayer()->GetGrandStrategyAI()->GetGrandStrategyPriorityRatio((AIGrandStrategyTypes)GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS")) + 0.5);
-#else
-			if (bSeekingDiploVictory)
-			{
-				iScore += 100;
-			}
-#endif
-#endif
 		}
 		else if (eAlignment == ALIGNMENT_WAR)
 		{
@@ -10448,16 +10340,10 @@ int CvLeagueAI::ScoreVoteChoicePlayer(const CvProposal* pProposal, int iChoice, 
 		}
 		else
 		{
-#ifdef AUI_VOTING_SCORE_VOTING_CHOICE_PLAYER_ADJUST_FOR_FPTP
-			iScore += -iScoreForWinner;
-#elif defined(AUI_GS_PRIORITY_RATIO)
-			iScore += -int(150 * GetPlayer()->GetGrandStrategyAI()->GetGrandStrategyPriorityRatio((AIGrandStrategyTypes)GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS")) + 0.5);
-#else
 			if (bSeekingDiploVictory)
 			{
 				iScore += -150;
 			}
-#endif
 
 			switch (eAlignment)
 			{
@@ -10482,16 +10368,6 @@ int CvLeagueAI::ScoreVoteChoicePlayer(const CvProposal* pProposal, int iChoice, 
 			default:
 				break;
 			}
-#ifdef AUI_VOTING_SCORE_VOTING_CHOICE_PLAYER_ADJUST_FOR_FPTP
-			if (pLeague->CalculateStartingVotesForMember(GetPlayer()->GetID()) >= vLeagueVoteCounts.GetWeight(0))
-			{
-				iScore = MIN(0, iScore);
-			}
-			iScore = int(iScore * (vLeagueVoteCounts.GetWeight(0) + iVotesGainedOnFail) / double(pLeague->CalculateStartingVotesForMember(eChoicePlayer) + iVotesGainedOnFail) *
-				pow(3.0, 1.0 - double(pLeague->CalculateStartingVotesForMember(GetPlayer()->GetID()) + pLeague->CalculateStartingVotesForMember(GetPlayer()->GetID())) /
-					double(pLeague->CalculateStartingVotesForMember(eChoicePlayer) + pLeague->CalculateStartingVotesForMember(GetPlayer()->GetID()))) + 0.5);
-			iScore = MIN(MAX(iScore, -500), 300);
-#endif
 		}
 	}
 

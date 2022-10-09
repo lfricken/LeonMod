@@ -378,8 +378,8 @@ void CvFlavorManager::AdjustWeightsForMap()
 {
 	int iTotalLandTiles;
 	int iNumPlayers;
-	double iTilesPerPlayer;
-	double fAdjust;
+	int iTilesPerPlayer;
+	T100 fAdjust;
 	int iAdjust;
 
 	iTotalLandTiles = GC.getMap().getLandPlots();
@@ -389,16 +389,16 @@ void CvFlavorManager::AdjustWeightsForMap()
 	{
 		int iNumFlavorTypes = GC.getNumFlavorTypes();
 		// Find tiles per player
-		iTilesPerPlayer = (double)iTotalLandTiles / (double)iNumPlayers;
+		iTilesPerPlayer = iTotalLandTiles / iNumPlayers;
 
 		// Compute +/- addition
 		//
 		// We want this to be logarithmic, since that is the curve between lots of players on a duel map
 		// and a few player on a huge map.  "FLAVOR_STANDARD_LOG10_TILES_PER_PLAYER" is the typical log10 of
 		// tiles per player.  We go up and down from this point (multiplying by a coefficient) from here
-		fAdjust = log10(iTilesPerPlayer) - (GC.getFLAVOR_STANDARD_LOG10_TILES_PER_PLAYERT100() / 100.0);
-		fAdjust *= (double)GC.getFLAVOR_EXPANDGROW_COEFFICIENT();
-		iAdjust = (int)fAdjust;
+		fAdjust = 150;
+		fAdjust *= GC.getFLAVOR_EXPANDGROW_COEFFICIENT();
+		iAdjust = fAdjust / 100;
 
 		int iFlavorMaxValue = /*20*/ GC.getPERSONALITY_FLAVOR_MAX_VALUE();
 		int iFlavorMinValue = /*0*/ GC.getPERSONALITY_FLAVOR_MIN_VALUE();

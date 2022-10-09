@@ -46,6 +46,62 @@
 // must be included after all other headers
 #include "LintFree.h"
 
+
+
+
+
+T100 iSquareRoot(const long long valT100)
+{
+	// Base cases
+	if (valT100 == 0 || valT100 == 100)
+		return valT100;
+	if (valT100 > 2147000000) // multiplying this by itself will overflow bounds of long long
+		throw std::invalid_argument("iSquareRoot must recieve value lower than 2^32 2147000000: " + valT100);
+
+	long long lastLowGuess = 100;
+	long long lastHighGuess = valT100;
+	if (valT100 < 100) // numbers between 0 and 1 INCREASE when you take the sqrt
+	{
+		lastLowGuess = valT100;
+		lastHighGuess = 100;
+	}
+	long long guess = (lastLowGuess + lastHighGuess) / 2;
+
+	for (int i = 0; i < 10; ++i) // num iterations
+	{
+		int result = (guess * guess) / 100;
+		if (result < valT100) // result too low, guess higher
+		{
+			lastLowGuess = guess;
+			guess = (guess + lastHighGuess) / 2;
+		}
+		else // result too high, guess lower
+		{
+			lastHighGuess = guess;
+			guess = (guess + lastLowGuess) / 2;
+		}
+	}
+	return guess;
+}
+
+
+T100 iPow1p5(const long long valT100)
+{
+	T100 halfPow = iSquareRoot(valT100);
+	T100 result = (valT100 * halfPow) / 100;
+	return result;
+}
+T100 iPow(const long long valT100, int iPower)
+{
+	T100 result = 100;
+	for (int i = 0; i < iPower; ++i)
+	{
+		result *= valT100;
+		result /= 100;
+	}
+	return result;
+}
+
 template <class T>
 void deleteInfoArray(std::vector<T*>& array)
 {
@@ -2415,7 +2471,6 @@ int CvGlobals::getPOLICY_NUM_FOR_IDEOLOGY() const
 {
 	return 21;
 }
-// grow or shrink city tourism impact
 T100 CvGlobals::getTOURISM_CITY_PERCENT_ADJUST() const
 {
 	return 65;
@@ -2426,18 +2481,18 @@ int CvGlobals::getTOURISM_FROM_CITY_CULTURE_PER_POLICY() const
 	return 1;
 }
 // how many more cities does the capital count for when calculating tourism adjustment
-T100 CvGlobals::getTOURISM_CITY_CAPITAL_ADJUST() const
+int CvGlobals::getTOURISM_CITY_CAPITAL_ADJUST() const
 {
-	return 600;
+	return 6;
 }
 T100 CvGlobals::getPOLICY_REBATE_VARIATION_T100() const
 {
 	return m_iPOLICY_REBATE_VARIATION_T100;
 }
 // How much extra "policies" does each policy cost once you get ideology
-T100 CvGlobals::getPOLICY_INCREASE_LATE_GAME() const
+T100 CvGlobals::getPOLICY_MOD_LATE_GAME() const
 {
-	return 50;
+	return 150;
 }
 // how much stuff the great scientist gives
 int CvGlobals::getGREAT_SCIENTIST_AMOUNT() const
@@ -2450,7 +2505,7 @@ T100 CvGlobals::getSCIENCE_CATCHUP_DIFFT100() const
 }
 T100 CvGlobals::getSCIENCE_CATCHUP_DIFF_NONET100() const
 {
-	return 100;
+	return 200;
 }
 
 // [0, 10000] Number of turns DONE as a percentage of max turns 
@@ -4413,7 +4468,7 @@ int CvGlobals::getNumPolicyInfos()
 int CvGlobals::getCULTURE_LEVEL_INFLUENTIAL() const
 {
 	// i do not know what 45 and 10 were supposed to be
-	// original was n + (0.45 - (vp / 10f))
+	// original was n + (45/100 - (vp / (decimal)10))
 	return m_iCULTURE_LEVEL_INFLUENTIAL + ((45 - ((GC.getGame().GetVpAdjustment() * 100) / 10)) / 100);
 }
 std::vector<CvPolicyEntry*>& CvGlobals::getPolicyInfo()
@@ -5080,18 +5135,18 @@ const char** CvGlobals::GetHexDebugLayerNames()
 	return hexDebugLayerNames;
 }
 
-float CvGlobals::GetHexDebugLayerScale(const char* szLayerName)
+decimal CvGlobals::GetHexDebugLayerScale(const char* szLayerName)
 {
 	std::string strLayerName = szLayerName;
-	float fScale = 1.0f; // safe float
+	decimal fScale = 100 / f100; // safe decimal
 
 	if(strLayerName == "SettlerSiteEvaluationLayer")
 	{
-		fScale = 1.5f;
+		fScale = 150 / f100; // safe decimal
 	}
 	if(strLayerName == "ArtifactLayer")
 	{
-		fScale = 2.0f; // safe float
+		fScale = 200 / f100; // safe decimal
 	}
 
 	return fScale;
@@ -7075,15 +7130,6 @@ CvString CvGlobals::getDefineSTRING(const char* szName, bool bReportErrors)
 	return strReturn;
 }
 
-#ifdef AUI_CACHE_DOUBLE
-double CvGlobals::getDefineDOUBLE(const char* szName, bool bReportErrors)
-{
-	double dReturn = 0.0;
-	getDefineValue(szName, dReturn, bReportErrors);
-	return dReturn;
-}
-#endif
-
 bool CvGlobals::getDefineValue(const char* szName, int& iValue, bool bReportErrors)
 {
 	bool bSuccess = false;
@@ -7106,14 +7152,14 @@ bool CvGlobals::getDefineValue(const char* szName, int& iValue, bool bReportErro
 	return bSuccess;
 }
 
-bool CvGlobals::getDefineValue(const char* szName, float& fValue, bool bReportErrors)
+bool CvGlobals::getDefineValue(const char* szName, decimal& fValue, bool bReportErrors)
 {
 	bool bSuccess = false;
 	if(m_kGlobalDefinesLookup.Bind(1, szName))
 	{
 		if(m_kGlobalDefinesLookup.Step())
 		{
-			fValue = m_kGlobalDefinesLookup.GetFloat(0);
+			fValue = m_kGlobalDefinesLookup.GetFloat(0); // safe decimal
 			bSuccess = true;
 		}
 	}
@@ -7122,35 +7168,11 @@ bool CvGlobals::getDefineValue(const char* szName, float& fValue, bool bReportEr
 
 	if(bReportErrors)
 	{
-		CvAssertFmt(bSuccess, "Float Define Value not found for %s", szName);
+		CvAssertFmt(bSuccess, "Fbloat Define Value not found for %s", szName);
 	}
 
 	return bSuccess;
 }
-
-#ifdef AUI_CACHE_DOUBLE
-bool CvGlobals::getDefineValue(const char* szName, double& dValue, bool bReportErrors)
-{
-	bool bSuccess = false;
-	if (m_kGlobalDefinesLookup.Bind(1, szName))
-	{
-		if (m_kGlobalDefinesLookup.Step())
-		{
-			dValue = m_kGlobalDefinesLookup.GetDouble(0);
-			bSuccess = true;
-		}
-	}
-
-	m_kGlobalDefinesLookup.Reset();
-
-	if (bReportErrors)
-	{
-		CvAssertFmt(bSuccess, "Float Define Value not found for %s", szName);
-	}
-
-	return bSuccess;
-}
-#endif
 
 bool CvGlobals::getDefineValue(const char* szName, CvString& strValue, bool bReportErrors)
 {

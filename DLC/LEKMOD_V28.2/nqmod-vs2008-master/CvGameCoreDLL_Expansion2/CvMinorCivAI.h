@@ -215,7 +215,7 @@ public:
 	// Starting and finishing
 	void DoStartQuest(int iStartTurn);
 	void DoStartQuestUsingExistingData(CvMinorCivQuest* pExistingQuest);
-	bool DoFinishQuest(const float bonusFactor = 1.0f);
+	bool DoFinishQuest(const T100 bonusFactorT100 = 100);
 	bool DoCancelQuest();
 
 	// Public data

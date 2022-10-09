@@ -31,7 +31,7 @@ public:
 	void DLLCALL CopyFrom(ICvRandom1* pOther);
 
 	unsigned short DLLCALL Get(unsigned short usNum, const char* pszLog = NULL);  //  Returns value from 0 to num-1 inclusive.
-	float DLLCALL GetFloat();
+	decimal DLLCALL GetFloat(); // safe decimal
 
 	unsigned long DLLCALL GetSeed() const;
 

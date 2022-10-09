@@ -538,7 +538,7 @@ int CvTreasury::CalculateBaseNetGoldTimes100()
 
 
 /// Compute unit maintenance cost for the turn (returns component info)
-int CvTreasury::CalculateUnitCost(int& iFreeUnits, int& iPaidUnits, int& iBaseUnitCost, int& iExtraCost)
+int CvTreasury::CalculateUnitCost(int& iFreeUnits, int& iPaidUnits, int& iBaseUnitCostT100, int& iExtraCostT100)
 {
 	// If player has 0 Cities then no Unit cost
 	if(m_pPlayer->getNumCities() == 0)
@@ -546,7 +546,7 @@ int CvTreasury::CalculateUnitCost(int& iFreeUnits, int& iPaidUnits, int& iBaseUn
 		return 0;
 	}
 
-	int iSupport = 0;
+	int supportT100 = 0;
 
 	CvHandicapInfo& playerHandicap = m_pPlayer->getHandicapInfo();
 	iFreeUnits = playerHandicap.getGoldFreeUnits();
@@ -557,7 +557,7 @@ int CvTreasury::CalculateUnitCost(int& iFreeUnits, int& iPaidUnits, int& iBaseUn
 
 	iPaidUnits = max(0, m_pPlayer->getNumUnits() - iFreeUnits);
 
-	iBaseUnitCost = iPaidUnits * m_pPlayer->getGoldPerUnitTimes100();
+	iBaseUnitCostT100 = iPaidUnits * m_pPlayer->getGoldPerUnitTimes100();
 
 	// Discount on land unit maintenance?
 	int iLandUnitMod = m_pPlayer->GetPlayerTraits()->GetLandUnitMaintenanceModifier();
@@ -566,7 +566,7 @@ int CvTreasury::CalculateUnitCost(int& iFreeUnits, int& iPaidUnits, int& iBaseUn
 		int iLandUnits = m_pPlayer->GetNumUnitsWithDomain(DOMAIN_LAND, true /*bMilitaryOnly*/);
 		int iFreeLandUnits = m_pPlayer->GetNumMaintenanceFreeUnits(DOMAIN_LAND, true);
 		int iPaidLandUnits = iLandUnits - iFreeLandUnits;
-		iBaseUnitCost += (iLandUnitMod * iPaidLandUnits * m_pPlayer->getGoldPerUnitTimes100()) / 100;
+		iBaseUnitCostT100 += (iLandUnitMod * iPaidLandUnits * m_pPlayer->getGoldPerUnitTimes100()) / 100;
 	}
 
 	// Discount on naval unit maintenance?
@@ -576,7 +576,7 @@ int CvTreasury::CalculateUnitCost(int& iFreeUnits, int& iPaidUnits, int& iBaseUn
 		int iNavalUnits = m_pPlayer->GetNumUnitsWithDomain(DOMAIN_SEA, true /*bMilitaryOnly*/);
 		int iFreeNavalUnits = m_pPlayer->GetNumMaintenanceFreeUnits(DOMAIN_SEA, true);
 		int iPaidNavalUnits = iNavalUnits - iFreeNavalUnits;
-		iBaseUnitCost += (iNavalUnitMod * iPaidNavalUnits * m_pPlayer->getGoldPerUnitTimes100()) / 100;
+		iBaseUnitCostT100 += (iNavalUnitMod * iPaidNavalUnits * m_pPlayer->getGoldPerUnitTimes100()) / 100;
 	}
 
 	// Discounts for units of certain UnitCombat classes
@@ -598,51 +598,47 @@ int CvTreasury::CalculateUnitCost(int& iFreeUnits, int& iPaidUnits, int& iBaseUn
 				int iModifiedCost = iNumUnits * m_pPlayer->getGoldPerUnitTimes100() * (100 + iModifier) / 100; 
 				
 				// Reduce cost based on difference
-				iBaseUnitCost += (iModifiedCost - iCost);
+				iBaseUnitCostT100 += (iModifiedCost - iCost);
 			}
 		}
 	}
 
-	iExtraCost = m_pPlayer->getExtraUnitCost() * 100;	// In hundreds to avoid rounding errors
+	iExtraCostT100 = m_pPlayer->getExtraUnitCost() * 100;	// In hundreds to avoid rounding errors
 
-	iSupport = iBaseUnitCost + iExtraCost;
+	supportT100 = iBaseUnitCostT100 + iExtraCostT100;
 
-	// Game progress factor ranges from 0.0 to 1.0 based on how far into the game we are
-	double fGameProgressFactor = double(GC.getGame().getElapsedGameTurns()) / GC.getGame().getDefaultEstimateEndTurn();
+	// Game progress factor ranges [0 to 100] based on how far into the game we are
+	T100 gameProgressFactorT100 = (GC.getGame().getElapsedGameTurns() * 100) / GC.getGame().getDefaultEstimateEndTurn();
 
 	// Multiplicative increase - helps scale costs as game goes on - the HIGHER this number the more is paid
-	double fMultiplyFactor = 1.0 + (fGameProgressFactor* /*8*/ GC.getUNIT_MAINTENANCE_GAME_MULTIPLIER());
+	T100 factorT100 = 100 + ((gameProgressFactorT100 * /*8*/ GC.getUNIT_MAINTENANCE_GAME_MULTIPLIER()) / 100);
 	// Exponential increase - this one really punishes those with a HUGE military - the LOWER this number the more is paid
-	double fExponentialFactor = 1.0 + (fGameProgressFactor / /*7*/ GC.getUNIT_MAINTENANCE_GAME_EXPONENT_DIVISOR());
+	// dbouble fExponentialFactor = 1 + (gameProgressFactorT100 / /*7*/ GC.getUNIT_MAINTENANCE_GAME_EXPONENT_DIVISOR());
 
-	double fTempCost = fMultiplyFactor * iSupport;
-	fTempCost /= 100;	// Take this out of hundreds now
-
-	double dFinalCost = pow(fTempCost, fExponentialFactor);
+	T100 tempCostT100 = (factorT100 * supportT100) / 100;
+	int finalCost = iPow1p5(tempCostT100) / 100;
 
 	// A mod at the player level? (Policies, etc.)
 	if(m_pPlayer->GetUnitGoldMaintenanceMod() != 0)
 	{
-		dFinalCost *= (100 + m_pPlayer->GetUnitGoldMaintenanceMod());
-		dFinalCost /= 100;
+		finalCost *= (100 + m_pPlayer->GetUnitGoldMaintenanceMod());
+		finalCost /= 100;
 	}
 
 	// Human bonus for unit maintenance costs
 	if(m_pPlayer->isHuman())
 	{
-		dFinalCost *= playerHandicap.getUnitCostPercent();
-		dFinalCost /= 100;
+		finalCost *= playerHandicap.getUnitCostPercent();
+		finalCost /= 100;
 	}
 	// AI bonus for unit maintenance costs
 	else if(!m_pPlayer->IsAITeammateOfHuman())
 	{
-		dFinalCost *= GC.getGame().getHandicapInfo().getAIUnitCostPercent();
-		dFinalCost /= 100;
+		finalCost *= GC.getGame().getHandicapInfo().getAIUnitCostPercent();
+		finalCost /= 100;
 	}
 
-	//iFinalCost /= 100;
-
-	return std::max(0, int(dFinalCost));
+	return std::max(0, finalCost);
 }
 
 /// Compute unit supply for the turn (returns component info)
@@ -671,16 +667,17 @@ int CvTreasury::CalculateUnitSupply(int& iPaidUnits, int& iBaseSupplyCost)
 		iSupply /= 100;
 	}
 
-	// Game progress factor ranges from 0.0 to 1.0 based on how far into the game we are
-	double fGameProgressFactor = float(GC.getGame().getElapsedGameTurns()) / GC.getGame().getEstimateEndTurn();
+	//// Game progress factor ranges from [0 to 100] based on how far into the game we are
+	//dbouble fGameProgressFactor = fbloat(GC.getGame().getElapsedGameTurns()) / GC.getGame().getEstimateEndTurn();
 
-	// Multiplicative increase - helps scale costs as game goes on - the HIGHER this number the more is paid
-	double fMultiplyFactor = 1.0 + (fGameProgressFactor* /*8*/ GC.getUNIT_MAINTENANCE_GAME_MULTIPLIER());
-	// Exponential increase - this one really punishes those with a HUGE military - the LOWER this number the more is paid
-	double fExponentialFactor = 1.0 + (fGameProgressFactor / /*7*/ GC.getUNIT_MAINTENANCE_GAME_EXPONENT_DIVISOR());
+	//// Multiplicative increase - helps scale costs as game goes on - the HIGHER this number the more is paid
+	//dbouble fMultiplyFactor = 1 + (fGameProgressFactor* /*8*/ GC.getUNIT_MAINTENANCE_GAME_MULTIPLIER());
+	//// Exponential increase - this one really punishes those with a HUGE military - the LOWER this number the more is paid
+	//dbouble fExponentialFactor = 1 + (fGameProgressFactor / /*7*/ GC.getUNIT_MAINTENANCE_GAME_EXPONENT_DIVISOR());
 
-	double fTempCost = fMultiplyFactor * iSupply;
-	int iFinalCost = (int) pow(fTempCost, fExponentialFactor);
+	//dbouble fTempCost = fMultiplyFactor * iSupply;
+	//int iFinalCost = (int)pbow(fTempCost, fExponentialFactor);
+	int iFinalCost = iSupply;
 
 	// A mod at the player level? (Policies, etc.)
 	if(m_pPlayer->GetUnitSupplyMod() != 0)
@@ -880,7 +877,7 @@ void CvTreasury::ChangeBaseImprovementGoldMaintenance(int iChange)
 }
 
 /// Average change in gold balance over N turns
-double CvTreasury::AverageIncome(int iTurns)
+int CvTreasury::AverageIncome(int iTurns)
 {
 	CvAssertMsg(iTurns > 0, "Invalid number of turns parameter");
 
@@ -888,15 +885,15 @@ double CvTreasury::AverageIncome(int iTurns)
 	{
 		int iSamples = 0;
 		int iIndex = m_GoldChangeForTurnTimes100.size() - 1;
-		int iTotal = 0;
+		int iTotalT100 = 0;
 
 		while(iSamples < iTurns)
 		{
-			iTotal += m_GoldChangeForTurnTimes100[iIndex];
+			iTotalT100 += m_GoldChangeForTurnTimes100[iIndex];
 			iSamples++;
 		}
 
-		return ((double)iTotal / (double)iSamples / 100);
+		return (iTotalT100 / iSamples / 100);
 	}
 
 	return 0;
@@ -1111,7 +1108,7 @@ void TreasuryHelpers::AppendToLog(CvString& strHeader, CvString& strLog, CvStrin
 	strLog += str;
 }
 
-void TreasuryHelpers::AppendToLog(CvString& strHeader, CvString& strLog, CvString strHeaderValue, float fValue)
+void TreasuryHelpers::AppendToLog(CvString& strHeader, CvString& strLog, CvString strHeaderValue, decimal fValue)
 {
 	strHeader += strHeaderValue;
 	strHeader += ",";

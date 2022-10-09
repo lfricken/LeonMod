@@ -33,23 +33,23 @@
 #include "LintFree.h"
 
 
-int CvGlobals::getTOURISM_MODIFIER_HAMMERCOMPETITION(const PlayerTypes ePlayer) const
+int CvGlobals::getTOURISM_MODIFIER_HAMMERCOMPETITION(const PlayerTypes) const
 {
 	int base = 10;
 	// always have some base, possibly modify based on player
 	return base;
 }
-int CvGlobals::getCITIZENS_MIN_FOR_SPECIALIST(const PlayerTypes ePlayer) const
+int CvGlobals::getCITIZENS_MIN_FOR_SPECIALIST(const PlayerTypes) const
 {
 	return 8;
 }
-int CvGlobals::getCITIZENS_PER_SPECIALIST(const PlayerTypes ePlayer) const
+int CvGlobals::getCITIZENS_PER_SPECIALIST(const PlayerTypes) const
 {
 	return 2;
 }
-int CvGlobals::getYIELD_PER_TURN_ALLY(const YieldTypes eYieldType, const PlayerTypes eMinor, const PlayerTypes ePlayer, const bool isCaptured) const
+int CvGlobals::getYIELD_PER_TURN_ALLY(const YieldTypes eYieldType, const PlayerTypes, const PlayerTypes ePlayer, const bool) const
 {
-	float value = 0;
+	int value = 0;
 	// defaults
 	if (eYieldType == YIELD_DIPLOMATIC_SUPPORT)
 		value = 10;
@@ -66,11 +66,11 @@ int CvGlobals::getYIELD_PER_TURN_ALLY(const YieldTypes eYieldType, const PlayerT
 		}
 	}
 
-	return GC.round(value);
+	return value;
 }
-int CvGlobals::getYIELD_PER_QUEST(const YieldTypes eYieldType, const PlayerTypes eMinor, const PlayerTypes ePlayer) const
+int CvGlobals::getYIELD_PER_QUEST(const YieldTypes eYieldType, const PlayerTypes, const PlayerTypes ePlayer) const
 {
-	float value = 0;
+	int value = 0;
 	// defaults
 	if (eYieldType == YIELD_DIPLOMATIC_SUPPORT)
 		value = 100;
@@ -86,7 +86,10 @@ int CvGlobals::getYIELD_PER_QUEST(const YieldTypes eYieldType, const PlayerTypes
 			//POLICY_PATRONAGE_FINISHER grants 50% more Diplo Points from Completing Quests
 			const bool hasPhilanthropy = player.HasPolicy("POLICY_PATRONAGE_FINISHER");
 			if (hasPhilanthropy)
-				value *= 1.5;
+			{
+				value *= 150;
+				value /= 100;
+			}
 		}
 		if (eYieldType == YIELD_SCIENTIFIC_INSIGHT)
 		{
@@ -105,7 +108,7 @@ int CvGlobals::getYIELD_PER_QUEST(const YieldTypes eYieldType, const PlayerTypes
 		}
 	}
 
-	return GC.round(value);
+	return value;
 }
 
 
@@ -113,7 +116,8 @@ int CvGlobals::getYIELD_PER_QUEST(const YieldTypes eYieldType, const PlayerTypes
 
 int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeConnection, const YieldTypes eYieldType, const bool bIsOwner) const
 {
-	float yieldChange = 0.0f;
+	if (bIsOwner) { }
+	int yieldChange = 0;
 	const CvPlayer& playerOrigin = GET_PLAYER(kTradeConnection.m_eOriginOwner);
 	const CvPlayer& playerDest = GET_PLAYER(kTradeConnection.m_eDestOwner);
 	const bool isInternal = playerOrigin.GetID() == playerDest.GetID();
@@ -124,7 +128,7 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 	if (!cityOrigin || !cityDest) return 0;
 
 	// how many tiles between the 2 cities
-	const int tradeDistance = kTradeConnection.m_aPlotList.size();
+	//const int tradeDistance = kTradeConnection.m_aPlotList.size();
 	const bool hasSilkRoad = playerOrigin.HasPolicy("POLICY_CARAVANS");
 	const bool hasMerchantConfederacy = playerOrigin.HasPolicy("POLICY_MERCHANT_CONFEDERACY");
 	const bool hasMerchantsGuild = cityOrigin->GetCityBuildings()->HasBuildingClass(BuildingClass("BUILDINGCLASS_CARAVANSARY"));
@@ -139,7 +143,6 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 	const bool hasCenserMaker = cityOrigin->GetCityBuildings()->HasBuildingClass(BuildingClass("BUILDINGCLASS_CENSER"));
 	const bool hasGemcutter = cityOrigin->GetCityBuildings()->HasBuildingClass(BuildingClass("BUILDINGCLASS_GEMCUTTER"));
 	const bool hasOilRefinery = cityOrigin->GetCityBuildings()->HasBuildingClass(BuildingClass("BUILDINGCLASS_REFINERY"));
-
 
 	if (isInternal) // true if this is an internal trade route
 	{
@@ -213,7 +216,7 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 	}
 
 
-	return GC.round(yieldChange); // round to nearest integer
+	return yieldChange;
 }
 
 

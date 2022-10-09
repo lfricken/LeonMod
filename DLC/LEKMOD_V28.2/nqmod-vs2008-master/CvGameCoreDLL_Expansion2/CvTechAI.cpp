@@ -290,7 +290,7 @@ struct LeaderWithNumTechsEval
 	}
 };
 
-float CvTechAI::GetTechRatio()
+T100 CvTechAI::GetTechRatio()
 {
 	// create list of all civs with the number of techs they control
 	std::vector<LeaderWithNumTechs> aLeaderWithNumTechs;
@@ -322,12 +322,12 @@ float CvTechAI::GetTechRatio()
 
 	CvAssertMsg(iPlayerIndexInList != -1, "Could not find player in list");
 	CvAssertMsg(aLeaderWithNumTechs.size() >= 2, "Only one player in the game? Huh?");
-	float fTechPositionRatio = 0.0f;
+	T100 fTechPositionRatio = 0;
 	if(aLeaderWithNumTechs.size() >= 2)
 	{
 		int iNumerator = iPlayerIndexInList;
 		int iDenominator = aLeaderWithNumTechs.size() - 1;
-		fTechPositionRatio = iNumerator / (float)iDenominator;
+		fTechPositionRatio = iNumerator * 100 / iDenominator;
 	}
 
 	return fTechPositionRatio;

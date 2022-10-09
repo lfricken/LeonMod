@@ -140,7 +140,27 @@ class ICvUnit1;
 struct CompetitionDelegates;
 
 // Defines this type as storing a fixed point decimal value. 1275 would represent 12.75
+// this MUST be used instead of floats/doubles in game state because otherwise desyncs are caused
 #define T100 long
+// verified safe to use (multiplayer should not use decimal due to undefined cpu rounding)
+#define decimal float // safe decimal
+#define bigdecimal double // safe decimal
+#define f100 100.0 // safe decimal
+
+
+
+// Returns a T100 that is the floor of square root of a T100 using only deterministic integer math.
+// So if you pass 1000 (aka 10) it will return 316 because sqrt(10) is 3.16...
+T100 iSquareRoot(const long long valT100);
+// Raises the given value to the one-and-a-half power.
+// Returns T100.
+T100 iPow1p5(const long long valT100);
+// given a T100, will raise it to a given INTEGER power
+T100 iPow(const long long valT100, int iPower);
+
+const int displacementSize = 6;
+//                                                        NE          E          SE            SW            W           NW
+const long displacementsT100[displacementSize][2] = { {500, 866}, {1000, 0}, {500, -866}, {-500, -866}, {-1000, 0}, {-500, -866} };
 
 // uses the map to convert the name string to the specified enum type
 // needs to be passed a function to get the info type of a given TEnum
@@ -235,19 +255,10 @@ public:
 		return m_aiPlotDirectionY;
 	}
 
-	double round(double x)
-	{
-		return x < 0 ? ceil(x - 0.5) : floor(x + 0.5);
-	}
-	// 1.516 -> 52
-	int toPercentT100(double factor)
-	{
-		return round((factor - 1.0) * 100.0);
-	}
 	// 52 -> 1.52
-	double toFactor(const int percentChangeT100)
+	decimal toFactor(const int percentChangeT100) // safe decimal
 	{
-		return 1.0 + ((double)percentChangeT100 / 100.0);
+		return 1.0 + ((decimal)percentChangeT100 / 100.0); // safe decimal
 	}
 	// adds to the stringstream a formatted yield
 	void tooltipAdd(stringstream* ss, const YieldTypes eYield, const int iAmount, const bool includeText = true, const bool includeIcon = true);
@@ -260,7 +271,7 @@ public:
 	int onlineSpeedMaxTurns();
 	// on turn 100 this would return: onlineSpeed: 100, normalSpeed: 50
 	T100 onePerOnlineSpeedTurnT10000();
-	// online: 0.5,  normal: 1,  etc
+	// online: 1/2,  normal: 1,  etc
 	T100 adjustForSpeedT100(YieldTypes type);
 	// puts a message in the players log and on the screen
 	void messageAllPlayers(const char* strString);
@@ -898,7 +909,7 @@ public:
 	CvString& getFootstepAudioTags(int i);
 
 	const char** GetHexDebugLayerNames();
-	float GetHexDebugLayerScale(const char* szLayerName);
+	decimal GetHexDebugLayerScale(const char* szLayerName);
 	bool GetHexDebugLayerString(CvPlot* pkPlot, const char* szLayerName, PlayerTypes ePlayer, char* szBuffer, unsigned int uiBufferLength);
 
 	///////////////// BEGIN global defines
@@ -951,12 +962,12 @@ public:
 	T100 getTOURISM_CITY_PERCENT_ADJUST() const;
 	// grow or shrink city tourism impact
 	int getTOURISM_FROM_CITY_CULTURE_PER_POLICY() const;
-	// how many more cities does the capital count for when calculating tourism adjustment
-	T100 getTOURISM_CITY_CAPITAL_ADJUST() const;
+	// how many MORE cities does the capital count for when calculating tourism adjustment. 6 would imply the capital counts for 7
+	int getTOURISM_CITY_CAPITAL_ADJUST() const;
 	// how much can policy cost vary per policy
 	T100 getPOLICY_REBATE_VARIATION_T100() const;
-	// How much extra "policies" does each policy cost once you get ideology
-	T100 getPOLICY_INCREASE_LATE_GAME() const;
+	// How much future policies cost once you have enough to get ideology
+	T100 getPOLICY_MOD_LATE_GAME() const;
 	// how much stuff the great scientist gives
 	int getGREAT_SCIENTIST_AMOUNT() const;
 	// how far someone falls behind in science turns before they get 100% boost
@@ -6171,7 +6182,7 @@ public:
 	{
 		return m_iPOLICY_COST_DISCOUNT_MAX;
 	}
-	inline int getGOLD_PURCHASE_GOLD_PER_PRODUCTION()
+	inline int getGOLD_PURCHASE_GOLD_PER_PRODUCTIONT100()
 	{
 		return m_iGOLD_PURCHASE_GOLD_PER_PRODUCTION;
 	}
@@ -6744,6 +6755,7 @@ public:
 	{
 		return m_iMIN_CITY_STRIKE_DAMAGE;
 	}
+	// the default damage for a newly captured city
 	inline int getCITY_CAPTURE_DAMAGE_PERCENT()
 	{
 		return m_iCITY_CAPTURE_DAMAGE_PERCENT;
@@ -6980,6 +6992,7 @@ public:
 	{
 		return m_iDIPLO_VICTORY_BEYOND_ALGORITHM_MULTIPLIER;
 	}
+	// what percent of total votes does a player need for diplo victory condition
 	inline int getDIPLO_VICTORY_DEFAULT_VOTE_PERCENT()
 	{
 		return m_iDIPLO_VICTORY_DEFAULT_VOTE_PERCENT;
@@ -7584,6 +7597,7 @@ public:
 	{
 		return m_iESPIONAGE_COUP_OTHER_PLAYERS_INFLUENCE_DROP;
 	}
+	// extra spy effective strength if there is no counter spy
 	inline T100 getESPIONAGE_COUP_NOBODY_BONUST100()
 	{
 		return m_fESPIONAGE_COUP_NOBODY_BONUS;
@@ -8059,15 +8073,9 @@ protected:
 	//////////////////////////////////////////////////////////////////////////
 
 	int getDefineINT(const char* szName, bool bReportErrors = true);
-#ifdef AUI_CACHE_DOUBLE
-	double getDefineDOUBLE(const char* szName, bool bReportErrors = true);
-#endif
 
 	bool getDefineValue(const char* szName, int& iValue, bool bReportErrors = true);
-	bool getDefineValue(const char* szName, float& fValue, bool bReportErrors = true);
-#ifdef AUI_CACHE_DOUBLE
-	bool getDefineValue(const char* szName, double& dValue, bool bReportErrors = true);
-#endif
+	bool getDefineValue(const char* szName, decimal& fValue, bool bReportErrors = true);
 	bool getDefineValue(const char* szName, CvString& szValue, bool bReportErrors = true);
 
 	// -- Togglable AuI options

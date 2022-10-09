@@ -16,6 +16,7 @@
 #pragma once
 #ifndef CVLUASUPPORT_H
 #define CVLUASUPPORT_H
+#define decimal float // safe decimal
 
 // Standard Lua includes
 extern "C" {
@@ -45,7 +46,7 @@ bool CallHook(_In_ ICvEngineScriptSystem1* pkScriptSystem, _In_z_ const char* sz
 bool CallTestAll(_In_ ICvEngineScriptSystem1* pkScriptSystem, _In_z_ const char* szName, _In_opt_ ICvEngineScriptSystemArgs1* args, bool& value);
 bool CallTestAny(_In_ ICvEngineScriptSystem1* pkScriptSystem, _In_z_ const char* szName, _In_opt_ ICvEngineScriptSystemArgs1* args, bool& value);
 bool CallAccumulator(_In_ ICvEngineScriptSystem1* pkScriptSystem, _In_z_ const char* szName, _In_opt_ ICvEngineScriptSystemArgs1* args, int& value);
-bool CallAccumulator(_In_ ICvEngineScriptSystem1* pkScriptSystem, _In_z_ const char* szName, _In_opt_ ICvEngineScriptSystemArgs1* args, float& value);
+bool CallAccumulator(_In_ ICvEngineScriptSystem1* pkScriptSystem, _In_z_ const char* szName, _In_opt_ ICvEngineScriptSystemArgs1* args, decimal& value);
 
 }
 

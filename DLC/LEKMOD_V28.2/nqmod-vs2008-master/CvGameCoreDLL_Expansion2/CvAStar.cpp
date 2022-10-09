@@ -50,8 +50,8 @@
 #define PATH_INCORRECT_EMBARKING_WEIGHT							(1000000)
 #define PATH_BUILD_ROUTE_EXISTING_ROUTE_WEIGHT					(10)
 //#define PATH_BUILD_ROUTE_RESOURCE_WEIGHT						(2)
-#define PATH_BUILD_ROUTE_REMOVABLE_FEATURE_DISCOUNT				(0.8f)
-#define PATH_BUILD_ROUTE_ALREADY_FLAGGED_DISCOUNT				(0.5f)
+#define PATH_BUILD_ROUTE_REMOVABLE_FEATURE_DISCOUNTT100         (80)
+#define PATH_BUILD_ROUTE_ALREADY_FLAGGED_DISCOUNTT100           (50)
 #define PATH_END_TURN_MOUNTAIN_WEIGHT							(1000000)
 #define PATH_END_TURN_MISSIONARY_OTHER_TERRITORY				(150000)
 
@@ -3803,7 +3803,8 @@ int BuildRouteCost(CvAStarNode* parent, CvAStarNode* node, int data, const void*
 	// if the tile already been tagged for building a road, then provide a discount
 	if(pPlot->GetBuilderAIScratchPadTurn() == GC.getGame().getGameTurn() && pPlot->GetBuilderAIScratchPadPlayer() == eOwner)
 	{
-		iMaxValue = (int)(iMaxValue * PATH_BUILD_ROUTE_ALREADY_FLAGGED_DISCOUNT);
+		iMaxValue *= PATH_BUILD_ROUTE_ALREADY_FLAGGED_DISCOUNTT100;
+		iMaxValue /= 100;
 	}
 
 #ifdef AUI_WORKER_INCA_HILLS

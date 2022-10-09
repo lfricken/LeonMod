@@ -258,7 +258,7 @@ public:
 	void GetDiplomaticInfluencePerTurn(int* influenceThisTurn, int* iNumMinorCapitalsControlled) const;
 	int GetDiplomaticInfluence() const;
 	void ChangeDiplomaticInfluence(const int iChange);
-	// how much needed to achieve condition
+	// how much needed to achieve victory condition
 	int GetDiplomaticInfluenceNeeded() const;
 
 	// how much we will earn at the end of this turn
@@ -1022,8 +1022,8 @@ public:
 #endif
 
 #ifdef NQ_PATRIOTIC_WAR
-	int GetDoubleTrainedMilitaryLandUnitCount() const;
-	bool IsDoubleTrainedMilitaryLandUnit() const;
+	int Get2xTrainedMilitaryLandUnitCount() const;
+	bool Is2xTrainedMilitaryLandUnit() const;
 	void ChangeDoubleTrainedMilitaryLandUnitCount(int iChange);
 #endif
 
@@ -2096,7 +2096,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iPopRushHurryCount;
 	FAutoVariable<int, CvPlayer> m_iTotalImprovementsBuilt;
 	FAutoVariable<int, CvPlayer> m_iNextOperationID;
-	FAutoVariable<int, CvPlayer> m_iCostNextPolicy;
+	FAutoVariable<int, CvPlayer> m_iCostNextPolicyT100;
 	FAutoVariable<int, CvPlayer> m_iNumBuilders;
 	FAutoVariable<int, CvPlayer> m_iMaxNumBuilders;
 	FAutoVariable<int, CvPlayer> m_iCityStrengthMod;

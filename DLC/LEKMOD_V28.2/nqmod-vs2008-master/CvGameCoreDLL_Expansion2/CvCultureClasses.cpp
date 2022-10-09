@@ -2625,26 +2625,27 @@ int CvPlayerCulture::GetLastTurnInfluenceOn(PlayerTypes ePlayer) const
 }
 
 /// Influence being applied each turn
-int CvPlayerCulture::GetNetTourismWith(PlayerTypes eOtherPlayer, const bool ignoreVpCatchup) const
+int CvPlayerCulture::GetNetTourismWith(PlayerTypes eOtherPlayer, const bool) const
 {
-	int tourismT100 = 0;
+	T100 tourismT100 = 0;
 
 	CvPlayer &kOtherPlayer = GET_PLAYER(eOtherPlayer);
 	CvTeam &kOtherTeam = GET_TEAM(kOtherPlayer.getTeam());
 
 	if ((int)eOtherPlayer != m_pPlayer->GetID() && kOtherPlayer.isAlive() && !kOtherPlayer.isMinorCiv() && kOtherTeam.isHasMet(m_pPlayer->getTeam()))
 	{
-		GetTourismModifierWith_Tooltip(eOtherPlayer, tourismT100);
+		GetNetTourismT100With_AndReturnTooltip(eOtherPlayer, tourismT100);
 	}
 
 	return tourismT100 / 100;
 }
 
-void showFactorIncrease(stringstream& s, const int modT100, int& valT100)
+void showAndApplyFactorIncrease(stringstream& s, const int modT100, int& valT100)
 {
 	const int oldValT100 = valT100;
-	const double factor = GC.toFactor(modT100);
-	valT100 *= factor;
+	const decimal factor = GC.toFactor(modT100);
+	valT100 *= 100 + modT100;
+	valT100 /= 100;
 	//if (modT100 > 0)      s << "[COLOR_POSITIVE_TEXT]";
 	//else if (modT100 < 0) s << "[COLOR_NEGATIVE_TEXT]";
 	//else				  s << "[COLOR_GREY]";
@@ -2661,12 +2662,10 @@ void addColoredValue(stringstream& s, const int modT100, const string descriptio
 	if (includePercent) perc = "% ";
 	s << perc << description << "[ENDCOLOR][NEWLINE]";
 }
-/// Tooltip for GetTourismModifierWith()
-CvString CvPlayerCulture::GetTourismModifierWith_Tooltip(const PlayerTypes eOtherPlayer, int& newValueT100) const
+CvString CvPlayerCulture::GetNetTourismT100With_AndReturnTooltip(const PlayerTypes eOtherPlayer, T100& newValueT100) const
 {
 	CvString szRtnValue = "";
-	CvPlayer& kPlayer = GET_PLAYER(eOtherPlayer);
-	CvTeam& kTeam = GET_TEAM(kPlayer.getTeam());
+	const CvPlayer& kPlayer = GET_PLAYER(eOtherPlayer);
 	PolicyBranchTypes eMyIdeology = m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree();
 	PolicyBranchTypes eTheirIdeology = kPlayer.GetPlayerPolicies()->GetLateGamePolicyTree();
 
@@ -2794,7 +2793,7 @@ CvString CvPlayerCulture::GetTourismModifierWith_Tooltip(const PlayerTypes eOthe
 			totalLinearModT100 += mod;
 		}
 
-		showFactorIncrease(stream, totalLinearModT100, tourismT100);
+		showAndApplyFactorIncrease(stream, totalLinearModT100, tourismT100);
 		stream << "[NEWLINE]";
 	}
 	
@@ -2803,13 +2802,13 @@ CvString CvPlayerCulture::GetTourismModifierWith_Tooltip(const PlayerTypes eOthe
 	{ // technology
 		const int mod = GetTourismModifierTechnologyT100(eOtherPlayer);
 		addColoredValue(stream, mod, "from Technologies");
-		showFactorIncrease(stream, mod, tourismT100);
+		showAndApplyFactorIncrease(stream, mod, tourismT100);
 		stream << "[NEWLINE]";
 	}
 	{ // adjust for number of cities
 		const int mod = GetTourismModifierCityCountT100(eOtherPlayer);
 		addColoredValue(stream, mod, "from City Count Difference");
-		showFactorIncrease(stream, mod, tourismT100);
+		showAndApplyFactorIncrease(stream, mod, tourismT100);
 		stream << "[NEWLINE]";
 	}
 	//{ // adjust for previous progress
@@ -2826,21 +2825,21 @@ CvString CvPlayerCulture::GetTourismModifierWith_Tooltip(const PlayerTypes eOthe
 	return GetLocalizedText(szRtnValue);
 }
 
-int CvPlayerCulture::GetTourismModifierWithT100(PlayerTypes eOtherPlayer, bool bIgnoreReligion, bool bIgnoreOpenBorders, bool bIgnoreTrade, bool bIgnorePolicies, bool bIgnoreIdeologies, const bool ignoreVpCatchup) const
+int CvPlayerCulture::GetTourismModifierWithT100(PlayerTypes eOtherPlayer, bool, bool, bool, bool, bool, const bool) const
 {
-	int oldTourismT100 = GetOurNetTourismT100();
-	int newTourismT100 = 0;
-	GetTourismModifierWith_Tooltip(eOtherPlayer, newTourismT100);
+	T100 oldTourismT100 = GetOurNetTourismT100();
+	T100 newTourismT100 = 0;
+	GetNetTourismT100With_AndReturnTooltip(eOtherPlayer, newTourismT100);
 
-	if (newTourismT100 < 1 || oldTourismT100 < 1)
+	if (newTourismT100 < 100 || oldTourismT100 < 100)
 		return 0;
 
-	return GC.toPercentT100((double)newTourismT100 / (double)oldTourismT100);
+	return 100 - ((newTourismT100 * 100) / oldTourismT100);
 }
 
-double CvPlayerCulture::GetTourismModifierTradeRoutesT100(const PlayerTypes eOtherPlayer) const
+T100 CvPlayerCulture::GetTourismModifierTradeRoutesT100(const PlayerTypes eOtherPlayer) const
 {
-	double modT100 = 0;
+	T100 modT100 = 0;
 
 	{
 		const int modPer = GC.getTOURISM_MODIFIER_TRADE_ROUTE();
@@ -2851,22 +2850,22 @@ double CvPlayerCulture::GetTourismModifierTradeRoutesT100(const PlayerTypes eOth
 	return modT100;
 }
 
-double CvPlayerCulture::GetTourismModifierGoldenAgeT100(const PlayerTypes eOtherPlayer) const
+T100 CvPlayerCulture::GetTourismModifierGoldenAgeT100(const PlayerTypes) const
 {
-	double modT100 = 0;
+	T100 modT100 = 0;
 
 	if (m_pPlayer->isGoldenAge())
 	{
 		modT100 += 10;
-		modT100 *= GC.toFactor(m_pPlayer->GetPlayerTraits()->GetGoldenAgeTourismModifier());
+		modT100 += m_pPlayer->GetPlayerTraits()->GetGoldenAgeTourismModifier();
 	}
 
 	return modT100;
 }
 
-double CvPlayerCulture::GetTourismModifierHappinessT100(const PlayerTypes eOtherPlayer) const
+T100 CvPlayerCulture::GetTourismModifierHappinessT100(const PlayerTypes eOtherPlayer) const
 {
-	double modT100 = 0;
+	T100 modT100 = 0;
 
 	// if our happiness higher
 	if (m_pPlayer->GetExcessHappiness() > GET_PLAYER(eOtherPlayer).GetExcessHappiness())
@@ -2878,9 +2877,9 @@ double CvPlayerCulture::GetTourismModifierHappinessT100(const PlayerTypes eOther
 	return modT100;
 }
 
-double CvPlayerCulture::GetTourismModifierLargeCityT100(const PlayerTypes eOtherPlayer) const
+T100 CvPlayerCulture::GetTourismModifierLargeCityT100(const PlayerTypes eOtherPlayer) const
 {
-	double modT100 = 0;
+	T100 modT100 = 0;
 
 	// if our happiness higher
 	if (m_pPlayer->GetLargestCityPop() > GET_PLAYER(eOtherPlayer).GetLargestCityPop())
@@ -2891,9 +2890,9 @@ double CvPlayerCulture::GetTourismModifierLargeCityT100(const PlayerTypes eOther
 	return modT100;
 }
 
-double CvPlayerCulture::GetTourismModifierHammerCompetitionT100(const PlayerTypes eOtherPlayer) const
+T100 CvPlayerCulture::GetTourismModifierHammerCompetitionT100(const PlayerTypes eOtherPlayer) const
 {
-	double modT100 = 0;
+	T100 modT100 = 0;
 
 	if (m_pPlayer->GetCompetitionHammersT100(HAMMERCOMPETITION_CULTURAL_INFLUENCE) > GET_PLAYER(eOtherPlayer).GetCompetitionHammersT100(HAMMERCOMPETITION_CULTURAL_INFLUENCE))
 	{
@@ -2903,9 +2902,9 @@ double CvPlayerCulture::GetTourismModifierHammerCompetitionT100(const PlayerType
 	return modT100;
 }
 
-double CvPlayerCulture::GetTourismModifierMoreSpecialGreatWorksT100(const PlayerTypes eOtherPlayer) const
+T100 CvPlayerCulture::GetTourismModifierMoreSpecialGreatWorksT100(const PlayerTypes eOtherPlayer) const
 {
-	double modT100 = 0;
+	T100 modT100 = 0;
 
 	// if our happiness higher
 	if (m_pPlayer->GetNumSpecialistGreatWorks() > GET_PLAYER(eOtherPlayer).GetNumSpecialistGreatWorks())
@@ -2916,19 +2915,19 @@ double CvPlayerCulture::GetTourismModifierMoreSpecialGreatWorksT100(const Player
 	return modT100;
 }
 
-float CvPlayerCulture::GetTourismModifierCityCount(const PlayerTypes eOtherPlayer) const
+T100 CvPlayerCulture::GetTourismModifierCityCountT100(const PlayerTypes eOtherPlayer) const
 {
 	// Mod for City Count
-	const float themCities = GET_PLAYER(eOtherPlayer).GetMaxEffectiveCities(true);
-	const float usCities = m_pPlayer->GetMaxEffectiveCities(true);
-	const float factor = (float)(themCities + GC.getTOURISM_CITY_CAPITAL_ADJUST()) / (float)(usCities + GC.getTOURISM_CITY_CAPITAL_ADJUST());
-	const float t100 = GC.toPercentT100(factor);
-	return GC.toFactor(t100 * GC.getTOURISM_CITY_PERCENT_ADJUST());
-}
-
-int CvPlayerCulture::GetTourismModifierCityCountT100(const PlayerTypes eOtherPlayer) const
-{
-	return GC.toPercentT100(GetTourismModifierCityCount(eOtherPlayer));
+	const int themCities = GET_PLAYER(eOtherPlayer).GetMaxEffectiveCities(true) + GC.getTOURISM_CITY_CAPITAL_ADJUST();
+	const int usCities = m_pPlayer->GetMaxEffectiveCities(true) + GC.getTOURISM_CITY_CAPITAL_ADJUST();
+	int modifierT100 = (themCities * 100) / usCities;
+	// 140
+	modifierT100 -= 100;
+	// 40
+	modifierT100 *= GC.getTOURISM_CITY_PERCENT_ADJUST();
+	modifierT100 /= 100;
+	// 20
+	return 100 + modifierT100;
 }
 
 int CvPlayerCulture::GetTourismModifierSharedReligion() const
@@ -2939,10 +2938,10 @@ int CvPlayerCulture::GetTourismModifierSharedReligion() const
 int CvPlayerCulture::GetTourismModifierTechnologyT100(const PlayerTypes eOtherPlayer) const
 {
 	const int percentPerAcceleration = 1;
-	double changeFactor = 1.0; // default multiply by 1
+	T100 changeFactorT100 = 100; // default multiply by 1
 
 	// for each city
-	CvCity* pLoopCity;
+	const CvCity* pLoopCity;
 	int iLoopCity = 0;
 	for (pLoopCity = GET_PLAYER(eOtherPlayer).firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = GET_PLAYER(eOtherPlayer).nextCity(&iLoopCity))
 	{
@@ -2965,23 +2964,22 @@ int CvPlayerCulture::GetTourismModifierTechnologyT100(const PlayerTypes eOtherPl
 				if (pBuildingEntry != NULL && buildingCount > 0)
 				{
 					// 25 internet defense should reduce internet to 75% of previous value
-					const int internetMultiplierT100 = -min(100, max(0, pBuildingEntry->GetInternetDefense()));
-					double defenseFactor = GC.toFactor(internetMultiplierT100);
+					T100 defenseFactorT100 = 100 - min(100, max(0, pBuildingEntry->GetInternetDefense()));
 					if (pBuildingEntry->NullifyInfluenceModifier())
 					{
-						defenseFactor = 0.0; // equivalent to 100% internet defense
+						defenseFactorT100 = 0; // equivalent to 100% internet defense
 					}
 
-					changeFactor *= defenseFactor;
+					changeFactorT100 *= defenseFactorT100;
+					changeFactorT100 /= 100;
 				}
 			}
 		}
 	}
 
-	double internetFactor = GC.toFactor(m_pPlayer->GetInfluenceSpreadModifier() + (percentPerAcceleration * GC.getGame().GetVpAcceleration()));
+	T100 internetFactorT100 = m_pPlayer->GetInfluenceSpreadModifier() + (percentPerAcceleration * GC.getGame().GetVpAcceleration());
 
-	return max(0, (int)GC.round(GC.toPercentT100(internetFactor) * changeFactor));
-
+	return max((T100)0, internetFactorT100 * changeFactorT100);
 }
 
 CvString CvPlayerCulture::GetOurTourism_Tooltip() const
@@ -3093,9 +3091,9 @@ int CvPlayerCulture::GetTourismFromCityCultureT100() const
 	// culture from cities
 	cityCultureT100 += GetCultureFromCitiesT100();
 
-	const float cityCultureToTourismPercent = GetTourismFromCulturePercentT100() / 100.f;
-	const float totalCityCulture = cityCultureT100 / 100.f;
-	return 100 * cityCultureToTourismPercent * totalCityCulture;
+	T100 result = cityCultureT100 * GetTourismFromCulturePercentT100();
+	result /= 100;
+	return result;
 }
 
 int CvPlayerCulture::GetCultureFromCitiesT100() const
@@ -4118,7 +4116,7 @@ int CvPlayerCulture::ComputePublicOpinionUnhappiness(int iDissatisfaction, int &
 #endif
 {
 	// change unhappiness from public pressure
-	const float publicUnhappinessFactor = 0.25f;
+	const T100 publicUnhappinessFactorT100 = 25;
 
 	if (iDissatisfaction < 3)
 	{
@@ -4142,7 +4140,9 @@ int CvPlayerCulture::ComputePublicOpinionUnhappiness(int iDissatisfaction, int &
 		totalUnhappiness *= (100 + iUnhappinessModifier);
 		totalUnhappiness /= 100;
 	}
-	return totalUnhappiness * publicUnhappinessFactor;
+	totalUnhappiness *= publicUnhappinessFactorT100;
+	totalUnhappiness /= 100;
+	return totalUnhappiness;
 #else
 	return max(m_pPlayer->getNumCities() * iPerCityUnhappy, m_pPlayer->getTotalPopulation() / iUnhappyPerXPop);
 #endif
@@ -4280,15 +4280,6 @@ void CvPlayerCulture::AppendToLog(CvString& strHeader, CvString& strLog, CvStrin
 	strHeader += ",";
 	CvString str;
 	str.Format("%d,", iValue);
-	strLog += str;
-}
-
-void CvPlayerCulture::AppendToLog(CvString& strHeader, CvString& strLog, CvString strHeaderValue, float fValue)
-{
-	strHeader += strHeaderValue;
-	strHeader += ",";
-	CvString str;
-	str.Format("%.2f,", fValue);
 	strLog += str;
 }
 
@@ -4643,8 +4634,8 @@ int CvCityCulture::GetBaseTourismBeforeModifiers() const
 	iBase += m_pCity->getBaseYieldRate(YIELD_TOURISM);
 
 	// great works
-	const double iBonusPercentageForGreatWorks = m_pCity->GetCityBuildings()->GetGreatWorksTourismModifier() / 100.0;
-	const int additional = iBonusPercentageForGreatWorks * m_pCity->GetBaseYieldRateFromGreatWorks(YIELD_TOURISM);
+	const T100 iBonusPercentageForGreatWorksT100 = m_pCity->GetCityBuildings()->GetGreatWorksTourismModifier();
+	const int additional = (iBonusPercentageForGreatWorksT100 * m_pCity->GetBaseYieldRateFromGreatWorks(YIELD_TOURISM)) / 100;
 	iBase += additional;
 	
 	// wonders
@@ -4741,12 +4732,11 @@ int CvCityCulture::GetBaseTourismBeforeModifiers() const
 
 	return max(0, iBase);
 }
-double CvCityCulture::GetCityTourismMultiplierT100() const
+T100 CvCityCulture::GetCityTourismMultiplierT100() const
 {
-	double iModifier = 0;
-	CvPlayer& kPlayer = GET_PLAYER(m_pCity->getOwner());
-
-	// removed in place of getYieldRateModifier which has accounted for policies
+	T100 iModifier = 0;
+	//CvPlayer& kPlayer = GET_PLAYER(m_pCity->getOwner());
+	//// removed in place of getYieldRateModifier which has accounted for policies
 	//// policy x building bonuses
 	//int iBuildingMod = 0;
 	//for (uint iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
@@ -4799,10 +4789,6 @@ CvString CvCityCulture::GetTourismTooltip()
 	CvString commonFoeCivs = "";
 	CvString sharedIdeologyCivs = "";
 	CvString differentIdeologyCivs = "";
-	TeamTypes eTeam = m_pCity->getTeam();
-	CvPlayer &kCityPlayer = GET_PLAYER(m_pCity->getOwner());
-	PolicyBranchTypes eMyIdeology = kCityPlayer.GetPlayerPolicies()->GetLateGamePolicyTree();
-	ReligionTypes ePlayerReligion = kCityPlayer.GetReligions()->GetReligionInMostCities();
 
 	const string spacing = "[NEWLINE][NEWLINE]";
 	const int fromWorks = m_pCity->GetBaseYieldRateFromGreatWorks(YIELD_TOURISM);
@@ -4812,7 +4798,9 @@ CvString CvCityCulture::GetTourismTooltip()
 	szRtnValue += GetLocalizedText("TXT_KEY_TOURISM_FROM_TERRAIN", fromTerrain);
 
 	// Great Works
-	int iGWTourism = GC.toFactor(m_pCity->GetCityBuildings()->GetGreatWorksTourismModifier()) * fromWorks;
+	int iGWTourism = fromWorks;
+	iGWTourism *= (m_pCity->GetCityBuildings()->GetGreatWorksTourismModifier() + 100);
+	iGWTourism /= 100;
 	int iBonusTourismPerWonder = GET_PLAYER(m_pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_TOURISM_PER_WONDER);
 	int iNumWorldWonders = m_pCity->getNumWorldWonders();
 	int iTotalBonusTourismForWonders = iNumWorldWonders * iBonusTourismPerWonder; 

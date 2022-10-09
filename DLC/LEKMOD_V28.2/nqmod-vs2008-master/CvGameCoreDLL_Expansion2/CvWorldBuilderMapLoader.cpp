@@ -723,11 +723,8 @@ void SetupCity(const CvWorldBuilderMap::City& kSavedCity, int iPlotX, int iPlotY
 			{
 				const int iMaxHitPoints = pkGameplayCity->GetMaxHitPoints();
 
-				// TODO: Oh no!  It's floating point math!  This may be an issue for multi-player.
-				const float fHitPoints = kSavedCity.GetHealthAsFloat() * (float)iMaxHitPoints;
-
 				// Don't allow the city to be killed by a precision error
-				int iHitPoints = (int)fHitPoints;
+				int iHitPoints = (kSavedCity.GetHealthPercentT100() * iMaxHitPoints) / 100;
 				if(iHitPoints == 0 && kSavedCity.m_uiHealth != 0)
 					iHitPoints = 1;
 
@@ -827,11 +824,8 @@ void SetupUnit(const CvWorldBuilderMap::Unit& kSavedUnit, int iPlotX, int iPlotY
 			{
 				const int iMaxHitPoints = pkGameplayUnit->GetMaxHitPoints();
 
-				// TODO: Oh no!  It's floating point math!  This may be an issue for multi-player.
-				const float fHitPoints = kSavedUnit.GetHealthAsFloat() * (float)iMaxHitPoints;
-
 				// Don't allow the unit to be killed by a precision error
-				int iHitPoints = (int)fHitPoints;
+				int iHitPoints = kSavedUnit.GetHealthPercentT100() * iMaxHitPoints;
 				if(iHitPoints == 0 && kSavedUnit.m_uiHealth != 0)
 					iHitPoints = 1;
 
@@ -1562,9 +1556,9 @@ int CvWorldBuilderMapLoader::LoadModData(lua_State* L)
 			}
 			break;
 
-			case ModType::TYPE_FLOAT:
+			case ModType::TYPE_FLOAT: // safe decimal
 			{
-				const float fValue = kEntry.GetFieldAsFloat(uiField);
+				const decimal fValue = kEntry.GetFieldAsFloat(uiField); // safe decimal
 				lua_pushnumber(L, fValue);
 			}
 			break;
@@ -1624,9 +1618,9 @@ int CvWorldBuilderMapLoader::LoadModData(lua_State* L)
 			}
 			break;
 
-			case ModType::TYPE_FLOAT:
+			case ModType::TYPE_FLOAT: // safe decimal
 			{
-				const float fValue = kPlotDataType.GetFieldDefaultAsFloat(uiField);
+				const decimal fValue = kPlotDataType.GetFieldDefaultAsFloat(uiField); // safe decimal
 				lua_pushnumber(L, fValue);
 			}
 			break;
@@ -1689,9 +1683,9 @@ int CvWorldBuilderMapLoader::LoadModData(lua_State* L)
 						}
 						break;
 
-						case ModType::TYPE_FLOAT:
+						case ModType::TYPE_FLOAT: // safe decimal
 						{
-							const float fValue = kPlot.GetFieldAsFloat(uiField);
+							const decimal fValue = kPlot.GetFieldAsFloat(uiField); // safe decimal
 							lua_pushvalue(L, iFieldStart + 2 * uiField);
 							lua_pushnumber(L, fValue);
 							lua_rawset(L, -3);

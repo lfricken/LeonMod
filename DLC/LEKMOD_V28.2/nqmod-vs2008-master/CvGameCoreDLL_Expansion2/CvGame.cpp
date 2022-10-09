@@ -95,7 +95,7 @@ CvGame::CvGame() :
 #ifndef AUI_GAME_PLAYER_BASED_TURN_LENGTH
 	, m_timeSinceGameTurnStart()
 #endif
-	, m_fCurrentTurnTimerPauseDelta(0.f)
+	, m_fCurrentTurnTimerPauseDelta(0)
 	, m_sentAutoMoves(false)
 	, m_bForceEndingTurn(false)
 	, m_pDiploResponseQuery(NULL)
@@ -1200,7 +1200,7 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 	// Uninit class
 	uninit();
 
-	m_fCurrentTurnTimerPauseDelta = 0.f;
+	m_fCurrentTurnTimerPauseDelta = 0;
 
 	CvString strUTF8DatabasePath = gDLL->GetCacheFolderPath();
 	strUTF8DatabasePath += "Civ5SavedGameDatabase.db";
@@ -2134,8 +2134,8 @@ bool CvGame::hasTurnTimerExpired(PlayerTypes playerID)
 				resetTurnTimer(true);
 
 				//hold the turn timer at 0 seconds with 0% completion
-				CvPreGame::setEndTurnTimerLength(0.0f);
-				iface->updateEndTurnTimer(0.0f);
+				CvPreGame::setEndTurnTimerLength(0);
+				iface->updateEndTurnTimer(0);
 			}
 			else
 			{//turn timer is actively ticking.
@@ -2150,23 +2150,23 @@ bool CvGame::hasTurnTimerExpired(PlayerTypes playerID)
 				FFastVector<int, true, c_eCiv5GameplayDLL>::const_iterator piCurMaxTurnLength = m_aiMaxTurnLengths.begin();
 				piCurMaxTurnLength += curPlayer.getTurnOrder();
 
-				float fGameTurnEnd = static_cast<float>(*piCurMaxTurnLength);
+				decimal fGameTurnEnd = static_cast<decimal>(*piCurMaxTurnLength);
 #else
-				float gameTurnEnd = static_cast<float>(getMaxTurnLen());
+				decimal gameTurnEnd = static_cast<decimal>(getMaxTurnLen()); // safe decimal
 
 				//NOTE:  These times exclude the time used for AI processing.
 				//Time since the current player's turn started.  Used for measuring time for players in sequential turn mode.
-				float timeSinceCurrentTurnStart = m_curTurnTimer.Peek() + m_fCurrentTurnTimerPauseDelta; 
+				decimal timeSinceCurrentTurnStart = m_curTurnTimer.Peek() + m_fCurrentTurnTimerPauseDelta; 
 				//Time since the game (year) turn started.  Used for measuring time for players in simultaneous turn mode.
-				float timeSinceGameTurnStart = m_timeSinceGameTurnStart.Peek() + m_fCurrentTurnTimerPauseDelta; 
+				decimal timeSinceGameTurnStart = m_timeSinceGameTurnStart.Peek() + m_fCurrentTurnTimerPauseDelta; 
 #endif
 				
 #ifdef AUI_GAME_PLAYER_BASED_TURN_LENGTH
-				float fTimeElapsed = m_curTurnTimer.Peek() + m_fCurrentTurnTimerPauseDelta;
+				decimal fTimeElapsed = m_curTurnTimer.Peek() + m_fCurrentTurnTimerPauseDelta;
 #elif defined(AUI_GAME_BETTER_HYBRID_MODE)
-				float timeElapsed = timeSinceCurrentTurnStart;
+				decimal timeElapsed = timeSinceCurrentTurnStart;
 #else
-				float timeElapsed = (curPlayer.isSimultaneousTurns() ? timeSinceGameTurnStart : timeSinceCurrentTurnStart);
+				decimal timeElapsed = (curPlayer.isSimultaneousTurns() ? timeSinceGameTurnStart : timeSinceCurrentTurnStart);
 #endif
 				if(curPlayer.isTurnActive())
 				{//The timer is ticking for our turn
@@ -2205,7 +2205,7 @@ bool CvGame::hasTurnTimerExpired(PlayerTypes playerID)
 					//The max turn length is multiplied by the number of other human players in the sequential turn sequence.
 					gameTurnEnd *= playersInSeq;
 
-					float timePerPlayer = gameTurnEnd / playersInSeq; //time limit per human
+					decimal timePerPlayer = gameTurnEnd / playersInSeq; //time limit per human
 					//count how many human players are left until us in the sequence.
 					int humanTurnsUntilMe = countSeqHumanTurnsUntilPlayerTurn(playerID);
 					int humanTurnsCompleted = playersInSeq - humanTurnsUntilMe;
@@ -2240,8 +2240,8 @@ bool CvGame::hasTurnTimerExpired(PlayerTypes playerID)
 		}
 		else if(isLocalPlayer){
 			//hold the turn timer at 0 seconds with 0% completion
-			CvPreGame::setEndTurnTimerLength(0.0f);
-			iface->updateEndTurnTimer(0.0f);
+			CvPreGame::setEndTurnTimerLength(0);
+			iface->updateEndTurnTimer(0);
 		}
 	}
 
@@ -2250,9 +2250,9 @@ bool CvGame::hasTurnTimerExpired(PlayerTypes playerID)
 
 //	-----------------------------------------------------------------------------------------------
 #ifdef AUI_GAME_PLAYER_BASED_TURN_LENGTH
-void CvGame::TurnTimerSync(float fCurTurnTime, float /*fTurnStartTime*/)
+void CvGame::TurnTimerSync(decimal fCurTurnTime, decimal /*fTurnStartTime*/) // safe decimal
 #else
-void CvGame::TurnTimerSync(float fCurTurnTime, float fTurnStartTime)
+void CvGame::TurnTimerSync(decimal fCurTurnTime, decimal fTurnStartTime) // safe decimal
 #endif
 {
 	m_curTurnTimer.StartWithOffset(fCurTurnTime);
@@ -2263,9 +2263,9 @@ void CvGame::TurnTimerSync(float fCurTurnTime, float fTurnStartTime)
 
 //	-----------------------------------------------------------------------------------------------
 #ifdef AUI_GAME_PLAYER_BASED_TURN_LENGTH
-void CvGame::GetTurnTimerData(float& fCurTurnTime, float& /*fTurnStartTime*/)
+void CvGame::GetTurnTimerData(decimal& fCurTurnTime, decimal& /*fTurnStartTime*/) // safe decimal
 #else
-void CvGame::GetTurnTimerData(float& fCurTurnTime, float& fTurnStartTime)
+void CvGame::GetTurnTimerData(decimal& fCurTurnTime, decimal& fTurnStartTime) // safe decimal
 #endif
 {
 	fCurTurnTime = m_curTurnTimer.Peek();
@@ -5542,12 +5542,12 @@ void CvGame::DoUpdateDiploVictory()
 		}
 	}
 
-	float fCivsToCount = 0.0f;
-	float fCityStatesToCount = 0.0f;
+	T100 civsToCountT100 = 0;
+	T100 cityStatesToCountT100 = 0;
 	for (uint i = 0; i < MAX_CIV_PLAYERS; i++)
 	{
-		PlayerTypes e = (PlayerTypes)i;
-		CvPlayer* pPlayer = &GET_PLAYER(e);
+		const PlayerTypes e = (PlayerTypes)i;
+		const CvPlayer* pPlayer = &GET_PLAYER(e);
 		if (pPlayer != NULL && pPlayer->isEverAlive())
 		{
 			// Minor civ
@@ -5558,11 +5558,11 @@ void CvGame::DoUpdateDiploVictory()
 				{
 					if (pPlayer->isAlive())
 					{
-						fCityStatesToCount += 1.0f;
+						cityStatesToCountT100 += 100;
 					}
 					else
 					{
-						fCityStatesToCount += 0.5f;
+						cityStatesToCountT100 += 0;
 					}
 				}
 			}
@@ -5571,35 +5571,26 @@ void CvGame::DoUpdateDiploVictory()
 			{
 				if (pPlayer->isAlive())
 				{
-					fCivsToCount += 1.0f;
+					civsToCountT100 += 100;
 				}
 				else
 				{
-					fCivsToCount += 0.5f;
+					civsToCountT100 += 0;
 				}
 			}
 		}
 	}
 
-	// Number of delegates needed to win increases the more civs and city-states there are in the game,
-	// but these two scale differently since civs' delegates are harder to secure. These functions 
-	// are based on a logarithmic regression.
-	float fCivVotesPortion = ((GC.getDIPLO_VICTORY_CIV_DELEGATES_COEFFICIENTT100() / 100.0f) * (float)log(fCivsToCount)) + (GC.getDIPLO_VICTORY_CIV_DELEGATES_CONSTANTT100() / 100.0f);
-	if (fCivVotesPortion < 0.0f)
-	{
-		fCivVotesPortion = 0.0f;
-	}
-	float fCityStateVotesPortion = ((GC.getDIPLO_VICTORY_CS_DELEGATES_COEFFICIENTT100() / 100.0f) * (float)log(fCityStatesToCount)) + (GC.getDIPLO_VICTORY_CS_DELEGATES_CONSTANTT100() / 100.0f);
-	if (fCityStateVotesPortion < 0.0f)
-	{
-		fCityStateVotesPortion = 0.0f;
-	}
+	const T100 totalVotesPossibleT100 = iVotesForHost + (civsToCountT100 * iVotesPerCiv) + (cityStatesToCountT100 * iVotesPerCityState);
 
-	int iVotesToWin = (int)floor(fCivVotesPortion + fCityStateVotesPortion);
-	iVotesToWin = MAX(iVotesForHost + iVotesPerCiv + 1, iVotesToWin);
-	iVotesToWin = MIN(iVotesForHost + (iVotesPerCiv * (int)fCivsToCount) + (iVotesPerCityState * (int)fCityStatesToCount), iVotesToWin);
+	// first vote count that goes above min percentage
+	const int minRatioT100 = GC.getDIPLO_VICTORY_DEFAULT_VOTE_PERCENT();
+	const int totalVotesPossible = totalVotesPossibleT100 / 100;
+	int numVotesNeeded = ((minRatioT100 * totalVotesPossible) / 100) + 1; // (50 * 11 / 100) -> 5 + 1 -> 6
+	// bound
+	numVotesNeeded = max(1, min(totalVotesPossible, numVotesNeeded));
 
-	SetVotesNeededForDiploVictory(iVotesToWin);
+	SetVotesNeededForDiploVictory(numVotesNeeded);
 	GC.GetEngineUserInterface()->setDirty(LeagueScreen_DIRTY_BIT, true);
 }
 
@@ -5854,7 +5845,7 @@ Localization::String CvGame::GetDiploResponse(const char* szLeader, const char* 
 	//To implement this quickly, I convert the discrete distribution into a uniform distribution and select from that.
 	//This implementation generates a ton of strings to store the text keys though and would benefit greatly from a "stack_string"
 	//implementation.  For now though, it works, and the code is called so infrequently that it shouldn't be noticeable.
-	//NOTE: Profiled on my machine to take 0.006965 seconds on average to complete.
+	//NOTE: Profiled on my machine to take 7/1000th seconds on average to complete.
 	std::vector<string> probabilities;
 	probabilities.reserve(512);
 
@@ -9980,7 +9971,7 @@ CvRandom& CvGame::getJonRandUnsafe()
 //	--------------------------------------------------------------------------------
 /// Get a synchronous random number in the range of 0...iNum-1
 /// Allows for logging.
-int CvGame::getJonRandNum(unsigned short usMaxExclusive, const char* pszLog, const CvPlot* plot, const unsigned long other) const
+int CvGame::getJonRandNum(unsigned short usMaxExclusive, const char*, const CvPlot* plot, const unsigned long other) const
 {
 	int x = 1;
 	int y = 1;
@@ -9992,7 +9983,7 @@ int CvGame::getJonRandNum(unsigned short usMaxExclusive, const char* pszLog, con
 	return m_jonRand.getSafe(usMaxExclusive, GC.getFakeSeed(x, y, (15139 * other) + (unsigned long)usMaxExclusive));
 }
 
-int CvGame::getJonRandNumExtraSafe(unsigned short usMaxExclusive, const char* pszLog, const unsigned long other) const
+int CvGame::getJonRandNumExtraSafe(unsigned short usMaxExclusive, const char*, const unsigned long other) const
 {
 	int x = 1;
 	int y = 1;

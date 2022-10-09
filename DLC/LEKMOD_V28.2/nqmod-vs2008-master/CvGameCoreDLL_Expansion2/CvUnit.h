@@ -22,6 +22,7 @@
 #include "CvAStarNode.h"
 
 #define DEFAULT_UNIT_MAP_LAYER 0
+#define T100 long
 
 #pragma warning( disable: 4251 )		// needs to have dll-interface to be used by clients of class
 
@@ -82,29 +83,27 @@ class CvUnit
 
 public:
 	// Uses a non linear damage ratio.
+	// previously called adjustedDamageRatio
 	// 
 	// original:
 	// https://www.wolframalpha.com/input/?i=w%3Dfloor%2830*r%29+z%3Dfloor%2830%2Fr%29+where+r%3D%28%28%28%28%28%281450%2F800%29%2B3%29%2F4%29%5E4%29%2B1%29%2F2%29
-	float static adjustedDamageRatio(float usStrength, float themStrength)
+	// decimal version: see git history of this line at github LeonMod branch v6-18
+	// this closely mirrors its outputs
+	T100 static damageRatioT100(int usStrength, int themStrength)
 	{
-		// cant handle values below 1 for strength
-		usStrength = max(1.0f, usStrength);
-		themStrength = max(1.0f, themStrength);
+		const long total = usStrength + themStrength;
+		long diff = ((usStrength - themStrength) * 100) / total;
+		diff *= 250; // 250 found experimentally while matching previous function
+		diff /= 100;
+		diff = (diff * abs(diff)) / 116; // 116 found experimentally while matching previous function
 
-		double r = usStrength / themStrength;
-		if (themStrength > usStrength) // flip it temporarily to gaurantee a value >1
-			r = 1.0 / r;
+		if (diff < 0)
+		{
+			diff = (1 * 100 * 100) / (100 + abs(diff));
+			diff = diff - 100;
+		}
 
-		const float newRatio = (pow(((r + 3.0) / 4.0), 4) + 1.0) / 2.0; // original equation
-
-		// if ratio was 1.4, it would become 1.3 because (0.4 * -0.25 = -0.1)
-		const float ratioAdjustMod = -0.25f;
-		float reducedRatio = (newRatio - 1.0f) * (1.0f + ratioAdjustMod) + 1.0f;
-
-		if (themStrength > usStrength) // flip it back
-			reducedRatio = 1.0 / reducedRatio;
-
-		return reducedRatio;
+		return 100 + diff;
 	}
 
 	int GetRangeWithMovement() const;
@@ -340,7 +339,7 @@ public:
 	int getNumExoticGoods() const;
 	void setNumExoticGoods(int iValue);
 	void changeNumExoticGoods(int iChange);
-	float calculateExoticGoodsDistanceFactor(const CvPlot* pPlot);
+	long calculateExoticGoodsDistanceFactorT100(const CvPlot* pPlot);
 	bool canSellExoticGoods(const CvPlot* pPlot, bool bOnlyTestVisibility = false) const;
 	int getExoticGoodsGoldAmount();
 	int getExoticGoodsXPAmount();
@@ -746,9 +745,9 @@ public:
 	void setGameTurnCreated(int iNewValue);
 
 	int getDamage() const;
-	int setDamage(int iNewValue, PlayerTypes ePlayer = NO_PLAYER, float fAdditionalTextDelay = 0.0f, const CvString* pAppendText = NULL);
-	int changeDamage(int iChange, PlayerTypes ePlayer = NO_PLAYER, float fAdditionalTextDelay = 0.0f, const CvString* pAppendText = NULL);
-	static void ShowDamageDeltaText(int iDelta, CvPlot* pkPlot, float fAdditionalTextDelay = 0.0f, const CvString* pAppendText = NULL);
+	int setDamage(int iNewValue, PlayerTypes ePlayer = NO_PLAYER, decimal fAdditionalTextDelay = 0, const CvString* pAppendText = NULL);
+	int changeDamage(int iChange, PlayerTypes ePlayer = NO_PLAYER, decimal fAdditionalTextDelay = 0, const CvString* pAppendText = NULL);
+	static void ShowDamageDeltaText(int iDelta, CvPlot* pkPlot, decimal fAdditionalTextDelay = 0, const CvString* pAppendText = NULL);
 
 	int getMoves() const;
 	void setMoves(int iNewValue);

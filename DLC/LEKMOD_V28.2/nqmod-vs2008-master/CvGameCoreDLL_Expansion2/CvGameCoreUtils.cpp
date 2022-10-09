@@ -123,22 +123,19 @@ int plotCityXY(const CvCity* pCity, const CvPlot* pPlot)
 
 DirectionTypes estimateDirection(int iDX, int iDY)
 {
-	const int displacementSize = 6;
-	//														NE				E		SE					SW					W			NW
-	static double displacements[displacementSize][2] = { {0.5, 0.866025}, {1, 0}, {0.5, -0.866025}, {-0.5, -0.866025}, {-1, 0}, {-0.5, -0.866025}};
-	double maximum = 0;
+	long maximum = 0;
 	int maximumIndex = -1;
-	for(int i=0; i<displacementSize; i++)
+	for (int i = 0; i < displacementSize; i++) // find the vector with the highest dot product (alignment) with the given dx/dy vector
 	{
-		double dotProduct = iDX * displacements[i][0] + iDY * displacements[i][1];
-		if(dotProduct > maximum)
+		long dotProduct = iDX * displacementsT100[i][0] + iDY * displacementsT100[i][1];
+		if (dotProduct > maximum)
 		{
 			maximum = dotProduct;
 			maximumIndex = i;
 		}
 	}
 
-	return (DirectionTypes) maximumIndex;
+	return (DirectionTypes)maximumIndex;
 }
 
 bool atWar(TeamTypes eTeamA, TeamTypes eTeamB)

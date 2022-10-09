@@ -689,7 +689,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 
 		if (iClosestCityOfMine == iSweetSpot) 
 		{
-			// 1.5 was not enough 2.0 was too much, so lets split the difference
+			// 150 was not enough 200 was too much, so lets split the difference
 			rtnValue *= 175;
 			rtnValue /= 100;
 		}
@@ -1139,7 +1139,7 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, 
 	else
 	{
 		// if the civ gets a benefit from settling on a new continent (ie: Indonesia)
-		// double the fertility of that plot
+		// 2x the fertility of that plot
 		int iLuxuryModifier = 0;
 		//if (pPlayer->GetPlayerTraits()->WillGetUniqueLuxury(pArea))
 		if (pPlayer->GetPlayerTraits()->WillGetUniqueLuxury(pArea) && bIsCoastal) // NQMP GJS - Spice Islanders requires coast

@@ -541,7 +541,7 @@ ResourceTypes CvBeliefEntry::GetResourceRevealed() const
 	return m_eResourceRevealed;
 }
 
-/// Accessor:: technology that doubles the effect of the SpreadStrengthModifier
+/// Accessor:: technology that 2x the effect of the SpreadStrengthModifier
 TechTypes CvBeliefEntry::GetSpreadModifierDoublingTech() const
 {
 	return m_eSpreadModifierDoublingTech;
@@ -796,7 +796,7 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iWonderProductionModifier       = kResults.GetInt("WonderProductionModifier");
 	m_iPlayerHappiness			      = kResults.GetInt("PlayerHappiness");
 	m_iPlayerCultureModifier          = kResults.GetInt("PlayerCultureModifier");
-	m_iHappinessPerFollowingCityT100  = kResults.GetFloat("HappinessPerFollowingCity");
+	m_iHappinessPerFollowingCityT100  = kResults.GetInt("HappinessPerFollowingCity");
 	m_iGoldPerFollowingCity           = kResults.GetInt("GoldPerFollowingCity");
 	m_iGoldPerXFollowers              = kResults.GetInt("GoldPerXFollowers");
 	m_iGoldWhenCityAdopts             = kResults.GetInt("GoldPerFirstCityConversion");
@@ -2017,8 +2017,9 @@ bool CvReligionBeliefs::IsBuildingClassEnabled(BuildingClassTypes eType) const
 }
 
 /// Is there a belief that allows faith buying of units
-bool CvReligionBeliefs::IsFaithBuyingEnabled(EraTypes eEra) const
+bool CvReligionBeliefs::IsFaithBuyingEnabled(EraTypes era) const
 {
+	era = era;
 	// always allow faith purchases if they have beliefs
 	return true;
 

@@ -207,6 +207,7 @@ public:
 	int getProductionTurnsLeft(BuildingTypes eBuilding, int iNum) const;
 	int getProductionTurnsLeft(ProjectTypes eProject, int iNum) const;
 	int getProductionTurnsLeft(SpecialistTypes eSpecialist, int iNum) const;
+	// returns the cost in gold to buy, -1 means you can't buy it
 	int GetPurchaseCost(UnitTypes eUnit) const;
 	int GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts) const;
 	int GetPurchaseCost(BuildingTypes eBuilding) const;

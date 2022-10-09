@@ -300,8 +300,9 @@ public:
 	void SetResearchProgress(TechTypes eIndex, int iNewValue, PlayerTypes ePlayer);
 	void SetResearchProgressTimes100(TechTypes eIndex, int iNewValue, PlayerTypes ePlayer);
 	int GetResearchProgress(TechTypes eIndex) const;
-	// returns in the interval [0,1]
-	float GetResearchPercent(TechTypes eIndex) const;
+	// How much of the GIVEN TECH has a player researched?
+	// Returns in the interval [0,100].
+	T100 GetResearchPercentT100(const TechTypes eIndex) const;
 	int GetResearchProgressTimes100(TechTypes eIndex) const;
 	void ChangeResearchProgress(TechTypes eIndex, int iChange, PlayerTypes ePlayer);
 	void ChangeResearchProgressTimes100(TechTypes eIndex, int iChange, PlayerTypes ePlayer);
@@ -309,8 +310,8 @@ public:
 	int GetResearchCost(TechTypes eTech) const;
 	int GetResearchLeft(TechTypes eTech) const;
 	CvTechXMLEntries* GetTechs() const;
-	// what percentage of the tech tree do we have done?
-	float GetTreeProgressBeakers() const;
+	// How many total beakers do we have?
+	int GetTreeProgressBeakers() const;
 
 private:
 	int GetMaxResearchOverflow(TechTypes eTech, PlayerTypes ePlayer) const;

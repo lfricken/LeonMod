@@ -186,7 +186,7 @@ void CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlo
 	}
 	*/
 
-	// double cost for non coast
+	// 2x cost for non coast
 	if (pUnit->getDomainType() == DOMAIN_SEA)
 	{
 		if (!pToPlot->HasTerrain(TERRAIN_COAST)) // ship not in coast costs 2 move

@@ -184,8 +184,11 @@ public:
 
 	bool IsYieldDeficient(YieldTypes yieldType);
 	YieldTypes GetDeficientYield(void);  // returns if any yield is deficient, starting with food, then production. Returns NO_YIELD if the city is fine
-	double GetYieldAverage(YieldTypes eYieldType);
-	double GetDeficientYieldValue(YieldTypes eYieldType);
+
+	/// Get the average value of the yield for this city
+	T100 GetYieldAverage(YieldTypes eYieldType);
+	/// Get the deficient value of the yield for this city
+	T100 GetDeficientYieldValue(YieldTypes eYieldType);
 
 	// City AI methods
 	void ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgnoreBldg = NO_BUILDING, UnitTypes eIgnoreUnit = NO_UNIT);

@@ -224,14 +224,15 @@ int CvTechEntry::GetResearchCost() const
 	//return m_iResearchCost;
 
 	// increase cost based on era
-	const float percentPerEraT100 = 10;
+	const T100 percentPerEraT100 = 10;
 	const int offset = -30;
 	const int era = GetEra();
 
-	const float percentT100 = (max(0, era) * percentPerEraT100) + offset;
-	const float beakersFactor = GC.toFactor(percentT100);
-	const float adjustedCost = m_iResearchCost * beakersFactor;
-	return max(1, (int)GC.round(adjustedCost));
+	const T100 percentT100 = (max(0, era) * percentPerEraT100) + offset;
+	const T100 beakersFactorT100 = 100 + percentT100;
+	int adjustedCost = m_iResearchCost * beakersFactorT100;
+	adjustedCost /= 100;
+	return max(1, adjustedCost);
 }
 
 /// Cost if starting midway through game
@@ -2189,11 +2190,11 @@ int CvTeamTechs::GetResearchProgress(TechTypes eIndex) const
 	}
 }
 
-float CvTeamTechs::GetResearchPercent(TechTypes t) const
+T100 CvTeamTechs::GetResearchPercentT100(const TechTypes t) const
 {
-	const float actualPercent = (float)GetResearchProgress(t) / (float)GetResearchCost(t);
-	const float boundedPercent = min(1.0f, max(0.0f, actualPercent));
-	return boundedPercent;
+	const T100 actualPercentT100 = 100 * GetResearchProgress(t) / GetResearchCost(t);
+	const T100 boundedPercentT100 = min((T100)100, max((T100)0, actualPercentT100));
+	return boundedPercentT100;
 }
 
 /// Accessor: get research done on one tech (in hundredths)
@@ -2342,7 +2343,7 @@ int CvTeamTechs::ChangeResearchProgressPercent(TechTypes eIndex, int iPercent, P
 	return iBeakers;
 }
 
-float CvTeamTechs::GetTreeProgressBeakers() const
+int CvTeamTechs::GetTreeProgressBeakers() const
 {
 	const int numTechs = GC.getNumTechInfos();
 
@@ -2352,7 +2353,7 @@ float CvTeamTechs::GetTreeProgressBeakers() const
 	//	for (TechTypes t = (TechTypes)0; t < numTechs; t = (TechTypes)((int)t + 1))
 	//	{
 	//		CvTechEntry* info = GC.getTechInfo(t);
-	//		const double adjustedCost = info->GetResearchCost();
+	//		const int adjustedCost = info->GetResearchCost();
 	//		requiredBeakers += adjustedCost;
 	//	}
 	//}
@@ -2363,9 +2364,9 @@ float CvTeamTechs::GetTreeProgressBeakers() const
 	for (TechTypes t = (TechTypes)0; t < numTechs; t = (TechTypes)((int)t + 1))
 	{
 		CvTechEntry* info = GC.getTechInfo(t);
-		const int cost = info->GetResearchCost();
+		const int cost = info->GetResearchCost(); // cost in beakers
 
-		haveBeakers += cost * GetResearchPercent(t);
+		haveBeakers += (cost * GetResearchPercentT100(t)) / 100;
 	}
 
 	return haveBeakers;

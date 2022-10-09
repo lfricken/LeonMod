@@ -628,7 +628,7 @@ bool CvCityCitizens::IsAvoidGrowth() const
 		// India has unique way to compute local happiness cap
 		if (GetPlayer()->GetPlayerTraits()->GetCityUnhappinessModifier() != 0)
 		{
-			// 0.67 per population, rounded up
+			// 2/3 per population, rounded up
 			iLocalHappinessCap = (iLocalHappinessCap * 20) + 15;
 			iLocalHappinessCap /= 30;
 		}
@@ -1168,48 +1168,12 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist) const
 	}
 #endif
 	const int gppYield = pPlayer->getSpecialistGpp(m_pCity, eSpecialist, eSpecialist, false);
-	int iGPPYieldValue = gppYield * 3; // TODO: un-hardcode this
-#ifdef AUI_CITIZENS_UNHARDCODE_SPECIALIST_VALUE_HAPPINESS
-	int iHappinessYieldValue = 0;
-	int iExtraUnhappinessT100 = 0;
-	if (pPlayer->isHalfSpecialistUnhappiness() && eSpecialist != (SpecialistTypes)GC.getDEFAULT_SPECIALIST())
-	{
-		iExtraUnhappinessT100 = -GC.getUNHAPPINESS_PER_POPULATION() * 50;
-		// To account for rounding up of halved unhappiness
-		if ((GetTotalSpecialistCount() % 2 == 0) != bForRemoval)
-			iExtraUnhappinessT100 *= 2;
-		if (pPlayer->GetCapitalUnhappinessMod() != 0 && m_pCity->isCapital())
-		{
-			iExtraUnhappinessT100 *= (100 + pPlayer->GetCapitalUnhappinessMod());
-			iExtraUnhappinessT100 /= 100;
-		}
-		iExtraUnhappinessT100 *= (100 + pPlayer->GetUnhappinessMod());
-		iExtraUnhappinessT100 /= 100;
-		iExtraUnhappinessT100 *= (100 + pPlayer->GetPlayerTraits()->GetPopulationUnhappinessModifier());
-		iExtraUnhappinessT100 /= 100;
-		// Handicap mod
-		iExtraUnhappinessT100 *= pPlayer->getHandicapInfo().getPopulationUnhappinessMod();
-		iExtraUnhappinessT100 /= 100;
+	int iGPPYieldValue = gppYield * 3;
 
-		// The more happiness we have, the less it's worth
-		// Numbers below are based on Primitive function of f = 2^(1-(Empire Happiness)/10) -> F = -20/ln(2) * 2^(-(Empire Happiness)/10)
-		double dHappinessPre = double(pPlayer->GetExcessHappiness());
-		if (bForRemoval)
-			dHappinessPre += double(iExtraUnhappinessT100) / 100.0;
-		double dHappinessPost = dHappinessPre - double(iExtraUnhappinessT100) / 100.0;
-		double dHappinessYieldValuePre = pow(2.0, dHappinessPre / -10.0) * -20 / M_LN2;
-		double dHappinessYieldValuePost = pow(2.0, dHappinessPost / -10.0) * -20 / M_LN2;
-		iHappinessYieldValue = int(AUI_CITIZENS_UNHARDCODE_SPECIALIST_VALUE_HAPPINESS * (dHappinessYieldValuePost - dHappinessYieldValuePre) + 0.5);
+	int iHappinessYieldValue = (m_pCity->GetPlayer()->isHalfSpecialistUnhappiness()) ? 5 : 0;
+	iHappinessYieldValue = m_pCity->GetPlayer()->IsEmpireUnhappy() ? iHappinessYieldValue * 2 : iHappinessYieldValue;
 
-		iHappinessYieldValue *= -iExtraUnhappinessT100;
-		iHappinessYieldValue /= 100;
-		if (bForRemoval)
-			iExtraUnhappinessT100 *= -1;
-	}
-#else
-	int iHappinessYieldValue = (m_pCity->GetPlayer()->isHalfSpecialistUnhappiness()) ? 5 : 0; // TODO: un-hardcode this
-	iHappinessYieldValue = m_pCity->GetPlayer()->IsEmpireUnhappy() ? iHappinessYieldValue * 2 : iHappinessYieldValue; // TODO: un-hardcode this
-#endif
+
 #ifdef AUI_CITIZENS_GET_VALUE_CONSIDER_YIELD_RATE_MODIFIERS
 #ifdef AUI_CITIZENS_CONSIDER_HAPPINESS_VALUE_ON_OTHER_YIELDS
 #ifndef AUI_CITIZENS_GET_VALUE_SPLIT_EXCESS_FOOD_MUTLIPLIER
@@ -1887,7 +1851,7 @@ bool CvCityCitizens::DoRemoveWorstCitizen(bool bRemoveForcedStatus, SpecialistTy
 	return false;
 }
 
-/// Find a Plot the City is either working or not, and the best/worst value for it - this function does "double duty" depending on what the user wants to find
+/// Find a Plot the City is either working or not, and the best/worst value for it - this function does "extra duty" depending on what the user wants to find
 CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iValue, bool bWantBest, bool bWantWorked)
 {
 	bool bPlotForceWorked;

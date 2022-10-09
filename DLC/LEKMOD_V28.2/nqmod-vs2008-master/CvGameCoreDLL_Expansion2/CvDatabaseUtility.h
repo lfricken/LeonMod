@@ -34,7 +34,6 @@ public:
 	//!Allocates an array to count and zero's memory.
 	void InitializeArray(int*& pArray, const size_t count, int iDefault = 0);
 	void InitializeArray(bool*& pArray, const size_t count, bool bDefault = false);
-	void InitializeArray(float*& pArray, const size_t count, float fDefault = 0.0f);
 #ifdef AUI_DATABASE_UTILITY_PROPER_2D_ALLOCATION_AND_DESTRUCTION
 	bool Initialize2DArray(int**& ppArray, const size_t iCount1, const size_t iCount2, int iDefault = 0);
 #else
@@ -144,7 +143,7 @@ inline void CvDatabaseUtility::InitializeArray(bool*& pArray, const size_t count
 #ifdef AUI_WARNING_FIXES
 	if (bDefault == false)
 #else
-	if(bDefault == 0.0f)
+	if(bDefault == 0)
 #endif
 	{
 		ZeroMemory(pArray, sizeof(bool) * count);
@@ -153,24 +152,6 @@ inline void CvDatabaseUtility::InitializeArray(bool*& pArray, const size_t count
 	{
 		for(size_t i = 0; i < count; ++i)
 			pArray[i] = bDefault;
-	}
-}
-//------------------------------------------------------------------------------
-inline void CvDatabaseUtility::InitializeArray(float*& pArray, const size_t count, float fDefault)
-{
-	CvAssertMsg(count > 0, "Initializing array to 0 or less items.");
-#ifdef AUI_WARNING_FIXES
-	delete[] pArray;
-#endif
-	pArray = FNEW(float[count], c_eCiv5GameplayDLL, 0);
-	if(fDefault == 0.0f)
-	{
-		ZeroMemory(pArray, sizeof(float) * count);
-	}
-	else
-	{
-		for(size_t i = 0; i < count; ++i)
-			pArray[i] = fDefault;
 	}
 }
 //------------------------------------------------------------------------------

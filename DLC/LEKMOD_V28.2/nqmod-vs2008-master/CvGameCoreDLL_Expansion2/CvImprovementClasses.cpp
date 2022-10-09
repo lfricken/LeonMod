@@ -634,7 +634,7 @@ int CvImprovementEntry::GetPillageGold() const
 	return m_iPillageGold;
 }
 
-/// Modifier on the amount of resources generated from the tile with this improvement. (100 doubles output)
+/// Modifier on the amount of resources generated from the tile with this improvement. (100 = 2x output)
 int CvImprovementEntry::GetResourceExtractionMod() const
 {
 	return m_iResourceExtractionMod;

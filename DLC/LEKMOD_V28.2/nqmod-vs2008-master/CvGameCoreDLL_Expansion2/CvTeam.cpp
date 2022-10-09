@@ -1356,32 +1356,32 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 #endif
 			{
 				const CvTurnTimerInfo& kTurnTimer = CvPreGame::turnTimerInfo();
-				float fBaseTurnTime = static_cast<float>(kTurnTimer.getBaseTime());
+				decimal fBaseTurnTime = static_cast<decimal>(kTurnTimer.getBaseTime());
 
 #ifdef AUI_GAME_PLAYER_BASED_TURN_LENGTH
 				FFastVector<int, true, c_eCiv5GameplayDLL>::const_iterator piCurMaxTurnLength = kGame.m_aiMaxTurnLengths.begin();
 				piCurMaxTurnLength += GET_PLAYER(kGame.getActivePlayer()).getTurnOrder();
 
-				float fGameTurnEnd = static_cast<float>(*piCurMaxTurnLength);
+				decimal fGameTurnEnd = static_cast<decimal>(*piCurMaxTurnLength);
 #else
-				float fGameTurnEnd = static_cast<float>(kGame.getMaxTurnLen());
+				decimal fGameTurnEnd = static_cast<decimal>(kGame.getMaxTurnLen());
 
 				//NOTE:  These times exclude the time used for AI processing.
 				//Time since the current player's turn started.  Used for measuring time for players in sequential turn mode.
-				float fTimeSinceCurrentTurnStart = kGame.m_curTurnTimer.Peek() + kGame.m_fCurrentTurnTimerPauseDelta;
+				decimal fTimeSinceCurrentTurnStart = kGame.m_curTurnTimer.Peek() + kGame.m_fCurrentTurnTimerPauseDelta;
 #ifndef AUI_GAME_BETTER_HYBRID_MODE
 				//Time since the game (year) turn started.  Used for measuring time for players in simultaneous turn mode.
-				float fTimeSinceGameTurnStart = kGame.m_timeSinceGameTurnStart.Peek() + kGame.m_fCurrentTurnTimerPauseDelta;
+				decimal fTimeSinceGameTurnStart = kGame.m_timeSinceGameTurnStart.Peek() + kGame.m_fCurrentTurnTimerPauseDelta;
 #endif
 #endif
 #ifdef AUI_GAME_PLAYER_BASED_TURN_LENGTH
-				float fTimeElapsed = kGame.m_curTurnTimer.Peek() + kGame.m_fCurrentTurnTimerPauseDelta;
+				decimal fTimeElapsed = kGame.m_curTurnTimer.Peek() + kGame.m_fCurrentTurnTimerPauseDelta;
 #elif defined(AUI_GAME_BETTER_HYBRID_MODE)
-				float fTimeElapsed = timeSinceCurrentTurnStart;
+				decimal fTimeElapsed = timeSinceCurrentTurnStart;
 #else
-				float fTimeElapsed = (GET_PLAYER(kGame.getActivePlayer()).isSimultaneousTurns() ? fTimeSinceGameTurnStart : fTimeSinceCurrentTurnStart);
+				decimal fTimeElapsed = (GET_PLAYER(kGame.getActivePlayer()).isSimultaneousTurns() ? fTimeSinceGameTurnStart : fTimeSinceCurrentTurnStart);
 #endif
-				float fTimeToAdd = MAX(0.0f, fTimeElapsed - fGameTurnEnd + fBaseTurnTime);
+				decimal fTimeToAdd = MAX(0, fTimeElapsed - fGameTurnEnd + fBaseTurnTime);
 				if (fTimeToAdd > 0)
 				{
 					kGame.m_curTurnTimer.m_qStart += (__int64)(fTimeToAdd/ kGame.m_curTurnTimer.m_fFreq);
@@ -5623,7 +5623,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 											// We now have a new Tech
 											if(bNewValue)
 											{
-												// slewis - added in so resources wouldn't be double counted when the minor civ researches the technology
+												// slewis - added in so resources wouldn't be twice counted when the minor civ researches the technology
 												if (!(kLoopPlayer.isMinorCiv() && pLoopPlot->IsImprovedByGiftFromMajor()))
 												{
 													kLoopPlayer.changeNumResourceTotal(eResource, pLoopPlot->getNumResourceForPlayer(eLoopPlayer));
@@ -5700,7 +5700,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 				bTechRevealsHiddenArtifacts = pHiddenArtifactResource->getTechReveal() == eIndex;
 			}
 
-			if(bTechRevealsArtifacts | bTechRevealsHiddenArtifacts)
+			if(bTechRevealsArtifacts || bTechRevealsHiddenArtifacts)
 			{
 				const PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
 #ifdef AUI_WARNING_FIXES
@@ -6843,7 +6843,8 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 	CvGame& game = GC.getGame();
 
 	const int techId = (int)eTech;
-	if (!game.GetIsTechDiscovered(techId) || pTech->GetType() == "TECH_FUTURE_TECH")
+	string techType = pTech->GetType();
+	if (!game.GetIsTechDiscovered(techId) || techType == "TECH_FUTURE_TECH")
 	{
 		// first time discovery logic
 		game.ChangeVpAcceleration(pTech->GetVpAcceleration());

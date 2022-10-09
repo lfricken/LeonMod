@@ -938,7 +938,7 @@ int CvBuildingEntry::GetTechEnhancedTourism() const
 }
 
 /// How much GPT does this Building cost?
-int CvBuildingEntry::GetGoldMaintenance(const CvPlayer& player) const
+int CvBuildingEntry::GetGoldMaintenance(const CvPlayer&) const
 {
 	return m_iGoldMaintenance;
 }
@@ -1563,7 +1563,7 @@ int CvBuildingEntry::GetLandmarksTourismPercent() const
 	return m_iLandmarksTourismPercent;
 }
 
-/// For the terra cotta army. DOUBLE THE SIZE OF YOUR ARMY
+/// For the terra cotta army. 2x THE SIZE OF YOUR ARMY
 int CvBuildingEntry::GetInstantMilitaryIncrease() const
 {
 	return m_iInstantMilitaryIncrease;
@@ -2586,8 +2586,6 @@ void CvCityBuildings::Reset()
 		m_paiNumRealBuilding[iI] = 0;
 		m_paiNumFreeBuilding[iI] = 0;
 	}
-
-	m_buildingsThatExistAtLeastOnce.clear();
 }
 
 const int hasMaintenanceInStream = -1985651987;
@@ -3039,7 +3037,6 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 	const CvBuildingEntry* buildingEntry = GC.getBuildingInfo(eIndex);
 	const BuildingClassTypes buildingClassType = (BuildingClassTypes) buildingEntry->GetBuildingClassType();
 	const CvBuildingClassInfo& kBuildingClassInfo = buildingEntry->GetBuildingClassInfo();
-	const CvPlayer& player = GET_PLAYER(m_pCity->getOwner());
 
 	if(iChangeNumRealBuilding != 0)
 	{

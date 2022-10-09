@@ -260,7 +260,7 @@ public:
 
 		// Remember floating point error if you choose to use these
 		void SetHealthAsFloat(const float fHealth) { m_uiHealth = (uint)(fHealth * MaxHealth); }
-		const float GetHealthAsFloat() const { return (float)m_uiHealth / (float)MaxHealth; }
+		const T100 GetHealthPercentT100() const { return (m_uiHealth * 100) / MaxHealth; }
 
 		__forceinline bool GetFlag(Flags eFlag) const { return (m_byFlags & eFlag) != 0; }
 		__forceinline void SetFlag(Flags eFlag) { m_byFlags |= eFlag; }
@@ -352,7 +352,7 @@ public:
 
 		// Remember floating point error if you choose to use these
 		void SetHealthAsFloat(const float fHealth) { m_uiHealth = (uint)(fHealth * MaxHealth); }
-		const float GetHealthAsFloat() const { return (float)m_uiHealth / (float)MaxHealth; }
+		const T100 GetHealthPercentT100() const { return m_uiHealth * 100 / MaxHealth; }
 
 		__forceinline bool GetFlag(Flags eFlag) const { return (m_byFlags & eFlag) != 0; }
 		__forceinline void SetFlag(Flags eFlag) { m_byFlags |= eFlag; }
