@@ -1,4 +1,8 @@
 
+LUA functionality is screwed
+replace floats:
+[0-9]f
+[e,E][+,-][0-9]
 
 Descriptions of obscure behavior and functionality code locations:
 

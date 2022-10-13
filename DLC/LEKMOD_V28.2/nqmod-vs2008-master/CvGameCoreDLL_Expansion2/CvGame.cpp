@@ -1854,28 +1854,37 @@ void CvGame::updateScienceCatchup()
 	int progresses [MAX_CIV_TEAMS];
 	// find winner
 	int bestPercentTechTreeDone = 0;
-	for (TeamTypes team = (TeamTypes)0; team < MAX_CIV_TEAMS; team = (TeamTypes)(team + 1))
+	for (int iPlayer = 0; iPlayer < MAX_CIV_PLAYERS; iPlayer++)
+	for (PlayerTypes iPlayer = (PlayerTypes)0; iPlayer < MAX_CIV_PLAYERS; iPlayer = (PlayerTypes)(iPlayer + 1))
 	{
-		const int percTechTreeDone = GET_TEAM(team).GetTeamTechs()->GetTreeProgressBeakers();
-		progresses[team] = percTechTreeDone;
-		if (percTechTreeDone > bestPercentTechTreeDone)
-			bestPercentTechTreeDone = percTechTreeDone;
+		const CvPlayer& rPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+		if (rPlayer.isHuman()) // ONLY consider human players when producing tech boost
+		{
+			const TeamTypes team = rPlayer.getTeam();
+			const int percTechTreeDone = GET_TEAM(team).GetTeamTechs()->GetTreeProgressBeakers();
+			progresses[team] = percTechTreeDone;
+			if (percTechTreeDone > bestPercentTechTreeDone)
+				bestPercentTechTreeDone = percTechTreeDone;
+		}
 	}
 
-	// 
+	// let each player know how far behind they are
+	// possibly give AI boosts
 	for (PlayerTypes player = (PlayerTypes)0; player < MAX_CIV_TEAMS; player = (PlayerTypes)(player + 1))
 	{
 		CvPlayer& rPlayer = GET_PLAYER(player);
-		int progress = progresses[player];
-		int beakerDifference = bestPercentTechTreeDone - progress;
+		const int progress = progresses[player];
+		const int beakerDifference = max(0, bestPercentTechTreeDone - progress);
+		if (beakerDifference > 0) // not all players may be considered for tech boost, so this could go negative
+		{
+			const T100 adjustedBeakerDifferenceT100 = (beakerDifference * (100 + rPlayer.GetPlayerTechs()->GetResearchCostIncreasePercentT100()));
 
-		const T100 adjustedBeakerDifferenceT100 = (beakerDifference * (100 + rPlayer.GetPlayerTechs()->GetResearchCostIncreasePercentT100()));
+			const T100 medianScienceOutputT100 = (rPlayer.GetScienceTimes100(true) + rPlayer.GetScienceTimes100(false)) / 2;
 
-		const T100 medianScienceOutputT100 = (rPlayer.GetScienceTimes100(true) + rPlayer.GetScienceTimes100(false)) / 2;
+			const T100 turnDifferenceT100 = adjustedBeakerDifferenceT100 * 100 / medianScienceOutputT100;
 
-		const T100 turnDifference = adjustedBeakerDifferenceT100 * 100 / medianScienceOutputT100;
-
-		rPlayer.leaderTechDiffT100 = turnDifference;
+			rPlayer.leaderTechDiffT100 = turnDifferenceT100;
+		}
 	}
 }
 
