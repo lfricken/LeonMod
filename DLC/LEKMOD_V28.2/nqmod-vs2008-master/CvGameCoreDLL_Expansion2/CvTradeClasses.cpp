@@ -672,7 +672,7 @@ int CvGameTrade::GetDomainModifierTimes100(DomainTypes eDomain) const
 	}
 	else
 	{
-		return 75;
+		return 100;
 	}
 }
 
@@ -2538,12 +2538,6 @@ int CvPlayerTrade::GetTradeConnectionOtherTraitValueTimes100(const TradeConnecti
 //	--------------------------------------------------------------------------------
 int CvPlayerTrade::GetTradeConnectionDomainValueModifierTimes100(const TradeConnection& kTradeConnection, YieldTypes) const
 {
-	// unnecessary code to make it compile for now
-	if (eYield != NO_YIELD)
-	{
-		eYield = eYield;
-	}
-
 	return GC.getGame().GetGameTrade()->GetDomainModifierTimes100(kTradeConnection.m_eDomain);
 }
 

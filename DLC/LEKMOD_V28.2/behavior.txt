@@ -6,8 +6,8 @@ replace floats:
 
 Descriptions of obscure behavior and functionality code locations:
 
-
-
+trade route and cargo ship comparitive modifiers, currently equal
+CvGameTrade::GetDomainModifierTimes100
 
 CityStrategyAIHelpers::ReweightByTurnsLeft was trashed so AI will no longer respect this.
 

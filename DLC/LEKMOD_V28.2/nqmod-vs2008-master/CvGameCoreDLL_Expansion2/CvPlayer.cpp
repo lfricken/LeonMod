@@ -19257,11 +19257,8 @@ int CvPlayer::GetScienceTimes100(bool includeBoost) const
 int CvPlayer::GetScienceFromCitiesTimes100(bool bIgnoreTrade) const
 {
 	int iScience = 0;
-
-	const CvCity* pLoopCity;
-
 	int iLoop;
-	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	for(const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
 		iScience += pLoopCity->getYieldRateTimes100(YIELD_SCIENCE, bIgnoreTrade);
 	}

@@ -1302,6 +1302,7 @@ public:
 	T100 leaderTechDiffT100;
 
 	int GetScience() const;
+	// get beaker output T100. includeBoost indicates whether to include any boost from better players
 	int GetScienceTimes100(bool includeBoost = true) const;
 
 	int GetScienceFromCitiesTimes100(bool bIgnoreTrade) const;
