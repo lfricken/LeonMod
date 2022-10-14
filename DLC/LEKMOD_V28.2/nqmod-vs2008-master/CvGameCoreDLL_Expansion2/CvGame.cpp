@@ -277,6 +277,14 @@ void CvGame::init(HandicapTypes eHandicap)
 		m_competitions[i].UpdateAndSort();
 	}
 
+	// set up pseudorandom barbarian spawn points
+	m_barbSpawnX.clear();
+	m_barbSpawnY.clear();
+	m_barbSpawnX = halton<int>(2, 100 * 100, 400, GC.getGame().getJonRandNum(500, NULL, NULL, 159877));
+	m_barbSpawnY = halton<int>(3, 100 * 100, 400, GC.getGame().getJonRandNum(500, NULL, NULL, 368712));
+	m_barbSpawnCounter = 0;
+	
+
 	// set up random policy costs
 	const int numPolicies = 2 * GC.getNumPolicyInfos(); // 2 to safely handle branches
 	randomPolicyRebateT100.clear();
@@ -1062,6 +1070,9 @@ void CvGame::uninit()
 	m_voteSelections.Uninit();
 	m_votesTriggered.Uninit();
 	m_competitions.clear();
+	m_barbSpawnX.clear();
+	m_barbSpawnY.clear();
+	m_barbSpawnCounter = 0;
 	randomPolicyRebateT100.clear();
 
 	m_mapRand.uninit();
@@ -1879,7 +1890,8 @@ void CvGame::updateScienceCatchup()
 		{
 			const T100 adjustedBeakerDifferenceT100 = (beakerDifference * (100 + rPlayer.GetPlayerTechs()->GetResearchCostIncreasePercentT100()));
 
-			const T100 medianScienceOutputT100 = (rPlayer.GetScienceTimes100(true) + rPlayer.GetScienceTimes100(false)) / 2;
+			// do not drop below 1 science output
+			const T100 medianScienceOutputT100 = max(100, (rPlayer.GetScienceTimes100(true) + rPlayer.GetScienceTimes100(false)) / 2);
 
 			const T100 turnDifferenceT100 = adjustedBeakerDifferenceT100 * 100 / medianScienceOutputT100;
 
@@ -4188,9 +4200,8 @@ int CvGame::countHumanPlayersEverAlive() const
 }
 
 #ifndef AUI_GAME_PLAYER_BASED_TURN_LENGTH
-//	--------------------------------------------------------------------------------
 int CvGame::countSeqHumanTurnsUntilPlayerTurn( PlayerTypes playerID ) const
-{//This function counts the number of sequential human player turns that remain before this player's turn.
+{
 	int humanTurnsUntilMe = 0;
 #ifdef AUI_GAME_BETTER_HYBRID_MODE
 	const CvPlayer& kTargetPlayer = GET_PLAYER(playerID);
@@ -8121,20 +8132,16 @@ void CvGame::doTurn()
 	GC.GetEngineUserInterface()->doTurn();
 #endif
 
-#ifdef AUI_GAME_FIX_MULTIPLAYER_BARBARIANS_SPAWN_AFTER_MOVING
 #ifdef AUI_GAME_BETTER_HYBRID_MODE
 	if (!isAnySimultaneousTurns())
 #else
 	if (!isOption(GAMEOPTION_DYNAMIC_TURNS) && !isOption(GAMEOPTION_SIMULTANEOUS_TURNS))
 #endif
 	{
-#endif
 	CvBarbarians::DoCamps();
 
-	CvBarbarians::DoUnits();
-#ifdef AUI_GAME_FIX_MULTIPLAYER_BARBARIANS_SPAWN_AFTER_MOVING
+	CvBarbarians::DoUnits(m_barbSpawnX, m_barbSpawnY, &m_barbSpawnCounter);
 	}
-#endif
 
 #ifndef AUI_YIELDS_APPLIED_AFTER_TURN_NOT_BEFORE
 	GetGameReligions()->DoTurn();
@@ -9214,14 +9221,12 @@ void CvGame::updateMoves()
 		if (isOption(GAMEOPTION_DYNAMIC_TURNS) || isOption(GAMEOPTION_SIMULTANEOUS_TURNS))
 #endif
 		{//Activate human players who are playing simultaneous turns now that we've finished moves for the AI.
-#ifdef AUI_GAME_FIX_MULTIPLAYER_BARBARIANS_SPAWN_AFTER_MOVING
 			// Only spawn barbarians now, otherwise the barbarian player gets a turn to move/attack after its units spawn before the human players do
 			if (GC.getGame().getElapsedGameTurns() > 0)
 			{
 			CvBarbarians::DoCamps();
-			CvBarbarians::DoUnits();
+			CvBarbarians::DoUnits(m_barbSpawnX, m_barbSpawnY, &m_barbSpawnCounter);
 			}
-#endif
 			// KWG: This code should go into CheckPlayerTurnDeactivate
 #ifdef NQM_GAME_RANDOMIZE_TURN_ACTIVATION_ORDER_IN_SIMULTANEOUS
 			int aiShuffle[MAX_PLAYERS];
@@ -10458,6 +10463,9 @@ void CvGame::Read(FDataStream& kStream)
 	kStream >> m_votesTriggered;
 	kStream >> randomPolicyRebateT100;
 	kStream >> m_competitions;
+	kStream >> m_barbSpawnX;
+	kStream >> m_barbSpawnY;
+	kStream >> m_barbSpawnCounter;
 
 	m_mapRand.read(kStream);
 	bool wasCallStackDebuggingEnabled = m_jonRand.callStackDebuggingEnabled();
@@ -10693,6 +10701,9 @@ void CvGame::Write(FDataStream& kStream) const
 	kStream << m_votesTriggered;
 	kStream << randomPolicyRebateT100;
 	kStream << m_competitions;
+	kStream << m_barbSpawnX;
+	kStream << m_barbSpawnY;
+	kStream << m_barbSpawnCounter;
 
 	m_mapRand.write(kStream);
 	m_jonRand.write(kStream);

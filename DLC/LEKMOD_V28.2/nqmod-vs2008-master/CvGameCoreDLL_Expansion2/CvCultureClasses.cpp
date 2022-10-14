@@ -2315,8 +2315,8 @@ void CvPlayerCulture::DoArchaeologyChoice(PlayerTypes ePlayer, ArchaeologyChoice
 /// Update cultural influence numbers for this turn
 void CvPlayerCulture::DoTurn()
 {
-	int iInfluentialCivsForWin = GC.getGame().GetGameCulture()->GetNumCivsInfluentialForWin();
-	int iLastTurnInfluentialCivs = GetNumCivsInfluentialOn();
+	const int iInfluentialCivsForWin = GC.getGame().GetGameCulture()->GetNumCivsInfluentialForWin();
+	const int iLastTurnInfluentialCivs = GetNumCivsInfluentialOn();
 
 	for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
 	{

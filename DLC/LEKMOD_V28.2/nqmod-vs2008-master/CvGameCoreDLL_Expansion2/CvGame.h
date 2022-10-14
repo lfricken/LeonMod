@@ -115,6 +115,7 @@ public:
 	int countHumanPlayersAlive() const;
 	int countHumanPlayersEverAlive() const;
 #ifndef AUI_GAME_PLAYER_BASED_TURN_LENGTH
+	//This function counts the number of sequential human player turns that remain before this player's turn.
 	int countSeqHumanTurnsUntilPlayerTurn(PlayerTypes playerID) const;
 #endif
 
@@ -758,6 +759,10 @@ protected:
 	FFreeListTrashArray<VoteSelectionData> m_voteSelections;
 	FFreeListTrashArray<VoteTriggeredData> m_votesTriggered;
 	std::vector<CvCompetition> m_competitions;
+	std::vector<int> m_barbSpawnX;
+	std::vector<int> m_barbSpawnY;
+	// keeps track of which spawn point barbarians should consider spawning
+	int m_barbSpawnCounter;
 
 	CvRandom m_mapRand;
 	CvRandom m_jonRand;

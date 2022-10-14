@@ -8119,7 +8119,7 @@ function halton(base, numToGen, rngAddition)
             while (range <= shift) do
                 shift = shift / base;
             end
-            numerator = (base + 1) * shift - range;
+            numerator = ((base + 1) * shift) - range;
         end
         if (i > minToGen) then
 			table.insert(points, numerator / divisor);

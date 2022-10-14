@@ -19,10 +19,13 @@ public:
 	static bool ShouldSpawnBarbFromCamp(CvPlot* pPlot);
 	static void DoCampAttacked(CvPlot* pPlot);
 	static void BeginTurn();
+	// place barbarian camps
 	static void DoCamps();
-	static void DoUnits();
+	static void DoUnits(const std::vector<int>& spawnPointsX, const std::vector<int>& spawnPointsY, int* spawnCounter);
 
-	static void DoSpawnBarbarianUnit(CvPlot* pPlot, bool bIgnoreMaxBarbarians, bool bFinishMoves);
+	// Spawn a Barbarian Unit somewhere adjacent to pPlot.
+	// false if the unit did not spawn.
+	static bool DoSpawnBarbarianUnit(const CvPlot* pPlot, bool bIgnoreMaxBarbarians, bool bFinishMoves, const bool onlyConsiderCenterPlot);
 
 	static void MapInit(int iWorldNumPlots);
 	static void Uninit();
@@ -31,6 +34,7 @@ public:
 	static void Write(FDataStream& kStream);
 
 private:
+	// What turn are we now allowed to Spawn Barbarians on?
 	static bool CanBarbariansSpawn();
 	static bool IsPlotValidForBarbCamp(CvPlot* pPlot);
 	static UnitTypes GetRandomBarbarianUnitType(CvArea* pArea, UnitAITypes eUnitAI);

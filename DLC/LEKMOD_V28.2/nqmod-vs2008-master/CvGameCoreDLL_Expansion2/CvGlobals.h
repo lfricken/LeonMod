@@ -159,6 +159,42 @@ T100 iPow1p5(const long long valT100);
 // given a T100, will raise it to a given INTEGER power
 T100 iPow(const long long valT100, int iPower);
 
+// Uses Halton Sequence to produce pseudo random points.
+// base is the coprime number that is used to generate points.
+// permanentNumerator multiplies the value to be non decimal.
+// numToGen is how many points should be generated.
+// rngAddition is how far in the sequence before we start recording the generations.
+template <typename T>
+std::vector<T> halton(const T base, const T permanentNumerator, const uint numToGen, const uint rngAddition)
+{
+	std::vector<T> nums = std::vector<T>();
+	nums.reserve(numToGen); // speeds up allocation
+	T numerator = 0;
+	T divisor = 1;
+	// minToGen produces some points BEFORE recording them
+	const int minToGen = 100 + rngAddition;
+
+	for (int i = 0; i < (int)(minToGen + numToGen); ++i)
+	{
+		const T range = divisor - numerator;
+		if (range == 1) // find new divisor because we are the end of this range
+		{
+			numerator = 1;
+			divisor *= base;
+		}
+		else
+		{
+			T shift = divisor / base;
+			while (range <= shift)
+				shift /= base;
+			numerator = ((base + 1) * shift) - range;
+		}
+		if (i > minToGen)
+			nums.push_back((numerator * permanentNumerator) / (divisor));
+	}
+	return nums;
+}
+
 const int displacementSize = 6;
 //                                                        NE          E          SE            SW            W           NW
 const long displacementsT100[displacementSize][2] = { {500, 866}, {1000, 0}, {500, -866}, {-500, -866}, {-1000, 0}, {-500, -866} };
@@ -977,6 +1013,8 @@ public:
 	T100 getSCIENCE_CATCHUP_DIFFT100() const;
 	// how far someone falls behind in science turns before they get ANY boost
 	T100 getSCIENCE_CATCHUP_DIFF_NONET100() const;
+	// first barb spawn turn as a % of game done
+	T100 getFIRST_BARB_SPAWNT10000() const;
 
 	// -- ints --
 

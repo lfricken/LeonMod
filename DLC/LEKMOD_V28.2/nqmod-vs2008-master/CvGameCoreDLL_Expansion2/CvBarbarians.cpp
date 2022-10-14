@@ -76,12 +76,17 @@ void CvBarbarians::DoBarbCampCleared(CvPlot* pPlot, PlayerTypes ePlayer)
 	pPlot->AddArchaeologicalRecord(CvTypes::getARTIFACT_BARBARIAN_CAMP(), ePlayer, NO_PLAYER);
 }
 
-//	--------------------------------------------------------------------------------
-/// What turn are we now allowed to Spawn Barbarians on?
 bool CvBarbarians::CanBarbariansSpawn()
 {
 	CvGame& kGame = GC.getGame();
-	if (kGame.getElapsedGameTurns() < 10)
+	if (kGame.isOption(GAMEOPTION_NO_BARBARIANS))
+	{
+		return false;
+	}
+
+	const T100 doneNess = GC.getPercentTurnsDoneT10000();
+	const T100 requiredDoneness = GC.getFIRST_BARB_SPAWNT10000();
+	if (doneNess < requiredDoneness)
 	{
 		return false;
 	}
@@ -693,28 +698,49 @@ UnitTypes CvBarbarians::GetRandomBarbarianUnitType(CvArea* pArea, UnitAITypes eU
 }
 
 //	--------------------------------------------------------------------------------
-void CvBarbarians::DoUnits()
+void CvBarbarians::DoUnits(const std::vector<int>& spawnPointsX, const std::vector<int>& spawnPointsY, int* spawnCounter)
 {
-	CvGame& kGame = GC.getGame();
-
-	if(kGame.isOption(GAMEOPTION_NO_BARBARIANS))
+	if (!CanBarbariansSpawn())
 	{
 		return;
 	}
 
-	if(!CanBarbariansSpawn())
+	const CvPlayer& barbPlayer = GET_PLAYER(BARBARIAN_PLAYER);
+	const int numUnits = barbPlayer.getNumUnits();
+	const CvMap& kMap = GC.getMap();
+	const int maxX = kMap.getGridWidth();
+	const int maxY = kMap.getGridHeight();
+	const int targetUnits = (maxX * maxY) / GC.getTILES_PER_BARB_100();
+	int numUnitsToSpawn = max(0, targetUnits - numUnits);
+
+	// limit spawn rate
+	if (numUnits == 0) // assume this means initial spawn, so spawn all
 	{
-		return;
+		numUnitsToSpawn = numUnitsToSpawn;
+	}
+	else // respawning, so limit
+	{
+		const int minToSpawn = numUnitsToSpawn != 0 ? 1 : 0; // if we should spawn any, always spawn at least 1
+		numUnitsToSpawn = max(minToSpawn, targetUnits / 10);
 	}
 
-	ImprovementTypes eCamp = (ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT();
+	const int inverseX = 10000 / maxX;
+	const int inverseY = 10000 / maxY;
+	// spawn all over map
+	for (int i = 0; i < numUnitsToSpawn; i++)
+	{
+		const int x = max(0, spawnPointsX[*spawnCounter] / inverseX) % maxX;
+		const int y = max(0, spawnPointsY[*spawnCounter] / inverseY) % maxY;
+		const CvPlot* pLoopPlot = kMap.plot(x, y);
+		const bool didSpawn = DoSpawnBarbarianUnit(pLoopPlot, false, false, false);
+		if (!didSpawn)
+			i--; // back up and try again
+		(*spawnCounter) = ((*spawnCounter) + 1) % spawnPointsX.size();
+	}
 
-	CvMap& kMap = GC.getMap();
-#ifdef AUI_WARNING_FIXES
-	for (uint iPlotLoop = 0; iPlotLoop < kMap.numPlots(); iPlotLoop++)
-#else
+	// spawn from camps, but ONLY on center plot
+	const ImprovementTypes eCamp = (ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT();
 	for(int iPlotLoop = 0; iPlotLoop < kMap.numPlots(); iPlotLoop++)
-#endif
 	{
 		CvPlot* pLoopPlot = kMap.plotByIndexUnchecked(iPlotLoop);
 
@@ -723,122 +749,127 @@ void CvBarbarians::DoUnits()
 		{
 			if(ShouldSpawnBarbFromCamp(pLoopPlot))
 			{
-				DoSpawnBarbarianUnit(pLoopPlot, false, false);
+				DoSpawnBarbarianUnit(pLoopPlot, false, false, true);
 				DoCampActivationNotice(pLoopPlot);
 			}
 		}
 	}
 }
 
-//	--------------------------------------------------------------------------------
-/// Spawn a Barbarian Unit somewhere adjacent to pPlot
-void CvBarbarians::DoSpawnBarbarianUnit(CvPlot* pPlot, bool bIgnoreMaxBarbarians, bool bFinishMoves)
+UnitAITypes getRandBarbUnitType(const int randVal, const bool isWater)
 {
-	int iNumNearbyUnits;
-#ifdef AUI_WARNING_FIXES
-	uint iNearbyUnitLoop;
-#else
-	int iNearbyUnitLoop;
-#endif
-	int iRange = GC.getMAX_BARBARIANS_FROM_CAMP_NEARBY_RANGE();
-	int iX;
-	int iY;
-	CvPlot* pNearbyPlot;
-	DirectionTypes eDirection;
+	if (isWater)
+	{
+		const int count = 2;
+		UnitAITypes possible[] = {
+			UNITAI_ATTACK_SEA,
+			UNITAI_ASSAULT_SEA,
+		};
+		return possible[randVal % count];
+	}
+	else
+	{
+		const int count = 5;
+		UnitAITypes possible[] = {
+			UNITAI_ATTACK,
+			UNITAI_CITY_BOMBARD,
+			UNITAI_FAST_ATTACK,
+			UNITAI_DEFENSE,
+			UNITAI_COUNTER, // 5
+		};
+		return possible[randVal % count];
+	}
+}
+
+bool CvBarbarians::DoSpawnBarbarianUnit(const CvPlot* pPlot, bool, bool bFinishMoves, const bool onlyConsiderCenterPlot)
+{
+	if (pPlot == NULL)
+		return false;
 
 	CvGame& kGame = GC.getGame();
 
-	if (pPlot == 0)
-		return;
+	//// is this camp empty - first priority is to fill it
+	//const ImprovementTypes eCamp = (ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT();
+	//if (pPlot->getImprovementType() == eCamp && pPlot->GetNumCombatUnits() == 0)
+	//{
+	//	const UnitTypes eUnit = GetRandomBarbarianUnitType(GC.getMap().getArea(pPlot->getArea()), UNITAI_FAST_ATTACK);
 
-	// is this camp empty - first priority is to fill it
-	if (pPlot && pPlot->GetNumCombatUnits() == 0)
+	//	if (eUnit != NO_UNIT)
+	//	{
+	//		CvUnit* pUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pPlot->getX(), pPlot->getY(), UNITAI_FAST_ATTACK);
+	//		pUnit->finishMoves();
+	//		return;
+	//	}
+	//}
+
+//	const int iRange = GC.getMAX_BARBARIANS_FROM_CAMP_NEARBY_RANGE();
+//	// Look at nearby Plots to see if there are already too many Barbs nearby
+//	int iNumNearbyUnits = 0;
+//
+//#ifdef AUI_HEXSPACE_DX_LOOPS
+//	int iMaxDX;
+//	for (iY = -iRange; iY <= iRange; iY++)
+//	{
+//		iMaxDX = iRange - MAX(0, iY);
+//		for (iX = -iRange - MIN(0, iY); iX <= iMaxDX; iX++) // MIN() and MAX() stuff is to reduce loops (hexspace!)
+//		{
+//			// No need for range check because loops are set up properly
+//			const CvPlot* pNearbyPlot = plotXY(pPlot->getX(), pPlot->getY(), iX, iY);
+//#else
+//	for(int iX = -iRange; iX <= iRange; iX++)
+//	{
+//		for(int iY = -iRange; iY <= iRange; iY++)
+//		{
+//			// Cut off the corners of the area we're looking at that we don't want
+//			const CvPlot* pNearbyPlot = plotXYWithRangeCheck(pPlot->getX(), pPlot->getY(), iX, iY, iRange);
+//#endif
+//
+//			if(pNearbyPlot != NULL)
+//			{
+//				if(pNearbyPlot->getNumUnits() > 0)
+//				{
+//					for (int iNearbyUnitLoop = 0; iNearbyUnitLoop < pNearbyPlot->getNumUnits(); iNearbyUnitLoop++)
+//					{
+//						const CvUnit* const unit = pNearbyPlot->getUnitByIndex(iNearbyUnitLoop);
+//						if (unit != NULL && unit->isBarbarian())
+//						{
+//							iNumNearbyUnits++;
+//						}
+//					}
+//				}
+//			}
+//		}
+//	}
+
+	const int randVal = kGame.getJonRandNum(50000, "Barb Unit Location Spawn Roll", pPlot, kGame.getGameTurn() * 137);
+	const int canSpawnInBordersChance = 40;
+	const bool canSpawnInBorders = ((randVal % 100) < canSpawnInBordersChance); // 40% chance
+
+	//if(iNumNearbyUnits <= /*2*/ GC.getMAX_BARBARIANS_FROM_CAMP_NEARBY() || bIgnoreMaxBarbarians)
 	{
-		UnitTypes eUnit;
-		eUnit = GetRandomBarbarianUnitType(GC.getMap().getArea(pPlot->getArea()), UNITAI_FAST_ATTACK);
-
-		if (eUnit != NO_UNIT)
-		{
-			CvUnit* pUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pPlot->getX(), pPlot->getY(), UNITAI_FAST_ATTACK);
-			pUnit->finishMoves();
-			return;
-		}
-	}
-
-	m_aeValidBarbSpawnDirections.clear();
-
-	// Look at nearby Plots to see if there are already too many Barbs nearby
-	iNumNearbyUnits = 0;
-
-#ifdef AUI_HEXSPACE_DX_LOOPS
-	int iMaxDX;
-	for (iY = -iRange; iY <= iRange; iY++)
-	{
-		iMaxDX = iRange - MAX(0, iY);
-		for (iX = -iRange - MIN(0, iY); iX <= iMaxDX; iX++) // MIN() and MAX() stuff is to reduce loops (hexspace!)
-		{
-			// No need for range check because loops are set up properly
-			pNearbyPlot = plotXY(pPlot->getX(), pPlot->getY(), iX, iY);
-#else
-	for(iX = -iRange; iX <= iRange; iX++)
-	{
-		for(iY = -iRange; iY <= iRange; iY++)
-		{
-			// Cut off the corners of the area we're looking at that we don't want
-			pNearbyPlot = plotXYWithRangeCheck(pPlot->getX(), pPlot->getY(), iX, iY, iRange);
-#endif
-
-			if(pNearbyPlot != NULL)
-			{
-				if(pNearbyPlot->getNumUnits() > 0)
-				{
-					for(iNearbyUnitLoop = 0; iNearbyUnitLoop < pNearbyPlot->getNumUnits(); iNearbyUnitLoop++)
-					{
-						const CvUnit* const unit = pNearbyPlot->getUnitByIndex(iNearbyUnitLoop);
-#ifdef AUI_WARNING_FIXES
-						if (unit && unit->isBarbarian())
-#else
-						if(unit && pNearbyPlot->getUnitByIndex(iNearbyUnitLoop)->isBarbarian())
-#endif
-						{
-							iNumNearbyUnits++;
-						}
-					}
-				}
-			}
-		}
-	}
-
-	if(iNumNearbyUnits <= /*2*/ GC.getMAX_BARBARIANS_FROM_CAMP_NEARBY() || bIgnoreMaxBarbarians)
-	{
-		CvPlot* pLoopPlot;
-
 		// Barbs only get boats after some period of time has passed
-		bool bCanSpawnBoats = kGame.getElapsedGameTurns() > /*30*/ GC.getBARBARIAN_NAVAL_UNIT_START_TURN_SPAWN();
+		// GC.getBARBARIAN_NAVAL_UNIT_START_TURN_SPAWN();
 
 		// Look to see if adjacent Tiles are valid locations to spawn a Unit
-		for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; iDirectionLoop++)
+		m_aeValidBarbSpawnDirections.clear();
+		const DirectionTypes maxDir = onlyConsiderCenterPlot ? (DirectionTypes)(NO_DIRECTION + 1) : NUM_DIRECTION_TYPES;
+		for(int iDirectionLoop = NO_DIRECTION; iDirectionLoop < maxDir; iDirectionLoop++)
 		{
-			eDirection = (DirectionTypes) iDirectionLoop;
-			pLoopPlot = plotDirection(pPlot->getX(), pPlot->getY(), eDirection);
+			const DirectionTypes eDirection = (DirectionTypes)iDirectionLoop;
+			const CvPlot* pLoopPlot = plotDirection(pPlot->getX(), pPlot->getY(), eDirection);
 
 			if(pLoopPlot != NULL)
 			{
-				if(pLoopPlot->getNumUnits() == 0)
+				const bool isInBorders = pLoopPlot->getOwner() != NO_PLAYER;
+				if (!canSpawnInBorders && isInBorders)
+					continue; // is within borders and can't spawn there
+
+				if(pLoopPlot->getNumUnits() == 0) // must not be existing units
 				{
-					if(!pLoopPlot->isImpassable() && !pLoopPlot->isMountain())
+					// valid location?
+					if(!pLoopPlot->isImpassable() && !pLoopPlot->isMountain() && !pLoopPlot->isCity() && !pLoopPlot->isLake())
 					{
-						if(!pLoopPlot->isCity())
-						{
-							if(!pLoopPlot->isLake())
-							{
-								// Water Tiles are only valid when the Barbs have the proper Tech
-								if(!pLoopPlot->isWater() || bCanSpawnBoats)
-								{
-									m_aeValidBarbSpawnDirections.push_back(eDirection);
-								}
-							}
-						}
+						m_aeValidBarbSpawnDirections.push_back(eDirection);
 					}
 				}
 			}
@@ -847,24 +878,12 @@ void CvBarbarians::DoSpawnBarbarianUnit(CvPlot* pPlot, bool bIgnoreMaxBarbarians
 		// Any valid locations?
 		if(m_aeValidBarbSpawnDirections.size() > 0)
 		{
-			int iIndex = kGame.getJonRandNum(m_aeValidBarbSpawnDirections.size(), "Barb Unit Location Spawn Roll", pPlot, m_aeValidBarbSpawnDirections.size());
-			eDirection = (DirectionTypes) m_aeValidBarbSpawnDirections[iIndex];
-			CvPlot* pSpawnPlot = plotDirection(pPlot->getX(), pPlot->getY(), eDirection);
-			UnitAITypes eUnitAI;
-			UnitTypes eUnit;
+			const int iIndex = randVal % m_aeValidBarbSpawnDirections.size();
+			const DirectionTypes eDirection = (DirectionTypes) m_aeValidBarbSpawnDirections[iIndex];
+			const CvPlot* pSpawnPlot = plotDirection(pPlot->getX(), pPlot->getY(), eDirection);
 
-			// Naval Barbs
-			if(pSpawnPlot->isWater())
-			{
-				eUnitAI = UNITAI_ATTACK_SEA;
-			}
-			// Land Barbs
-			else
-			{
-				eUnitAI = UNITAI_FAST_ATTACK;
-			}
-
-			eUnit = GetRandomBarbarianUnitType(GC.getMap().getArea(pSpawnPlot->getArea()), eUnitAI);
+			const UnitAITypes eUnitAI = getRandBarbUnitType(randVal, pSpawnPlot->isWater());
+			const UnitTypes eUnit = GetRandomBarbarianUnitType(GC.getMap().getArea(pSpawnPlot->getArea()), eUnitAI);
 
 			if(eUnit != NO_UNIT)
 			{
@@ -874,6 +893,8 @@ void CvBarbarians::DoSpawnBarbarianUnit(CvPlot* pPlot, bool bIgnoreMaxBarbarians
 					pUnit->finishMoves();
 				}
 			}
+			return true;
 		}
 	}
+	return false;
 }

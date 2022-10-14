@@ -10279,25 +10279,19 @@ int CvPlot::getNumUnits() const
 uint CvPlot::GetNumCombatUnits() const
 {
 	uint iCount = 0;
-
-	const IDInfo* pUnitNode;
-	const CvUnit* pLoopUnit;
 #else
-int CvPlot::GetNumCombatUnits()
+int CvPlot::GetNumCombatUnits() const
 {
 	int iCount = 0;
-
-	IDInfo* pUnitNode;
-	CvUnit* pLoopUnit;
 #endif
 
-	pUnitNode = headUnitNode();
+	 const IDInfo* pUnitNode = headUnitNode();
 
 	while(pUnitNode != NULL)
 	{
-		pLoopUnit = GetPlayerUnit(*pUnitNode);
+		const CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
 
-		if(pLoopUnit && pLoopUnit->IsCombatUnit())
+		if(pLoopUnit != NULL && pLoopUnit->IsCombatUnit())
 		{
 			iCount++;
 		}

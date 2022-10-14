@@ -2475,12 +2475,10 @@ T100 CvGlobals::getTOURISM_CITY_PERCENT_ADJUST() const
 {
 	return 65;
 }
-// grow or shrink city tourism impact
 int CvGlobals::getTOURISM_FROM_CITY_CULTURE_PER_POLICY() const
 {
 	return 1;
 }
-// how many more cities does the capital count for when calculating tourism adjustment
 int CvGlobals::getTOURISM_CITY_CAPITAL_ADJUST() const
 {
 	return 6;
@@ -2489,12 +2487,10 @@ T100 CvGlobals::getPOLICY_REBATE_VARIATION_T100() const
 {
 	return m_iPOLICY_REBATE_VARIATION_T100;
 }
-// How much extra "policies" does each policy cost once you get ideology
 T100 CvGlobals::getPOLICY_MOD_LATE_GAME() const
 {
 	return 150;
 }
-// how much stuff the great scientist gives
 int CvGlobals::getGREAT_SCIENTIST_AMOUNT() const
 {
 	return 100;
@@ -2508,6 +2504,22 @@ T100 CvGlobals::getSCIENCE_CATCHUP_DIFF_NONET100() const
 	return 200;
 }
 
+T100 CvGlobals::getFIRST_BARB_SPAWNT10000() const
+{
+	return 7 * 100; // 7% (not x10000 because that would be 7 times the game length
+}
+T100 CvGlobals::getTILES_PER_BARB_100() const
+{
+	return 6 * 7; // every X by Y region should have a barb on average
+}
+T100 CvGlobals::getBARB_RESPAWN_TIME_10000() const
+{
+	return (10 * 100 * 100) / 250; // 10 turns in an online speed game
+}
+T100 CvGlobals::getMIN_CS_STRENGTH_INFLUENCE() const
+{
+	return 599;
+}
 // [0, 10000] Number of turns DONE as a percentage of max turns 
 T100 CvGlobals::getPercentTurnsDoneT10000()
 {

@@ -1,10 +1,26 @@
 
-LUA functionality is screwed
+Any LUA functionality is screwed
 replace floats:
 [0-9]f
 [e,E][+,-][0-9]
 
 Descriptions of obscure behavior and functionality code locations:
+
+city found tiles distance (minimum tiles between)
+MIN_CITY_RANGE
+
+spy vision reveal radius
+ESPIONAGE_SURVEILLANCE_SIGHT_RANGE
+
+
+https://en.wikipedia.org/wiki/Halton_sequence
+Barb spawning and 
+
+Appart from initial spawn, 1/10th of missing units will respawn per turn
+Barbarian Spawning uses halton sequence. Only 40% probability that a unit is able to spawn in borders.
+Barb will still spawn somewhere else. 
+CvBarbarians::DoSpawnBarbarianUnit
+
 
 trade route and cargo ship comparitive modifiers, currently equal
 CvGameTrade::GetDomainModifierTimes100

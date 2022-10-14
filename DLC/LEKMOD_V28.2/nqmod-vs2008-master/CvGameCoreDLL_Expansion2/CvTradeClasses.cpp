@@ -3535,7 +3535,7 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 		{
 			if (pLoopUnit->plot() == pPlunderPlot)
 			{
-				CvBarbarians::DoSpawnBarbarianUnit(pPlunderPlot, true, true);
+				CvBarbarians::DoSpawnBarbarianUnit(pPlunderPlot, true, true, false);
 				break;
 			}
 		}

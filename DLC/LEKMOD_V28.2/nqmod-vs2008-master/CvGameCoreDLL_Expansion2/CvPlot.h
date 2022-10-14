@@ -755,7 +755,7 @@ public:
 	CvUnit* getUnitByIndex(uint iIndex) const;
 #else
 	int getNumUnits() const;
-	int GetNumCombatUnits();
+	int GetNumCombatUnits() const;
 	CvUnit* getUnitByIndex(int iIndex) const;
 #endif
 	int getUnitIndex(CvUnit* pUnit) const;
