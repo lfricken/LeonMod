@@ -47,6 +47,10 @@ int CvGlobals::getCITIZENS_PER_SPECIALIST(const PlayerTypes) const
 {
 	return 2;
 }
+int CvGlobals::getGREAT_WORKS_PER_DIG(const PlayerTypes) const
+{
+	return 1;
+}
 int CvGlobals::getYIELD_PER_TURN_ALLY(const YieldTypes eYieldType, const PlayerTypes, const PlayerTypes ePlayer, const bool) const
 {
 	int value = 0;

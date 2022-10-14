@@ -921,7 +921,7 @@ void CvDllNetMessageHandler::ResponseGoodyChoice(PlayerTypes ePlayer, int iPlotX
 void CvDllNetMessageHandler::ResponseArchaeologyChoice(PlayerTypes ePlayer, ArchaeologyChoiceType eChoice)
 {
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
-	kPlayer.GetCulture()->DoArchaeologyChoice(eChoice);
+	kPlayer.GetCulture()->DoArchaeologyChoice(ePlayer, eChoice);
 }
 //------------------------------------------------------------------------------
 void CvDllNetMessageHandler::ResponseIdeologyChoice(PlayerTypes ePlayer, PolicyBranchTypes eChoice)

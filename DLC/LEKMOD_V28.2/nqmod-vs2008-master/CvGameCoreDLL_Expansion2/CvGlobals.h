@@ -952,6 +952,8 @@ public:
 	int getCITIZENS_MIN_FOR_SPECIALIST(const PlayerTypes ePlayer) const;
 	// each additional specialist requires this many citizens
 	int getCITIZENS_PER_SPECIALIST(const PlayerTypes ePlayer) const;
+	// number of great works a player gets from dig sites
+	int getGREAT_WORKS_PER_DIG(const PlayerTypes) const;
 	// how much influence per turn a player gets from an ally
 	int getYIELD_PER_TURN_ALLY(const YieldTypes eYieldType, const PlayerTypes eMinor, const PlayerTypes ePlayer, const bool isCaptured = false) const;
 	// amount of dioplomatic influence per quest you complete

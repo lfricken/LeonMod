@@ -9968,7 +9968,7 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 					else
 					{	
 						ArchaeologyChoiceType eChoice = kPlayer.GetCulture()->GetArchaeologyChoice(this);
-						kPlayer.GetCulture()->DoArchaeologyChoice (eChoice);
+						kPlayer.GetCulture()->DoArchaeologyChoice(ePlayer, eChoice);
 					}
 				}
 			}

@@ -237,7 +237,7 @@ public:
 	bool HasDigCompleteHere(CvPlot *pPlot) const;
 	int GetWrittenArtifactCulture() const;
 
-	void DoArchaeologyChoice (ArchaeologyChoiceType eChoice);
+	void DoArchaeologyChoice(PlayerTypes ePlayer, ArchaeologyChoiceType eChoice);
 	//    AI support routine - move elsewhere later?
 	ArchaeologyChoiceType GetArchaeologyChoice(CvPlot *pPlot);
  

@@ -2169,9 +2169,9 @@ ArchaeologyChoiceType CvPlayerCulture::GetArchaeologyChoice(CvPlot *pPlot)
 }
 
 /// Make things happen at an archaeology dig
-void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
+void CvPlayerCulture::DoArchaeologyChoice(PlayerTypes ePlayer, ArchaeologyChoiceType eChoice)
 {
-	const int numWorksPerDig = 2;
+	const int numWorksPerDig = GC.getGREAT_WORKS_PER_DIG(ePlayer);
 	CvGameCulture *pCulture = GC.getGame().GetGameCulture();
 	BuildingClassTypes eBuildingToHouse;
 #ifdef AUI_WARNING_FIXES
