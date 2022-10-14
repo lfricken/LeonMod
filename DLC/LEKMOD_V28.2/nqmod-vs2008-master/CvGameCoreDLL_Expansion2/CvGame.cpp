@@ -4091,7 +4091,7 @@ int CvGame::getAdjustedLandPercent(VictoryTypes eVictory) const
 int CvGame::countCivPlayersAlive() const
 {
 	int count = 0;
-	for(int i = 0; i < m_playersEverAlive.size(); i++)
+	for(int i = 0; i < (int)m_playersEverAlive.size(); i++)
 	{
 		if(GET_PLAYER(m_playersEverAlive[i]).isAlive())
 		{
@@ -4154,7 +4154,7 @@ int CvGame::countCivTeamsEverAlive() const
 int CvGame::countHumanPlayersAlive() const
 {
 	int count = 0;
-	for (int i = 0; i < m_playersEverAlive.size(); i++)
+	for (int i = 0; i < (int)m_playersEverAlive.size(); i++)
 	{
 		if (GET_PLAYER(m_playersEverAlive[i]).isAlive())
 		{
@@ -4173,7 +4173,7 @@ int CvGame::countHumanPlayersAlive() const
 int CvGame::countHumanPlayersEverAlive() const
 {
 	int count = 0;
-	for (int i = 0; i < m_playersEverAlive.size(); i++)
+	for (int i = 0; i < (int)m_playersEverAlive.size(); i++)
 	{
 		if (GET_PLAYER(m_playersEverAlive[i]).isEverAlive())
 		{
@@ -9638,7 +9638,7 @@ bool CvGame::testVictory(const VictoryTypes eVictory, const TeamTypes eTeam, boo
 	if(bValid)
 	{
 		if (pkVictoryInfo->GetID() != 1) // disallow space race rocket ship star ship
-			for (uint iK = 0; iK < GC.getNumProjectInfos(); iK++)
+			for (int iK = 0; iK < GC.getNumProjectInfos(); iK++)
 			{
 				const ProjectTypes eProject = static_cast<ProjectTypes>(iK);
 				CvProjectEntry* pkProjectInfo = GC.getProjectInfo(eProject);
@@ -12467,7 +12467,7 @@ int CvGame::GetNumHiddenArchaeologySites() const
 PlayerTypes CvGame::GetRandomMajorPlayer(const int extraSeed, const PlayerTypes eRemove) const
 {
 	vector<PlayerTypes> filter;
-	for (int i = 0; i < m_playersEverAlive.size(); i++)
+	for (int i = 0; i < (int)m_playersEverAlive.size(); i++)
 	{
 		if (m_playersEverAlive[i] != eRemove && GET_PLAYER(m_playersEverAlive[i]).isMajorCiv())
 			filter.push_back(m_playersEverAlive[i]);
@@ -12485,7 +12485,7 @@ PlayerTypes CvGame::GetRandomMajorPlayer(const int extraSeed, const PlayerTypes 
 PlayerTypes CvGame::GetRandomPlayer(const int extraSeed, const PlayerTypes eRemove) const
 {
 	vector<PlayerTypes> filter;
-	for (int i = 0; i < m_playersEverAlive.size(); i++)
+	for (int i = 0; i < (int)m_playersEverAlive.size(); i++)
 	{
 		if (m_playersEverAlive[i] != eRemove)
 			filter.push_back(m_playersEverAlive[i]);

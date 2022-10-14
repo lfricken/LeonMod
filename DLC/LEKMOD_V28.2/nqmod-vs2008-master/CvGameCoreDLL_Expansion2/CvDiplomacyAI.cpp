@@ -12901,24 +12901,13 @@ void CvDiplomacyAI::DoContactMinorCivs()
 	CvWeightedVector<MinorGoldGiftInfo, MAX_PLAYERS, true> veMinorsToGiveGold;
 	CvWeightedVector<PlayerTypes, MAX_PLAYERS, true> veMinorsToBullyGold;
 	CvWeightedVector<PlayerTypes, MAX_PLAYERS, true> veMinorsToBullyUnit;
-	int iLargeGiftFriendship;
-	int iMediumGiftFriendship;
-	int iSmallGiftFriendship;
-	bool bMediumGiftAllies;
-	bool bSmallGiftAllies;
 
 	PlayerTypes eID = GetPlayer()->GetID();
 
-	CvMinorCivInfo* pMinorInfo;
 	CvPlayer* pMinor;
 	CvMinorCivAI* pMinorCivAI;
 
 	bool bIntruding;
-
-	int iOtherMajorLoop;
-	PlayerTypes eOtherMajor;
-	int iFriendshipWithMinor;
-	int themFriendship;
 
 	bool bWantsToConnect;
 

@@ -6150,16 +6150,16 @@ int CvPlayer::GetScientificInfluenceNeeded() const
 	targetValue -= (targetValue * GC.getGame().GetVpAdjustment()) / 1000;
 	return targetValue;
 }
-long long CvPlayer::GetCompetitionHammersT100(const HammerCompetitionTypes eType) const
+T100 CvPlayer::GetCompetitionHammersT100(const HammerCompetitionTypes eType) const
 {
-	if (eType < 0 || eType >= m_competitionT100.size())
+	if (eType < 0 || eType >= (int)m_competitionT100.size())
 		return -1;
 
-	return m_competitionT100[eType];
+	return (T100)m_competitionT100[eType];
 }
 void CvPlayer::ChangeCompetitionHammersT100(const HammerCompetitionTypes eType, const long long iChangeT100)
 {
-	if (eType < 0 || eType >= m_competitionT100.size() || iChangeT100 == 0)
+	if (eType < 0 || eType >= (int)m_competitionT100.size() || iChangeT100 == 0)
 		return;
 
 	m_competitionT100[eType] += iChangeT100;
@@ -6177,7 +6177,7 @@ int CvPlayer::GetTradeRouteCostIncrease() const
 }
 void CvPlayer::GetTradeRouteProjectInfo(int* iCount, int* iProgress) const
 {
-	const int iHaveHammersT100 = GetCompetitionHammersT100(HAMMERCOMPETITION_MAKE_TRADE_ROUTES);
+	const int iHaveHammersT100 = (int)GetCompetitionHammersT100(HAMMERCOMPETITION_MAKE_TRADE_ROUTES);
 	int iPreviousCostsT100 = 0;
 	int iTotalCostT100 = 0;
 	int i;
@@ -6210,13 +6210,13 @@ int CvPlayer::GetNationalGamesCostIncrease() const
 }
 void CvPlayer::GetNationalGamesProjectInfo(int* iCount, int* iProgress) const
 {
-	const int iHaveHammersT100 = GetCompetitionHammersT100(HAMMERCOMPETITION_NATIONAL_GAMES);
-	int iPreviousCostsT100 = 0;
-	int iTotalCostT100 = 0;
+	const T100 iHaveHammersT100 = GetCompetitionHammersT100(HAMMERCOMPETITION_NATIONAL_GAMES);
+	T100 iPreviousCostsT100 = 0;
+	T100 iTotalCostT100 = 0;
 	int i;
 	for (i = 1; i < 999; ++i)
 	{
-		const int nextCostT100 = GetNationalGamesCost(i) * 100;
+		const T100 nextCostT100 = GetNationalGamesCost(i) * 100;
 		iTotalCostT100 += nextCostT100;
 
 		if (iTotalCostT100 > iHaveHammersT100)
@@ -6224,7 +6224,7 @@ void CvPlayer::GetNationalGamesProjectInfo(int* iCount, int* iProgress) const
 
 		iPreviousCostsT100 += nextCostT100;
 	}
-	const int hammersTowardsNext = iHaveHammersT100 / 100 - iPreviousCostsT100 / 100; // divide first or we will incorrectly round up
+	const int hammersTowardsNext = (int)((iHaveHammersT100 - iPreviousCostsT100) / 100); // divide first or we will incorrectly round up
 	*iCount = (i - 1);
 	*iProgress = hammersTowardsNext;
 }
@@ -12743,7 +12743,7 @@ int CvPlayer::GetHappinessFromResources() const
 
 	// Check all connected Resources
 	ResourceTypes eResource;
-	for (uint iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
 		eResource = (ResourceTypes) iResourceLoop;
 

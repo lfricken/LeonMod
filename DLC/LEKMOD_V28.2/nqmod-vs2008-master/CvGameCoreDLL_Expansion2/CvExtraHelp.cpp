@@ -48,7 +48,7 @@ int CvLuaGame::lGetAdditionalHelpBuilding(lua_State* L)
 
 		if (eProcess == 7) // PROCESS_MAKE_TRADEROUTES
 		{
-			const int have = rPlayer.GetCompetitionHammersT100(HAMMERCOMPETITION_MAKE_TRADE_ROUTES) / 100;
+			const int have = (int)(rPlayer.GetCompetitionHammersT100(HAMMERCOMPETITION_MAKE_TRADE_ROUTES) / 100);
 			int numBonusRoutesHave;
 			int iProgress;
 			rPlayer.GetTradeRouteProjectInfo(&numBonusRoutesHave, &iProgress);
@@ -61,7 +61,7 @@ int CvLuaGame::lGetAdditionalHelpBuilding(lua_State* L)
 		}
 		else if (eProcess == 8) // HAMMERCOMPETITION_NATIONAL_GAMES
 		{
-			const int have = rPlayer.GetCompetitionHammersT100(HAMMERCOMPETITION_NATIONAL_GAMES) / 100;
+			const int have = (int)(rPlayer.GetCompetitionHammersT100(HAMMERCOMPETITION_NATIONAL_GAMES) / 100);
 			int iNumCompleted;
 			int iProgress;
 			rPlayer.GetNationalGamesProjectInfo(&iNumCompleted, &iProgress);

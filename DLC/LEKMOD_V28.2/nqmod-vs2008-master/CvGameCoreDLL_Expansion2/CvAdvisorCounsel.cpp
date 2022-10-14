@@ -1532,11 +1532,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 			}
 
 			BuildingClassTypes eScienceBuildingClass = NO_BUILDINGCLASS;
-#ifdef AUI_WARNING_FIXES
-			for (uint i = 0; i < GC.getNumBuildingClassInfos(); i++)
-#else
 			for(int i = 0; i < GC.getNumBuildingClassInfos(); i++)
-#endif
 			{
 				BuildingClassTypes eBuildingClass = (BuildingClassTypes)i;
 

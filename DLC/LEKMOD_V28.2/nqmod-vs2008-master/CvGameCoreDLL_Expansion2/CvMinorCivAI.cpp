@@ -156,7 +156,7 @@ string compileRewards(QuestReward rewards)
 	}
 
 	stringstream total;
-	for (int i = 0; i < ss.size(); ++i)
+	for (int i = 0; i < (int)ss.size(); ++i)
 	{
 		total << "[NEWLINE]" << ss[i];
 		// combine into comma delimited list

@@ -2946,7 +2946,7 @@ int CvPlayerCulture::GetTourismModifierTechnologyT100(const PlayerTypes eOtherPl
 	for (pLoopCity = GET_PLAYER(eOtherPlayer).firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = GET_PLAYER(eOtherPlayer).nextCity(&iLoopCity))
 	{
 		// for each type of building
-		for (uint jJ = 0; jJ < GC.getNumBuildingClassInfos(); jJ++)
+		for (int jJ = 0; jJ < GC.getNumBuildingClassInfos(); jJ++)
 		{
 			// if type exists
 			BuildingClassTypes eBuildingClass = (BuildingClassTypes)jJ;
@@ -4851,7 +4851,7 @@ CvString CvCityCulture::GetTourismTooltip()
 		szRtnValue += GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_FAITH_BUILDINGS", iSacredSitesTourism);
 
 
-		for (uint jJ = 0; jJ < GC.getNumBuildingClassInfos(); jJ++)
+		for (int jJ = 0; jJ < GC.getNumBuildingClassInfos(); jJ++)
 		{
 			BuildingClassTypes eBuildingClass = (BuildingClassTypes)jJ;
 

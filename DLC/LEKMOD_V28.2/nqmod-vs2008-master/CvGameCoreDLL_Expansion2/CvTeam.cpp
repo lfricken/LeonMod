@@ -4649,7 +4649,7 @@ void CvTeam::changeProjectCount(ProjectTypes eIndex, int iChange)
 				if (pkVictoryInfo != NULL)
 				{
 					bool achievedThreshold = true;
-					for (uint iK = 0; iK < GC.getNumProjectInfos(); iK++)
+					for (int iK = 0; iK < GC.getNumProjectInfos(); iK++)
 					{
 						const ProjectTypes eProject = static_cast<ProjectTypes>(iK);
 						CvProjectEntry* pkProjectInfo = GC.getProjectInfo(eProject);
@@ -5529,9 +5529,6 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 			GetTeamTechs()->SetHasTech(eIndex, bNewValue);
 
 			// Tech progress affects city strength, so update
-			CvCity* pLoopCity;
-			int iLoop;
-
 			NotificationTypes eNotificationType = NO_NOTIFICATION_TYPE;
 
 			const bool bIsActiveTeam = (GetID() == GC.getGame().getActiveTeam());
@@ -5990,7 +5987,6 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 					}
 
 					// Cities demand a Resource that's been newly revealed
-					CvCity* pLoopCity;
 					int iLoop;
 					PlayerTypes eLoopPlayer;
 					ResourceTypes eResourceDemanded;
@@ -6003,7 +5999,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 						if(GET_PLAYER(eLoopPlayer).getTeam() == GetID() && eLoopPlayer == GC.getGame().getActivePlayer())
 						{
 							// Look at all Cities
-							for(pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iLoop))
+							for(const CvCity* pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iLoop))
 							{
 								eResourceDemanded = pLoopCity->GetResourceDemanded();
 

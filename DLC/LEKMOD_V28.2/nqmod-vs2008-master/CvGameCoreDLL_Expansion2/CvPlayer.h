@@ -268,7 +268,7 @@ public:
 	// how much needed to achieve condition
 	int GetScientificInfluenceNeeded() const;
 
-	long long GetCompetitionHammersT100(const HammerCompetitionTypes eType) const;
+	T100 GetCompetitionHammersT100(const HammerCompetitionTypes eType) const;
 	void ChangeCompetitionHammersT100(const HammerCompetitionTypes eType, const long long iChangeT100);
 	// cost of iTH trade route in hammers (1 is first)
 	// already game speed adjusted

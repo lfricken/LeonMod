@@ -642,7 +642,7 @@ bool CvCityCitizens::IsAvoidGrowth() const
 			{
 				// Growing would not be covered by reduced unhappiness from population
 				bool bHasSpecialistSlot = false;
-				for (uint iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
+				for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
 				{
 					const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
 					CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);

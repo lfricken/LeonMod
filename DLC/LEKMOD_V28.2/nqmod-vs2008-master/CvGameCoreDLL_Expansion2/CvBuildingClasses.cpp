@@ -3724,7 +3724,7 @@ int CvCityBuildings::GetYieldFromGreatWorks(const YieldTypes eYield) const
 	int iRtnValue = 0;
 	const CvPlayer& rPlayer = GET_PLAYER(m_pCity->getOwner());
 	const CvGameCulture* pCulture = GC.getGame().GetGameCulture();
-	for (int i = 0; i < m_aBuildingGreatWork.size(); ++i)
+	for (int i = 0; i < (int)m_aBuildingGreatWork.size(); ++i)
 	{
 		const int iGreatWork = m_aBuildingGreatWork[i].iGreatWorkIndex;
 		const CvGreatWork* pWork = &pCulture->m_CurrentGreatWorks[iGreatWork];
@@ -3949,7 +3949,7 @@ int CvCityBuildings::GetCityStateTradeRouteGoldModifier() const
 {
 	int iRtnValue = 0;
 
-	for(uint iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+	for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 	{
 		BuildingClassTypes eLoopBuildingClass = (BuildingClassTypes) iI;
 		CvCivilizationInfo *pkCivInfo = GC.getCivilizationInfo(m_pCity->getCivilizationType());

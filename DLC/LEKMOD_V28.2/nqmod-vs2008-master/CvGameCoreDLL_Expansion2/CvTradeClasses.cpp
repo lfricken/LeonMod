@@ -2088,7 +2088,7 @@ void CvPlayerTrade::DoTurn(void)
 bool TradeConnection::isPathStillValid() const
 {
 	// ignore the last tile, since it may be a city that we don't have open borders with
-	for (int i = 0; i < m_aPlotList.size() - 1; ++i)
+	for (int i = 0; i < (int)m_aPlotList.size() - 1; ++i)
 	{
 		// make sure is still valid for domain
 		const CvPlot* pPlot = GC.getMap().plot(m_aPlotList[i].m_iX, m_aPlotList[i].m_iY);
@@ -2819,7 +2819,7 @@ int CvPlayerTrade::GetNumTradeRoutesOriginatingFrom(const CvCity* const pCity) c
 	const int iCityY = pCity->getY();
 
 	const CvGameTrade* pTrade = GC.getGame().GetGameTrade();
-	for (int i = 0; i < pTrade->m_aTradeConnections.size(); i++)
+	for (int i = 0; i < (int)pTrade->m_aTradeConnections.size(); i++)
 	{
 		if (pTrade->IsTradeRouteIndexEmpty(i))
 			continue;
@@ -2842,7 +2842,7 @@ int CvPlayerTrade::GetTradeValuesAtCityTimes100(const CvCity *const pCity, Yield
 	const int iCityY = pCity->getY();
 
 	const CvGameTrade* pTrade = GC.getGame().GetGameTrade();
-	for (int i = 0; i < pTrade->m_aTradeConnections.size(); i++)
+	for (int i = 0; i < (int)pTrade->m_aTradeConnections.size(); i++)
 	{
 		if (pTrade->IsTradeRouteIndexEmpty(i))
 			continue;
@@ -2872,7 +2872,7 @@ int CvPlayerTrade::GetAllTradeValueTimes100(YieldTypes eYield) const
 {
 	const CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 	int iTotal = 0;
-	for (int i = 0; i < pTrade->m_aTradeConnections.size(); i++)
+	for (int i = 0; i < (int)pTrade->m_aTradeConnections.size(); i++)
 	{
 		if (pTrade->IsTradeRouteIndexEmpty(i))
 			continue;
@@ -2897,7 +2897,7 @@ int CvPlayerTrade::GetAllTradeValueFromPlayerTimes100(YieldTypes eYield, PlayerT
 	const CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 	int iTotal = 0;
 
-	for (int i = 0; i < pTrade->m_aTradeConnections.size(); i++)
+	for (int i = 0; i < (int)pTrade->m_aTradeConnections.size(); i++)
 	{
 		if (pTrade->IsTradeRouteIndexEmpty(i))
 			continue;

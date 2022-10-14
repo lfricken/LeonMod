@@ -3723,7 +3723,7 @@ bool CvPlayerPolicies::CanAdoptPolicy(PolicyTypes eIndex, bool bIgnoreCost) cons
 	//}
 
 	// Disabled by another Policy?
-	for (uint iPolicyLoop = 0; iPolicyLoop < GetPolicies()->GetNumPolicies(); iPolicyLoop++)
+	for (int iPolicyLoop = 0; iPolicyLoop < GetPolicies()->GetNumPolicies(); iPolicyLoop++)
 	{
 		const PolicyTypes eDisablePolicy =static_cast<PolicyTypes>(iPolicyLoop);
 

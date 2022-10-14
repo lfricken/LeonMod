@@ -3527,7 +3527,7 @@ int CvPlot::GetAircraftCapacity() const
 
 		// units
 		const vector<const CvUnit*> units = getAllUnitsConst();
-		for (int i = 0; i < units.size(); ++i)
+		for (int i = 0; i < (int)units.size(); ++i)
 		{
 			const CvUnit* unit = units[i];
 			if (unit)

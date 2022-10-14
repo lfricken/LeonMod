@@ -53,9 +53,6 @@ std::string toString(const YieldTypes& v)
 		return std::string("INVALID ENUM VALUE");
 		break;
 	}
-#ifndef AUI_WARNING_FIXES
-	return std::string("INVALID ENUM VALUE");
-#endif
 }
 
 

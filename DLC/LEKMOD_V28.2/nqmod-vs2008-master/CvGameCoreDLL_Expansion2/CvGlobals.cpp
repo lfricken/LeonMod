@@ -54,8 +54,8 @@ T100 iSquareRoot(const long long valT100)
 {
 	// Base cases
 	if (valT100 == 0 || valT100 == 100)
-		return valT100;
-	if (valT100 > 2147000000) // multiplying this by itself will overflow bounds of long long
+		return (T100)valT100;
+	if (valT100 > 2147000000ll) // multiplying this by itself will overflow bounds of long long
 		throw std::invalid_argument("iSquareRoot must recieve value lower than 2^32 2147000000: " + valT100);
 
 	long long lastLowGuess = 100;
@@ -69,7 +69,7 @@ T100 iSquareRoot(const long long valT100)
 
 	for (int i = 0; i < 10; ++i) // num iterations
 	{
-		int result = (guess * guess) / 100;
+		long long result = (guess * guess) / 100;
 		if (result < valT100) // result too low, guess higher
 		{
 			lastLowGuess = guess;
@@ -81,25 +81,25 @@ T100 iSquareRoot(const long long valT100)
 			guess = (guess + lastLowGuess) / 2;
 		}
 	}
-	return guess;
+	return (T100)guess;
 }
 
 
 T100 iPow1p5(const long long valT100)
 {
-	T100 halfPow = iSquareRoot(valT100);
-	T100 result = (valT100 * halfPow) / 100;
-	return result;
+	long long halfPow = iSquareRoot(valT100);
+	long long result = (valT100 * halfPow) / 100;
+	return (T100)result;
 }
 T100 iPow(const long long valT100, int iPower)
 {
-	T100 result = 100;
+	long long result = 100;
 	for (int i = 0; i < iPower; ++i)
 	{
 		result *= valT100;
 		result /= 100;
 	}
-	return result;
+	return (T100)result;
 }
 
 template <class T>

@@ -145,7 +145,8 @@ struct CompetitionDelegates;
 // verified safe to use (multiplayer should not use decimal due to undefined cpu rounding)
 #define decimal float // safe decimal
 #define bigdecimal double // safe decimal
-#define f100 100.0 // safe decimal
+#define f100 100.0f // safe decimal
+#define d100 100.0 // safe decimal
 
 
 
@@ -258,7 +259,7 @@ public:
 	// 52 -> 1.52
 	decimal toFactor(const int percentChangeT100) // safe decimal
 	{
-		return 1.0 + ((decimal)percentChangeT100 / 100.0); // safe decimal
+		return 1.0f + ((decimal)percentChangeT100 / 100.0f); // safe decimal
 	}
 	// adds to the stringstream a formatted yield
 	void tooltipAdd(stringstream* ss, const YieldTypes eYield, const int iAmount, const bool includeText = true, const bool includeIcon = true);

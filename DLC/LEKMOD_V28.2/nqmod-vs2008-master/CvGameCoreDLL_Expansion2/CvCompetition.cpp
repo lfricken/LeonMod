@@ -222,7 +222,7 @@ struct ScienceHammerCompetition : CompetitionDelegates
 	}
 	virtual int EvalScore(const CvPlayer& player) const
 	{
-		int iScore = player.GetCompetitionHammersT100(HAMMERCOMPETITION_SCIENTIFIC_INSIGHT) / 100;
+		int iScore = (int)(player.GetCompetitionHammersT100(HAMMERCOMPETITION_SCIENTIFIC_INSIGHT) / 100);
 		return iScore;
 	}
 	virtual int Reward(const YieldTypes eType) const
@@ -291,7 +291,7 @@ struct CulturalCompetition : CompetitionDelegates
 	}
 	virtual int EvalScore(const CvPlayer& player) const
 	{
-		int iScore = player.GetCompetitionHammersT100(HAMMERCOMPETITION_CULTURAL_INFLUENCE) / 100;
+		int iScore = (int)(player.GetCompetitionHammersT100(HAMMERCOMPETITION_CULTURAL_INFLUENCE) / 100);
 		return iScore;
 	}
 	virtual int Reward(const YieldTypes eType) const
@@ -316,7 +316,7 @@ void CvGlobals::initCompetitions()
 }
 void CvGlobals::uninitCompetitions()
 {
-	for (int i = 0; i < GetDelegatesFor.size(); ++i)
+	for (uint i = 0; i < GetDelegatesFor.size(); ++i)
 	{
 		delete GetDelegatesFor[i];
 	}
@@ -373,7 +373,7 @@ CvCompetition::CvCompetition(const int iNumPlayers, const MiniCompetitionTypes e
 }
 PlayerTypes CvCompetition::GetPlayerOfRank(const int iRank) const
 {
-	if (iRank < 0 || iRank >= m_entries.size())
+	if (iRank < 0 || iRank >= (int)m_entries.size())
 		return NO_PLAYER;
 
 	if (m_entries[iRank].iScore == INVALID_SCORE) // no score is always last place
@@ -384,7 +384,7 @@ PlayerTypes CvCompetition::GetPlayerOfRank(const int iRank) const
 int CvCompetition::GetRankOfPlayer(const PlayerTypes ePlayer) const
 {
 	int result = m_entries.size() - 1;
-	for (int i = 0; i < m_entries.size(); ++i)
+	for (int i = 0; i < (int)m_entries.size(); ++i)
 	{
 		if (m_entries[i].ePlayer == ePlayer) // found player entry
 		{
@@ -400,7 +400,7 @@ int CvCompetition::GetRankOfPlayer(const PlayerTypes ePlayer) const
 int CvCompetition::GetScoreOfPlayer(const PlayerTypes ePlayer) const
 {
 	int result = 0;
-	for (int i = 0; i < m_entries.size(); ++i)
+	for (int i = 0; i < (int)m_entries.size(); ++i)
 	{
 		if (m_entries[i].ePlayer == ePlayer) // found player entry
 		{
@@ -415,7 +415,7 @@ bool compareEntries(const CvCompetitionEntry& lhs, const CvCompetitionEntry& rhs
 	if (lhs.iScore == rhs.iScore) // randomly determine a tie
 	{
 		unsigned long seed = 0;
-		seed += 98456213594 * lhs.eType;
+		seed += 3456213594 * lhs.eType;
 		seed += 98615 * lhs.iScore;
 		seed += 321891373 * lhs.ePlayer;
 		seed += 96429789 * rhs.ePlayer;
@@ -463,7 +463,7 @@ int CvCompetition::GetReward(const YieldTypes eType, const PlayerTypes ePlayer) 
 void CvCompetition::UpdateAndSort()
 {
 	// update
-	for (int i = 0; i < m_entries.size(); ++i)
+	for (int i = 0; i < (int)m_entries.size(); ++i)
 	{
 		const CvPlayer& player = GET_PLAYER(m_entries[i].ePlayer);
 		int score = 0; // no score for dead or minor civs
