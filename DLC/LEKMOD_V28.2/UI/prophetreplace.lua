@@ -28,11 +28,11 @@ function GetRandom(lower, upper)
         return Game.Rand((upper + 1) - lower, "") + lower
  end
 --Game_GetRound (from JFD)
-function Game_GetRound(num, idp)
-	local mult = 10^(idp or 0)
-	return g_MathFloor(num * mult + 0.5) / mult
+function Game_GetRoundedDivision(num,div)
+	num = g_MathFloor(num);
+	return (((num * 100) // div) + 50) // 100;
 end
-local g_GetRound = Game_GetRound
+local g_GetRoundDiv = Game_GetRoundedDivision
 
 
 --IscivActive (from JFD)
@@ -310,7 +310,7 @@ function JFD_GetGoldFromDomesticTradeRoutes(player)
 		end
 		
 		for row in GameInfo.Buildings() do
-			local seaGoldBonus = (row.TradeRouteSeaGoldBonus / 100)
+			local seaGoldBonus = (row.TradeRouteSeaGoldBonus // 100)
 			local recipientBonus = row.TradeRouteRecipientBonus
 			if seaGoldBonus > 0 or recipientBonus > 0 then
 				if originatingCity:IsHasBuilding(row.ID) then
@@ -320,7 +320,7 @@ function JFD_GetGoldFromDomesticTradeRoutes(player)
 		end
 	end
 	
-	return (numDomesticTRSToConqueredCities * goldFromDomesticTRS) + (goldFromTradeBuildings / 2)
+	return (numDomesticTRSToConqueredCities * goldFromDomesticTRS) + (goldFromTradeBuildings // 2)
 end
 
 
@@ -430,7 +430,7 @@ function CubaCultureYoink(iPlayer) --- Fixed my original broken code by LeeS(Mas
                     if (pOtPlayer ~= nil) and pOtPlayer:IsEverAlive() and pOtPlayer:IsAlive() and (pOtPlayer:GetCapitalCity() ~= nil) and Teams[player:GetTeam()]:IsHasMet(pOtPlayer:GetTeam()) then
                         print("has met a civ, begin stealing their culture...")
                         local otherCapital = pOtPlayer:GetCapitalCity()
-                        iNumToSet = (iNumToSet +  math.floor(otherCapital:GetBaseJONSCulturePerTurn() * .125) )
+                        iNumToSet = (iNumToSet + (otherCapital:GetBaseJONSCulturePerTurn() // 8));
                     end
                 end
             end
@@ -502,11 +502,11 @@ end
 local function JFD_BoliviaBelzu_PlayerDoTurn(playerID)
 	
 	local player = Players[playerID]
---COLORADO -- From JDF/Leugi
+--COLORADO -- From JDF Leugi
 	local unitColoradoID			= GameInfoTypes["UNIT_COLORADO"]
 	local unitColoradoStrengthBase	= GameInfo.Units[unitColoradoID].Combat
 	local numHappiness = player:GetExcessHappiness()
-	local numBonusCombatStrength = g_MathMin(g_GetRound(numHappiness/5))
+	local numBonusCombatStrength = g_GetRoundDiv(numHappiness,5);
 	local unitColoradoStrength = 40
 	if (numBonusCombatStrength > 0 ) then
 		unitColoradoStrength = unitColoradoStrengthBase + (numBonusCombatStrength * 2)
@@ -985,7 +985,7 @@ local player = Players[ownerId]
 	local unit = player:GetUnitByID(unitId)
 	local xp = unit:GetExperience()
 	local needed = unit:ExperienceNeeded()
-	local faith = math.ceil(needed / 3)
+	local faith = (((needed * 100) // 3) + 99) // 100; --+99 is ceiling
 	player:ChangeFaith(faith)
 	if player:IsHuman() and Game.GetActivePlayer() == ownerId then
 		local hex = ToHexFromGrid(Vector2(unit:GetX(), unit:GetY()))
@@ -1442,7 +1442,7 @@ end
 
 -- Akkad_Laputtu
 -- Author: Tomatekh
--- DateCreated: 6/22/2015 6:11:46 PM
+-- DateCreated: 6 22 2015 6:11:46 PM
 --------------------------------------------------------------
 
 local Laputtu = GameInfoTypes.UNIT_LITE_AKKAD_LAPUTTU;
@@ -1573,7 +1573,7 @@ end
 
 -- ProphetReplacer
 -- Author: LastSword
--- DateCreated: 8/24/2013 2:56:18 PM
+-- DateCreated: 8 24 2013 2:56:18 PM
 --------------------------------------------------------------
 --[[
 local sUnitType = "UNIT_PROPHET"
@@ -1602,7 +1602,7 @@ Events.SerialEventUnitCreated.Add(TibetOverride)
 
 -- krivis
 -- Author: lek10
--- DateCreated: 4/25/2018 8:23:15 PM
+-- DateCreated: 4 25 2018 8:23:15 PM
 --------------------------------------------------------------
 --[[
 local sUnitType = "UNIT_PROPHET"
@@ -1631,7 +1631,7 @@ Events.SerialEventUnitCreated.Add(KriviOverride)
 --[[
 -- mpiambina
 -- Author: lek10
--- DateCreated: 11/21/2018 5:29:36 PM
+-- DateCreated: 11 21 2018 5:29:36 PM
 --------------------------------------------------------------
 local sUnitType = "UNIT_INQUISITOR"
 local iProphetID = GameInfo.Units.UNIT_INQUISITOR.ID
@@ -1658,9 +1658,9 @@ Events.SerialEventUnitCreated.Add(MadaOverride)
 
 
 
---[[--////--------------------------------------------------
+--[[----------------------------------------------------
 				--- NABATEA WORKER ---
-----////--------------------------------------------------
+------------------------------------------------------
 
 local OldUnitType = "UNIT_WORKER"
 local oldUnitID = GameInfo.Units.UNIT_WORKER.ID
@@ -1712,9 +1712,9 @@ Events.SerialEventUnitCreated.Add(NabaTeaWorkerROverride)
 --]]
 
 --[[
-----////--------------------------------------------------
+------------------------------------------------------
 				--- ARGENTINA WORKER ---
-----////--------------------------------------------------
+------------------------------------------------------
 
 local OldUnitType = "UNIT_WORKER"
 local oldUnitID = GameInfo.Units.UNIT_WORKER.ID
@@ -1765,9 +1765,9 @@ Events.SerialEventUnitCreated.Add(ArgentinaWorkerROverride)
 --]]
 
 --[[
-----////--------------------------------------------------
+------------------------------------------------------
 				--- CHILE WORKBOAT ---
-----////--------------------------------------------------
+------------------------------------------------------
 
 local OldUnitType = "UNIT_WORKBOAT"
 local oldUnitID = GameInfo.Units.UNIT_WORKBOAT.ID
@@ -1816,9 +1816,9 @@ end
 Events.SerialEventUnitCreated.Add(ChileWorkBoatROverride)
 
 
-----////--------------------------------------------------
+------------------------------------------------------
 				--- CHILE ADMIRAL ---
-----////--------------------------------------------------
+------------------------------------------------------
 
 local OldUnitType = "UNIT_GREAT_ADMIRAL"
 local oldUnitID = GameInfo.Units.UNIT_GREAT_ADMIRAL.ID
@@ -1866,9 +1866,9 @@ end
 Events.SerialEventUnitCreated.Add(ChileAdmiralROverride)
 --]]
 
-----////--------------------------------------------------
+------------------------------------------------------
 
-----////--------------------------------------------------
+------------------------------------------------------
 
 --local OldUnitType = "UNIT_WORKER"
 --local oldUnitID = GameInfo.Units.UNIT_WORKER.ID
@@ -1899,7 +1899,7 @@ Events.SerialEventUnitCreated.Add(ChileAdmiralROverride)
 -- On Policy Adopted stuff (uncludes UA's , easier for me to copy pasta stuff <3)
 ---------------
 
--- Notes, do realize that this is coded keeping policy requirements/paths in mind, so if you change any of the policy paths in the future, if anyone besides me is doing policies stuff, DONT FORGET TO CHECK THIS! thnx! ~EAP
+-- Notes, do realize that this is coded keeping policy requirements and paths in mind, so if you change any of the policy paths in the future, if anyone besides me is doing policies stuff, DONT FORGET TO CHECK THIS! thnx! ~EAP
 
 -- Italy ua
 --[[
@@ -2152,7 +2152,7 @@ end
 
 -- PietyChanges
 -- Author: Cirra
--- DateCreated: 10/17/2019 1:22:18 AM
+-- DateCreated: 10 17 2019 1:22:18 AM
 --------------------------------------------------------------
 
 function Piety_OnPolicyAdopted(playerID, policyID)
@@ -2202,7 +2202,7 @@ GameEvents.PlayerAdoptPolicy.Add(Piety_OnPolicyAdopted);
 
 -- HonorChanges
 -- Author: Cirra
--- DateCreated: 7/27/2019 1:22:18 AM
+-- DateCreated: 7 27 2019 1:22:18 AM
 --------------------------------------------------------------
 
 function Honor_OnPolicyAdopted(playerID, policyID)

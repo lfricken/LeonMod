@@ -1,6 +1,6 @@
 -- T1_CovertAction
 -- Author: Fruitstrike
--- DateCreated: 2/14/2016 9:59:48 PM
+-- DateCreated: 2 14 2016 9:59:48 PM
 --------------------------------------------------------------
 
 function NQMP_UpdateT1CovertAction(iPlayer)

@@ -1,6 +1,6 @@
 -- AestheticsChanges
 -- Author: Fruitstrike
--- DateCreated: 4/24/2015 1:22:18 AM
+-- DateCreated: 4 24 2015 1:22:18 AM
 --------------------------------------------------------------
 
 function NQMP_Aesthetics_OnPolicyAdopted(playerID, policyID)

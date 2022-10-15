@@ -1,6 +1,6 @@
 -- 7_CommerceChanges
 -- Author: Fruitstrike
--- DateCreated: 5/4/2015 10:37:07 PM
+-- DateCreated: 5 4 2015 10:37:07 PM
 --------------------------------------------------------------
 
 function NQMP_UpdateGrandBazaar(iPlayer)

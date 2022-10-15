@@ -1,6 +1,6 @@
 -- PatronageChanges
 -- Author: Fruitstrike
--- DateCreated: 4/28/2015 12:14:46 AM
+-- DateCreated: 4 28 2015 12:14:46 AM
 --------------------------------------------------------------
 
 function NQMP_UpdateConsulates(iPlayer)

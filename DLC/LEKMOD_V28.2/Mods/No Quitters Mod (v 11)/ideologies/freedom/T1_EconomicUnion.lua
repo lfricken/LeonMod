@@ -1,6 +1,6 @@
 -- T1_EconomicUnion
 -- Author: Fruitstrike
--- DateCreated: 2/14/2016 8:45:43 PM
+-- DateCreated: 2 14 2016 8:45:43 PM
 --------------------------------------------------------------
 
 function addT1EconomicUnionBuilding(player, iX, iY)
