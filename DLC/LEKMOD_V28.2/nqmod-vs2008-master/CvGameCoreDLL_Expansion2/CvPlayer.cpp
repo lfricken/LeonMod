@@ -4766,7 +4766,7 @@ void CvPlayer::doTurnPostDiplomacy()
 	// Culture
 
 	// Prevent exploits in turn timed MP games - no accumulation of culture if player hasn't picked yet
-	GetCulture()->SetLastTurnLifetimeCulture(GetJONSCultureEverGenerated());
+	GetCulture()->SetLastTurnVictoryCultureT100(GetVictoryCultureEverGeneratedT100());
 #ifdef NQM_PRUNING
 	if (!kGame.isOption(GAMEOPTION_END_TURN_TIMER_ENABLED) || (getJONSCulture() < getNextPolicyCost()))
 	{
@@ -10904,6 +10904,24 @@ int CvPlayer::GetJONSCultureEverGeneratedTimes100() const
 {
 	return m_iJONSCultureEverGeneratedT100;
 }
+int CvPlayer::GetVictoryCultureEverGeneratedT100() const
+{
+	// count average culture for living players
+	int totalCultureGeneratedT100 = 0;
+	int numValidPlayers = 0;
+	for (int i = 0; i < MAX_PLAYERS; ++i)
+	{
+		const CvPlayer& player = GET_PLAYER((PlayerTypes)i);
+		if (player.isAlive() && !player.isMinorCiv() && !player.isBarbarian())
+		{
+			numValidPlayers++;
+			totalCultureGeneratedT100 += player.GetJONSCultureEverGeneratedTimes100();
+		}
+	}
+	const int averageCultureT100 = (totalCultureGeneratedT100 / numValidPlayers);
+
+	return (GetJONSCultureEverGeneratedTimes100() / 2) + (averageCultureT100 / 2);
+}
 
 
 void CvPlayer::SetJONSCultureEverGeneratedTimes100(int iNewValue)
@@ -10943,71 +10961,6 @@ void CvPlayer::SetJONSCultureEverGenerated(int iNewValue)
 void CvPlayer::ChangeJONSCultureEverGenerated(int iChange)
 {
 	ChangeJONSCultureEverGeneratedTimes100(iChange * 100);
-}
-#else
-//	--------------------------------------------------------------------------------
-int CvPlayer::getJONSCulture() const
-{
-	// City States can't pick Policies, sorry!
-	if(isMinorCiv())
-		return 0;
-
-	if(GC.getGame().isOption(GAMEOPTION_NO_POLICIES))
-	{
-		return 0;
-	}
-
-	return m_iJONSCulture;
-}
-
-
-//	--------------------------------------------------------------------------------
-void CvPlayer::setJONSCulture(int iNewValue)
-{
-	if(getJONSCulture() != iNewValue)
-	{
-		// Add to the total we've ever had
-		if(iNewValue > m_iJONSCulture)
-		{
-			ChangeJONSCultureEverGenerated(iNewValue - m_iJONSCulture);
-		}
-
-		m_iJONSCulture = iNewValue;
-
-		if(GC.getGame().getActivePlayer() == GetID())
-		{
-			GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
-		}
-	}
-}
-
-//	--------------------------------------------------------------------------------
-void CvPlayer::changeJONSCulture(int iChange)
-{
-	setJONSCulture(getJONSCulture() + iChange);
-}
-
-
-//	--------------------------------------------------------------------------------
-int CvPlayer::GetJONSCultureEverGenerated() const
-{
-	return m_iJONSCultureEverGenerated;
-}
-
-
-//	--------------------------------------------------------------------------------
-void CvPlayer::SetJONSCultureEverGenerated(int iNewValue)
-{
-	if(GetJONSCultureEverGenerated() != iNewValue)
-	{
-		m_iJONSCultureEverGenerated = iNewValue;
-	}
-}
-
-//	--------------------------------------------------------------------------------
-void CvPlayer::ChangeJONSCultureEverGenerated(int iChange)
-{
-	SetJONSCultureEverGenerated(GetJONSCultureEverGenerated() + iChange);
 }
 #endif
 

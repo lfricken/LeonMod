@@ -243,8 +243,8 @@ public:
  
 	// Cultural Influence
 	void DoTurn();
-	int GetLastTurnLifetimeCulture() const;
-	void SetLastTurnLifetimeCulture(int iValue);
+	int GetLastTurnVictoryCultureT100() const;
+	void SetLastTurnVictoryCultureT100(int iValue);
 	int GetInfluenceOn(PlayerTypes ePlayer) const;
 	void ChangeInfluenceOn(PlayerTypes ePlayer, int iValue);
 	int GetLastTurnInfluenceOn(PlayerTypes ePlayer) const;

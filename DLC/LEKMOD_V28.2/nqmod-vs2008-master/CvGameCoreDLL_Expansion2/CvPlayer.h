@@ -482,6 +482,8 @@ public:
 	void changeJONSCultureTimes100(int iChange);
 
 	int GetJONSCultureEverGeneratedTimes100() const;
+	// for victory purposes, how much culture does this person have?
+	int GetVictoryCultureEverGeneratedT100() const;
 	void SetJONSCultureEverGeneratedTimes100(int iNewValue);
 	void ChangeJONSCultureEverGeneratedTimes100(int iChange);
 #endif

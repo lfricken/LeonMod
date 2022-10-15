@@ -2030,7 +2030,7 @@ void CvEconomicAI::DoReconState()
 	iStrategyWeight *= iNumLandPlotsWithAdjacentFog;
 	int iNumExplorerDivisor = iNumExploringUnits + /*1*/ GC.getAI_STRATEGY_EARLY_EXPLORATION_EXPLORERS_WEIGHT_DIVISOR();
 	iStrategyWeight /= (iNumExplorerDivisor * iNumExplorerDivisor);
-	iStrategyWeight /= (iSquareRoot(100 * iNumLandPlotsRevealed)) / 100;
+	iStrategyWeight /= (iSquareRoot(100ll * iNumLandPlotsRevealed)) / 100;
 
 	if(iStrategyWeight > iWeightThreshold)
 	{
@@ -2108,7 +2108,7 @@ void CvEconomicAI::DoReconState()
 		iStrategyWeight *= iNumCoastalTilesWithAdjacentFog;
 		iNumExplorerDivisor = iNumExploringUnits + /*1*/ GC.getAI_STRATEGY_EARLY_EXPLORATION_EXPLORERS_WEIGHT_DIVISOR();
 		iStrategyWeight /= (iNumExplorerDivisor * iNumExplorerDivisor);
-		iStrategyWeight /= (iSquareRoot(100 * iNumCoastalTilesRevealed)) / 100;
+		iStrategyWeight /= (iSquareRoot(100ll * iNumCoastalTilesRevealed)) / 100;
 
 		if(iStrategyWeight > iWeightThreshold/* || iNumExploringUnits == 0 && iNumCoastalTilesWithAdjacentFog > 50*/)
 		{

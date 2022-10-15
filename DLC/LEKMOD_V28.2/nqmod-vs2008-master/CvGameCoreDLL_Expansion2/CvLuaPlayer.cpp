@@ -2316,7 +2316,7 @@ int CvLuaPlayer::lChangeJONSCultureTimes100(lua_State* L)
 }
 int CvLuaPlayer::lGetJONSCultureEverGeneratedTimes100(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::GetJONSCultureEverGeneratedTimes100);
+	return BasicLuaMethod(L, &CvPlayerAI::GetVictoryCultureEverGeneratedT100);
 }
 #endif
 //------------------------------------------------------------------------------
@@ -2435,7 +2435,7 @@ int CvLuaPlayer::lGetJONSCultureEverGenerated(lua_State* L)
 int CvLuaPlayer::lGetLastTurnLifetimeCulture(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	const int iResult = pkPlayer->GetCulture()->GetLastTurnLifetimeCulture();
+	const int iResult = pkPlayer->GetCulture()->GetLastTurnVictoryCultureT100();
 	lua_pushinteger(L, iResult);
 	return 1;
 }

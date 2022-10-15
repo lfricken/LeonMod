@@ -12,7 +12,8 @@ replace floats:
 
 
 
-
+found settle city
+CvCitySiteEvaluator::CanFound
 
 
 Descriptions of obscure behavior and functionality code locations:

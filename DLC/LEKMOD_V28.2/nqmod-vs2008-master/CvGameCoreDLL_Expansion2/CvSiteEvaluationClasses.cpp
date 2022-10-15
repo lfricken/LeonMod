@@ -55,7 +55,6 @@ void CvCitySiteEvaluator::Init()
 	m_iIncaMultiplier = 500; //fertility boost for hill tiles surrounded my mountains
 }
 
-/// Is it valid for this player to found a city here?
 bool CvCitySiteEvaluator::CanFound(const CvPlot* pPlot, const CvPlayer* pPlayer, bool bTestVisible) const
 {
 	CvAssert(pPlot);

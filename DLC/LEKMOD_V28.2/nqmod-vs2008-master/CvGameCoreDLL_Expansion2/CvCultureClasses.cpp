@@ -2580,13 +2580,13 @@ void CvPlayerCulture::DoTurn()
 }
 
 /// What was our total culture generated throughout the game last turn?
-int CvPlayerCulture::GetLastTurnLifetimeCulture() const
+int CvPlayerCulture::GetLastTurnVictoryCultureT100() const
 {
 	return m_iLastTurnLifetimeCulture;
 }
 
 /// Set our total culture generated throughout the game  - last turn's number
-void CvPlayerCulture::SetLastTurnLifetimeCulture(int iValue)
+void CvPlayerCulture::SetLastTurnVictoryCultureT100(int iValue)
 {
 	m_iLastTurnLifetimeCulture = iValue;
 }
@@ -3122,13 +3122,10 @@ T100 CvPlayerCulture::GetInfluencePercentT100(PlayerTypes ePlayer) const
 	CvTeam &kOtherTeam = GET_TEAM(kOtherPlayer.getTeam());
 	if (kOtherTeam.isHasMet(m_pPlayer->getTeam()))
 	{
-		int iInfluenceOn = GetInfluenceOn(ePlayer);
-		int iLifetimeCulture = kOtherPlayer.GetJONSCultureEverGenerated();
+		const int iInfluenceOn = GetInfluenceOn(ePlayer);
+		const int effectiveCulture = max(10, kOtherPlayer.GetVictoryCultureEverGeneratedT100());
 
-		if (iLifetimeCulture > 0)
-		{
-			iPercentT100 = (iInfluenceOn * 100) / iLifetimeCulture;
-		}
+		iPercentT100 = (iInfluenceOn * 100) / effectiveCulture;
 	}
 	return max((T100)0, iPercentT100);
 }
@@ -3177,11 +3174,11 @@ InfluenceLevelTypes CvPlayerCulture::GetInfluenceLevel(PlayerTypes ePlayer) cons
 }
 
 /// Current influence trend on this player
-InfluenceLevelTrend CvPlayerCulture::GetInfluenceTrend(PlayerTypes ePlayer) const
+InfluenceLevelTrend CvPlayerCulture::GetInfluenceTrend(PlayerTypes eOtherPlayer) const
 {
 	InfluenceLevelTrend eRtnValue = INFLUENCE_TREND_STATIC;
 
-	CvPlayer &kOtherPlayer = GET_PLAYER(ePlayer);
+	CvPlayer &otherPlayer = GET_PLAYER(eOtherPlayer);
 
 	// PctTurn1 = InfluenceT1 / LifetimeCultureT1
 	// PctTurn2 = InfluenceT2 / LifetimeCultureT2
@@ -3202,17 +3199,17 @@ InfluenceLevelTrend CvPlayerCulture::GetInfluenceTrend(PlayerTypes ePlayer) cons
 	int iLHS = GetInfluenceOn(ePlayer) * iOtherPlayerLastTurnLifetimeCulture;
 	int iRHS = GetLastTurnInfluenceOn(ePlayer) * iOtherPlayerThisTurnLifetimeCulture;
 #else
-	int iLHS = GetInfluenceOn(ePlayer) * kOtherPlayer.GetCulture()->GetLastTurnLifetimeCulture();
-	int iRHS = GetLastTurnInfluenceOn(ePlayer) * kOtherPlayer.GetJONSCultureEverGenerated();
+	long long iPrevPerc = ((long long)GetLastTurnInfluenceOn(eOtherPlayer) * 10000ll) / (long long)(otherPlayer.GetCulture()->GetLastTurnVictoryCultureT100() / 100);
+	long long iNewPerc = ((long long)GetInfluenceOn(eOtherPlayer) * 10000ll) / (long long)(otherPlayer.GetVictoryCultureEverGeneratedT100() / 100);
 #endif
 
-	if (kOtherPlayer.GetCulture()->GetLastTurnLifetimeCulture() > 0 && kOtherPlayer.GetJONSCultureEverGenerated() > 0)
+	if (otherPlayer.GetCulture()->GetLastTurnVictoryCultureT100() > 0 && otherPlayer.GetJONSCultureEverGeneratedTimes100() > 0)
 	{
-		if (iLHS > iRHS)
+		if (iNewPerc > iPrevPerc)
 		{
 			eRtnValue = INFLUENCE_TREND_RISING;
 		}
-		else if (iLHS < iRHS)
+		else if (iNewPerc < iPrevPerc)
 		{
 			eRtnValue = INFLUENCE_TREND_FALLING;
 		}
@@ -3238,15 +3235,12 @@ int CvPlayerCulture::GetTurnsToInfluential(PlayerTypes ePlayer) const
 #ifdef AUI_PLAYER_FIX_JONS_CULTURE_IS_T100
 		iInfluence *= 100;
 		iInflPerTurn *= 100;
-		int iCulture = kOtherPlayer.GetJONSCultureEverGeneratedTimes100();
+		int iCulture = kOtherPlayer.GetVictoryCultureEverGeneratedT100();
 		int iCultPerTurn = kOtherPlayer.GetTotalJONSCulturePerTurnTimes100();
-#else
-		int iCulture = kOtherPlayer.GetJONSCultureEverGenerated();
-		int iCultPerTurn = kOtherPlayer.GetTotalJONSCulturePerTurn();
 #endif
 
-		int iNumerator = (GC.getCULTURE_LEVEL_INFLUENTIAL() * iCulture / 100) -  iInfluence;
-		int iDivisor = iInflPerTurn - (GC.getCULTURE_LEVEL_INFLUENTIAL() * iCultPerTurn / 100);
+		int iNumerator = ((GC.getCULTURE_LEVEL_INFLUENTIAL() * iCulture) / 100) -  iInfluence;
+		int iDivisor = iInflPerTurn - ((GC.getCULTURE_LEVEL_INFLUENTIAL() * iCultPerTurn) / 100);
 
 		if (iDivisor > 0)
 		{
@@ -3314,14 +3308,7 @@ PlayerTypes CvPlayerCulture::GetCivLowestInfluence(bool bCheckOpenBorders) const
 		{
 			if (!bCheckOpenBorders || kTeam.IsAllowsOpenBordersToTeam(m_pPlayer->getTeam()))
 			{
-				int iInfluenceOn = GetInfluenceOn((PlayerTypes)iLoopPlayer);
-				int iLifetimeCulture = kPlayer.GetJONSCultureEverGenerated();
-				int iPercent = 0;
-
-				if (iLifetimeCulture > 0)
-				{
-					iPercent = iInfluenceOn * 100 / iLifetimeCulture;
-				}
+				const int iPercent = GetInfluencePercentT100((PlayerTypes)iLoopPlayer);
 
 				if (iPercent < iLowestPercent)
 				{

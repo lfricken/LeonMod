@@ -36,6 +36,7 @@ public:
 
 	virtual void Init();
 	virtual void ComputeFlavorMultipliers(CvPlayer* pPlayer);
+	// Is it valid for this player to found a city here?
 	virtual bool CanFound(const CvPlot* pPlot, const CvPlayer* pPlayer, bool bTestVisible) const;
 	virtual int PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldTypes eYield = NO_YIELD, bool bCoastOnly=true);
 	virtual int PlotFertilityValue(CvPlot* pPlot);

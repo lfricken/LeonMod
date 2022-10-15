@@ -4475,9 +4475,7 @@ int CvGlobals::getNumPolicyInfos()
 }
 int CvGlobals::getCULTURE_LEVEL_INFLUENTIAL() const
 {
-	// i do not know what 45 and 10 were supposed to be
-	// original was n + (45/100 - (vp / (decimal)10))
-	return m_iCULTURE_LEVEL_INFLUENTIAL + ((45 - ((GC.getGame().GetVpAdjustment() * 100) / 10)) / 100);
+	return m_iCULTURE_LEVEL_INFLUENTIAL - GC.getGame().GetVpAdjustment();
 }
 std::vector<CvPolicyEntry*>& CvGlobals::getPolicyInfo()
 {
