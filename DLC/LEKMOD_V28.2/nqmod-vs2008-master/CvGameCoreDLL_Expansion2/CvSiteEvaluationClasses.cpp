@@ -172,14 +172,14 @@ bool CvCitySiteEvaluator::CanFound(const CvPlot* pPlot, const CvPlayer* pPlayer,
 				{
 					if(pLoopPlot->isCity())
 					{
-						if(pLoopPlot->getLandmass() == pPlot->getLandmass())
-						{
-							return false;
-						}
-						else if(hexDistance(iDX, iDY) < iRange)  // one less for off shore
-						{
-							return false;
-						}
+						//if(pLoopPlot->getLandmass() == pPlot->getLandmass())
+						//{
+						return false;
+						//}
+						//else if(hexDistance(iDX, iDY) < iRange)  // one less for off shore
+						//{
+						//	return false;
+						//}
 					}
 				}
 			}
