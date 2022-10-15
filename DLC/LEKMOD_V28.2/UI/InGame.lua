@@ -586,8 +586,7 @@ function ShowRebaseRangeIndicator()
 	
 	print("iRange: " .. iRange);
 	
-	iRange = iRange * GameDefines.AIR_UNIT_REBASE_RANGE_MULTIPLIER;
-	iRange = iRange / 100;
+	iRange = iRange * GameDefines.AIR_UNIT_REBASE_RANGE_MULTIPLIER // 100;
 
 	print("iRange: " .. iRange);
 	

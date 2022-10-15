@@ -279,9 +279,8 @@ function UpdateDisplay()
 		if (player:GetTotalJONSCulturePerTurn() == 0) then
 			iTurns = "?";
 		else
-			iTurns = iCultureNeeded / player:GetTotalJONSCulturePerTurn();
+			iTurns = iCultureNeeded // player:GetTotalJONSCulturePerTurn();
 			iTurns = iTurns + 1;
-			iTurns = math.floor(iTurns);
 		end
     end
     szText = Locale.ConvertTextKey("TXT_KEY_NEXT_POLICY_TURN_LABEL", iTurns);

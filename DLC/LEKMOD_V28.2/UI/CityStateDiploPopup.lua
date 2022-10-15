@@ -318,7 +318,7 @@ function OnDisplay()
 		local thisY = pCapital:GetY();
 		
 		local iRange = GameDefines["MINOR_CIV_RESOURCE_SEARCH_RADIUS"]; --5
-		local iCloseRange = math.floor(iRange/2); --2
+		local iCloseRange = iRange // 2;
 		local tResourceList = {};
 		
 		for iDX = -iRange, iRange, 1 do
@@ -720,7 +720,7 @@ end
 Controls.PeaceButton:RegisterCallback( Mouse.eLClick, OnPeaceButtonClicked );
 
 ----------------------------------------------------------------
--- Stop/Start Unit Spawning
+-- Stop or Start Unit Spawning
 ----------------------------------------------------------------
 function OnStopStartSpawning()
     local pPlayer = Players[g_iMinorCivID];
@@ -997,8 +997,8 @@ Controls.ExitGiveButton:RegisterCallback( Mouse.eLClick, OnCloseGive );
 -- TAKE MENU
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
-local iBullyGoldInfluenceLost = (GameDefines["MINOR_FRIENDSHIP_DROP_BULLY_GOLD_SUCCESS"] / 100) * -1; -- Since XML value is times 100 for fidelity, and negative
-local iBullyUnitInfluenceLost = (GameDefines["MINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS"] / 100) * -1; -- Since XML value is times 100 for fidelity, and negative
+local iBullyGoldInfluenceLost = (GameDefines["MINOR_FRIENDSHIP_DROP_BULLY_GOLD_SUCCESS"] // 100) * -1; -- Since XML value is times 100 for fidelity, and negative
+local iBullyUnitInfluenceLost = (GameDefines["MINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS"] // 100) * -1; -- Since XML value is times 100 for fidelity, and negative
 local iBullyUnitMinimumPop = 3; --antonjs: todo: XML
 
 function PopulateTakeChoices()	
