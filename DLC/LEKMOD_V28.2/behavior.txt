@@ -1,8 +1,19 @@
 
 Any LUA functionality is screwed
+Assets\DLC\LEKMOD_V28.2\UI\prophetreplace.lua
+All lua files in Assets\DLC\LEKMOD_V28.2\Mods\
+
+
+
 replace floats:
 [0-9]f
 [e,E][+,-][0-9]
+
+
+
+
+
+
 
 Descriptions of obscure behavior and functionality code locations:
 
@@ -13,10 +24,8 @@ spy vision reveal radius
 ESPIONAGE_SURVEILLANCE_SIGHT_RANGE
 
 
-https://en.wikipedia.org/wiki/Halton_sequence
-Barb spawning and 
-
-Appart from initial spawn, 1/10th of missing units will respawn per turn
+Number of barbarians depends on size of map.
+Appart from initial spawn, 1/10th of missing units will respawn per turn.
 Barbarian Spawning uses halton sequence. Only 40% probability that a unit is able to spawn in borders.
 Barb will still spawn somewhere else. 
 CvBarbarians::DoSpawnBarbarianUnit
@@ -25,9 +34,10 @@ CvBarbarians::DoSpawnBarbarianUnit
 trade route and cargo ship comparitive modifiers, currently equal
 CvGameTrade::GetDomainModifierTimes100
 
+AI will no longer consider build priorities with number of turns left.
 CityStrategyAIHelpers::ReweightByTurnsLeft was trashed so AI will no longer respect this.
 
-Unit maintenance increases exponentially
+Unit maintenance increases exponentially.
 CvTreasury::CalculateUnitCost
 
 
@@ -36,12 +46,11 @@ LEVEL1_POPULATION_DEATH_BASE is the start population percentage a nuke may consi
 NukeModifier on a building needs to be negative to reduce population loss.
 
 
-Tied world project contributions both win rewards.
+Tying score for world project contributions can both win rewards.
 CvVotingClasses::GetMemberContributionTier
 
 
-DefensePerCitizen
-
+DefensePerCitizen Boosts city defense per population.
 
 Player must secure MORE than DIPLO_VICTORY_DEFAULT_VOTE_PERCENT of CURRENTLY possible votes.
 Dead/Bought civs do not count for votes.
