@@ -30,6 +30,36 @@ local kiRevokedProtection = 7;
 local m_iLastAction = kiNoAction;
 local m_iPendingAction = kiNoAction; -- For bullying dialog popups
 
+-- performs a safe integer division and rounds down
+function IntDiv(a, denominator)
+	a = math.floor(a);
+	denominator = math.floor(denominator);
+	local remainder = a % denominator;
+	local numerator = a - remainder;
+	return numerator / denominator;
+end
+-- performs an safe integer division and rounds from half
+function IntDivRound(a, denominator)
+	local result = IntDiv(a, denominator);
+	local remainder = a % denominator;
+	if (remainder * 2 >= denominator) then -- more than half way to next value?
+		result = result + 1;
+	end
+	return result;
+end
+-- performs a safe integer division and rounds up
+function IntDivCeil(a, denominator) -- 7, 3
+	a = math.floor(a);
+	denominator = math.floor(denominator);
+	if (denominator <= 1) then
+		return a;
+	end
+
+	local numerator = a + (denominator - 1); -- 7 + 2 = 9
+	local remainder = numerator % denominator; -- no remainder
+	numerator = numerator - remainder; -- 9 - 0 = 9
+	return numerator / denominator; -- 9 / 3 = 3
+end
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 -- HANDLERS AND HELPERS
@@ -318,7 +348,7 @@ function OnDisplay()
 		local thisY = pCapital:GetY();
 		
 		local iRange = GameDefines["MINOR_CIV_RESOURCE_SEARCH_RADIUS"]; --5
-		local iCloseRange = iRange // 2;
+		local iCloseRange = IntDiv(iRange, 2);
 		local tResourceList = {};
 		
 		for iDX = -iRange, iRange, 1 do
@@ -997,8 +1027,8 @@ Controls.ExitGiveButton:RegisterCallback( Mouse.eLClick, OnCloseGive );
 -- TAKE MENU
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
-local iBullyGoldInfluenceLost = (GameDefines["MINOR_FRIENDSHIP_DROP_BULLY_GOLD_SUCCESS"] // 100) * -1; -- Since XML value is times 100 for fidelity, and negative
-local iBullyUnitInfluenceLost = (GameDefines["MINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS"] // 100) * -1; -- Since XML value is times 100 for fidelity, and negative
+local iBullyGoldInfluenceLost = IntDiv(GameDefines["MINOR_FRIENDSHIP_DROP_BULLY_GOLD_SUCCESS"], 100) * -1; -- Since XML value is times 100 for fidelity, and negative
+local iBullyUnitInfluenceLost = IntDiv(GameDefines["MINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS"], 100) * -1; -- Since XML value is times 100 for fidelity, and negative
 local iBullyUnitMinimumPop = 3; --antonjs: todo: XML
 
 function PopulateTakeChoices()	

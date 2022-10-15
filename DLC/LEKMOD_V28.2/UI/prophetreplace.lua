@@ -23,17 +23,40 @@ include("FLuaVector.lua")
 --=================================================================================================================
 --=================================================================================================================
 
+-- performs a safe integer division and rounds down
+function IntDiv(a, denominator)
+	a = math.floor(a);
+	denominator = math.floor(denominator);
+	local remainder = a % denominator;
+	local numerator = a - remainder;
+	return numerator / denominator;
+end
+-- performs an safe integer division and rounds from half
+function IntDivRound(a, denominator)
+	local result = IntDiv(a, denominator);
+	local remainder = a % denominator;
+	if (remainder * 2 >= denominator) then -- more than half way to next value?
+		result = result + 1;
+	end
+	return result;
+end
+-- performs a safe integer division and rounds up
+function IntDivCeil(a, denominator) -- 7, 3
+	a = math.floor(a);
+	denominator = math.floor(denominator);
+	if (denominator <= 1) then
+		return a;
+	end
+
+	local numerator = a + (denominator - 1); -- 7 + 2 = 9
+	local remainder = numerator % denominator; -- no remainder
+	numerator = numerator - remainder; -- 9 - 0 = 9
+	return numerator / denominator; -- 9 / 3 = 3
+end
 -- GetRandom number
 function GetRandom(lower, upper)
         return Game.Rand((upper + 1) - lower, "") + lower
  end
---Game_GetRound (from JFD)
-function Game_GetRoundedDivision(num,div)
-	num = g_MathFloor(num);
-	return (((num * 100) // div) + 50) // 100;
-end
-local g_GetRoundDiv = Game_GetRoundedDivision
-
 
 --IscivActive (from JFD)
 local iPracticalNumCivs = (GameDefines.MAX_MAJOR_CIVS - 1)
@@ -310,7 +333,7 @@ function JFD_GetGoldFromDomesticTradeRoutes(player)
 		end
 		
 		for row in GameInfo.Buildings() do
-			local seaGoldBonus = (row.TradeRouteSeaGoldBonus // 100)
+			local seaGoldBonus = IntDiv(row.TradeRouteSeaGoldBonus, 100)
 			local recipientBonus = row.TradeRouteRecipientBonus
 			if seaGoldBonus > 0 or recipientBonus > 0 then
 				if originatingCity:IsHasBuilding(row.ID) then
@@ -320,7 +343,7 @@ function JFD_GetGoldFromDomesticTradeRoutes(player)
 		end
 	end
 	
-	return (numDomesticTRSToConqueredCities * goldFromDomesticTRS) + (goldFromTradeBuildings // 2)
+	return (numDomesticTRSToConqueredCities * goldFromDomesticTRS) + IntDiv(goldFromTradeBuildings, 2)
 end
 
 
@@ -430,7 +453,7 @@ function CubaCultureYoink(iPlayer) --- Fixed my original broken code by LeeS(Mas
                     if (pOtPlayer ~= nil) and pOtPlayer:IsEverAlive() and pOtPlayer:IsAlive() and (pOtPlayer:GetCapitalCity() ~= nil) and Teams[player:GetTeam()]:IsHasMet(pOtPlayer:GetTeam()) then
                         print("has met a civ, begin stealing their culture...")
                         local otherCapital = pOtPlayer:GetCapitalCity()
-                        iNumToSet = (iNumToSet + (otherCapital:GetBaseJONSCulturePerTurn() // 8));
+                        iNumToSet = (iNumToSet + IntDiv(otherCapital:GetBaseJONSCulturePerTurn(), 8));
                     end
                 end
             end
@@ -506,7 +529,7 @@ local function JFD_BoliviaBelzu_PlayerDoTurn(playerID)
 	local unitColoradoID			= GameInfoTypes["UNIT_COLORADO"]
 	local unitColoradoStrengthBase	= GameInfo.Units[unitColoradoID].Combat
 	local numHappiness = player:GetExcessHappiness()
-	local numBonusCombatStrength = g_GetRoundDiv(numHappiness,5);
+	local numBonusCombatStrength = IntDiv(numHappiness, 5);
 	local unitColoradoStrength = 40
 	if (numBonusCombatStrength > 0 ) then
 		unitColoradoStrength = unitColoradoStrengthBase + (numBonusCombatStrength * 2)
@@ -985,7 +1008,8 @@ local player = Players[ownerId]
 	local unit = player:GetUnitByID(unitId)
 	local xp = unit:GetExperience()
 	local needed = unit:ExperienceNeeded()
-	local faith = (((needed * 100) // 3) + 99) // 100; --+99 is ceiling
+	-- divide by 3 and 
+	local faith = IntDivCeil(needed, 3);
 	player:ChangeFaith(faith)
 	if player:IsHuman() and Game.GetActivePlayer() == ownerId then
 		local hex = ToHexFromGrid(Vector2(unit:GetX(), unit:GetY()))

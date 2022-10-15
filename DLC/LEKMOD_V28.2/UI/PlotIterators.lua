@@ -45,7 +45,7 @@ function PlotRingIterator(pPlot, r, sector, anticlock)
   --print(string.format("PlotRingIterator((%i, %i), r=%i, s=%i, d=%s)", pPlot:GetX(), pPlot:GetY(), r, (sector or SECTOR_NORTH), (anticlock and "rev" or "fwd")))
   -- The important thing to remember with hex-coordinates is that x+y+z = 0
   -- so we never actually need to store z as we can always calculate it as -(x+y)
-  -- See http://keekerdc.com/2011/03/hexagon-grids-coordinate-systems-and-distance-calculations/
+  -- See keekerdc.com/2011/03/hexagon-grids-coordinate-systems-and-distance-calculations/
 
   if (pPlot ~= nil and r > 0) then
     local hex = ToHexFromGrid({x=pPlot:GetX(), y=pPlot:GetY()})

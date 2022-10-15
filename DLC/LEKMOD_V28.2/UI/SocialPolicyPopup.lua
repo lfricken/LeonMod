@@ -7,6 +7,37 @@ include( "IconSupport" );
 include( "InstanceManager" );
 include( "CommonBehaviors" );
 
+-- performs a safe integer division and rounds down
+function IntDiv(a, denominator)
+	a = math.floor(a);
+	denominator = math.floor(denominator);
+	local remainder = a % denominator;
+	local numerator = a - remainder;
+	return numerator / denominator;
+end
+-- performs an safe integer division and rounds from half
+function IntDivRound(a, denominator)
+	local result = IntDiv(a, denominator);
+	local remainder = a % denominator;
+	if (remainder * 2 >= denominator) then -- more than half way to next value?
+		result = result + 1;
+	end
+	return result;
+end
+-- performs a safe integer division and rounds up
+function IntDivCeil(a, denominator) -- 7, 3
+	a = math.floor(a);
+	denominator = math.floor(denominator);
+	if (denominator <= 1) then
+		return a;
+	end
+
+	local numerator = a + (denominator - 1); -- 7 + 2 = 9
+	local remainder = numerator % denominator; -- no remainder
+	numerator = numerator - remainder; -- 9 - 0 = 9
+	return numerator / denominator; -- 9 / 3 = 3
+end
+
 local m_PopupInfo = nil;
 
 local g_LibertyPipeManager = InstanceManager:new( "ConnectorPipe", "ConnectorImage", Controls.LibertyPanel );
@@ -279,8 +310,7 @@ function UpdateDisplay()
 		if (player:GetTotalJONSCulturePerTurn() == 0) then
 			iTurns = "?";
 		else
-			iTurns = iCultureNeeded // player:GetTotalJONSCulturePerTurn();
-			iTurns = iTurns + 1;
+			iTurns = IntDivCeil(iCultureNeeded, player:GetTotalJONSCulturePerTurn());
 		end
     end
     szText = Locale.ConvertTextKey("TXT_KEY_NEXT_POLICY_TURN_LABEL", iTurns);
