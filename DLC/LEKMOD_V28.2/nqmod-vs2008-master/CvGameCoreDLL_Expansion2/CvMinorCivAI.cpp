@@ -24,12 +24,8 @@
 //					CvMinorCivQuest
 //======================================================================================================
 
-// minimum military influence needed to gain influence
-const int minMilitaryStrength = 15;
 // influence gained per turn for having the most local military
 const int baseMilitaryInfluence = 17;
-// influence gained per turn for having the most local military
-const int baseTradeInfluence = 0;
 const int maxAnchorT100 = 200 * 100;
 const int minAnchorT100 = -200 * 100;
 
@@ -4264,7 +4260,7 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(const PlayerTypes ePlayer)
 		PlayerTypes eMilitaryWinner = NO_PLAYER;
 		if (!IsAtWarWithPlayersTeam(ePlayer)) // cant gain this influence if at war
 		{ // find military winner
-			int highestStrength = minMilitaryStrength;
+			int highestStrength = GC.getMIN_CS_STRENGTH_INFLUENCE();
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
 				const PlayerTypes loopPlayer = (PlayerTypes)iPlayerLoop;

@@ -2503,7 +2503,6 @@ T100 CvGlobals::getSCIENCE_CATCHUP_DIFF_NONET100() const
 {
 	return 200;
 }
-
 T100 CvGlobals::getFIRST_BARB_SPAWNT10000() const
 {
 	return 7 * 100; // 7% (not x10000 because that would be 7 times the game length
@@ -2520,17 +2519,14 @@ T100 CvGlobals::getMIN_CS_STRENGTH_INFLUENCE() const
 {
 	return 599;
 }
-// [0, 10000] Number of turns DONE as a percentage of max turns 
 T100 CvGlobals::getPercentTurnsDoneT10000()
 {
 	return max(0, (this->getGamePointer()->getGameTurn() * 10000) / this->getGamePointer()->getMaxTurns());
 }
-// max turns in an online speed game
 int CvGlobals::onlineSpeedMaxTurns()
 {
 	return 250;
 }
-// on turn 100 this would return: onlineSpeed: 100, normalSpeed: 50
 T100 CvGlobals::onePerOnlineSpeedTurnT10000()
 {
 	return getPercentTurnsDoneT10000() * onlineSpeedMaxTurns();

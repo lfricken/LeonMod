@@ -1015,6 +1015,12 @@ public:
 	T100 getSCIENCE_CATCHUP_DIFF_NONET100() const;
 	// first barb spawn turn as a % of game done
 	T100 getFIRST_BARB_SPAWNT10000() const;
+	// the number of tiles that justifies a new barbarian unit spawning
+	T100 getTILES_PER_BARB_100() const;
+	// the amount of the game that should pass before a barb unit respawn
+	T100 getBARB_RESPAWN_TIME_10000() const;
+	// minimum exclusive strength required to influence a city state with military
+	T100 getMIN_CS_STRENGTH_INFLUENCE() const;
 
 	// -- ints --
 
