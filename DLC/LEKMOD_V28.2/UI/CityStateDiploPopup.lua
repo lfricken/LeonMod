@@ -853,12 +853,9 @@ function PopulateGiftChoices()
 
 	-- Small Gold
 	local iNumGoldPlayerHas = pActivePlayer:GetGold();
-	local goldGiftAmount = 0;
-
-	goldGiftAmount = pPlayer:GetCappedGoldGift(iActivePlayer, math.min(iNumGoldPlayerHas, iGoldGiftSmall));
-	iGold = goldGiftAmount;
-	iLowestGold = iGold;
-	iFriendshipAmount = pPlayer:GetFriendshipFromGoldGift(iActivePlayer, iGold);
+	local goldGiftAmount = pPlayer:GetCappedGoldGift(iActivePlayer, math.min(iNumGoldPlayerHas, iGoldGiftSmall));
+	local iGold = goldGiftAmount;
+	local iFriendshipAmount = pPlayer:GetFriendshipFromGoldGift(iActivePlayer, iGold);
 	local buttonText = Locale.ConvertTextKey("TXT_KEY_POPUP_MINOR_GOLD_GIFT_AMOUNT", iGold, iFriendshipAmount);
 	-- begin NQ_NUM_TURNS_BEFORE_MINOR_ALLIES_REFUSE_BRIBES_FROM_TRAIT
 	if (bRefusesBribes) then

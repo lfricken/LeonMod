@@ -2515,7 +2515,7 @@ T100 CvGlobals::getBARB_RESPAWN_TIME_10000() const
 {
 	return (10 * 100 * 100) / 250; // 10 turns in an online speed game
 }
-T100 CvGlobals::getMIN_CS_STRENGTH_INFLUENCE() const
+T100 CvGlobals::getMIN_CS_STRENGTH_INFLUENCET100() const
 {
 	return 599;
 }

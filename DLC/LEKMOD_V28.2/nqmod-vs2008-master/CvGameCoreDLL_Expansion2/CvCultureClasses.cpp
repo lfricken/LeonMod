@@ -2927,7 +2927,7 @@ T100 CvPlayerCulture::GetTourismModifierCityCountT100(const PlayerTypes eOtherPl
 	modifierT100 *= GC.getTOURISM_CITY_PERCENT_ADJUST();
 	modifierT100 /= 100;
 	// 20
-	return 100 + modifierT100;
+	return modifierT100;
 }
 
 int CvPlayerCulture::GetTourismModifierSharedReligion() const
@@ -3184,27 +3184,29 @@ InfluenceLevelTrend CvPlayerCulture::GetInfluenceTrend(PlayerTypes eOtherPlayer)
 	// PctTurn2 = InfluenceT2 / LifetimeCultureT2
 	
 	// So if looking at is PctT2 > PctT1, can see if  (InfluenceT2 * LifetimeCultureT1) > (InfluenceT1 * LifetimeCultureT2)
-#ifdef AUI_YIELDS_APPLIED_AFTER_TURN_NOT_BEFORE
-	int iOtherPlayerLastTurnLifetimeCulture = kOtherPlayer.GetCulture()->GetLastTurnLifetimeCulture();
-	int iOtherPlayerThisTurnLifetimeCulture = kOtherPlayer.GetJONSCultureEverGenerated();
-#ifdef AUI_GAME_BETTER_HYBRID_MODE
-	if (kOtherPlayer.getTurnOrder() > m_pPlayer->getTurnOrder())
-#else
-	if (ePlayer > m_pPlayer->GetID())
-#endif
+	const long long pastCulture = otherPlayer.GetCulture()->GetLastTurnVictoryCultureT100() / 100;
+	const long long newCulture = otherPlayer.GetVictoryCultureEverGeneratedT100() / 100;
+	if (pastCulture > 1 && newCulture > 1)
 	{
-		iOtherPlayerLastTurnLifetimeCulture = iOtherPlayerThisTurnLifetimeCulture;
-		iOtherPlayerThisTurnLifetimeCulture += m_pPlayer->GetTotalJONSCulturePerTurn();
-	}
-	int iLHS = GetInfluenceOn(ePlayer) * iOtherPlayerLastTurnLifetimeCulture;
-	int iRHS = GetLastTurnInfluenceOn(ePlayer) * iOtherPlayerThisTurnLifetimeCulture;
-#else
-	long long iPrevPerc = ((long long)GetLastTurnInfluenceOn(eOtherPlayer) * 10000ll) / (long long)(otherPlayer.GetCulture()->GetLastTurnVictoryCultureT100() / 100);
-	long long iNewPerc = ((long long)GetInfluenceOn(eOtherPlayer) * 10000ll) / (long long)(otherPlayer.GetVictoryCultureEverGeneratedT100() / 100);
-#endif
+	#ifdef AUI_YIELDS_APPLIED_AFTER_TURN_NOT_BEFORE
+		int iOtherPlayerLastTurnLifetimeCulture = kOtherPlayer.GetCulture()->GetLastTurnLifetimeCulture();
+		int iOtherPlayerThisTurnLifetimeCulture = kOtherPlayer.GetJONSCultureEverGenerated();
+	#ifdef AUI_GAME_BETTER_HYBRID_MODE
+		if (kOtherPlayer.getTurnOrder() > m_pPlayer->getTurnOrder())
+	#else
+		if (ePlayer > m_pPlayer->GetID())
+	#endif
+		{
+			iOtherPlayerLastTurnLifetimeCulture = iOtherPlayerThisTurnLifetimeCulture;
+			iOtherPlayerThisTurnLifetimeCulture += m_pPlayer->GetTotalJONSCulturePerTurn();
+		}
+		int iLHS = GetInfluenceOn(ePlayer) * iOtherPlayerLastTurnLifetimeCulture;
+		int iRHS = GetLastTurnInfluenceOn(ePlayer) * iOtherPlayerThisTurnLifetimeCulture;
+	#else
+		long long iPrevPerc = ((long long)GetLastTurnInfluenceOn(eOtherPlayer) * 10000ll) / pastCulture;
+		long long iNewPerc = ((long long)GetInfluenceOn(eOtherPlayer) * 10000ll) / newCulture;
+	#endif
 
-	if (otherPlayer.GetCulture()->GetLastTurnVictoryCultureT100() > 0 && otherPlayer.GetJONSCultureEverGeneratedTimes100() > 0)
-	{
 		if (iNewPerc > iPrevPerc)
 		{
 			eRtnValue = INFLUENCE_TREND_RISING;

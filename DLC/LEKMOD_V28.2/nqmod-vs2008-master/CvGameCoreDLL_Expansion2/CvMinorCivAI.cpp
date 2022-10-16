@@ -4260,20 +4260,20 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(const PlayerTypes ePlayer)
 		PlayerTypes eMilitaryWinner = NO_PLAYER;
 		if (!IsAtWarWithPlayersTeam(ePlayer)) // cant gain this influence if at war
 		{ // find military winner
-			int highestStrength = GC.getMIN_CS_STRENGTH_INFLUENCE();
+			T100 highestStrengthT100 = GC.getMIN_CS_STRENGTH_INFLUENCET100();
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
 				const PlayerTypes loopPlayer = (PlayerTypes)iPlayerLoop;
 				if (!GET_PLAYER(loopPlayer).isAlive()) continue; // must be alive
 				if (GET_PLAYER(loopPlayer).isMinorCiv()) continue; // must be major civ
 
-				const int tempStrength = getAStrengthNearAllBCities(loopPlayer, m_pPlayer->GetID());
-				if (tempStrength > highestStrength)
+				const T100 tempStrengthT100 = getAStrengthNearAllBCities(loopPlayer, m_pPlayer->GetID()) * 100;
+				if (tempStrengthT100 > highestStrengthT100)
 				{
-					highestStrength = tempStrength;
+					highestStrengthT100 = tempStrengthT100;
 					eMilitaryWinner = loopPlayer;
 				}
-				else if (tempStrength == highestStrength)
+				else if (tempStrengthT100 == highestStrengthT100)
 				{
 					eMilitaryWinner = NO_PLAYER;
 				}

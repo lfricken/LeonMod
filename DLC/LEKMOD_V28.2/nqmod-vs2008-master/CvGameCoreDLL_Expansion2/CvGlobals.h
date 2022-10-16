@@ -1020,7 +1020,7 @@ public:
 	// the amount of the game that should pass before a barb unit respawn
 	T100 getBARB_RESPAWN_TIME_10000() const;
 	// minimum exclusive strength required to influence a city state with military
-	T100 getMIN_CS_STRENGTH_INFLUENCE() const;
+	T100 getMIN_CS_STRENGTH_INFLUENCET100() const;
 
 	// -- ints --
 

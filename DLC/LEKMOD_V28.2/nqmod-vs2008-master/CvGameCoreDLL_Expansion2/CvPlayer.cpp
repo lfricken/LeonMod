@@ -10918,7 +10918,7 @@ int CvPlayer::GetVictoryCultureEverGeneratedT100() const
 			totalCultureGeneratedT100 += player.GetJONSCultureEverGeneratedTimes100();
 		}
 	}
-	const int averageCultureT100 = (totalCultureGeneratedT100 / numValidPlayers);
+	const int averageCultureT100 = (totalCultureGeneratedT100 / max(1, numValidPlayers));
 
 	return (GetJONSCultureEverGeneratedTimes100() / 2) + (averageCultureT100 / 2);
 }
