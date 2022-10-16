@@ -248,7 +248,7 @@ function FeatureGenerator:AddOasisAtPlot(plot, iX, iY, lat)
 end
 ------------------------------------------------------------------------------
 function FeatureGenerator:AddIceAtPlot(plot, iX, iY, lat)
-	if(plot:CanHaveFeature(self.featureIce)) then
+	if(false and plot:CanHaveFeature(self.featureIce)) then
 		if Map.IsWrapX() and (iY == 0 or iY == self.iGridH - 1) then
 			plot:SetFeatureType(self.featureIce, -1)
 

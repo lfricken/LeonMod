@@ -529,22 +529,6 @@ function GeneratePlotTypes()
 	--local x = fractal_world:Plots();
 
 
-	-- redo mountains
-	for x = 0, maxX - 1 do
-		for y = 0, maxY - 1 do
-			local i = GetI(x,y,maxX);
-			if plotTypes[i] ~= PlotTypes.PLOT_OCEAN then
-				if plotTypes[i] == PlotTypes.PLOT_MOUNTAIN then -- remove existing mountain
-					plotTypes[i] = PlotTypes.PLOT_HILLS;
-				end
-				if Map.Rand(1000, "Mountain Chance") < 65 then -- mountain chance
-					plotTypes[i] = PlotTypes.PLOT_MOUNTAIN;
-				end
-			end
-		end
-	end
-
-
 	-- add random islands
 	for x = 0, maxX - 1 do
 		for y = 0, maxY - 1 do
@@ -599,7 +583,7 @@ function GeneratePlotTypes()
 	numGrowths = 2;
 	for iter = 1, numGrowths do
 		print ("Growing Land");
-		local toMakeLandIdx = {};
+		local toMakeLandIdx = {}; -- avoid growing an island multiple times in the same direction
 		for x = 0, maxX - 1 do
 			for y = 0, maxY - 1 do
 
@@ -620,7 +604,9 @@ function GeneratePlotTypes()
 					end
 
 					local makeLand = false;
-					if countAdjacentLand == 1 then makeLand = (Map.Rand(1000, "Grow Land Chance") < 400); end
+					if countAdjacentLand == 1 then
+						makeLand = (Map.Rand(1000, "Grow Land Chance") < 400);
+					end
 					--if iter == 1 and countAdjacentLand == 2 then makeLand = (Map.Rand(1000, "Grow Land Chance") < 100); end
 					--if countAdjacentLand == 5 then makeLand = (Map.Rand(1000, "Grow Land Chance") < 900); end
 
@@ -660,11 +646,14 @@ function GeneratePlotTypes()
 
 						bHasAnyAdjacentLand = bHasAnyAdjacentLand or bIsLand;
 						-- skip the first check since we don't know anything yet
-						if (k ~= 1 and (bIsLand ~= wasLastLand)) then countSwitches = countSwitches + 1; end
+						if (k ~= 1 and (bIsLand ~= wasLastLand)) then 
+							countSwitches = countSwitches + 1; 
+						end
 						wasLastLand = bIsLand;
 					end
 
 					local bWouldConnectUnconnectedLand = (countSwitches >= 3);
+					if bWouldConnectUnconnectedLand then print("skipped" .. countSwitches); end
 					local bMakeLand = false;
 					if (not bWouldConnectUnconnectedLand) then
 						chance = 0;
@@ -695,7 +684,7 @@ function GeneratePlotTypes()
 	numGrowths = 2;
 	for iter = 1, numGrowths do
 		print ("Growing Land");
-		local toMakeLandIdx = {};
+		local toMakeLandIdx = {}; -- avoid growing an island multiple times in the same direction
 		for x = 0, maxX - 1 do
 			for y = 0, maxY - 1 do
 
@@ -742,6 +731,22 @@ function GeneratePlotTypes()
 			if plotTypes[i] ~= PlotTypes.PLOT_OCEAN then
 				if (IsSingleIsland(plotTypes,x,y,maxX)) then
 					RandomIsland(plotTypes,x,y,maxX,islandPoleMinSize+Map.Rand(4, "Pole Size")+math.floor(islandSizeMax/3), 0);
+				end
+			end
+		end
+	end
+
+
+	-- redo mountains
+	for x = 0, maxX - 1 do
+		for y = 0, maxY - 1 do
+			local i = GetI(x,y,maxX);
+			if plotTypes[i] ~= PlotTypes.PLOT_OCEAN then
+				if plotTypes[i] == PlotTypes.PLOT_MOUNTAIN then -- remove existing mountain
+					plotTypes[i] = PlotTypes.PLOT_HILLS;
+				end
+				if Map.Rand(1000, "Mountain Chance") < 80 then -- mountain chance
+					plotTypes[i] = PlotTypes.PLOT_MOUNTAIN;
 				end
 			end
 		end
@@ -819,7 +824,7 @@ function RandomIsland(plotTypes,x,y,maxX,numLandTiles,oceanChance)
 	local radius = 1 + math.floor(math.sqrt(numLandTiles) + 0.5); -- get extra points just in case
 	local points = GetGridPoints(radius);
 
-	local mountainChance = 17; -- gets reduced if we've made one
+	local mountainChance = 18; -- gets reduced if we've made one
 
 	for i=1,radius*radius do
 		p = points[i];
