@@ -653,7 +653,7 @@ function GeneratePlotTypes()
 					end
 
 					local bWouldConnectUnconnectedLand = (countSwitches >= 3);
-					if bWouldConnectUnconnectedLand then print("skipped" .. countSwitches); end
+					--if bWouldConnectUnconnectedLand then print("skipped" .. countSwitches); end
 					local bMakeLand = false;
 					if (not bWouldConnectUnconnectedLand) then
 						chance = 0;
