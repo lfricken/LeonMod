@@ -37,25 +37,24 @@
 // Standard MSC C++ warnings to check for lint
 #define LINT_WARNINGS \
 	4100 /* unreferenced formal parameter */ \
-	4130 /* logical operation on address of a string constant */ \
 	4189 /* local variable is initialized but not referenced */ \
 	4239 /* nonstandard extension used */ \
 	4238 /* nonstandard extension used : class rvalue used as lvalue */ \
 	4505 /* unreferenced local function has been removed */ \
 	4512 /* assignment operator could not be generated */ \
-	4702 /* unreachable code */ \
 	4706 /* assignment within conditional expression */
 
+//4130 /* logical operation on address of a string constant */ \
+//4702 /* unreachable code */ \
 // Team System "Prefast" Code Analysis warnings to check for lint
 #define LINT_CODE_ANALYSIS \
-	6001 /* Using uninitialized memory */ \
 	6011 /* dereferencing NULL pointer.  */ \
-	6246 /* Local declaration of 'variable' hides declaration of the same name in outer scope. For additional information, see previous declaration at line 'XXX'*/ \
 	6262 /* Function uses 'xxxxx' bytes of stack: exceeds /analyze:stacksize'xxxxx'. Consider moving some data to heap */ \
 	6302 /* Format string mismatch */ \
 	6385 /* invalid data: accessing <buffer name>, the readable size is <size1> bytes, but <size2> bytes may be read: Lines: x, y */ \
 	6386 /* Buffer overrun */ 
-
+//6001 /* Using uninitialized memory */ \
+//	6246 /* Local declaration of 'variable' hides declaration of the same name in outer scope. For additional information, see previous declaration at line 'XXX'*/ \
 // Think very hard about adding suppressions to this list
 #define LINT_SUPPRESSIONS \
 	6255 /* _alloca indicates failure by raising a stack overflow exception. Consider using _malloca instead */ \

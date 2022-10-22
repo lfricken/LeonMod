@@ -60,22 +60,22 @@
 // until Tim is finished with AStar optimization
 #define LINT_EXTRA_SUPPRESSIONS \
 	4100 /* unreferenced formal parameter */ \
-	4130 /* logical operation on address of a string constant */ \
 	4189 /* local variable is initialized but not referenced */ \
 	4239 /* nonstandard extension used */ \
 	4238 /* nonstandard extension used : class rvalue used as lvalue */ \
 	4505 /* unreferenced formal parameter */ \
 	4512 /* assignment operator could not be generated */ \
-	4702 /* unreachable code */ \
-	4706 /* assignment within conditional expression */ \
-	6001 /* Using uninitialized memory */ \
 	6011 /* dereferencing NULL pointer.  */ \
-	6246 /* Local declaration of 'variable' hides declaration of the same name in outer scope. For additional information, see previous declaration at line 'XXX'*/ \
 	6262 /* Function uses 'xxxxx' bytes of stack: exceeds /analyze:stacksize'xxxxx'. Consider moving some data to heap */ \
 	6302 /* Format string mismatch */ \
 	6385 /* invalid data: accessing <buffer name>, the readable size is <size1> bytes, but <size2> bytes may be read: Lines: x, y */ \
 	6386 /* Buffer overrun */
-#include "LintFree.h"
+//#include "LintFree.h"
+//6001 /* Using uninitialized memory */ \
+//4702 /* unreachable code */ \
+//6246 /* Local declaration of 'variable' hides declaration of the same name in outer scope. For additional information, see previous declaration at line 'XXX'*/ \
+//4706 /* assignment within conditional expression */ \
+//4130 /* logical operation on address of a string constant */ \
 
 #define PREFETCH_FASTAR_NODE(x) _mm_prefetch((const char*)x,  _MM_HINT_T0 ); _mm_prefetch(((const char*)x)+64,  _MM_HINT_T0 );
 #define PREFETCH_FASTAR_CVPLOT(x) _mm_prefetch((const char*)x,  _MM_HINT_T0 ); _mm_prefetch(((const char*)x)+64,  _MM_HINT_T0 );
