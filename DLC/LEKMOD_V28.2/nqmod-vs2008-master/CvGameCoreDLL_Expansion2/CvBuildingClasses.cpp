@@ -2873,7 +2873,9 @@ void CvCityBuildings::UpdateTotalBaseBuildingMaintenance()
 	for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
 	{
 		const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
-		if (GetNumBuilding(eBuilding) > 0)
+		const int numBuildings = GetNumBuilding(eBuilding);
+		const int numNotFree = numBuildings - GetNumFreeBuilding(eBuilding); // free buildings do not get maintenance
+		if (numNotFree > 0)
 		{
 			const CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 
@@ -2886,7 +2888,7 @@ void CvCityBuildings::UpdateTotalBaseBuildingMaintenance()
 					YIELD_MAINTENANCE,
 					false
 				);
-				iTotalCost += (iForBuilding * GetNumBuilding(eBuilding));
+				iTotalCost += (iForBuilding * numNotFree);
 			}
 		}
 	}
