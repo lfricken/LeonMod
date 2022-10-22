@@ -188,7 +188,7 @@ public:
 		if(bState != m_bIsMPCacheSafe)
 		{
 			m_bForceReset = true;
-			m_bIsMPCacheSafe = bState;
+			m_bIsMPCacheSafe = false;
 		}
 
 		return bOldState;

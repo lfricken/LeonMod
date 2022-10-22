@@ -254,10 +254,10 @@ bool CvAStar::GeneratePath(int iXstart, int iYstart, int iXdest, int iYdest, int
 
 	const CvGame& game = GC.getGame();
 	bool isMultiplayer = game.isNetworkMultiPlayer();
-	bool discardCacheForMPGame = isMultiplayer && !m_bIsMPCacheSafe;
+	bool discardCacheForMPGame = true;//isMultiplayer && !m_bIsMPCacheSafe;
 #endif
 
-	if(m_bForceReset || (m_iXstart != iXstart) || (m_iYstart != iYstart) || (m_iInfo != iInfo) || discardCacheForMPGame)
+	//if(m_bForceReset || (m_iXstart != iXstart) || (m_iYstart != iYstart) || (m_iInfo != iInfo) || discardCacheForMPGame)
 		bReuse = false;
 
 	m_iXdest = iXdest;
@@ -1156,13 +1156,6 @@ int PathDestValid(int iToX, int iToY, const void* pointer, const CvAStar* finder
 		return TRUE;
 	}
 
-#ifndef AUI_ASTAR_FIX_PATH_VALID_PATH_PEAKS_FOR_NONHUMAN
-	if(pToPlot->isMountain() && (!pCacheData->isHuman() || pCacheData->IsAutomated()))
-	{
-		return FALSE;
-	}
-#endif
-
 	if(pCacheData->IsImmobile())
 	{
 		return FALSE;
@@ -1990,13 +1983,6 @@ int PathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poin
 							return FALSE;
 						}
 
-#ifndef AUI_ASTAR_FIX_PATH_VALID_PATH_PEAKS_FOR_NONHUMAN
-						if (kNodeCacheData.bIsMountain && !(iFinderIgnoreStacking) && (!bIsHuman || bAIControl))
-						{
-							return FALSE;
-						}
-#endif
-
 #ifndef AUI_ASTAR_FIX_CAN_ENTER_TERRAIN_NO_DUPLICATE_CALLS
 						if(kNodeCacheData.bIsMountain && !kNodeCacheData.bCanEnterTerrain)
 						{
@@ -2374,13 +2360,6 @@ int IgnoreUnitsDestValid(int iToX, int iToY, const void* pointer, const CvAStar*
 	{
 		return FALSE;
 	}
-
-#ifndef AUI_ASTAR_FIX_PATH_VALID_PATH_PEAKS_FOR_NONHUMAN
-	if(pToPlot->isMountain() && (!pCacheData->isHuman() || pCacheData->IsAutomated()))
-	{
-		return FALSE;
-	}
-#endif
 
 	if ((finder->GetInfo() & CvUnit::MOVEFLAG_STAY_ON_LAND) && !pToPlot->CanBeUsedAsLand())
 	{
@@ -5102,13 +5081,6 @@ int TacticalAnalysisMapPathValid(CvAStarNode* parent, CvAStarNode* node, int dat
 						{
 							return FALSE;
 						}
-
-#ifndef AUI_ASTAR_FIX_PATH_VALID_PATH_PEAKS_FOR_NONHUMAN
-						if (kNodeCacheData.bIsMountain && !(iFinderIgnoreStacking) && (!bIsHuman || bAIControl))
-						{
-							return FALSE;
-						}
-#endif
 
 #ifndef AUI_ASTAR_FIX_CAN_ENTER_TERRAIN_NO_DUPLICATE_CALLS
 						if(kNodeCacheData.bIsMountain && !kNodeCacheData.bCanEnterTerrain)	// only doing canEnterTerrain on mountain plots because it is expensive, though it probably should always be called and some other checks in this loop could be removed.

@@ -362,8 +362,6 @@
 #endif
 /// If the pathfinder does not ignore danger, use the unit's combat strength times this value as the danger limit instead of 0 (important for combat units)
 #define AUI_ASTAR_FIX_CONSIDER_DANGER_USES_COMBAT_STRENGTH (6)
-/// AI-controlled units no longer ignore all paths with peaks; since the peak plots are checked anyway for whether or not a unit can enter them, this check is pointless
-#define AUI_ASTAR_FIX_PATH_VALID_PATH_PEAKS_FOR_NONHUMAN
 /// Mountain tiles are no longer automatically marked as invalid steps
 #define AUI_ASTAR_FIX_STEP_VALID_CONSIDERS_MOUNTAINS
 #ifdef AUI_PLOT_GET_VISIBLE_ENEMY_DEFENDER_TO_UNIT
