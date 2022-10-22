@@ -59,9 +59,13 @@ void CvDllNetMessageHandler::ResponseAutoMission(PlayerTypes ePlayer, int iUnitI
 {
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	CvUnit* pkUnit = kPlayer.getUnit(iUnitID);
-	if(pkUnit)
+	if(pkUnit != NULL)
 	{
 		pkUnit->AutoMission();
+	}
+	else
+	{
+		throw new exception("ResponseAutoMission was null.");
 	}
 }
 //------------------------------------------------------------------------------
@@ -159,6 +163,10 @@ void CvDllNetMessageHandler::ResponseCityBuyPlot(PlayerTypes ePlayer, int iCityI
 			}
 		}
 	}
+	else
+	{
+		throw new exception("City plot purchase was null.");
+	}
 }
 //------------------------------------------------------------------------------
 void CvDllNetMessageHandler::ResponseCityDoTask(PlayerTypes ePlayer, int iCityID, TaskTypes eTask, int iData1, int iData2, bool bOption, bool bAlt, bool bShift, bool bCtrl)
@@ -170,6 +178,10 @@ void CvDllNetMessageHandler::ResponseCityDoTask(PlayerTypes ePlayer, int iCityID
 	{
 		pkCity->doTask(eTask, iData1, iData2, bOption, bAlt, bShift, bCtrl);
 	}
+	else
+	{
+		throw new exception("City do was null.");
+	}
 }
 //------------------------------------------------------------------------------
 void CvDllNetMessageHandler::ResponseCityPopOrder(PlayerTypes ePlayer, int iCityID, int iNum)
@@ -179,6 +191,10 @@ void CvDllNetMessageHandler::ResponseCityPopOrder(PlayerTypes ePlayer, int iCity
 	if(pkCity != NULL)
 	{
 		pkCity->popOrder(iNum);
+	}
+	else
+	{
+		throw new exception("City pop was null.");
 	}
 }
 //------------------------------------------------------------------------------
@@ -191,9 +207,13 @@ void CvDllNetMessageHandler::ResponseCityPurchase(PlayerTypes ePlayer, int iCity
 {
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	CvCity* pkCity = kPlayer.getCity(iCityID);
-	if(pkCity && ePurchaseYield >= -1 && ePurchaseYield < NUM_YIELD_TYPES)
+	if(pkCity != NULL && ePurchaseYield >= -1 && ePurchaseYield < NUM_YIELD_TYPES)
 	{
 		pkCity->Purchase(eUnitType, eBuildingType, eProjectType, static_cast<YieldTypes>(ePurchaseYield));
+	}
+	else
+	{
+		throw new exception("City purchase was null.");
 	}
 }
 //------------------------------------------------------------------------------
@@ -205,6 +225,10 @@ void CvDllNetMessageHandler::ResponseCityPushOrder(PlayerTypes ePlayer, int iCit
 	{
 		pkCity->pushOrder(eOrder, iData, -1, bAlt, bShift, bCtrl);
 	}
+	else
+	{
+		throw new exception("City push was null.");
+	}
 }
 //------------------------------------------------------------------------------
 void CvDllNetMessageHandler::ResponseCitySwapOrder(PlayerTypes ePlayer, int iCityID, int iNum)
@@ -214,6 +238,10 @@ void CvDllNetMessageHandler::ResponseCitySwapOrder(PlayerTypes ePlayer, int iCit
 	if(pkCity != NULL)
 	{
 		pkCity->swapOrder(iNum);
+	}
+	else
+	{
+		throw new exception("City Swap was null.");
 	}
 }
 //------------------------------------------------------------------------------
@@ -231,9 +259,13 @@ void CvDllNetMessageHandler::ResponseDestroyUnit(PlayerTypes ePlayer, int iUnitI
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	CvUnit* pkUnit = kPlayer.getUnit(iUnitID);
 
-	if(pkUnit)
+	if(pkUnit != NULL)
 	{
 		pkUnit->kill(true, ePlayer);
+	}
+	else
+	{
+		throw new exception("Destroy unit was null.");
 	}
 }
 //------------------------------------------------------------------------------
@@ -281,6 +313,10 @@ void CvDllNetMessageHandler::ResponseDoCommand(PlayerTypes ePlayer, int iUnitID,
 		{
 			pkUnit->doCommand(eCommand, iData1, iData2);
 		}
+	}
+	else
+	{
+		throw new exception("Command unit was null.");
 	}
 }
 //------------------------------------------------------------------------------
@@ -341,6 +377,10 @@ void CvDllNetMessageHandler::ResponseFoundPantheon(PlayerTypes ePlayer, BeliefTy
 #endif
 		}
 	}
+	else
+	{
+		throw new exception("ResponseFoundPantheon was null.");
+	}
 }
 //------------------------------------------------------------------------------
 void CvDllNetMessageHandler::ResponseFoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion, const char* szCustomName, BeliefTypes eBelief1, BeliefTypes eBelief2, BeliefTypes eBelief3, BeliefTypes eBelief4, int iCityX, int iCityY)
@@ -349,7 +389,7 @@ void CvDllNetMessageHandler::ResponseFoundReligion(PlayerTypes ePlayer, Religion
 	CvGameReligions* pkGameReligions(kGame.GetGameReligions());
 
 	CvCity* pkCity = GC.getMap().plot(iCityX, iCityY)->getPlotCity();
-	if(pkCity && ePlayer != NO_PLAYER)
+	if(pkCity != NULL && ePlayer != NO_PLAYER)
 	{
 		CvGameReligions::FOUNDING_RESULT eResult = pkGameReligions->CanFoundReligion(ePlayer, eReligion, szCustomName, eBelief1, eBelief2, eBelief3, eBelief4, pkCity);
 		if(eResult == CvGameReligions::FOUNDING_OK)
@@ -386,6 +426,10 @@ void CvDllNetMessageHandler::ResponseFoundReligion(PlayerTypes ePlayer, Religion
 			}
 #endif
 		}
+	}
+	else
+	{
+		throw new exception("ResponseFoundReligion was null.");
 	}
 }
 //------------------------------------------------------------------------------
@@ -440,7 +484,7 @@ void CvDllNetMessageHandler::ResponseMoveSpy(PlayerTypes ePlayer, int iSpyIndex,
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	CvPlayerEspionage* pPlayerEspionage = kPlayer.GetEspionage();
 
-	if(pPlayerEspionage)
+	if(pPlayerEspionage != NULL)
 	{
 		if(iTargetCity == -1)
 		{
@@ -462,6 +506,10 @@ void CvDllNetMessageHandler::ResponseMoveSpy(PlayerTypes ePlayer, int iSpyIndex,
 				}
 			}
 		}
+	}
+	else
+	{
+		throw new exception("ResponseMoveSpy was null.");
 	}
 }
 //------------------------------------------------------------------------------
@@ -869,6 +917,10 @@ void CvDllNetMessageHandler::ResponsePushMission(PlayerTypes ePlayer, int iUnitI
 	if(pkUnit != NULL)
 	{
 		pkUnit->PushMission(eMission, iData1, iData2, iFlags, bShift, true);
+	} // TODO else throw exception
+	else
+	{
+		throw new exception("Mission unit was null.");
 	}
 
 	CvUnit::dispatchingNetMessage(false);
@@ -878,10 +930,14 @@ void CvDllNetMessageHandler::ResponseGreatPersonChoice(PlayerTypes ePlayer, Unit
 {
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	CvCity* pCity = kPlayer.GetGreatPersonSpawnCity(eGreatPersonUnit);
-	if(pCity)
+	if(pCity != NULL)
 	{
 		// GJS NQMP - changed 2nd parameter to false so that "free" Great People from liberty finisher & buildings are actually free
 		pCity->GetCityCitizens()->DoSpawnGreatPerson(eGreatPersonUnit, false, false);
+	}
+	else
+	{
+		throw new exception("GP choice was null.");
 	}
 	kPlayer.ChangeNumFreeGreatPeople(-1);
 }
@@ -890,9 +946,13 @@ void CvDllNetMessageHandler::ResponseMayaBonusChoice(PlayerTypes ePlayer, UnitTy
 {
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	CvCity* pCity = kPlayer.GetGreatPersonSpawnCity(eGreatPersonUnit);
-	if(pCity)
+	if(pCity != NULL)
 	{
 		pCity->GetCityCitizens()->DoSpawnGreatPerson(eGreatPersonUnit, true, false);
+	}
+	else
+	{
+		throw new exception("Maya bonus choice was null.");
 	}
 	kPlayer.ChangeNumMayaBoosts(-1);
 	kPlayer.GetPlayerTraits()->SetUnitBaktun(eGreatPersonUnit);
@@ -902,9 +962,13 @@ void CvDllNetMessageHandler::ResponseFaithGreatPersonChoice(PlayerTypes ePlayer,
 {
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	CvCity* pCity = kPlayer.GetGreatPersonSpawnCity(eGreatPersonUnit);
-	if(pCity)
+	if(pCity != NULL)
 	{
 		pCity->GetCityCitizens()->DoSpawnGreatPerson(eGreatPersonUnit, true, true);
+	}
+	else
+	{
+		throw new exception("Faith great person was null.");
 	}
 	kPlayer.ChangeNumFaithGreatPeople(-1);
 }
@@ -1032,7 +1096,7 @@ void CvDllNetMessageHandler::ResponseReturnCivilian(PlayerTypes ePlayer, PlayerT
 void CvDllNetMessageHandler::ResponseSellBuilding(PlayerTypes ePlayer, int iCityID, BuildingTypes eBuilding)
 {
 	CvCity* pCity = GET_PLAYER(ePlayer).getCity(iCityID);
-	if(pCity)
+	if(pCity != NULL)
 	{
 		pCity->GetCityBuildings()->DoSellBuilding(eBuilding);
 
@@ -1048,6 +1112,10 @@ void CvDllNetMessageHandler::ResponseSellBuilding(PlayerTypes ePlayer, int iCity
 			LuaSupport::CallHook(pkScriptSystem, "CitySoldBuilding", args.get(), bResult);
 		}
 	}
+	else
+	{
+		throw new exception("Sell building was null.");
+	}
 }
 //------------------------------------------------------------------------------
 void CvDllNetMessageHandler::ResponseSetCityAIFocus(PlayerTypes ePlayer, int iCityID, CityAIFocusTypes eFocus)
@@ -1061,6 +1129,10 @@ void CvDllNetMessageHandler::ResponseSetCityAIFocus(PlayerTypes ePlayer, int iCi
 			pkCitizens->SetFocusType(eFocus);
 		}
 	}
+	else
+	{
+		throw new exception("City AI Focus was null.");
+	}
 }
 //------------------------------------------------------------------------------
 void CvDllNetMessageHandler::ResponseSetCityAvoidGrowth(PlayerTypes ePlayer, int iCityID, bool bAvoidGrowth)
@@ -1073,6 +1145,10 @@ void CvDllNetMessageHandler::ResponseSetCityAvoidGrowth(PlayerTypes ePlayer, int
 		{
 			pkCitizens->SetForcedAvoidGrowth(bAvoidGrowth);
 		}
+	}
+	else
+	{
+		throw new exception("City avoid growth was null.");
 	}
 }
 //------------------------------------------------------------------------------
@@ -1116,6 +1192,10 @@ void CvDllNetMessageHandler::ResponseSwapUnits(PlayerTypes ePlayer, int iUnitID,
 				}
 			}
 		}
+	}
+	else
+	{
+		throw new exception("Swap units was null.");
 	}
 	CvUnit::dispatchingNetMessage(false);
 }
