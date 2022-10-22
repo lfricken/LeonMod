@@ -91,7 +91,7 @@ void CvUnitMission::PushMission(UnitHandle hUnit, MissionTypes eMission, int iDa
 	{
 		if (owner.GetID() == BARBARIAN_PLAYER)
 		{
-			return; // do not move barbarian units
+			//return; // do not move barbarian units
 		}
 	}
 
