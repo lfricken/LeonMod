@@ -216,7 +216,7 @@ int CvPlayer::GetExtraYieldForBuilding
 	{// POLICY_CONSULATES - gives +3C to the Palace for each City-State Ally
 		const bool hasConsulates = player.HasPolicy("POLICY_CONSULATES");
 		const bool isPalace = eBuildingClass == BuildingClass("BUILDINGCLASS_PALACE");
-		if (eYieldType == YIELD_SCIENCE && !isPercentMod && hasConsulates && isPalace)
+		if (eYieldType == YIELD_CULTURE && !isPercentMod && hasConsulates && isPalace)
 			yieldChange += (numCityStateAllies * 3);
 	}
 
