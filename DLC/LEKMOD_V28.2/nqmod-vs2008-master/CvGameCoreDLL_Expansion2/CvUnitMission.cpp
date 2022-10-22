@@ -80,11 +80,19 @@ void CvUnitMission::AutoMission(UnitHandle hUnit)
 /// Queue up a new mission
 void CvUnitMission::PushMission(UnitHandle hUnit, MissionTypes eMission, int iData1, int iData2, int iFlags, bool bAppend, bool bManual, MissionAITypes eMissionAI, CvPlot* pMissionAIPlot, CvUnit* pMissionAIUnit)
 {
+	const CvPlayer& owner = GET_PLAYER(hUnit->getOwner());
 	if(CvPreGame::isHuman(hUnit->getOwner()))
 	{
 		CvAssertMsg(CvUnit::dispatchingNetMessage(), "Multiplayer Error! CvUnit::PushMission invoked for a human player outside of a network message!");
 		if(!CvUnit::dispatchingNetMessage())
 			gDLL->netMessageDebugLog("*** PROTOCOL ERROR *** : PushMission invoked for a human controlled player outside of a network message!");
+	}
+	else
+	{
+		if (owner.GetID() == BARBARIAN_PLAYER)
+		{
+			return; // do not move barbarian units
+		}
 	}
 
 	MissionData mission;
