@@ -9994,14 +9994,14 @@ int CvGame::getJonRandNum(unsigned short usMaxExclusive, const char*, const CvPl
 		x = plot->getX();
 		y = plot->getY();
 	}
-	return m_jonRand.getSafe(usMaxExclusive, GC.getFakeSeed(x, y, (15139 * other) + (unsigned long)usMaxExclusive));
+	return m_jonRand.getSafe(usMaxExclusive, GC.getFakeSeed(x, y, ((unsigned short)15139 * (unsigned short)other) + (unsigned short)usMaxExclusive));
 }
 
 int CvGame::getJonRandNumExtraSafe(unsigned short usMaxExclusive, const char*, const unsigned long other) const
 {
 	int x = 1;
 	int y = 1;
-	return m_jonRand.getSafe(usMaxExclusive, GC.getFakeSeed(x, y, (15139 * other) + (unsigned long)usMaxExclusive));
+	return m_jonRand.getSafe(usMaxExclusive, GC.getFakeSeed(x, y, ((unsigned short)15139 * (unsigned short)other) + (unsigned short)usMaxExclusive));
 }
 
 #ifdef AUI_BINOM_RNG
@@ -10177,12 +10177,12 @@ int CvGame::calculateSyncChecksum()
 			switch(getTurnSlice() % 4)
 			{
 			case 0:
-				iMultiplier += (GET_PLAYER((PlayerTypes)iI).getTotalPopulation() * 543271);
-				iMultiplier += (GET_PLAYER((PlayerTypes)iI).getTotalLand() * 327382);
-				iMultiplier += (GET_PLAYER((PlayerTypes)iI).GetTreasury()->GetGold() * 107564);
-				iMultiplier += (GET_PLAYER((PlayerTypes)iI).getPower() * 135647);
-				iMultiplier += (GET_PLAYER((PlayerTypes)iI).getNumCities() * 436432);
-				iMultiplier += (GET_PLAYER((PlayerTypes)iI).getNumUnits() * 324111);
+				iMultiplier += (GET_PLAYER((PlayerTypes)iI).getTotalPopulation() * 541);
+				iMultiplier += (GET_PLAYER((PlayerTypes)iI).getTotalLand() * 322);
+				iMultiplier += (GET_PLAYER((PlayerTypes)iI).GetTreasury()->GetGold() * 107);
+				iMultiplier += (GET_PLAYER((PlayerTypes)iI).getPower() * 147);
+				iMultiplier += (GET_PLAYER((PlayerTypes)iI).getNumCities() * 432);
+				iMultiplier += (GET_PLAYER((PlayerTypes)iI).getNumUnits() * 321);
 				break;
 
 			case 1:
@@ -10224,11 +10224,11 @@ int CvGame::calculateSyncChecksum()
 			case 3:
 				for(pLoopUnit = GET_PLAYER((PlayerTypes)iI).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER((PlayerTypes)iI).nextUnit(&iLoop))
 				{
-					iMultiplier += (pLoopUnit->getX() * 876543);
-					iMultiplier += (pLoopUnit->getY() * 985310);
-					iMultiplier += (pLoopUnit->getDamage() * 736373);
-					iMultiplier += (pLoopUnit->getExperience() * 820622);
-					iMultiplier += (pLoopUnit->getLevel() * 367291);
+					iMultiplier += (pLoopUnit->getX() * 873);
+					iMultiplier += (pLoopUnit->getY() * 980);
+					iMultiplier += (pLoopUnit->getDamage() * 733);
+					iMultiplier += (pLoopUnit->getExperience() * 622);
+					iMultiplier += (pLoopUnit->getLevel() * 391);
 				}
 				break;
 			}
@@ -10265,8 +10265,8 @@ int CvGame::calculateOptionsChecksum()
 				uint uiID = FString::Hash( pkInfo->GetType() );
 				if(kPlayer.isOption((PlayerOptionTypes)uiID))
 				{
-					iValue += (iI * 943097);
-					iValue += (iJ * 281541);
+					iValue += (iI * 947);
+					iValue += (iJ * 241);
 				}
 			}
 		}
