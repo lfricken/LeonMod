@@ -2856,8 +2856,8 @@ T100 CvPlayerCulture::GetTourismModifierGoldenAgeT100(const PlayerTypes) const
 
 	if (m_pPlayer->isGoldenAge())
 	{
-		modT100 += 10;
-		modT100 += m_pPlayer->GetPlayerTraits()->GetGoldenAgeTourismModifier();
+		// GetGoldenAgeTourismModifier boosts the golden age percent boost, so 100 would double the base value of +10% to +20%
+		modT100 += (10 * (100 + m_pPlayer->GetPlayerTraits()->GetGoldenAgeTourismModifier())) / 100;
 	}
 
 	return modT100;
