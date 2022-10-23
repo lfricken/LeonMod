@@ -48,7 +48,10 @@
 
 
 
-
+long bound(const long minInc, const long maxInc, const long val)
+{
+	return max(minInc, min(maxInc, val));
+}
 
 T100 iSquareRoot(const long long valT100)
 {

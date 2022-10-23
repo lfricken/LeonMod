@@ -148,7 +148,8 @@ struct CompetitionDelegates;
 #define f100 100.0f // safe decimal
 #define d100 100.0 // safe decimal
 
-
+// returns the value bounded to [minInc, maxInc]
+long bound(const long minInc, const long maxInc, const long val);
 
 // Returns a T100 that is the floor of square root of a T100 using only deterministic integer math.
 // So if you pass 1000 (aka 10) it will return 316 because sqrt(10) is 3.16...
