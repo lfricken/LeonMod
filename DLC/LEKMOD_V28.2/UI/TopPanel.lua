@@ -113,6 +113,12 @@ function UpdateData()
 			Controls.HappinessString:SetText(strHappiness);
 			
 			-----------------------------
+			-- Update City Cap
+			-----------------------------
+			
+			Controls.CityCapString:SetText("[ICON_CITY] 2/3");
+			
+			-----------------------------
 			-- Update Golden Age Info
 			-----------------------------
 			local strGoldenAgeStr;
@@ -367,6 +373,7 @@ function DoInitTooltips()
 	Controls.SciencePerTurn:SetToolTipCallback( ScienceTipHandler );
 	Controls.GoldPerTurn:SetToolTipCallback( GoldTipHandler );
 	Controls.HappinessString:SetToolTipCallback( HappinessTipHandler );
+	Controls.CityCapString:SetToolTipCallback( CityCapTipHandler );
 	Controls.GoldenAgeString:SetToolTipCallback( GoldenAgeTipHandler );
 	Controls.CultureString:SetToolTipCallback( CultureTipHandler );
 	Controls.TourismString:SetToolTipCallback( TourismTipHandler );
@@ -802,6 +809,24 @@ function HappinessTipHandler( control )
     -- Autosize tooltip
     tipControlTable.TopPanelMouseover:DoAutoSize();
 	
+end
+
+-- City Cap Tooltip
+function CityCapTipHandler( control )
+	local pid = Game.GetActivePlayer();
+	local pPlayer = Players[pid];
+	local txt = "You have 2 of 3 possible cities. Each city past your limit will incur -6% [ICON_PRODUCTION] in every city.[NEWLINE]";
+	txt = txt .. "[NEWLINE]";
+
+	txt = txt .. "Your sources of Cities:[NEWLINE]"
+	txt = txt .. "[COLOR_POSITIVE_TEXT]+1 from xyz[ENDCOLOR][NEWLINE]";
+	txt = txt .. "[NEWLINE]";
+
+	txt = txt .. "Current penalties are -6% [ICON_PRODUCTION]";
+	
+	tipControlTable.TooltipLabel:SetText(txt);
+	tipControlTable.TopPanelMouseover:SetHide(false);
+    tipControlTable.TopPanelMouseover:DoAutoSize(); -- Autosize tooltip
 end
 
 -- Golden Age Tooltip
