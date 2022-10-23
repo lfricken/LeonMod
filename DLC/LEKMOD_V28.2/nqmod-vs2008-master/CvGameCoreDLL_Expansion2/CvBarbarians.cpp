@@ -710,7 +710,7 @@ void CvBarbarians::DoUnits(const std::vector<int>& spawnPointsX, const std::vect
 	const CvMap& kMap = GC.getMap();
 	const int maxX = kMap.getGridWidth();
 	const int maxY = kMap.getGridHeight();
-	const int targetUnits = (maxX * maxY) / GC.getTILES_PER_BARB_100();
+	const int targetUnits = (maxX * maxY) / GC.getTILES_PER_BARB();
 	int numUnitsToSpawn = max(0, targetUnits - numUnits);
 
 	// limit spawn rate

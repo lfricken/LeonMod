@@ -2507,9 +2507,9 @@ T100 CvGlobals::getFIRST_BARB_SPAWNT10000() const
 {
 	return 7 * 100; // 7% (not x10000 because that would be 7 times the game length
 }
-T100 CvGlobals::getTILES_PER_BARB_100() const
+T100 CvGlobals::getTILES_PER_BARB() const
 {
-	return 6 * 7; // every X by Y region should have a barb on average
+	return 11 * 11; // every X by Y region should have a barb on average
 }
 T100 CvGlobals::getBARB_RESPAWN_TIME_10000() const
 {
