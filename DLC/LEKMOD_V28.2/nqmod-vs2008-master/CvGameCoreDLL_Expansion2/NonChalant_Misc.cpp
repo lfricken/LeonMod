@@ -118,9 +118,10 @@ int CvGlobals::getYIELD_PER_QUEST(const YieldTypes eYieldType, const PlayerTypes
 
 // trade route modifier
 
-int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeConnection, const YieldTypes eYieldType, const bool bIsOwner) const
+int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeConnection, const YieldTypes eYieldType, 
+	// If true, these yields are for the origin city, if false, they are for the destination city.
+	const bool isForOriginYields) const
 {
-	if (bIsOwner) { }
 	int yieldChange = 0;
 	const CvPlayer& playerOrigin = GET_PLAYER(kTradeConnection.m_eOriginOwner);
 	const CvPlayer& playerDest = GET_PLAYER(kTradeConnection.m_eDestOwner);
@@ -150,72 +151,78 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 
 	if (isInternal) // true if this is an internal trade route
 	{
-		if (eYieldType == YIELD_GOLD && hasMint)
-			yieldChange += 2;
-		if (eYieldType == YIELD_GOLD && hasBrewery)
-			yieldChange += 2;
-		if (eYieldType == YIELD_PRODUCTION && hasStoneWorks)
-			yieldChange += 1;
-		if (eYieldType == YIELD_PRODUCTION && hasTextileMill)
-			yieldChange += 1;
-		if (eYieldType == YIELD_FOOD && hasGrocer)
-			yieldChange += 2;
-		if (eYieldType == YIELD_CULTURE && hasCenserMaker)
-			yieldChange += 1;
-		if (eYieldType == YIELD_CULTURE && hasGemcutter)
-			yieldChange += 1;
-		if (eYieldType == YIELD_PRODUCTION && hasOilRefinery)
-			yieldChange += 3;
-		{ // POLICY_FREE_THOUGHT +6SC +2FD from Internal Trade Routes
-			const bool hasFreeThought = playerOrigin.HasPolicy("POLICY_FREE_THOUGHT");
-			if (eYieldType == YIELD_FOOD && hasFreeThought)
+		if (!isForOriginYields) // only the destination city of the trade route gets these benefits
+		{
+			if (eYieldType == YIELD_GOLD && hasMint)
 				yieldChange += 2;
-			if (eYieldType == YIELD_SCIENCE && hasFreeThought)
-				yieldChange += 6;
+			if (eYieldType == YIELD_GOLD && hasBrewery)
+				yieldChange += 2;
+			if (eYieldType == YIELD_PRODUCTION && hasStoneWorks)
+				yieldChange += 1;
+			if (eYieldType == YIELD_PRODUCTION && hasTextileMill)
+				yieldChange += 1;
+			if (eYieldType == YIELD_FOOD && hasGrocer)
+				yieldChange += 2;
+			if (eYieldType == YIELD_CULTURE && hasCenserMaker)
+				yieldChange += 1;
+			if (eYieldType == YIELD_CULTURE && hasGemcutter)
+				yieldChange += 1;
+			if (eYieldType == YIELD_PRODUCTION && hasOilRefinery)
+				yieldChange += 3;
+			{ // POLICY_FREE_THOUGHT +6SC +2FD from Internal Trade Routes
+				const bool hasFreeThought = playerOrigin.HasPolicy("POLICY_FREE_THOUGHT");
+				if (eYieldType == YIELD_FOOD && hasFreeThought)
+					yieldChange += 2;
+				if (eYieldType == YIELD_SCIENCE && hasFreeThought)
+					yieldChange += 6;
+			}
 		}
 	}
 	else
 	{
-		if (isDestMinor) // destination is City State
+		if (isForOriginYields) // only the origin city of the trade route gets these benefits
 		{
-			if (eYieldType == YIELD_DIPLOMATIC_SUPPORT && hasMerchantConfederacy)
-				yieldChange += 2;
-			if (eYieldType == YIELD_FOOD && hasMerchantConfederacy)
-				yieldChange += 2;
-			if (eYieldType == YIELD_PRODUCTION && hasMerchantConfederacy)
-				yieldChange += 2;
-			if (eYieldType == YIELD_CULTURE && hasMerchantConfederacy)
-				yieldChange += 2;			
-		}
-		else // destination is another civ
-		{
-			if (eYieldType == YIELD_FOOD && hasSilkRoad)
-				yieldChange += 3;
-			if (eYieldType == YIELD_PRODUCTION && hasSilkRoad)
-				yieldChange += 3;	
-			if (eYieldType == YIELD_DIPLOMATIC_SUPPORT && hasSilkRoad)
-				yieldChange += 3;
-		}
+			if (isDestMinor) // destination is City State
+			{
+				if (eYieldType == YIELD_DIPLOMATIC_SUPPORT && hasMerchantConfederacy)
+					yieldChange += 2;
+				if (eYieldType == YIELD_FOOD && hasMerchantConfederacy)
+					yieldChange += 2;
+				if (eYieldType == YIELD_PRODUCTION && hasMerchantConfederacy)
+					yieldChange += 2;
+				if (eYieldType == YIELD_CULTURE && hasMerchantConfederacy)
+					yieldChange += 2;
+			}
+			else // destination is another civ
+			{
+				if (eYieldType == YIELD_FOOD && hasSilkRoad)
+					yieldChange += 3;
+				if (eYieldType == YIELD_PRODUCTION && hasSilkRoad)
+					yieldChange += 3;
+				if (eYieldType == YIELD_DIPLOMATIC_SUPPORT && hasSilkRoad)
+					yieldChange += 3;
+			}
 
-		{ // POLICY_AESTHETICS +2C and +2T from External Routes
-			const bool hasAestheticsOpener = playerOrigin.HasPolicy("POLICY_AESTHETICS");
-			if (eYieldType == YIELD_CULTURE && hasAestheticsOpener)
-				yieldChange += 2;
-			if (eYieldType == YIELD_TOURISM && hasAestheticsOpener)
-				yieldChange += 2;
-		}
+			{ // POLICY_AESTHETICS +2C and +2T from External Routes
+				const bool hasAestheticsOpener = playerOrigin.HasPolicy("POLICY_AESTHETICS");
+				if (eYieldType == YIELD_CULTURE && hasAestheticsOpener)
+					yieldChange += 2;
+				if (eYieldType == YIELD_TOURISM && hasAestheticsOpener)
+					yieldChange += 2;
+			}
 
-		{ // POLICY_FREE_THOUGHT +1 Insight from External Routes
-			const bool hasFreeThought = playerOrigin.HasPolicy("POLICY_FREE_THOUGHT");
-			if (eYieldType == YIELD_SCIENTIFIC_INSIGHT && hasFreeThought)
-				yieldChange += 1;			
-		}
+			{ // POLICY_FREE_THOUGHT +1 Insight from External Routes
+				const bool hasFreeThought = playerOrigin.HasPolicy("POLICY_FREE_THOUGHT");
+				if (eYieldType == YIELD_SCIENTIFIC_INSIGHT && hasFreeThought)
+					yieldChange += 1;
+			}
 
-		{ // diplomatic support from trade route buildings
-			const int numDiploSupportBoosters = hasMerchantsGuild + hasMarket + hasBank + hasStockExchange + hasMint + hasBrewery + hasStoneWorks
-				+ hasTextileMill + hasGrocer + hasCenserMaker + hasGemcutter + (hasOilRefinery * 2);
-			if (eYieldType == YIELD_DIPLOMATIC_SUPPORT)
-				yieldChange += numDiploSupportBoosters;
+			{ // diplomatic support from trade route buildings
+				const int numDiploSupportBoosters = hasMerchantsGuild + hasMarket + hasBank + hasStockExchange + hasMint + hasBrewery + hasStoneWorks
+					+ hasTextileMill + hasGrocer + hasCenserMaker + hasGemcutter + (hasOilRefinery * 2);
+				if (eYieldType == YIELD_DIPLOMATIC_SUPPORT)
+					yieldChange += numDiploSupportBoosters;
+			}
 		}
 	}
 
