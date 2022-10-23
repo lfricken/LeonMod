@@ -1869,7 +1869,7 @@ void CvGame::updateScienceCatchup()
 	for (PlayerTypes iPlayer = (PlayerTypes)0; iPlayer < MAX_CIV_PLAYERS; iPlayer = (PlayerTypes)(iPlayer + 1))
 	{
 		const CvPlayer& rPlayer = GET_PLAYER((PlayerTypes)iPlayer);
-		//if (rPlayer.isHuman()) // ONLY consider human players when producing tech boost
+		if (rPlayer.isHuman()) // ONLY consider human players when producing tech boost
 		{
 			const TeamTypes team = rPlayer.getTeam();
 			const int beakersInTechTreeDone = GET_TEAM(team).GetTeamTechs()->GetTreeProgressBeakers();
