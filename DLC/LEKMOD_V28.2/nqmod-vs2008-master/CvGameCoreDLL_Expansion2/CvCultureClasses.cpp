@@ -2641,32 +2641,36 @@ int CvPlayerCulture::GetNetTourismWith(PlayerTypes eOtherPlayer, const bool) con
 	return tourismT100 / 100;
 }
 
-void showAndApplyFactorIncreaseOfDecimal(stringstream& s, const int modT100, long long* valT10000)
+void showAndApplyFactorIncreaseOfDecimal(stringstream& s, const int modT100, long long* valT1000)
 {
-	const long long oldValT10000 = *valT10000; // grab old value
-	const decimal factor = GC.toFactor(modT100);
-	*valT10000 *= 100 + modT100;
-	*valT10000 /= 100;
+	const long long oldValT1000 = *valT1000; // grab old value
+	*valT1000 *= 100 + modT100;
+	*valT1000 /= 100;
 	//if (modT100 > 0)      s << "[COLOR_POSITIVE_TEXT]";
 	//else if (modT100 < 0) s << "[COLOR_NEGATIVE_TEXT]";
 	//else				  s << "[COLOR_GREY]";
-	s << std::fixed << std::setprecision(3) << factor 
+	const decimal factor = GC.toFactor(modT100);
+	s << std::fixed << std::setprecision(3) << (oldValT1000 / (10 * f100))
 		<< " x " << 
-		std::fixed << std::setprecision(3) << (oldValT10000 / (f100 * f100))
+		std::fixed << std::setprecision(3) << factor
 		<< " = " << 
-		std::fixed << std::setprecision(3) << (*valT10000 / (f100 * f100));
+		std::fixed << std::setprecision(3) << (*valT1000 / (10 * f100));
 }
 
 void showAndApplyFactorIncrease(stringstream& s, const int modT100, int& valT100)
 {
 	const int oldValT100 = valT100;
-	const decimal factor = GC.toFactor(modT100);
 	valT100 *= 100 + modT100;
 	valT100 /= 100;
 	//if (modT100 > 0)      s << "[COLOR_POSITIVE_TEXT]";
 	//else if (modT100 < 0) s << "[COLOR_NEGATIVE_TEXT]";
 	//else				  s << "[COLOR_GREY]";
-	s << std::fixed << std::setprecision(2) << factor << " x " << (oldValT100 / 100) << " = " << (valT100 / 100);
+	const decimal factor = GC.toFactor(modT100);
+	s << (oldValT100 / 100) << 
+		" x " 
+		<< std::fixed << std::setprecision(2) << factor 
+		<< " = " 
+		<< (valT100 / 100);
 }
 void addColoredValue(stringstream& s, const int modT100, const string description, const bool includePercent = true)
 {
