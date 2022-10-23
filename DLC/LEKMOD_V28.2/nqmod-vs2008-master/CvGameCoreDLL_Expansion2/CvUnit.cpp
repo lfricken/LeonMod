@@ -871,9 +871,6 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 
 	if(bSetupGraphical)
 		setupGraphical();
-
-	// always grant some friendly lands modifier
-	changeFriendlyLandsModifier(+15);
 }
 int CvUnit::getFakeRandUnit(const int max, string log, const CvPlot* plot, const int) const
 {
