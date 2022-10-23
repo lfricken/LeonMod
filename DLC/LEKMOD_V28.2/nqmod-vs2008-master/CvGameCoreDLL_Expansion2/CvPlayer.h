@@ -636,6 +636,9 @@ public:
 	int GetUnhappinessMod() const;
 	void ChangeUnhappinessMod(int iChange);
 
+	// Calculates and sets the input variable to the number of allowed cities. Returns a multi line description string of how the number was calculated.
+	string GetCityCap_WithTooltip(int* numCitiesAllowed) const;
+
 	int GetCityCountUnhappinessMod() const;
 	void ChangeCityCountUnhappinessMod(int iChange);
 

@@ -490,6 +490,7 @@
     <ClCompile Include="NonChalant_Plot.cpp" />
     <ClCompile Include="NonChalant_Buildings.cpp" />
     <ClCompile Include="NonChalant_Misc.cpp" />
+    <ClCompile Include="NonChalant_Player.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CvDllBuildInfo.h">

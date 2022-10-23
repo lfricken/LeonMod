@@ -24924,16 +24924,8 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_iNumCitiesFreeWalls; // NQMP GJS - New Oligarchy add support for NumCitiesFreeWalls
 	kStream >> m_iNumCitiesFreeCultureBuilding;
 	kStream >> m_iNumCitiesFreeFoodBuilding;
-	kStream >> temp;
-	if (temp == marker_scienceBoost)
-	{
-		kStream >> m_iScienceRubberBand;
-		kStream >> m_iUnitPurchaseCostModifier;
-	}
-	else
-	{
-		m_iUnitPurchaseCostModifier = temp;
-	}
+	kStream >> m_iScienceRubberBand;
+	kStream >> m_iUnitPurchaseCostModifier;
 	kStream >> m_iAllFeatureProduction;
 	kStream >> m_iCityDistanceHighwaterMark;
 	kStream >> m_iOriginalCapitalX;
@@ -25492,7 +25484,6 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_iNumCitiesFreeWalls; // NQMP GJS - New Oligarchy add support for NumCitiesFreeWalls
 	kStream << m_iNumCitiesFreeCultureBuilding;
 	kStream << m_iNumCitiesFreeFoodBuilding;
-	kStream << marker_scienceBoost;
 	kStream << m_iScienceRubberBand;
 	kStream << m_iUnitPurchaseCostModifier;
 	kStream << m_iAllFeatureProduction;

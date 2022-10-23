@@ -2644,7 +2644,7 @@ int CvPlayerCulture::GetNetTourismWith(PlayerTypes eOtherPlayer, const bool) con
 void showAndApplyFactorIncreaseOfDecimal(stringstream& s, const int modT100, long long* valT1000)
 {
 	const long long oldValT1000 = *valT1000; // grab old value
-	*valT1000 *= 100 + modT100;
+	*valT1000 *= 100ll + modT100;
 	*valT1000 /= 100;
 	//if (modT100 > 0)      s << "[COLOR_POSITIVE_TEXT]";
 	//else if (modT100 < 0) s << "[COLOR_NEGATIVE_TEXT]";
@@ -2671,17 +2671,6 @@ void showAndApplyFactorIncrease(stringstream& s, const int modT100, int& valT100
 		<< std::fixed << std::setprecision(2) << factor 
 		<< " = " 
 		<< (valT100 / 100);
-}
-void addColoredValue(stringstream& s, const int modT100, const string description, const bool includePercent = true)
-{
-	const int absModT100 = abs(modT100);
-	if (modT100 > 0)      s << "[COLOR_POSITIVE_TEXT]+" << absModT100;
-	else if (modT100 < 0) s << "[COLOR_NEGATIVE_TEXT]-" << absModT100;
-	else				  s << "[COLOR_GREY]+" << absModT100;
-
-	string perc = "";
-	if (includePercent) perc = "% ";
-	s << perc << description << "[ENDCOLOR][NEWLINE]";
 }
 CvString CvPlayerCulture::GetNetTourismT100With_AndReturnTooltip(const PlayerTypes eOtherPlayer, T100* newValueT100, T100* totalModT100) const
 {
@@ -2823,7 +2812,7 @@ CvString CvPlayerCulture::GetNetTourismT100With_AndReturnTooltip(const PlayerTyp
 		//stream << "[NEWLINE]";
 
 		// apply to to total factor
-		factorT1000 *= (100 + totalLinearModT100);
+		factorT1000 *= (100ll + totalLinearModT100);
 		factorT1000 /= 100;
 	}
 	
@@ -2848,8 +2837,8 @@ CvString CvPlayerCulture::GetNetTourismT100With_AndReturnTooltip(const PlayerTyp
 	tourismT100 /= 1000;
 
 	// output new tourism and the total mod (not factor)
-	*newValueT100 = tourismT100;
-	*totalModT100 = ((factorT1000 + 5) / 10) - 100; // round last digit and turn into a mod rather than a factor (mod of +10 is a factor of 110)
+	*newValueT100 = (long)tourismT100;
+	*totalModT100 = (long)(((factorT1000 + 5) / 10) - 100); // round last digit and turn into a mod rather than a factor (mod of +10 is a factor of 110)
 
 	szRtnValue += stream.str().c_str();
 
@@ -4895,8 +4884,8 @@ CvString CvCityCulture::GetTourismTooltip()
 
 	{
 		szRtnValue += spacing;
-		const int iTradeYield = GET_PLAYER(m_pCity->getOwner()).GetTrade()->GetTradeValuesAtCityTimes100(m_pCity, YIELD_TOURISM) / f100;
-		szRtnValue += GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_TRADE_ROUTES", iTradeYield);
+		const int iTradeYieldDisplay = (GET_PLAYER(m_pCity->getOwner()).GetTrade()->GetTradeValuesAtCityTimes100(m_pCity, YIELD_TOURISM) / 100);
+		szRtnValue += GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_TRADE_ROUTES", iTradeYieldDisplay);
 	}
 
 	// Tech enhanced Tourism

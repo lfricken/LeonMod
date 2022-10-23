@@ -53,6 +53,18 @@ long bound(const long minInc, const long maxInc, const long val)
 	return max(minInc, min(maxInc, val));
 }
 
+void addColoredValue(stringstream& s, const long value, const string description, const bool includePercentSymbol)
+{
+	const long absValue = abs(value);
+	if (value > 0)      s << "[COLOR_POSITIVE_TEXT]+" << absValue;
+	else if (value < 0) s << "[COLOR_NEGATIVE_TEXT]-" << absValue;
+	else				s << "[COLOR_GREY]+" << absValue;
+
+	string perc = " ";
+	if (includePercentSymbol) perc = "% ";
+	s << perc << description << "[ENDCOLOR][NEWLINE]";
+}
+
 T100 iSquareRoot(const long long valT100)
 {
 	// Base cases
