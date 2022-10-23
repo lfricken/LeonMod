@@ -705,37 +705,44 @@ void CvBarbarians::DoUnits(const std::vector<int>& spawnPointsX, const std::vect
 		return;
 	}
 
-	const CvPlayer& barbPlayer = GET_PLAYER(BARBARIAN_PLAYER);
-	const int numUnits = barbPlayer.getNumUnits();
 	const CvMap& kMap = GC.getMap();
-	const int maxX = kMap.getGridWidth();
-	const int maxY = kMap.getGridHeight();
-	const int targetUnits = (maxX * maxY) / GC.getTILES_PER_BARB();
-	int numUnitsToSpawn = max(0, targetUnits - numUnits);
 
-	// limit spawn rate
-	if (numUnits == 0) // assume this means initial spawn, so spawn all
+	
+	// more like apeshit barbarians
+	// spawn all over map every so often
+	if (GC.getGame().isOption(GAMEOPTION_RAGING_BARBARIANS))
 	{
-		numUnitsToSpawn = numUnitsToSpawn;
-	}
-	else // respawning, so limit
-	{
-		const int minToSpawn = numUnitsToSpawn != 0 ? 1 : 0; // if we should spawn any, always spawn at least 1
-		numUnitsToSpawn = max(minToSpawn, targetUnits / 10);
-	}
+		const CvPlayer& barbPlayer = GET_PLAYER(BARBARIAN_PLAYER);
+		const int numUnits = barbPlayer.getNumUnits();
+		const int maxX = kMap.getGridWidth();
+		const int maxY = kMap.getGridHeight();
+		const int targetUnits = (maxX * maxY) / GC.getTILES_PER_BARB();
+		int numUnitsToSpawn = max(0, targetUnits - numUnits);
 
-	const int inverseX = 10000 / maxX;
-	const int inverseY = 10000 / maxY;
-	// spawn all over map
-	for (int i = 0; i < numUnitsToSpawn; i++)
-	{
-		const int x = max(0, spawnPointsX[*spawnCounter] / inverseX) % maxX;
-		const int y = max(0, spawnPointsY[*spawnCounter] / inverseY) % maxY;
-		const CvPlot* pLoopPlot = kMap.plot(x, y);
-		const bool didSpawn = DoSpawnBarbarianUnit(pLoopPlot, false, false, false);
-		if (!didSpawn)
-			i--; // back up and try again
-		(*spawnCounter) = ((*spawnCounter) + 1) % spawnPointsX.size();
+		// limit spawn rate
+		if (numUnits == 0) // assume this means initial spawn, so spawn all
+		{
+			numUnitsToSpawn = numUnitsToSpawn;
+		}
+		else // respawning, so limit
+		{
+			const int minToSpawn = numUnitsToSpawn != 0 ? 1 : 0; // if we should spawn any, always spawn at least 1
+			numUnitsToSpawn = max(minToSpawn, targetUnits / 10);
+		}
+
+		const int inverseX = 10000 / maxX;
+		const int inverseY = 10000 / maxY;
+		// spawn all over map
+		for (int i = 0; i < numUnitsToSpawn; i++)
+		{
+			const int x = max(0, spawnPointsX[*spawnCounter] / inverseX) % maxX;
+			const int y = max(0, spawnPointsY[*spawnCounter] / inverseY) % maxY;
+			const CvPlot* pLoopPlot = kMap.plot(x, y);
+			const bool didSpawn = DoSpawnBarbarianUnit(pLoopPlot, false, false, false);
+			if (!didSpawn)
+				i--; // back up and try again
+			(*spawnCounter) = ((*spawnCounter) + 1) % spawnPointsX.size();
+		}
 	}
 
 	// spawn from camps, but ONLY on center plot
