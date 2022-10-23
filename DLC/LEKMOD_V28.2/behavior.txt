@@ -1,5 +1,10 @@
+This file is for cescriptions of obscure behavior and functionality code locations.
+Also general things that could be improved.
 
-Any LUA functionality is screwed
+
+Civ friendship code doesn't make sense. It should only evaluate at the end of a turn, and display predicted in the tooltip. Also needs better UI to explain WTF is going on. There should be no INSTANT friendship changes.
+Any LUA functionality is screwed and should be deleted.
+
 Assets\DLC\LEKMOD_V28.2\UI\prophetreplace.lua
 All lua files in Assets\DLC\LEKMOD_V28.2\Mods\
 
@@ -10,8 +15,13 @@ replace floats:
 [e,E][+,-][0-9]
 
 
+icon atlas and images (contains readme with more info)
+\Mods\[BNW] Colonialist Legacies - Malaysia (v 3)\Art\IconAtlas
 
-civ friendship code doesn't make sense. It should only evaluate at the end of a turn, and display predicted friendship increase. Display should explain mechanics (+/-200 limit, per turn expected changes, etc.)
+
+minor civ city state friendship calculation
+CvMinorCivAI::GetFriendshipChangePerTurnTimes100
+friendship increase. Display should explain mechanics (+/-200 limit, per turn expected changes, etc.)
 CvMinorCivAI::DoFriendshipChangeEffects
 
 
@@ -47,7 +57,6 @@ CvCitySiteEvaluator::CanFound
 MIN_CITY_RANGE
 
 
-Descriptions of obscure behavior and functionality code locations:
 
 city found tiles distance (minimum tiles between)
 MIN_CITY_RANGE

@@ -90,10 +90,12 @@ int CvPlot::getExtraYield
 	if (tileOwner != NO_PLAYER)
 	{
 		const CvPlayer& player = GET_PLAYER(tileOwner);
+		const int numCityStateAllies = player.GetNumMinorAllies();
 		// depends on city
 		if (pWorkingCity != NULL)
 		{
 			const CvCity& city = *pWorkingCity;
+			const bool isCapital = city.isCapital();
 			const ReligionTypes majorityReligion = city.GetCityReligions()->GetReligiousMajority(); // the majority religion in this city
 			//const int numCitiesFollowing = GC.getGame().GetGameReligions()->GetNumCitiesFollowing(majorityReligion); // number of cities with this as majority
 			const int numCityStatesFollowing = GC.getGame().GetGameReligions()->GetNumCitiesFollowing(majorityReligion, true); // number of city states with this as majority
@@ -116,33 +118,148 @@ int CvPlot::getExtraYield
 				plot.HasImprovement("IMPROVEMENT_CHILE_DOCK") ||
 				plot.HasImprovement("IMPROVEMENT_SACRED_GROVE");
 
-			{// BELIEF_Religious Community - gives 1 diplo point per 6 followers (max 20)
-				const bool hasBeliefReligiousCommunity = city.HasBelief("BELIEF_RELIGIOUS_COMMUNITY");
-				if (eYieldType == YIELD_DIPLOMATIC_SUPPORT && hasBeliefReligiousCommunity && isHolyCity && isCityCenter)
-					yieldChange += min(20, numFollowersGlobal / 3);
-			}
 
-			{// BELIEF_Church Property - Holy City - +1 (food, production, gold, faith, culture, and science) and an additional of each yield per 40 followers (max +5)
-				const bool hasBeliefChurchProperty = city.HasBelief("BELIEF_CHURCH_PROPERTY");
-				const bool isTileAffected = hasBeliefChurchProperty && isHolyCity && isCityCenter;
-				const bool isYieldAffected = (
-					eYieldType == YIELD_FOOD || eYieldType == YIELD_PRODUCTION || eYieldType == YIELD_CULTURE ||
-					eYieldType == YIELD_FAITH || eYieldType == YIELD_SCIENCE || eYieldType == YIELD_GOLD);
-				if (isYieldAffected && isTileAffected)
-					yieldChange += min(6, 1 + numFollowersGlobal / 50);
-			}
 
-			{// BELIEF_Dawah - Holy City - 2 Culture, 1 Culture per 8 followers (max 20)
-				const bool hasBeliefDawah = city.HasBelief("BELIEF_DAWAHH");
-				if (eYieldType == YIELD_CULTURE && hasBeliefDawah && isHolyCity && isCityCenter)
-					yieldChange += 2 + min(20, numFollowersGlobal / 8);
-			}
 
-			{// BELIEF_initiation rites - renamed Religios Scholars - Holy City - 2 Science, 1 science per 3 followers (max 100)
-				const bool hasBeliefReligiousScholars = city.HasBelief("BELIEF_INITIATION_RITES");
-				if (eYieldType == YIELD_SCIENCE && hasBeliefReligiousScholars && isHolyCity && isCityCenter)
-					yieldChange += 2 + min(100, numFollowersGlobal / 3);
-			}
+			if (isCityCenter)
+			{ // BEGIN isCityCenter
+
+				{// POLICY_CONSULATES - gives +3C to the Palace for each City-State Ally
+					const bool hasConsulates = player.HasPolicy("POLICY_CONSULATES");
+					if (eYieldType == YIELD_CULTURE && hasConsulates && isCapital) // && isCityCenter
+						yieldChange += (numCityStateAllies * 3);
+				}
+
+				{// BELIEF_Religious Community - gives 1 diplo point per 6 followers (max 20)
+					const bool hasBeliefReligiousCommunity = city.HasBelief("BELIEF_RELIGIOUS_COMMUNITY");
+					if (eYieldType == YIELD_DIPLOMATIC_SUPPORT && hasBeliefReligiousCommunity && isHolyCity) // && isCityCenter
+						yieldChange += min(20, numFollowersGlobal / 3);
+				}
+
+				{// BELIEF_Church Property - Holy City - +1 (food, production, gold, faith, culture, and science) and an additional of each yield per 40 followers (max +5)
+					const bool hasBeliefChurchProperty = city.HasBelief("BELIEF_CHURCH_PROPERTY");
+					const bool isTileAffected = hasBeliefChurchProperty && isHolyCity;
+					const bool isYieldAffected = (
+						eYieldType == YIELD_FOOD || eYieldType == YIELD_PRODUCTION || eYieldType == YIELD_CULTURE ||
+						eYieldType == YIELD_FAITH || eYieldType == YIELD_SCIENCE || eYieldType == YIELD_GOLD);
+					if (isYieldAffected && isTileAffected) // && isCityCenter
+						yieldChange += min(6, 1 + numFollowersGlobal / 50);
+				}
+
+				{// BELIEF_Dawah - Holy City - 2 Culture, 1 Culture per 8 followers (max 20)
+					const bool hasBeliefDawah = city.HasBelief("BELIEF_DAWAHH");
+					if (eYieldType == YIELD_CULTURE && hasBeliefDawah && isHolyCity) // && isCityCenter
+						yieldChange += 2 + min(20, numFollowersGlobal / 8);
+				}
+
+				{// BELIEF_initiation rites - renamed Religios Scholars - Holy City - 2 Science, 1 science per 3 followers (max 100)
+					const bool hasBeliefReligiousScholars = city.HasBelief("BELIEF_INITIATION_RITES");
+					if (eYieldType == YIELD_SCIENCE && hasBeliefReligiousScholars && isHolyCity) // && isCityCenter
+						yieldChange += 2 + min(100, numFollowersGlobal / 3);
+				}
+
+				{// BELIEF_MISSIONARY_ZEAL - Holy City - 2 tourism and 1 tourism per 12 followers (max 20)
+					const bool hasBeliefMissionaryZeal = city.HasBelief("BELIEF_MISSIONARY_ZEAL");
+					if (eYieldType == YIELD_TOURISM && hasBeliefMissionaryZeal && isHolyCity) // && isCityCenter
+						yieldChange += 2 + min(20, numFollowersGlobal / 12);
+				}
+
+				{// BELIEF_MITHRAEA - Holy City - 3 food and 1 food per 6 followers (max 30)
+					const bool hasBeliefMithraea = city.HasBelief("BELIEF_MITHRAEA");
+					if (eYieldType == YIELD_FOOD && hasBeliefMithraea && isHolyCity) // && isCityCenter
+						yieldChange += 3 + min(30, numFollowersGlobal / 6);
+				}
+
+				{// BELIEF_HEATHEN_CONVERSION - renamed religious troubarods - Trade Routes - 3 faith, 3 diplo points, +2 trade routes
+					const bool hasBeliefReligiousTroubadors = city.HasBelief("BELIEF_HEATHEN_CONVERSION");
+					if (eYieldType == YIELD_DIPLOMATIC_SUPPORT && hasBeliefReligiousTroubadors && isHolyCity) // && isCityCenter
+						yieldChange += ((numTradeMajorCivs + numTradeCityStates) * 3);
+				}
+
+				{// BELIEF_RELIGIOUS_UNITY - +4 diplo for foreign city following (max 32) 
+					const bool hasBeliefReligiousUnity = city.HasBelief("BELIEF_RELIGIOUS_UNITY");
+					if (eYieldType == YIELD_DIPLOMATIC_SUPPORT && hasBeliefReligiousUnity && isHolyCity) // && isCityCenter
+						yieldChange += (numCityStatesFollowing * 4);
+				}
+
+				{// BELIEF_SALATT - Holy City - 2 Production, 1 Production per 8 followers (max 20)
+					const bool hasBeliefSalatt = city.HasBelief("BELIEF_SALATT");
+					if (eYieldType == YIELD_PRODUCTION && hasBeliefSalatt && isHolyCity) // && isCityCenter
+						yieldChange += 2 + min(20, numFollowersGlobal / 8);
+				}
+
+				{// BELIEF_TITHE - Holy City - 4 Gold, 1 Gold per 4 followers (max 40)
+					const bool hasBeliefTithe = city.HasBelief("BELIEF_TITHE");
+					if (eYieldType == YIELD_GOLD && hasBeliefTithe && isHolyCity) // && isCityCenter
+						yieldChange += 4 + min(40, numFollowersGlobal / 4);
+				}
+
+				{// BELIEF_ZAKATT - Holy City - 1 Scientific Influence, 1 per 16 followers (max 10)
+					const bool hasBeliefZakatt = city.HasBelief("BELIEF_ZAKATT");
+					if (eYieldType == YIELD_SCIENTIFIC_INSIGHT && hasBeliefZakatt && isHolyCity) // && isCityCenter
+						yieldChange += 1 + min(10, numFollowersGlobal / 16);
+				}
+
+				{// BELIEF_DEFENDER_FAITH - gives 2FH for every 3 Followers in Holy City. 
+					const bool hasBeliefDefenderOfTheFaith = city.HasBelief("BELIEF_DEFENDER_FAITH");
+					if (eYieldType == YIELD_FAITH && hasBeliefDefenderOfTheFaith && isHolyCity) // && isCityCenter
+						yieldChange += (numFollowersLocal / 3) * 2;
+				}
+
+				{// BELIEF_KARMA - gives 1C for every 2 Followers in Holy City. 
+					const bool hasBeliefKarma = city.HasBelief("BELIEF_KARMA");
+					if (eYieldType == YIELD_CULTURE && hasBeliefKarma && isHolyCity) // && isCityCenter
+						yieldChange += (numFollowersLocal / 2);
+				}
+
+				{// BELIEF_PROMISED_LAND - gives 1G for every follower in Holy City. 
+					const bool hasBeliefPromisedLand = city.HasBelief("BELIEF_PROMISED_LAND");
+					if (eYieldType == YIELD_GOLD && hasBeliefPromisedLand && isHolyCity) // && isCityCenter
+						yieldChange += (numFollowersLocal);
+				}
+
+				{// POLICY_IRON_CURTAIN - gives +2 tourism per city
+					const bool hasIronCurtain = player.HasPolicy("POLICY_IRON_CURTAIN");
+					if (eYieldType == YIELD_TOURISM && hasIronCurtain) // && isCityCenter
+						yieldChange += 2;
+				}
+
+				{// POLICY_SPACEFLIGHT_PIONEERS - gives +1 scientific insight per city
+					const bool hasSpaceFlightPioneers = player.HasPolicy("POLICY_SPACEFLIGHT_PIONEERS");
+					if (eYieldType == YIELD_SCIENTIFIC_INSIGHT && hasSpaceFlightPioneers) // && isCityCenter
+						yieldChange += 1;
+				}
+
+				{// POLICY_ORGANIZED_RELIGION gives +1C for every 3 Followers in Holy city if you have adopted a religion				
+					const bool hasOrganizedReligion = player.HasPolicy("POLICY_ORGANIZED_RELIGION");
+					if (eYieldType == YIELD_CULTURE && hasOrganizedReligion && isHolyCity) // && isCityCenter
+						yieldChange += (numFollowersLocal / 3);
+				}
+
+				{// BUILDINGCLASS_BOROBUDUR - 1 FH per city
+					const bool hasBorobudur = player.HasWonder(BuildingClass("BUILDINGCLASS_BOROBUDUR"));
+					if (eYieldType == YIELD_FAITH && hasBorobudur) // && isCityCenter
+						yieldChange += 1;
+				}
+
+				{// BUILDINGCLASS_MACHU_PICHU - 2G per city
+					const bool hasMachuPichu = player.HasWonder(BuildingClass("BUILDINGCLASS_MACHU_PICHU"));
+					if (eYieldType == YIELD_GOLD && hasMachuPichu) // && isCityCenter
+						yieldChange += 2;
+				}
+
+				{// BUILDINGCLASS_PYRAMID - 1PD per city
+					const bool hasPyramids = player.HasWonder(BuildingClass("BUILDINGCLASS_PYRAMID"));
+					if (eYieldType == YIELD_PRODUCTION && hasPyramids) // && isCityCenter
+						yieldChange += 1;
+				}
+
+				{// BUILDINGCLASS_TEMPLE_ARTEMIS - 1FD per city
+					const bool hasTempleOfArtemis = player.HasWonder(BuildingClass("BUILDINGCLASS_TEMPLE_ARTEMIS"));
+					if (eYieldType == YIELD_FOOD && hasTempleOfArtemis) // && isCityCenter
+						yieldChange += 1;
+				}
+			} // END isCityCenter
 
 			{// BELIEF_Messiah - renamed Sacrificial Altars - Holy Sites - 1 faith, culture, tourism, and 1 additioanl for 40 followers (max 3)
 				const bool hasBeliefSacrificialAltars = city.HasBelief("BELIEF_MESSIAH");
@@ -153,48 +270,6 @@ int CvPlot::getExtraYield
 					yieldChange += 1 + min(3, numFollowersGlobal / 40);
 				if (eYieldType == YIELD_TOURISM && hasBeliefSacrificialAltars && isHolySite)
 					yieldChange += 1 + min(3, numFollowersGlobal / 40);
-			}
-
-			{// BELIEF_MISSIONARY_ZEAL - Holy City - 2 tourism and 1 tourism per 12 followers (max 20)
-				const bool hasBeliefMissionaryZeal = city.HasBelief("BELIEF_MISSIONARY_ZEAL");
-				if (eYieldType == YIELD_TOURISM && hasBeliefMissionaryZeal && isHolyCity && isCityCenter)
-					yieldChange += 2 + min(20, numFollowersGlobal / 12);
-			}
-
-			{// BELIEF_MITHRAEA - Holy City - 3 food and 1 food per 6 followers (max 30)
-				const bool hasBeliefMithraea = city.HasBelief("BELIEF_MITHRAEA");
-				if (eYieldType == YIELD_FOOD && hasBeliefMithraea && isHolyCity && isCityCenter)
-					yieldChange += 3 + min(30, numFollowersGlobal / 6);
-			}
-
-			{// BELIEF_HEATHEN_CONVERSION - renamed religious troubarods - Trade Routes - 3 faith, 3 diplo points, +2 trade routes
-				const bool hasBeliefReligiousTroubadors = city.HasBelief("BELIEF_HEATHEN_CONVERSION");
-				if (eYieldType == YIELD_DIPLOMATIC_SUPPORT && hasBeliefReligiousTroubadors && isHolyCity && isCityCenter)
-					yieldChange += ((numTradeMajorCivs + numTradeCityStates) * 3);
-			}
-
-			{// BELIEF_RELIGIOUS_UNITY - +4 diplo for foreign city following (max 32) 
-				const bool hasBeliefReligiousUnity = city.HasBelief("BELIEF_RELIGIOUS_UNITY");
-				if (eYieldType == YIELD_DIPLOMATIC_SUPPORT && hasBeliefReligiousUnity && isHolyCity && isCityCenter)
-					yieldChange += (numCityStatesFollowing * 4);
-			}
-
-			{// BELIEF_SALATT - Holy City - 2 Production, 1 Production per 8 followers (max 20)
-				const bool hasBeliefSalatt = city.HasBelief("BELIEF_SALATT");
-				if (eYieldType == YIELD_PRODUCTION && hasBeliefSalatt && isHolyCity && isCityCenter)
-					yieldChange += 2 + min(20, numFollowersGlobal / 8);
-			}
-
-			{// BELIEF_TITHE - Holy City - 4 Gold, 1 Gold per 4 followers (max 40)
-				const bool hasBeliefTithe = city.HasBelief("BELIEF_TITHE");
-				if (eYieldType == YIELD_GOLD && hasBeliefTithe && isHolyCity && isCityCenter)
-					yieldChange += 2 + min(40, numFollowersGlobal / 4);
-			}
-
-			{// BELIEF_ZAKATT - Holy City - 1 Scientific Influence, 1 per 16 followers (max 10)
-				const bool hasBeliefZakatt = city.HasBelief("BELIEF_ZAKATT");
-				if (eYieldType == YIELD_SCIENTIFIC_INSIGHT && hasBeliefZakatt && isHolyCity && isCityCenter)
-					yieldChange += 1 + min(10, numFollowersGlobal / 16);
 			}
 
 			{// POLICY_NEW_DEAL - GP Tile +2 Atoll Yields, +2 Tourism from Natural Wonders
@@ -251,24 +326,6 @@ int CvPlot::getExtraYield
 					yieldChange += 1;
 			}
 
-			{// BELIEF_DEFENDER_FAITH - gives 2FH for every 3 Followers in Holy City. 
-				const bool hasBeliefDefenderOfTheFaith = city.HasBelief("BELIEF_DEFENDER_FAITH");
-				if (eYieldType == YIELD_FAITH && hasBeliefDefenderOfTheFaith && isHolyCity && isCityCenter)
-					yieldChange += (numFollowersLocal / 3) * 2;
-			}
-			
-			{// BELIEF_KARMA - gives 1C for every 2 Followers in Holy City. 
-				const bool hasBeliefKarma = city.HasBelief("BELIEF_KARMA");
-				if (eYieldType == YIELD_CULTURE && hasBeliefKarma && isHolyCity && isCityCenter)
-					yieldChange += (numFollowersLocal / 2);
-			}
-
-			{// BELIEF_PROMISED_LAND - gives 1G for every follower in Holy City. 
-				const bool hasBeliefPromisedLand = city.HasBelief("BELIEF_PROMISED_LAND");
-				if (eYieldType == YIELD_GOLD && hasBeliefPromisedLand && isHolyCity && isCityCenter)
-					yieldChange += (numFollowersLocal);
-			}
-
 			{// Policy_Cutural Exchange - gives 1 tourism to great person tile improvements. 
 				const bool hasPolicyCulturalExchange = player.HasPolicy("POLICY_ETHICS");
 				if (eYieldType == YIELD_TOURISM && hasPolicyCulturalExchange && isGreatTile)
@@ -286,18 +343,6 @@ int CvPlot::getExtraYield
 				const bool isAcadamy = plot.HasImprovement("IMPROVEMENT_ACADEMY");
 				if (eYieldType == YIELD_SCIENTIFIC_INSIGHT && hasSpaceProcurement && isAcadamy)
 					yieldChange += 3;
-			}
-
-			{// POLICY_IRON_CURTAIN - gives +2 tourism per city
-				const bool hasIronCurtain = player.HasPolicy("POLICY_IRON_CURTAIN");
-				if (eYieldType == YIELD_TOURISM && hasIronCurtain && isCityCenter)
-					yieldChange += 2;
-			}
-
-			{// POLICY_SPACEFLIGHT_PIONEERS - gives +1 scientific insight per city
-				const bool hasSpaceFlightPioneers = player.HasPolicy("POLICY_SPACEFLIGHT_PIONEERS");
-				if (eYieldType == YIELD_SCIENTIFIC_INSIGHT && hasSpaceFlightPioneers && isCityCenter)
-					yieldChange += 1;
 			}
 
 			{// POLICY_NEW_ORDER - gives +3 tourism, culture, diplo points, gold to citadels
@@ -322,12 +367,6 @@ int CvPlot::getExtraYield
 					yieldChange += 3;
 				if (eYieldType == YIELD_SCIENCE && hasHonorFinisher && isCitadel)
 					yieldChange += 3;
-			}
-
-			{// POLICY_ORGANIZED_RELIGION gives +1C for every 3 Followers in Holy city if you have adopted a religion				
-				const bool hasOrganizedReligion = player.HasPolicy("POLICY_ORGANIZED_RELIGION");				
-				if (eYieldType == YIELD_CULTURE && hasOrganizedReligion && isHolyCity && isCityCenter)
-					yieldChange += (numFollowersLocal / 3);
 			}
 
 			{// POLICY_EXPLORATION_FINISHER gives +1C from Coastal Luxuries, +1PD from Atolls, 2PD, 2G from DryDocks				
@@ -363,30 +402,6 @@ int CvPlot::getExtraYield
 				if (eYieldType == YIELD_FOOD && isMarsh && isPolder)
 					yieldChange += 2;
 			}
-
-			{// BUILDINGCLASS_BOROBUDUR - 1 FH per city
-				const bool hasBorobudur = player.HasWonder(BuildingClass("BUILDINGCLASS_BOROBUDUR"));
-				if (eYieldType == YIELD_FAITH && hasBorobudur && isCityCenter)
-					yieldChange += 1;
-			}
-
-			{// BUILDINGCLASS_MACHU_PICHU - 2G per city
-				const bool hasMachuPichu = player.HasWonder(BuildingClass("BUILDINGCLASS_MACHU_PICHU"));
-				if (eYieldType == YIELD_GOLD && hasMachuPichu && isCityCenter)
-					yieldChange += 2;
-			}				
-
-			{// BUILDINGCLASS_PYRAMID - 1PD per city
-				const bool hasPyramids = player.HasWonder(BuildingClass("BUILDINGCLASS_PYRAMID"));
-				if (eYieldType == YIELD_PRODUCTION && hasPyramids && isCityCenter)
-					yieldChange += 1;
-			}
-
-			{// BUILDINGCLASS_TEMPLE_ARTEMIS - 1FD per city
-				const bool hasTempleOfArtemis = player.HasWonder(BuildingClass("BUILDINGCLASS_TEMPLE_ARTEMIS"));
-				if (eYieldType == YIELD_FOOD && hasTempleOfArtemis && isCityCenter)
-					yieldChange += 1;
-			} 			
 
 			{// BUILDINGCLASS_PORCELAIN_TOWER - 3SC per Lucury
 				const bool hasPorcelinTower = player.HasWonder(BuildingClass("BUILDINGCLASS_PORCELAIN_TOWER"));

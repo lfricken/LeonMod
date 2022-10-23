@@ -213,13 +213,6 @@ int CvPlayer::GetExtraYieldForBuilding
 			yieldChange += (numCityStateAllies * 5);
 	}
 
-	{// POLICY_CONSULATES - gives +3C to the Palace for each City-State Ally
-		const bool hasConsulates = player.HasPolicy("POLICY_CONSULATES");
-		const bool isPalace = eBuildingClass == BuildingClass("BUILDINGCLASS_PALACE");
-		if (eYieldType == YIELD_CULTURE && !isPercentMod && hasConsulates && isPalace)
-			yieldChange += (numCityStateAllies * 3);
-	}
-
 	{// TIBET_STUPA // adds one of several yields every few techs
 		const bool isStupa = eBuildingClass == BuildingClass("BUILDINGCLASS_TIBET");
 		const bool hasEducation = player.HasTech("TECH_EDUCATION");
