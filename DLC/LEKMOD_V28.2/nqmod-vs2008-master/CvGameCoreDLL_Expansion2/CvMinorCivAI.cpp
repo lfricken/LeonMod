@@ -4261,7 +4261,7 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(const PlayerTypes ePlayer)
 		if (!IsAtWarWithPlayersTeam(ePlayer)) // cant gain this influence if at war
 		{ // find military winner
 			T100 highestStrengthT100 = GC.getMIN_CS_STRENGTH_INFLUENCET100();
-			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+			for (int iPlayerLoop = 0; iPlayerLoop < (MAX_CIV_PLAYERS + 1); iPlayerLoop++) // +1 to include barbs
 			{
 				const PlayerTypes loopPlayer = (PlayerTypes)iPlayerLoop;
 				if (!GET_PLAYER(loopPlayer).isAlive()) continue; // must be alive
