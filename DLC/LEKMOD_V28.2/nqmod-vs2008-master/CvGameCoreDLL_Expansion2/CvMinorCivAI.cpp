@@ -4360,13 +4360,10 @@ void CvMinorCivAI::SetFriendshipWithMajorTimes100(PlayerTypes ePlayer, int iNum,
 
 	int iOldEffectiveFriendship = GetEffectiveFriendshipWithMajorTimes100(ePlayer);
 
-	m_aiFriendshipWithMajorTimes100[ePlayer] = iNum;
+	// bound value
+	m_aiFriendshipWithMajorTimes100[ePlayer] = max(minAnchorT100, min(maxAnchorT100, iNum));
 
-	int iMinimumFriendshipT100 = GC.getMINOR_FRIENDSHIP_AT_WAR() * 100;
-	if (GetBaseFriendshipWithMajorTimes100(ePlayer) < iMinimumFriendshipT100)
-		m_aiFriendshipWithMajorTimes100[ePlayer] = iMinimumFriendshipT100;
-
-	int iNewEffectiveFriendship = GetEffectiveFriendshipWithMajorTimes100(ePlayer);
+	const int iNewEffectiveFriendship = m_aiFriendshipWithMajorTimes100[ePlayer];
 
 	// Has the friendship in effect changed?
 	if(iOldEffectiveFriendship != iNewEffectiveFriendship)
