@@ -1297,7 +1297,7 @@ public:
 	// Science
 
 	void RecalculateNonLeaderBoost();
-	// [0, 100] where 1 would be a 100% science boost
+	// [0, 100] where 15 would be a +15% science boost
 	T100 GetNonLeaderBoostT100() const;
 	// How many turns we are behind in tech.
 	// If they have 9 techs and we have 7, and we get 0.5 techs per turn, this value would be ((9 - 7) / 0.5) * 100= 400

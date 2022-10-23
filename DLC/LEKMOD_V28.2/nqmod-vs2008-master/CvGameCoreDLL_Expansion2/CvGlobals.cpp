@@ -2497,7 +2497,7 @@ int CvGlobals::getGREAT_SCIENTIST_AMOUNT() const
 }
 T100 CvGlobals::getSCIENCE_CATCHUP_DIFFT100() const
 {
-	return 1200;
+	return 1000 + getSCIENCE_CATCHUP_DIFF_NONET100(); // 10 turns + whatever doesn't count
 }
 T100 CvGlobals::getSCIENCE_CATCHUP_DIFF_NONET100() const
 {

@@ -310,7 +310,7 @@ public:
 	int GetResearchCost(TechTypes eTech) const;
 	int GetResearchLeft(TechTypes eTech) const;
 	CvTechXMLEntries* GetTechs() const;
-	// How many total beakers do we have?
+	// How many total beakers do we have, NOT adjusted for tech cost increases, so as if we had 1 city
 	int GetTreeProgressBeakers() const;
 
 private:

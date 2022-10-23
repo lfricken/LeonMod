@@ -19147,11 +19147,11 @@ void CvPlayer::RecalculateNonLeaderBoost()
 	const T100 allowedTurnsLagT100 = GC.getSCIENCE_CATCHUP_DIFF_NONET100(); // how far a player can fall behind without getting a boost in turns
 	const T100 reachMaxBoost = 3; // reach max boost early
 	const T100 percentGameDone = GC.getPercentTurnsDoneT10000() / 100;
-	const T100 effectiveGameDone = max(0l, min((T100)100, (percentGameDone * reachMaxBoost))); // don't exceed 100% done
-	const T100 naiveBoost = (leaderTechDiffT100 - allowedTurnsLagT100) / (GC.getSCIENCE_CATCHUP_DIFFT100() - allowedTurnsLagT100);
-	const T100 boost = min((T100)100, max((T100)0, naiveBoost)); // tech boost
-	const T100 resultBoost = min((T100)100, boost * max((T100)10, effectiveGameDone));
-	m_iScienceRubberBand = resultBoost;
+	const T100 effectiveGameDone = max(10l, min((T100)100, (percentGameDone * reachMaxBoost))); // don't exceed 100% done, always 10% done
+	const T100 naiveBoostT100 = ((leaderTechDiffT100 - allowedTurnsLagT100) * 100) / (GC.getSCIENCE_CATCHUP_DIFFT100() - allowedTurnsLagT100);
+	const T100 boostT100 = min((T100)100, max((T100)0, naiveBoostT100)); // bound the boost
+	const T100 resultBoostT100 = min((T100)100, boostT100 * effectiveGameDone);
+	m_iScienceRubberBand = resultBoostT100;
 }
 
 T100 CvPlayer::GetNonLeaderBoostT100() const

@@ -7608,7 +7608,7 @@ int CvLuaPlayer::lGetScienceTopPanelTooltip(lua_State* L)
 	{
 		const int increase = pkPlayer->GetPlayerTechs()->GetResearchCostIncreasePercentT100();
 		const int increasePer = GC.getMap().getWorldInfo().GetNumCitiesTechCostMod();
-		const int percentFromOthers = pkPlayer->GetNonLeaderBoostT100() - 100;
+		const int percentFromOthers = pkPlayer->GetNonLeaderBoostT100();
 
 		string color = "[COLOR_POSITIVE_TEXT]";
 		if (percentFromOthers <= 0) color = "[COLOR_NEGATIVE_TEXT]";

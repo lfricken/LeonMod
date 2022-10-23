@@ -1862,20 +1862,20 @@ void CvGame::CheckPlayerTurnDeactivate()
 //	---------------------------------------------------------------------------------------------------------
 void CvGame::updateScienceCatchup()
 {
-	int progresses [MAX_CIV_TEAMS];
+	int progressInBeakers [MAX_CIV_TEAMS];
 	// find winner
-	int bestPercentTechTreeDone = 0;
+	int bestTechTreeBeakers = 0;
 	for (int iPlayer = 0; iPlayer < MAX_CIV_PLAYERS; iPlayer++)
 	for (PlayerTypes iPlayer = (PlayerTypes)0; iPlayer < MAX_CIV_PLAYERS; iPlayer = (PlayerTypes)(iPlayer + 1))
 	{
 		const CvPlayer& rPlayer = GET_PLAYER((PlayerTypes)iPlayer);
-		if (rPlayer.isHuman()) // ONLY consider human players when producing tech boost
+		//if (rPlayer.isHuman()) // ONLY consider human players when producing tech boost
 		{
 			const TeamTypes team = rPlayer.getTeam();
-			const int percTechTreeDone = GET_TEAM(team).GetTeamTechs()->GetTreeProgressBeakers();
-			progresses[team] = percTechTreeDone;
-			if (percTechTreeDone > bestPercentTechTreeDone)
-				bestPercentTechTreeDone = percTechTreeDone;
+			const int beakersInTechTreeDone = GET_TEAM(team).GetTeamTechs()->GetTreeProgressBeakers();
+			progressInBeakers[team] = beakersInTechTreeDone;
+			if (beakersInTechTreeDone > bestTechTreeBeakers)
+				bestTechTreeBeakers = beakersInTechTreeDone;
 		}
 	}
 
@@ -1884,8 +1884,8 @@ void CvGame::updateScienceCatchup()
 	for (PlayerTypes player = (PlayerTypes)0; player < MAX_CIV_TEAMS; player = (PlayerTypes)(player + 1))
 	{
 		CvPlayer& rPlayer = GET_PLAYER(player);
-		const int progress = progresses[player];
-		const int beakerDifference = max(0, bestPercentTechTreeDone - progress);
+		const int beakers = progressInBeakers[player];
+		const int beakerDifference = max(0, bestTechTreeBeakers - beakers);
 		if (beakerDifference > 0) // not all players may be considered for tech boost, so this could go negative
 		{
 			const T100 adjustedBeakerDifferenceT100 = (beakerDifference * (100 + rPlayer.GetPlayerTechs()->GetResearchCostIncreasePercentT100()));
