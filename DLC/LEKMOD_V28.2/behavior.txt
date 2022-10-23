@@ -12,8 +12,22 @@ replace floats:
 
 
 
+combat strength modifiers 
+CvUnit::GetGenericMaxStrengthModifier
+CvUnit::GetMaxRangedCombatStrength
+
+
+great works dig
+CvPlayerCulture::DoArchaeologyChoice
+
+
+How fast do units heal
+CvUnit::healRate
+
+
 found settle city
 CvCitySiteEvaluator::CanFound
+MIN_CITY_RANGE
 
 
 Descriptions of obscure behavior and functionality code locations:

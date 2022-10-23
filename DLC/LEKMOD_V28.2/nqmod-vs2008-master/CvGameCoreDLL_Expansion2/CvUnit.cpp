@@ -5647,11 +5647,7 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bTestVisible) const
 			int iBestDefenderValue = 0;
 			int iBestDefenderID = 0;
 
-#ifdef AUI_WARNING_FIXES
-			for (uint iUnitLoop = 0; iUnitLoop < plot()->getNumUnits(); iUnitLoop++)
-#else
 			for(int iUnitLoop = 0; iUnitLoop < plot()->getNumUnits(); iUnitLoop++)
-#endif
 			{
 				pUnit = plot()->getUnitByIndex(iUnitLoop);
 
@@ -12724,8 +12720,8 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 				iModifier += iTempModifier;
 
 				// Founder Belief bonus
-				CvCity* pPlotCity = pTargetPlot->getWorkingCity();
-				if(pPlotCity)
+				const CvCity* pPlotCity = pTargetPlot->getWorkingCity();
+				if(pPlotCity != NULL)
 				{
 					ReligionTypes eReligion = pPlotCity->GetCityReligions()->GetReligiousMajority();
 					if(eReligion != NO_RELIGION && eReligion == eFoundedReligion)
@@ -12747,8 +12743,8 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 				iModifier += iTempModifier;
 
 				// Founder Belief bonus (this must be a city controlled by an enemy)
-				CvCity* pPlotCity = pTargetPlot->getWorkingCity();
-				if(pPlotCity)
+				const CvCity* pPlotCity = pTargetPlot->getWorkingCity();
+				if(pPlotCity != NULL)
 				{
 					if(atWar(getTeam(), pPlotCity->getTeam()))
 					{
@@ -18256,7 +18252,7 @@ void CvUnit::ChangeHeavyChargeDownhill(int iChange)
 int CvUnit::getFriendlyLandsModifier() const
 {
 	VALIDATE_OBJECT
-	return m_iFriendlyLandsModifier;
+	return m_iFriendlyLandsModifier + 20; // 20% base modifier
 }
 
 //	--------------------------------------------------------------------------------

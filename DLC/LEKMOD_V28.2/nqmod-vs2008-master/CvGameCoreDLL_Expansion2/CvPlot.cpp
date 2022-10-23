@@ -4322,17 +4322,14 @@ bool CvPlot::IsFriendlyTerritory(const PlayerTypes ePlayer) const
 		return true;
 	}
 
-	// City State's territory we've earned OB with
-	if(!GET_PLAYER(ePlayer).isMinorCiv())
+	// Ally City State's territory
+	if(!GET_PLAYER(ePlayer).isMinorCiv() && GET_TEAM(ePlotOwner).isMinorCiv())
 	{
-		if(GET_TEAM(ePlotOwner).isMinorCiv())
-		{
-			PlayerTypes eCityState = GET_TEAM(ePlotOwner).getLeaderID();
+		const PlayerTypes eCityState = GET_TEAM(ePlotOwner).getLeaderID();
 
-			if(GET_PLAYER(eCityState).GetMinorCivAI()->IsPlayerHasOpenBorders(ePlayer))
-			{
-				return true;
-			}
+		if(GET_PLAYER(eCityState).GetMinorCivAI()->IsPlayerHasOpenBorders(ePlayer))
+		{
+			return true;
 		}
 	}
 
