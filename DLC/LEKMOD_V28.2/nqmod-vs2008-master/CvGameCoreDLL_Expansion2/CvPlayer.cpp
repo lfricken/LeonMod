@@ -6087,7 +6087,6 @@ void CvPlayer::ChangeDiplomaticInfluence(const int iChange)
 	if (iChange != 0)
 		m_iDiplomaticInfluence += iChange;
 }
-//	--------------------------------------------------------------------------------
 int CvPlayer::GetDiplomaticInfluenceNeeded() const
 {
 	const int numCityStates = CvPreGame::numMinorCivs();
@@ -6107,7 +6106,7 @@ int CvPlayer::GetDiplomaticInfluenceNeeded() const
 
 	// truncate FLOORs to the nearest value
 	const int truncate = 10;
-	return (influenceNeededT100 / truncate) * truncate;
+	return ((influenceNeededT100 / 100) / truncate) * truncate;
 }
 //	--------------------------------------------------------------------------------
 void CvPlayer::GetScientificInfluencePerTurn(int* influenceThisTurn) const

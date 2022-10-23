@@ -258,7 +258,7 @@ public:
 	void GetDiplomaticInfluencePerTurn(int* influenceThisTurn, int* iNumMinorCapitalsControlled) const;
 	int GetDiplomaticInfluence() const;
 	void ChangeDiplomaticInfluence(const int iChange);
-	// how much needed to achieve victory condition
+	// how much needed to achieve victory condition (NOT T100)
 	int GetDiplomaticInfluenceNeeded() const;
 
 	// how much we will earn at the end of this turn
