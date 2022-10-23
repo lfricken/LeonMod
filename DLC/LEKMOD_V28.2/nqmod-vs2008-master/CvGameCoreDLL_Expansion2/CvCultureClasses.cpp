@@ -2628,16 +2628,33 @@ int CvPlayerCulture::GetLastTurnInfluenceOn(PlayerTypes ePlayer) const
 int CvPlayerCulture::GetNetTourismWith(PlayerTypes eOtherPlayer, const bool) const
 {
 	T100 tourismT100 = 0;
+	T100 totalModT100 = 0;
 
 	CvPlayer &kOtherPlayer = GET_PLAYER(eOtherPlayer);
 	CvTeam &kOtherTeam = GET_TEAM(kOtherPlayer.getTeam());
 
 	if ((int)eOtherPlayer != m_pPlayer->GetID() && kOtherPlayer.isAlive() && !kOtherPlayer.isMinorCiv() && kOtherTeam.isHasMet(m_pPlayer->getTeam()))
 	{
-		GetNetTourismT100With_AndReturnTooltip(eOtherPlayer, tourismT100);
+		GetNetTourismT100With_AndReturnTooltip(eOtherPlayer, &tourismT100, &totalModT100);
 	}
 
 	return tourismT100 / 100;
+}
+
+void showAndApplyFactorIncreaseOfDecimal(stringstream& s, const int modT100, long long* valT10000)
+{
+	const long long oldValT10000 = *valT10000; // grab old value
+	const decimal factor = GC.toFactor(modT100);
+	*valT10000 *= 100 + modT100;
+	*valT10000 /= 100;
+	//if (modT100 > 0)      s << "[COLOR_POSITIVE_TEXT]";
+	//else if (modT100 < 0) s << "[COLOR_NEGATIVE_TEXT]";
+	//else				  s << "[COLOR_GREY]";
+	s << std::fixed << std::setprecision(3) << factor 
+		<< " x " << 
+		std::fixed << std::setprecision(3) << (oldValT10000 / (f100 * f100))
+		<< " = " << 
+		std::fixed << std::setprecision(3) << (*valT10000 / (f100 * f100));
 }
 
 void showAndApplyFactorIncrease(stringstream& s, const int modT100, int& valT100)
@@ -2662,14 +2679,14 @@ void addColoredValue(stringstream& s, const int modT100, const string descriptio
 	if (includePercent) perc = "% ";
 	s << perc << description << "[ENDCOLOR][NEWLINE]";
 }
-CvString CvPlayerCulture::GetNetTourismT100With_AndReturnTooltip(const PlayerTypes eOtherPlayer, T100& newValueT100) const
+CvString CvPlayerCulture::GetNetTourismT100With_AndReturnTooltip(const PlayerTypes eOtherPlayer, T100* newValueT100, T100* totalModT100) const
 {
 	CvString szRtnValue = "";
 	const CvPlayer& kPlayer = GET_PLAYER(eOtherPlayer);
 	PolicyBranchTypes eMyIdeology = m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree();
 	PolicyBranchTypes eTheirIdeology = kPlayer.GetPlayerPolicies()->GetLateGamePolicyTree();
 
-	int tourismT100 = GetOurNetTourismT100();
+	//int tourismT100 = GetOurNetTourismT100();
 
 	// Open borders
 	//if (kTeam.IsAllowsOpenBordersToTeam(m_pPlayer->getTeam()))
@@ -2689,11 +2706,13 @@ CvString CvPlayerCulture::GetNetTourismT100With_AndReturnTooltip(const PlayerTyp
 	//else
 	//{
 	//	szRtnValue += "[COLOR_GREY]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_TRADE_ROUTE", 0) + "[ENDCOLOR]";
-	//}
+	//
 
+
+	long long factorT1000 = 10000;
+	int totalLinearModT100 = 0;
 	stringstream stream;
 	{
-		int totalLinearModT100 = 0;
 
 		// now lives as a boost to diplomatic influence
 		//{ // Trade route bonus
@@ -2793,8 +2812,14 @@ CvString CvPlayerCulture::GetNetTourismT100With_AndReturnTooltip(const PlayerTyp
 			totalLinearModT100 += mod;
 		}
 
-		showAndApplyFactorIncrease(stream, totalLinearModT100, tourismT100);
 		stream << "[NEWLINE]";
+		addColoredValue(stream, totalLinearModT100, " from above");
+
+		//showAndApplyFactorIncrease(stream, totalLinearModT100, tourismT100);
+		//stream << "[NEWLINE]";
+
+		factorT1000 *= (100 + totalLinearModT100);
+		factorT1000 /= 100;
 	}
 	
 	stream << "[NEWLINE][COLOR_CYAN]Compounded:[ENDCOLOR][NEWLINE]";
@@ -2802,13 +2827,13 @@ CvString CvPlayerCulture::GetNetTourismT100With_AndReturnTooltip(const PlayerTyp
 	{ // technology
 		const int mod = GetTourismModifierTechnologyT100(eOtherPlayer);
 		addColoredValue(stream, mod, "from Technologies");
-		showAndApplyFactorIncrease(stream, mod, tourismT100);
+		showAndApplyFactorIncreaseOfDecimal(stream, mod, &factorT1000);
 		stream << "[NEWLINE]";
 	}
 	{ // adjust for number of cities
 		const int mod = GetTourismModifierCityCountT100(eOtherPlayer);
 		addColoredValue(stream, mod, "from City Count Difference");
-		showAndApplyFactorIncrease(stream, mod, tourismT100);
+		showAndApplyFactorIncreaseOfDecimal(stream, mod, &factorT1000);
 		stream << "[NEWLINE]";
 	}
 	//{ // adjust for previous progress
@@ -2818,7 +2843,12 @@ CvString CvPlayerCulture::GetNetTourismT100With_AndReturnTooltip(const PlayerTyp
 	//	stream << "[NEWLINE]";
 	//}
 
-	newValueT100 = tourismT100;
+	factorT1000 /= 10;
+	long long tourismT100 = GetOurNetTourismT100();
+
+	tourismT100 *= factorT1000;
+	tourismT100 /= 1000;
+	*newValueT100 = tourismT100;
 
 	szRtnValue += stream.str().c_str();
 
@@ -2827,14 +2857,10 @@ CvString CvPlayerCulture::GetNetTourismT100With_AndReturnTooltip(const PlayerTyp
 
 int CvPlayerCulture::GetTourismModifierWithT100(PlayerTypes eOtherPlayer, bool, bool, bool, bool, bool, const bool) const
 {
-	T100 oldTourismT100 = GetOurNetTourismT100();
 	T100 newTourismT100 = 0;
-	GetNetTourismT100With_AndReturnTooltip(eOtherPlayer, newTourismT100);
-
-	if (newTourismT100 < 100 || oldTourismT100 < 100)
-		return 0;
-
-	return ((newTourismT100 * 100) / oldTourismT100) - 100;
+	T100 totalModT100 = 0;
+	GetNetTourismT100With_AndReturnTooltip(eOtherPlayer, &newTourismT100, &totalModT100);
+	return totalModT100;
 }
 
 T100 CvPlayerCulture::GetTourismModifierTradeRoutesT100(const PlayerTypes eOtherPlayer) const

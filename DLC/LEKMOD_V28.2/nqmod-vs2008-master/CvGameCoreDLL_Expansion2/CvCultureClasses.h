@@ -271,7 +271,7 @@ public:
 	// Net tourism with other
 	int GetNetTourismWith(const PlayerTypes eOtherPlayer, const bool ignoreVpCatchup = false) const;
 	// tourism mod with other
-	CvString GetNetTourismT100With_AndReturnTooltip(const PlayerTypes eOtherPlayer, T100& newValue) const;
+	CvString GetNetTourismT100With_AndReturnTooltip(const PlayerTypes eOtherPlayer, T100* newValue, T100* totalModT100) const;
 	// tourism mod (eg 50) with other
 	int GetTourismModifierWithT100(PlayerTypes eOtherPlayer,
 		bool bIgnoreReligion = false,
