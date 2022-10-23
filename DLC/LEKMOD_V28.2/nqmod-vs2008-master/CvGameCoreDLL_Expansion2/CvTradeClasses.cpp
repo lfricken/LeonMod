@@ -2572,7 +2572,7 @@ int CvPlayerTrade::GetTradeConnectionRiverValueModifierTimes100(const TradeConne
 int CvPlayerTrade::CalcTradeConnectionValueTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer) const
 {
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
-	int iValue = 0;
+	T100 iValueT100 = 0;
 
 	if (bAsOriginPlayer)
 	{
@@ -2585,7 +2585,7 @@ int CvPlayerTrade::CalcTradeConnectionValueTimes100(const TradeConnection& kTrad
 			case YIELD_PRODUCTION:
 			case YIELD_FOOD:
 			//case YIELD_CULTURE: // this doesn't work yet with JONSCulture stuff, figure it out later
-				iValue = GetTradeConnectionPolicyValueTimes100(kTradeConnection, eYield);
+				iValueT100 = GetTradeConnectionPolicyValueTimes100(kTradeConnection, eYield);
 				break;
 			// NQMP GJS - New Merchant Confederacy end
 			case YIELD_GOLD:
@@ -2608,35 +2608,29 @@ int CvPlayerTrade::CalcTradeConnectionValueTimes100(const TradeConnection& kTrad
 #endif
 					int iOriginRiverModifier = GetTradeConnectionRiverValueModifierTimes100(kTradeConnection, eYield, bAsOriginPlayer);
 
-					iValue = iBaseValue;
-					iValue += iOriginPerTurnBonus;
-					iValue += iDestPerTurnBonus;
-					iValue += iExclusiveBonus;
-					iValue += iYourBuildingBonus;
-					iValue += iTheirBuildingBonus;
-					iValue += iResourceBonus;
+					iValueT100 = iBaseValue;
+					iValueT100 += iOriginPerTurnBonus;
+					iValueT100 += iDestPerTurnBonus;
+					iValueT100 += iExclusiveBonus;
+					iValueT100 += iYourBuildingBonus;
+					iValueT100 += iTheirBuildingBonus;
+					iValueT100 += iResourceBonus;
 					//iValue += iPolicyBonus;
-					iValue += iTraitBonus;
+					iValueT100 += iTraitBonus;
 
 #ifndef AUI_TRADE_FIX_CONNECTION_VALUE_MULTIPLICATIVE_STACKING_DOMAIN_MODIFIERS
 					iModifier += iDomainModifier;
 #endif
 					iModifier += iOriginRiverModifier;
 
-					iValue *= iModifier;
-					iValue /= 100;
-					iValue = max(100, iValue);
+					iValueT100 *= iModifier;
+					iValueT100 /= 100;
+					iValueT100 = max(100l, iValueT100);
 				}
 				break;
 			case YIELD_SCIENCE:
 				int iBaseValue = GetTradeConnectionBaseValueTimes100(kTradeConnection, eYield, bAsOriginPlayer);
-
-				iValue = iBaseValue;
-
-				int iModifier = 100;
-				
-				iValue *= iModifier;
-				iValue /= 100;
+				iValueT100 = iBaseValue;
 				break;
 			}
 		}
@@ -2664,18 +2658,18 @@ int CvPlayerTrade::CalcTradeConnectionValueTimes100(const TradeConnection& kTrad
 						int iDestRiverModifier = GetTradeConnectionRiverValueModifierTimes100(kTradeConnection, eYield, false);
 						int iTraitBonus = GetTradeConnectionOtherTraitValueTimes100(kTradeConnection, eYield, false);
 
-						iValue = iBaseValue;
-						iValue += iYourBuildingBonus;
-						iValue += iTheirBuildingBonus;
-						iValue += iTraitBonus;
+						iValueT100 = iBaseValue;
+						iValueT100 += iYourBuildingBonus;
+						iValueT100 += iTheirBuildingBonus;
+						iValueT100 += iTraitBonus;
 
 #ifndef AUI_TRADE_FIX_CONNECTION_VALUE_MULTIPLICATIVE_STACKING_DOMAIN_MODIFIERS
 						iModifier += iDomainModifier;
 #endif
 						iModifier += iDestRiverModifier;
 
-						iValue *= iModifier;
-						iValue /= 100;
+						iValueT100 *= iModifier;
+						iValueT100 /= 100;
 					}
 					break;
 				case YIELD_SCIENCE:
@@ -2684,10 +2678,10 @@ int CvPlayerTrade::CalcTradeConnectionValueTimes100(const TradeConnection& kTrad
 
 						int iModifier = 100;
 
-						iValue = iBaseValue;
+						iValueT100 = iBaseValue;
 
-						iValue *= iModifier;
-						iValue /= 100;						
+						iValueT100 *= iModifier;
+						iValueT100 /= 100;						
 					}
 					break;
 				}
@@ -2698,7 +2692,7 @@ int CvPlayerTrade::CalcTradeConnectionValueTimes100(const TradeConnection& kTrad
 			// NQMP GJS - Silk Road begin
 			if (eYield == YIELD_GOLD)
 			{
-				iValue = GET_PLAYER(kTradeConnection.m_eDestOwner).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_INTERNAL_TRADE_GOLD_CHANGE);
+				iValueT100 = GET_PLAYER(kTradeConnection.m_eDestOwner).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_INTERNAL_TRADE_GOLD_CHANGE);
 			}
 			// NQMP GJS - Silk Road end
 			switch (kTradeConnection.m_eConnectionType)
@@ -2706,10 +2700,10 @@ int CvPlayerTrade::CalcTradeConnectionValueTimes100(const TradeConnection& kTrad
 			case TRADE_CONNECTION_FOOD:
 				if (eYield == YIELD_FOOD)
 				{
-					iValue = 300;
-					iValue += GC.getEraInfo(GET_PLAYER(kTradeConnection.m_eDestOwner).GetCurrentEra())->getTradeRouteFoodBonusTimes100();
-					iValue *= GC.getEraInfo(GC.getGame().getStartEra())->getGrowthPercent();
-					iValue /= 100;
+					iValueT100 = 300;
+					iValueT100 += GC.getEraInfo(GET_PLAYER(kTradeConnection.m_eDestOwner).GetCurrentEra())->getTradeRouteFoodBonusTimes100();
+					iValueT100 *= GC.getEraInfo(GC.getGame().getStartEra())->getGrowthPercent();
+					iValueT100 /= 100;
 
 					int iModifier = 100;
 					int iDomainModifier = GetTradeConnectionDomainValueModifierTimes100(kTradeConnection, eYield);
@@ -2720,8 +2714,8 @@ int CvPlayerTrade::CalcTradeConnectionValueTimes100(const TradeConnection& kTrad
 					iModifier += iDomainModifier;
 #endif
 					iModifier += GET_PLAYER(kTradeConnection.m_eDestOwner).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_INTERNAL_TRADE_MODIFIER);
-					iValue *= iModifier;
-					iValue /= 100;
+					iValueT100 *= iModifier;
+					iValueT100 /= 100;
 #ifdef FRUITY_TRADITION_LANDED_ELITE
 					iValue += GET_PLAYER(kTradeConnection.m_eDestOwner).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_INTERNAL_TRADE_FOOD_YIELD_CHANGE);
 #endif
@@ -2730,7 +2724,7 @@ int CvPlayerTrade::CalcTradeConnectionValueTimes100(const TradeConnection& kTrad
 #ifdef NQ_INTERNAL_TRADE_ROUTE_PRODUCTION_YIELD_CHANGE_FROM_POLICIES
 				if (eYield == YIELD_PRODUCTION)
 				{
-					iValue += GET_PLAYER(kTradeConnection.m_eDestOwner).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_INTERNAL_TRADE_PRODUCTION_YIELD_CHANGE);
+					iValueT100 += GET_PLAYER(kTradeConnection.m_eDestOwner).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_INTERNAL_TRADE_PRODUCTION_YIELD_CHANGE);
 				}
 #endif
 
@@ -2738,10 +2732,10 @@ int CvPlayerTrade::CalcTradeConnectionValueTimes100(const TradeConnection& kTrad
 			case TRADE_CONNECTION_PRODUCTION:
 				if (eYield == YIELD_PRODUCTION)
 				{
-					iValue = 300;
-					iValue += GC.getEraInfo(GET_PLAYER(kTradeConnection.m_eDestOwner).GetCurrentEra())->getTradeRouteProductionBonusTimes100();
-					iValue *= (GC.getEraInfo(GC.getGame().getStartEra())->getConstructPercent() + GC.getEraInfo(GC.getGame().getStartEra())->getTrainPercent()) / 2;
-					iValue /= 100;
+					iValueT100 = 300;
+					iValueT100 += GC.getEraInfo(GET_PLAYER(kTradeConnection.m_eDestOwner).GetCurrentEra())->getTradeRouteProductionBonusTimes100();
+					iValueT100 *= (GC.getEraInfo(GC.getGame().getStartEra())->getConstructPercent() + GC.getEraInfo(GC.getGame().getStartEra())->getTrainPercent()) / 2;
+					iValueT100 /= 100;
 
 					int iModifier = 100;
 					int iDomainModifier = GetTradeConnectionDomainValueModifierTimes100(kTradeConnection, eYield);
@@ -2752,10 +2746,10 @@ int CvPlayerTrade::CalcTradeConnectionValueTimes100(const TradeConnection& kTrad
 					iModifier += iDomainModifier;
 #endif
 					iModifier += GET_PLAYER(kTradeConnection.m_eDestOwner).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_INTERNAL_TRADE_MODIFIER);
-					iValue *= iModifier;
-					iValue /= 100;
+					iValueT100 *= iModifier;
+					iValueT100 /= 100;
 #ifdef NQ_INTERNAL_TRADE_ROUTE_PRODUCTION_YIELD_CHANGE_FROM_POLICIES
-					iValue += GET_PLAYER(kTradeConnection.m_eDestOwner).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_INTERNAL_TRADE_PRODUCTION_YIELD_CHANGE);
+					iValueT100 += GET_PLAYER(kTradeConnection.m_eDestOwner).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_INTERNAL_TRADE_PRODUCTION_YIELD_CHANGE);
 #endif
 				}
 #ifdef FRUITY_TRADITION_LANDED_ELITE
@@ -2770,7 +2764,7 @@ int CvPlayerTrade::CalcTradeConnectionValueTimes100(const TradeConnection& kTrad
 		}
 	}
 
-	iValue += 100 * GetTradeConnectionValueExtra(kTradeConnection, eYield, bAsOriginPlayer);
+	iValueT100 += 100 * GetTradeConnectionValueExtra(kTradeConnection, eYield, bAsOriginPlayer);
 
 	// reduce from other trade routes originating here FOR GOLD ONLY
 	const CvCity* pCityOrigin = CvGameTrade::GetOriginCity(kTradeConnection);
@@ -2778,11 +2772,15 @@ int CvPlayerTrade::CalcTradeConnectionValueTimes100(const TradeConnection& kTrad
 	{
 		// lose 20% for each one
 		const T100 factor = iPow(100 - 20, CalcNumTradeRoutesOriginatingFromExcept(pCityOrigin, kTradeConnection));
-		iValue *= factor;
-		iValue /= 100;
+		iValueT100 *= factor;
+		iValueT100 /= 100;
 	}
 
-	return iValue;	
+	// dont allow fractional route values
+	iValueT100 = (iValueT100 + 50) / 100; // round
+	iValueT100 *= 100;
+
+	return iValueT100;	
 }
 
 //	--------------------------------------------------------------------------------

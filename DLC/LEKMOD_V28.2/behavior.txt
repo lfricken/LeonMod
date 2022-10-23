@@ -10,6 +10,11 @@ replace floats:
 [e,E][+,-][0-9]
 
 
+
+civ friendship code doesn't make sense. It should only evaluate at the end of a turn, and display predicted friendship increase. Display should explain mechanics (+/-200 limit, per turn expected changes, etc.)
+CvMinorCivAI::DoFriendshipChangeEffects
+
+
 any adjacent military naval unit will blockade the whole city,
 or if there are 2 within 2 range, embarked do not count
 CvCity::IsBlockaded
@@ -19,8 +24,9 @@ unrevealed terrain is not allowed
 int WaterRouteValid
 
 
-15% compounding less benefits from trade routes originating from the same city
-CvPlayerTrade::GetTradeConnectionValueTimes100
+20% compounding less benefits from trade routes originating from the same city
+does not allow fractional benefits
+CvPlayerTrade::CalcTradeConnectionValueTimes100
 
 
 combat strength modifiers 
