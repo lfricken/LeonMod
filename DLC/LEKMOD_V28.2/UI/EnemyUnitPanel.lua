@@ -965,7 +965,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 			end
 
 			-- Bonus for fighting in one's lands
-			if (pToPlot:IsFriendlyTerritory(c)) then
+			if (pToPlot:IsFriendlyTerritory(pMyUnit:GetOwner())) then
 				
 				-- General combat mod
 				iModifier = pMyUnit:GetFriendlyLandsModifier();
