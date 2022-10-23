@@ -512,8 +512,10 @@ public:
 	bool CanHoldAnyAircraft() const;
 	vector<CvUnit*> CvPlot::getAllUnits();
 	vector<const CvUnit*> CvPlot::getAllUnitsConst() const;
-
-	bool isEnemyUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibility, bool bIgnoreBarbs) const;
+	// true if this plot has any enemy units that satisfy the given criteria
+	bool hasEnemyUnit(const PlayerTypes ePlayer, 
+		// if true, will only consider military units, if false, will only consider civilian (strength == 0)
+		const bool militaryUnit, const bool bCheckVisibility, const bool bIgnoreBarbs, const bool ignoreEmbarked = false) const;
 	vector<CvUnit*> GetAdjacentEnemyMilitaryUnits(const TeamTypes eMyTeam, const DomainTypes eDomain = NO_DOMAIN, const bool ignoreBarbs = false) const;
 
 	bool isRoughGround() const

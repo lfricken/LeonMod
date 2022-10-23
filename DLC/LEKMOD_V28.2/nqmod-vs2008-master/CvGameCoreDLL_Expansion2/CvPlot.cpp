@@ -3493,7 +3493,7 @@ bool CvPlot::IsAllowsSailLand(PlayerTypes ePlayer) const
 
 				const TeamTypes ePlayerTeam = GET_PLAYER(ePlayer).getTeam();
 				// adjacent enemy units stop canal usage
-				const bool bAnyNearbyEnemyUnits = isEnemyUnit(ePlayer, true, false, false) || GetAdjacentEnemyMilitaryUnits(ePlayerTeam).size() != 0;
+				const bool bAnyNearbyEnemyUnits = hasEnemyUnit(ePlayer, true, false, false) || GetAdjacentEnemyMilitaryUnits(ePlayerTeam).size() != 0;
 				if (bAnyNearbyEnemyUnits)
 					return false;
 			}
@@ -3568,7 +3568,7 @@ bool CvPlot::CanHoldThisAircraft(const CvUnit* aircraft) const
 		if (IsEnemyTerritory(aircraft->getOwner()))
 			return false;
 		// does contain any enemy units?
-		const bool isAnyEnemyUnit = isEnemyUnit(aircraft->getOwner(), true, false, false) || isEnemyUnit(aircraft->getOwner(), false, false, false);
+		const bool isAnyEnemyUnit = hasEnemyUnit(aircraft->getOwner(), true, false, false) || hasEnemyUnit(aircraft->getOwner(), false, false, false);
 		if (isAnyEnemyUnit)
 			return false;
 	}
@@ -3630,7 +3630,7 @@ vector<CvUnit*> CvPlot::getAllUnits()
 	return units;
 }
 
-bool CvPlot::isEnemyUnit(PlayerTypes ePlayer, bool militaryUnit, bool bCheckVisibility, bool bIgnoreBarbs) const
+bool CvPlot::hasEnemyUnit(const PlayerTypes ePlayer, const bool militaryUnit, const bool bCheckVisibility, const bool bIgnoreBarbs, const bool ignoreEmbarked) const
 {
 	if (ePlayer == NO_PLAYER) return false;
 
@@ -3648,9 +3648,12 @@ bool CvPlot::isEnemyUnit(PlayerTypes ePlayer, bool militaryUnit, bool bCheckVisi
 			const CvUnit* pLoopUnit = GetPlayerUnit(*pUnitNode);
 			pUnitNode = m_units.next(pUnitNode);
 
-			if (pLoopUnit && !pLoopUnit->IsDead())
+			if (pLoopUnit != NULL && !pLoopUnit->IsDead())
 			{
 				if (bCheckVisibility && pLoopUnit->isInvisible(eTeam, false))
+					continue;
+
+				if (ignoreEmbarked && pLoopUnit->isEmbarked())
 					continue;
 
 				const bool isCivilian = pLoopUnit->GetBaseCombatStrength() == 0;

@@ -10409,7 +10409,7 @@ void CvCity::SetOwedCultureBuilding(bool bNewValue)
 bool CvCity::IsBlockaded() const
 {
 	VALIDATE_OBJECT
-	bool bHasWaterRouteBuilding = false;
+		bool bHasWaterRouteBuilding = false;
 
 	CvBuildingXMLEntries* pkGameBuildings = GC.GetGameBuildings();
 
@@ -10417,16 +10417,16 @@ bool CvCity::IsBlockaded() const
 #ifdef AUI_WARNING_FIXES
 	for (uint i = 0; i < GC.GetGameBuildings()->GetNumBuildings(); i++)
 #else
-	for(int i = 0; i < GC.GetGameBuildings()->GetNumBuildings(); i++)
+	for (int i = 0; i < GC.GetGameBuildings()->GetNumBuildings(); i++)
 #endif
 	{
 		BuildingTypes eBuilding = (BuildingTypes)i;
 		CvBuildingEntry* pkBuildingInfo = pkGameBuildings->GetEntry(i);
-		if(pkBuildingInfo)
+		if (pkBuildingInfo)
 		{
-			if(pkBuildingInfo->AllowsWaterRoutes())
+			if (pkBuildingInfo->AllowsWaterRoutes())
 			{
-				if(GetCityBuildings()->GetNumActiveBuilding(eBuilding) > 0)
+				if (GetCityBuildings()->GetNumActiveBuilding(eBuilding) > 0)
 				{
 					bHasWaterRouteBuilding = true;
 					break;
@@ -10436,39 +10436,49 @@ bool CvCity::IsBlockaded() const
 	}
 
 	// there is no water route building, so it can't be blockaded
-	if(!bHasWaterRouteBuilding)
+	if (!bHasWaterRouteBuilding)
 	{
 		return false;
 	}
 
-	int iRange = 2;
-#ifdef AUI_HEXSPACE_DX_LOOPS
-	int iMaxDX, iDX;
-	CvPlot* pLoopPlot;
-	for (int iDY = -iRange; iDY <= iRange; iDY++)
-	{
-		iMaxDX = iRange - MAX(0, iDY);
-		for (iDX = -iRange - MIN(0, iDY); iDX <= iMaxDX; iDX++) // MIN() and MAX() stuff is to reduce loops (hexspace!)
+	{ // an adjacent naval military unit will blockade the city
+		const int minToBlockAdjacent = 1;
+		const int iRange = 1;
+		int countAdjacentEnemyNaval = 0;
+		for (int iDX = -iRange; iDX <= iRange; iDX++)
 		{
-			// No need for range check because loops are set up properly
-			pLoopPlot = plotXY(getX(), getY(), iDX, iDY);
-#else
-	CvPlot* pLoopPlot = NULL;
-
-	for(int iDX = -iRange; iDX <= iRange; iDX++)
-	{
-		for(int iDY = -iRange; iDY <= iRange; iDY++)
-		{
-			pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iDX, iDY, iRange);
-#endif
-			if(!pLoopPlot)
+			for (int iDY = -iRange; iDY <= iRange; iDY++)
 			{
-				continue;
+				const CvPlot* pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iDX, iDY, iRange);
+				// water combat unit that isn't embarked, whether we can see the unit or not
+				if (pLoopPlot != NULL && pLoopPlot->isWater() && pLoopPlot->hasEnemyUnit(getOwner(), true, false, false, true))
+				{
+					countAdjacentEnemyNaval += 1;
+					// even a single adjacent
+					if (countAdjacentEnemyNaval >= minToBlockAdjacent)
+						return true;
+				}
 			}
+		}
+	}
 
-			if(pLoopPlot->isWater() && pLoopPlot->getVisibleEnemyDefender(getOwner()))
+	{ // two or more naval military units within 2 range will blockade
+		const int minToBlock = 2;
+		const int iRange = 2;
+		int countNearbyEnemyNaval = 0;
+		for (int iDX = -iRange; iDX <= iRange; iDX++)
+		{
+			for (int iDY = -iRange; iDY <= iRange; iDY++)
 			{
-				return true;
+				const CvPlot* pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iDX, iDY, iRange);
+				// water combat unit that isn't embarked, whether we can see the unit or not
+				if (pLoopPlot != NULL && pLoopPlot->isWater() && pLoopPlot->hasEnemyUnit(getOwner(), true, false, false, true))
+				{
+					countNearbyEnemyNaval += 1;
+					// even a few adjacent
+					if (countNearbyEnemyNaval >= minToBlock)
+						return true;
+				}
 			}
 		}
 	}
@@ -12219,8 +12229,8 @@ bool CvCity::CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost) const
 	// cannot buy plots with enemy units of any domain (water/land) on or nearby
 	const bool ignoreBarbs = true;
 	const bool isMilitaryOrCivilian =
-		pTargetPlot->isEnemyUnit(getOwner(), true, false, ignoreBarbs) ||
-		pTargetPlot->isEnemyUnit(getOwner(), false, false, ignoreBarbs);
+		pTargetPlot->hasEnemyUnit(getOwner(), true, false, ignoreBarbs) ||
+		pTargetPlot->hasEnemyUnit(getOwner(), false, false, ignoreBarbs);
 	const bool orAnyAdjacent = pTargetPlot->GetAdjacentEnemyMilitaryUnits(getTeam(), NO_DOMAIN, ignoreBarbs).size() > 0;
 	if (isMilitaryOrCivilian || orAnyAdjacent)
 	{
