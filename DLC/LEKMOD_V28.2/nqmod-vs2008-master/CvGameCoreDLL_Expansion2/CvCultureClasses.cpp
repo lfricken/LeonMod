@@ -2709,7 +2709,7 @@ CvString CvPlayerCulture::GetNetTourismT100With_AndReturnTooltip(const PlayerTyp
 	//
 
 
-	long long factorT1000 = 10000;
+	long long factorT1000 = 1000;
 	int totalLinearModT100 = 0;
 	stringstream stream;
 	{
@@ -2818,6 +2818,7 @@ CvString CvPlayerCulture::GetNetTourismT100With_AndReturnTooltip(const PlayerTyp
 		//showAndApplyFactorIncrease(stream, totalLinearModT100, tourismT100);
 		//stream << "[NEWLINE]";
 
+		// apply to to total factor
 		factorT1000 *= (100 + totalLinearModT100);
 		factorT1000 /= 100;
 	}
@@ -2836,19 +2837,15 @@ CvString CvPlayerCulture::GetNetTourismT100With_AndReturnTooltip(const PlayerTyp
 		showAndApplyFactorIncreaseOfDecimal(stream, mod, &factorT1000);
 		stream << "[NEWLINE]";
 	}
-	//{ // adjust for previous progress
-	//	const int mod = getVpAccelerationFactorWithT100(eOtherPlayer);
-	//	addColoredValue(stream, mod, "from VP Acceleration");
-	//	showFactorIncrease(stream, mod, tourismT100);
-	//	stream << "[NEWLINE]";
-	//}
 
-	factorT1000 /= 10;
+	// calculate new tourism T100
 	long long tourismT100 = GetOurNetTourismT100();
-
 	tourismT100 *= factorT1000;
 	tourismT100 /= 1000;
+
+	// output new tourism and the total mod (not factor)
 	*newValueT100 = tourismT100;
+	*totalModT100 = ((factorT1000 + 5) / 10) - 100; // round last digit and turn into a mod rather than a factor (mod of +10 is a factor of 110)
 
 	szRtnValue += stream.str().c_str();
 
