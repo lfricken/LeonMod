@@ -3657,7 +3657,7 @@ bool CvPlot::hasEnemyUnit(const PlayerTypes ePlayer, const bool militaryUnit, co
 					continue;
 
 				const bool isCivilian = pLoopUnit->GetBaseCombatStrength() == 0;
-				if (militaryUnit == isCivilian)
+				if (militaryUnit == isCivilian) // if we want military but it is a civilian (or visa versa)
 					continue;
 
 				if (bIgnoreBarbs && pLoopUnit->isBarbarian())

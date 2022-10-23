@@ -10,6 +10,17 @@ replace floats:
 [e,E][+,-][0-9]
 
 
+any adjacent military naval unit will blockade the whole city,
+or if there are 2 within 2 range, embarked do not count
+CvCity::IsBlockaded
+
+water routes
+unrevealed terrain is not allowed
+int WaterRouteValid
+
+
+15% compounding less benefits from trade routes originating from the same city
+CvPlayerTrade::GetTradeConnectionValueTimes100
 
 
 combat strength modifiers 
