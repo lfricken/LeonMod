@@ -3682,10 +3682,6 @@ int RouteGetNumExtraChildren(CvAStarNode* node,  CvAStar* finder)
 /// Water route valid finder - check the validity of a coordinate
 int WaterRouteValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder)
 {
-#ifndef AUI_ASTAR_MINOR_OPTIMIZATION
-	CvPlot* pNewPlot;
-#endif
-
 	if(parent == NULL)
 	{
 		return TRUE;
@@ -3698,33 +3694,22 @@ int WaterRouteValid(CvAStarNode* parent, CvAStarNode* node, int data, const void
 	const PlayerTypes eDestination = (PlayerTypes)b;
 
 	const TeamTypes eTeam = GET_PLAYER(eOwner).getTeam();
-
-#ifdef AUI_ASTAR_CACHE_PLOTS_AT_NODES
-#ifdef AUI_ASTAR_MINOR_OPTIMIZATION
-	const CvPlot* pNewPlot = node->m_pPlot;
-#else
-	pNewPlot = node->m_pPlot;
-#endif
-	if (!pNewPlot)
-		return FALSE;
-#elif defined(AUI_ASTAR_MINOR_OPTIMIZATION)
 	CvPlot* pNewPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
-#else
-	pNewPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
-#endif
 
+	// unrevealed terrain blocks
 	if(!(pNewPlot->isRevealed(eTeam)))
 	{
 		return FALSE;
 	}
 
+	// allow passage through friendly cities
 	const CvCity* pCity = pNewPlot->getPlotCity();
 	if(pCity && pCity->getTeam() == eTeam)
 	{
 		return TRUE;
 	}
 
-	// allow canals to be water routes
+	// any tile that could count as water
 	if (pNewPlot->CanBeUsedAsWater(eOwner))
 	{
 		return TRUE;
