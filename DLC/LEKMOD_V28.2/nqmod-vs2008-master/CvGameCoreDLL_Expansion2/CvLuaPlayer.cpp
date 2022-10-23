@@ -12,7 +12,7 @@
 //!		This file includes the implementation for a Lua Player instance.
 //!
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-#include <CvGameCoreDLLPCH.h>
+#include "CvGameCoreDLLPCH.h"
 #include "CvLuaSupport.h"
 #include "CvLuaCity.h"
 #include "CvLuaPlayer.h"
@@ -3432,9 +3432,9 @@ int CvLuaPlayer::lGetPotentialInternationalTradeRouteDestinations(lua_State* L)
 						{
 							lua_createtable(L, 0, 0);
 							const int t2 = lua_gettop(L);
-							lua_pushinteger(L, pPlayerTrade->GetTradeConnectionValueTimes100(kTradeConnection, (YieldTypes)uiYield, true));
+							lua_pushinteger(L, pPlayerTrade->CalcTradeConnectionValueTimes100(kTradeConnection, (YieldTypes)uiYield, true));
 							lua_setfield(L, t2, "Mine");
-							lua_pushinteger(L, pOtherPlayerTrade->GetTradeConnectionValueTimes100(kTradeConnection, (YieldTypes)uiYield, false));
+							lua_pushinteger(L, pOtherPlayerTrade->CalcTradeConnectionValueTimes100(kTradeConnection, (YieldTypes)uiYield, false));
 							lua_setfield(L, t2, "Theirs");
 							lua_rawseti(L, -2, iInnerIndex++);
 						}
@@ -3706,7 +3706,7 @@ int CvLuaPlayer::lGetInternationalTradeRouteTotal(lua_State* L)
 		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_INTERNATIONAL;
 	}
 
-	int iResult = pPlayerTrade->GetTradeConnectionValueTimes100(kTradeConnection, YIELD_GOLD, bOrigin);
+	int iResult = pPlayerTrade->CalcTradeConnectionValueTimes100(kTradeConnection, YIELD_GOLD, bOrigin);
 	lua_pushinteger(L, iResult);
 
 	return 1;	
@@ -3736,7 +3736,7 @@ int CvLuaPlayer::lGetInternationalTradeRouteScience(lua_State* L)
 		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_INTERNATIONAL;
 	}
 
-	int iResult = pPlayerTrade->GetTradeConnectionValueTimes100(kTradeConnection, YIELD_SCIENCE, bOrigin);
+	int iResult = pPlayerTrade->CalcTradeConnectionValueTimes100(kTradeConnection, YIELD_SCIENCE, bOrigin);
 	lua_pushinteger(L, iResult);
 
 	return 1;	
@@ -3895,7 +3895,7 @@ int CvLuaPlayer::lGetTradeYourRoutesTTString(lua_State* L)
 			for (uint uiYield = 0; uiYield < NUM_YIELD_TYPES; uiYield++)
 			{
 				YieldTypes eYield = (YieldTypes)uiYield;
-				int iYieldQuantity = pPlayerTrade->GetTradeConnectionValueTimes100(*pConnection, eYield, true);
+				int iYieldQuantity = pPlayerTrade->CalcTradeConnectionValueTimes100(*pConnection, eYield, true);
 				if (iYieldQuantity != 0)
 				{
 					if (strOriginYieldsStr != "") 
@@ -3906,22 +3906,33 @@ int CvLuaPlayer::lGetTradeYourRoutesTTString(lua_State* L)
 					switch (eYield)
 					{
 					case YIELD_FOOD:
-						strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_FOOD_YIELD_TT", iYieldQuantity / 100);
+						strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_FOOD_YIELD_TT", iYieldQuantity / f100);
 						break;
 					case YIELD_PRODUCTION:
-						strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_PRODUCTION_YIELD_TT", iYieldQuantity / 100);
+						strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_PRODUCTION_YIELD_TT", iYieldQuantity / f100);
 						break;
 					case YIELD_GOLD:
-						strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_GOLD_YIELD_TT", iYieldQuantity / 100);
+						strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_GOLD_YIELD_TT", iYieldQuantity / f100);
 						break;
+
 					case YIELD_SCIENCE:
-						strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_SCIENCE_YIELD_TT", iYieldQuantity / 100);
+						strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_SCIENCE_YIELD_TT", iYieldQuantity / f100);
 						break;
 					case YIELD_CULTURE:
-						strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_CULTURE_YIELD_TT", iYieldQuantity / 100);
+						strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_CULTURE_YIELD_TT", iYieldQuantity / f100);
 						break;
 					case YIELD_FAITH:
-						strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_FAITH_YIELD_TT", iYieldQuantity / 100);
+						strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_FAITH_YIELD_TT", iYieldQuantity / f100);
+						break;
+
+					case YIELD_SCIENTIFIC_INSIGHT:
+						strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_SCIENTIFIC_YIELD_TT", iYieldQuantity / f100);
+						break;
+					case YIELD_DIPLOMATIC_SUPPORT:
+						strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_DIPLO_YIELD_TT", iYieldQuantity / f100);
+						break;
+					case YIELD_TOURISM:
+						strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_TOURISM_YIELD_TT", iYieldQuantity / f100);
 						break;
 					}
 				}
@@ -3931,28 +3942,39 @@ int CvLuaPlayer::lGetTradeYourRoutesTTString(lua_State* L)
 			for (uint uiYield = 0; uiYield < NUM_YIELD_TYPES; uiYield++)
 			{
 				YieldTypes eYield = (YieldTypes)uiYield;
-				int iYieldQuantity = pPlayerTrade->GetTradeConnectionValueTimes100(*pConnection, eYield, false);
+				int iYieldQuantity = pPlayerTrade->CalcTradeConnectionValueTimes100(*pConnection, eYield, false);
 				if (iYieldQuantity != 0)
 				{
 					switch (eYield)
 					{
 					case YIELD_FOOD:
-						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_FOOD_YIELD_TT", iYieldQuantity / 100);
+						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_FOOD_YIELD_TT", iYieldQuantity / f100);
 						break;
 					case YIELD_PRODUCTION:
-						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_PRODUCTION_YIELD_TT", iYieldQuantity / 100);
+						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_PRODUCTION_YIELD_TT", iYieldQuantity / f100);
 						break;
 					case YIELD_GOLD:
-						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_GOLD_YIELD_TT", iYieldQuantity / 100);
+						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_GOLD_YIELD_TT", iYieldQuantity / f100);
 						break;
+
 					case YIELD_SCIENCE:
-						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_SCIENCE_YIELD_TT", iYieldQuantity / 100);
+						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_SCIENCE_YIELD_TT", iYieldQuantity / f100);
 						break;
 					case YIELD_CULTURE:
-						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_CULTURE_YIELD_TT", iYieldQuantity / 100);
+						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_CULTURE_YIELD_TT", iYieldQuantity / f100);
 						break;
 					case YIELD_FAITH:
-						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_FAITH_YIELD_TT", iYieldQuantity / 100);
+						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_FAITH_YIELD_TT", iYieldQuantity / f100);
+						break;
+
+					case YIELD_SCIENTIFIC_INSIGHT:
+						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_SCIENTIFIC_YIELD_TT", iYieldQuantity / f100);
+						break;
+					case YIELD_DIPLOMATIC_SUPPORT:
+						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_DIPLO_YIELD_TT", iYieldQuantity / f100);
+						break;
+					case YIELD_TOURISM:
+						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_TOURISM_YIELD_TT", iYieldQuantity / f100);
 						break;
 					}
 				}
@@ -4076,7 +4098,7 @@ int CvLuaPlayer::lGetTradeToYouRoutesTTString(lua_State* L)
 			//for (uint uiYield = 0; uiYield < NUM_YIELD_TYPES; uiYield++)
 			//{
 			//	YieldTypes eYield = (YieldTypes)uiYield;
-			//	int iYieldQuantity = pPlayerTrade->GetTradeConnectionValueTimes100(*pConnection, eYield, false);
+			//	int iYieldQuantity = pPlayerTrade->CalcTradeConnectionValueTimes100(*pConnection, eYield, false);
 			//	if (iYieldQuantity != 0)
 			//	{
 			//		switch (eYield)
@@ -4107,7 +4129,7 @@ int CvLuaPlayer::lGetTradeToYouRoutesTTString(lua_State* L)
 			for (uint uiYield = 0; uiYield < NUM_YIELD_TYPES; uiYield++)
 			{
 				YieldTypes eYield = (YieldTypes)uiYield;
-				int iYieldQuantity = pPlayerTrade->GetTradeConnectionValueTimes100(*pConnection, eYield, false);
+				int iYieldQuantity = pPlayerTrade->CalcTradeConnectionValueTimes100(*pConnection, eYield, false);
 				if (iYieldQuantity != 0)
 				{
 					if (strDestYieldsStr != "") 
@@ -4251,29 +4273,29 @@ int CvLuaPlayer::lGetTradeRoutes(lua_State* L)
 		CvLuaCity::Push(L, pToCity);
 		lua_setfield(L, t, "ToCity");
 #ifdef AUI_WARNING_FIXES
-		lua_pushinteger(L, pPlayerTrade->GetTradeConnectionValueTimes100(*pConnection, YIELD_GOLD, true));
+		lua_pushinteger(L, pPlayerTrade->CalcTradeConnectionValueTimes100(*pConnection, YIELD_GOLD, true));
 		lua_setfield(L, t, "FromGPT");
-		lua_pushinteger(L, pPlayerTrade->GetTradeConnectionValueTimes100(*pConnection, YIELD_GOLD, false));
+		lua_pushinteger(L, pPlayerTrade->CalcTradeConnectionValueTimes100(*pConnection, YIELD_GOLD, false));
 		lua_setfield(L, t, "ToGPT");
-		lua_pushinteger(L, pPlayerTrade->GetTradeConnectionValueTimes100(*pConnection, YIELD_FOOD, false));
+		lua_pushinteger(L, pPlayerTrade->CalcTradeConnectionValueTimes100(*pConnection, YIELD_FOOD, false));
 		lua_setfield(L, t, "ToFood");
-		lua_pushinteger(L, pPlayerTrade->GetTradeConnectionValueTimes100(*pConnection, YIELD_PRODUCTION, false));
+		lua_pushinteger(L, pPlayerTrade->CalcTradeConnectionValueTimes100(*pConnection, YIELD_PRODUCTION, false));
 		lua_setfield(L, t, "ToProduction");
-		lua_pushinteger(L, pPlayerTrade->GetTradeConnectionValueTimes100(*pConnection, YIELD_SCIENCE, true));
+		lua_pushinteger(L, pPlayerTrade->CalcTradeConnectionValueTimes100(*pConnection, YIELD_SCIENCE, true));
 		lua_setfield(L, t, "FromScience");
-		lua_pushinteger(L, pPlayerTrade->GetTradeConnectionValueTimes100(*pConnection, YIELD_SCIENCE, false));
+		lua_pushinteger(L, pPlayerTrade->CalcTradeConnectionValueTimes100(*pConnection, YIELD_SCIENCE, false));
 #else
-		lua_pushinteger(L, pkPlayer->GetTrade()->GetTradeConnectionValueTimes100(*pConnection, YIELD_GOLD, true));
+		lua_pushinteger(L, pkPlayer->GetTrade()->CalcTradeConnectionValueTimes100(*pConnection, YIELD_GOLD, true));
 		lua_setfield(L, t, "FromGPT");
-		lua_pushinteger(L, pToPlayer->GetTrade()->GetTradeConnectionValueTimes100(*pConnection, YIELD_GOLD, false));
+		lua_pushinteger(L, pToPlayer->GetTrade()->CalcTradeConnectionValueTimes100(*pConnection, YIELD_GOLD, false));
 		lua_setfield(L, t, "ToGPT");
-		lua_pushinteger(L, pToPlayer->GetTrade()->GetTradeConnectionValueTimes100(*pConnection, YIELD_FOOD, false));
+		lua_pushinteger(L, pToPlayer->GetTrade()->CalcTradeConnectionValueTimes100(*pConnection, YIELD_FOOD, false));
 		lua_setfield(L, t, "ToFood");
-		lua_pushinteger(L, pToPlayer->GetTrade()->GetTradeConnectionValueTimes100(*pConnection, YIELD_PRODUCTION, false));
+		lua_pushinteger(L, pToPlayer->GetTrade()->CalcTradeConnectionValueTimes100(*pConnection, YIELD_PRODUCTION, false));
 		lua_setfield(L, t, "ToProduction");
-		lua_pushinteger(L, pkPlayer->GetTrade()->GetTradeConnectionValueTimes100(*pConnection, YIELD_SCIENCE, true));
+		lua_pushinteger(L, pkPlayer->GetTrade()->CalcTradeConnectionValueTimes100(*pConnection, YIELD_SCIENCE, true));
 		lua_setfield(L, t, "FromScience");
-		lua_pushinteger(L, pToPlayer->GetTrade()->GetTradeConnectionValueTimes100(*pConnection, YIELD_SCIENCE, false));
+		lua_pushinteger(L, pToPlayer->GetTrade()->CalcTradeConnectionValueTimes100(*pConnection, YIELD_SCIENCE, false));
 #endif
 		lua_setfield(L, t, "ToScience");
 
@@ -4425,29 +4447,29 @@ int CvLuaPlayer::lGetTradeRoutesAvailable(lua_State* L)
 						CvLuaCity::Push(L, pDestCity);
 						lua_setfield(L, t, "ToCity");
 #ifdef AUI_WARNING_FIXES
-						lua_pushinteger(L, pPlayerTrade->GetTradeConnectionValueTimes100(kConnection, YIELD_GOLD, true));
+						lua_pushinteger(L, pPlayerTrade->CalcTradeConnectionValueTimes100(kConnection, YIELD_GOLD, true));
 						lua_setfield(L, t, "FromGPT");
-						lua_pushinteger(L, pOtherPlayerTrade->GetTradeConnectionValueTimes100(kConnection, YIELD_GOLD, false));
+						lua_pushinteger(L, pOtherPlayerTrade->CalcTradeConnectionValueTimes100(kConnection, YIELD_GOLD, false));
 						lua_setfield(L, t, "ToGPT");
-						lua_pushinteger(L, pOtherPlayerTrade->GetTradeConnectionValueTimes100(kConnection, YIELD_FOOD, false));
+						lua_pushinteger(L, pOtherPlayerTrade->CalcTradeConnectionValueTimes100(kConnection, YIELD_FOOD, false));
 						lua_setfield(L, t, "ToFood");
-						lua_pushinteger(L, pOtherPlayerTrade->GetTradeConnectionValueTimes100(kConnection, YIELD_PRODUCTION, false));
+						lua_pushinteger(L, pOtherPlayerTrade->CalcTradeConnectionValueTimes100(kConnection, YIELD_PRODUCTION, false));
 						lua_setfield(L, t, "ToProduction");
-						lua_pushinteger(L, pOtherPlayerTrade->GetTradeConnectionValueTimes100(kConnection, YIELD_SCIENCE, true));
+						lua_pushinteger(L, pOtherPlayerTrade->CalcTradeConnectionValueTimes100(kConnection, YIELD_SCIENCE, true));
 						lua_setfield(L, t, "FromScience");
-						lua_pushinteger(L, pOtherPlayerTrade->GetTradeConnectionValueTimes100(kConnection, YIELD_SCIENCE, false));
+						lua_pushinteger(L, pOtherPlayerTrade->CalcTradeConnectionValueTimes100(kConnection, YIELD_SCIENCE, false));
 #else
-						lua_pushinteger(L, pkPlayer->GetTrade()->GetTradeConnectionValueTimes100(kConnection, YIELD_GOLD, true));
+						lua_pushinteger(L, pkPlayer->GetTrade()->CalcTradeConnectionValueTimes100(kConnection, YIELD_GOLD, true));
 						lua_setfield(L, t, "FromGPT");
-						lua_pushinteger(L, GET_PLAYER(eOtherPlayer).GetTrade()->GetTradeConnectionValueTimes100(kConnection, YIELD_GOLD, false));
+						lua_pushinteger(L, GET_PLAYER(eOtherPlayer).GetTrade()->CalcTradeConnectionValueTimes100(kConnection, YIELD_GOLD, false));
 						lua_setfield(L, t, "ToGPT");
-						lua_pushinteger(L, GET_PLAYER(eOtherPlayer).GetTrade()->GetTradeConnectionValueTimes100(kConnection, YIELD_FOOD, false));
+						lua_pushinteger(L, GET_PLAYER(eOtherPlayer).GetTrade()->CalcTradeConnectionValueTimes100(kConnection, YIELD_FOOD, false));
 						lua_setfield(L, t, "ToFood");
-						lua_pushinteger(L, GET_PLAYER(eOtherPlayer).GetTrade()->GetTradeConnectionValueTimes100(kConnection, YIELD_PRODUCTION, false));
+						lua_pushinteger(L, GET_PLAYER(eOtherPlayer).GetTrade()->CalcTradeConnectionValueTimes100(kConnection, YIELD_PRODUCTION, false));
 						lua_setfield(L, t, "ToProduction");
-						lua_pushinteger(L,  GET_PLAYER(eOtherPlayer).GetTrade()->GetTradeConnectionValueTimes100(kConnection, YIELD_SCIENCE, true));
+						lua_pushinteger(L,  GET_PLAYER(eOtherPlayer).GetTrade()->CalcTradeConnectionValueTimes100(kConnection, YIELD_SCIENCE, true));
 						lua_setfield(L, t, "FromScience");
-						lua_pushinteger(L, GET_PLAYER(eOtherPlayer).GetTrade()->GetTradeConnectionValueTimes100(kConnection, YIELD_SCIENCE, false));
+						lua_pushinteger(L, GET_PLAYER(eOtherPlayer).GetTrade()->CalcTradeConnectionValueTimes100(kConnection, YIELD_SCIENCE, false));
 #endif
 						lua_setfield(L, t, "ToScience");
 
@@ -4564,29 +4586,29 @@ int CvLuaPlayer::lGetTradeRoutesToYou(lua_State* L)
 #ifdef AUI_WARNING_FIXES
 		const CvPlayerTrade* pFromPlayerTrade = pFromPlayer->GetTrade();
 		const CvPlayerTrade* pToPlayerTrade = pToPlayer->GetTrade();
-		lua_pushinteger(L, pFromPlayerTrade->GetTradeConnectionValueTimes100(*pConnection, YIELD_GOLD, true));
+		lua_pushinteger(L, pFromPlayerTrade->CalcTradeConnectionValueTimes100(*pConnection, YIELD_GOLD, true));
 		lua_setfield(L, t, "FromGPT");
-		lua_pushinteger(L, pToPlayerTrade->GetTradeConnectionValueTimes100(*pConnection, YIELD_GOLD, false));
+		lua_pushinteger(L, pToPlayerTrade->CalcTradeConnectionValueTimes100(*pConnection, YIELD_GOLD, false));
 		lua_setfield(L, t, "ToGPT");
-		lua_pushinteger(L, pToPlayerTrade->GetTradeConnectionValueTimes100(*pConnection, YIELD_FOOD, false));
+		lua_pushinteger(L, pToPlayerTrade->CalcTradeConnectionValueTimes100(*pConnection, YIELD_FOOD, false));
 		lua_setfield(L, t, "ToFood");
-		lua_pushinteger(L, pToPlayerTrade->GetTradeConnectionValueTimes100(*pConnection, YIELD_PRODUCTION, false));
+		lua_pushinteger(L, pToPlayerTrade->CalcTradeConnectionValueTimes100(*pConnection, YIELD_PRODUCTION, false));
 		lua_setfield(L, t, "ToProduction");
-		lua_pushinteger(L, pFromPlayerTrade->GetTradeConnectionValueTimes100(*pConnection, YIELD_SCIENCE, true));
+		lua_pushinteger(L, pFromPlayerTrade->CalcTradeConnectionValueTimes100(*pConnection, YIELD_SCIENCE, true));
 		lua_setfield(L, t, "FromScience");
-		lua_pushinteger(L, pToPlayerTrade->GetTradeConnectionValueTimes100(*pConnection, YIELD_SCIENCE, false));
+		lua_pushinteger(L, pToPlayerTrade->CalcTradeConnectionValueTimes100(*pConnection, YIELD_SCIENCE, false));
 #else
-		lua_pushinteger(L, pFromPlayer->GetTrade()->GetTradeConnectionValueTimes100(*pConnection, YIELD_GOLD, true));
+		lua_pushinteger(L, pFromPlayer->GetTrade()->CalcTradeConnectionValueTimes100(*pConnection, YIELD_GOLD, true));
 		lua_setfield(L, t, "FromGPT");
-		lua_pushinteger(L, pToPlayer->GetTrade()->GetTradeConnectionValueTimes100(*pConnection, YIELD_GOLD, false));
+		lua_pushinteger(L, pToPlayer->GetTrade()->CalcTradeConnectionValueTimes100(*pConnection, YIELD_GOLD, false));
 		lua_setfield(L, t, "ToGPT");
-		lua_pushinteger(L, pToPlayer->GetTrade()->GetTradeConnectionValueTimes100(*pConnection, YIELD_FOOD, false));
+		lua_pushinteger(L, pToPlayer->GetTrade()->CalcTradeConnectionValueTimes100(*pConnection, YIELD_FOOD, false));
 		lua_setfield(L, t, "ToFood");
-		lua_pushinteger(L, pToPlayer->GetTrade()->GetTradeConnectionValueTimes100(*pConnection, YIELD_PRODUCTION, false));
+		lua_pushinteger(L, pToPlayer->GetTrade()->CalcTradeConnectionValueTimes100(*pConnection, YIELD_PRODUCTION, false));
 		lua_setfield(L, t, "ToProduction");
-		lua_pushinteger(L, pFromPlayer->GetTrade()->GetTradeConnectionValueTimes100(*pConnection, YIELD_SCIENCE, true));
+		lua_pushinteger(L, pFromPlayer->GetTrade()->CalcTradeConnectionValueTimes100(*pConnection, YIELD_SCIENCE, true));
 		lua_setfield(L, t, "FromScience");
-		lua_pushinteger(L, pToPlayer->GetTrade()->GetTradeConnectionValueTimes100(*pConnection, YIELD_SCIENCE, false));
+		lua_pushinteger(L, pToPlayer->GetTrade()->CalcTradeConnectionValueTimes100(*pConnection, YIELD_SCIENCE, false));
 #endif
 		lua_setfield(L, t, "ToScience");
 

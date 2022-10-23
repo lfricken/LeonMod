@@ -223,13 +223,13 @@ public:
 	int GetTradeConnectionOtherTraitValueTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer) const;
 	int GetTradeConnectionDomainValueModifierTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield) const;
 	int GetTradeConnectionRiverValueModifierTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer) const;
-	int GetTradeConnectionValueTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer) const;
+	int CalcTradeConnectionValueTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer) const;
 
 	void UpdateTradeConnectionValues(); // updates the all the values for the trade routes that go to and from this player
 
 	int GetTradeValuesAtCityTimes100(const CvCity* const pCity, YieldTypes eYield) const;
 	// number of trade routes that start here
-	int GetNumTradeRoutesOriginatingFrom(const CvCity* const pCity) const;
+	int CalcNumTradeRoutesOriginatingFromExcept(const CvCity* const pCity, const TradeConnection& except) const;
 
 	int GetAllTradeValueTimes100(YieldTypes eYield) const;
 	int GetAllTradeValueFromPlayerTimes100(YieldTypes eYield, PlayerTypes ePlayer) const;

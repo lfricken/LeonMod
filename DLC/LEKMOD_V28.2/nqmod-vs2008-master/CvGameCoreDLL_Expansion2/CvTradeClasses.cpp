@@ -2569,7 +2569,7 @@ int CvPlayerTrade::GetTradeConnectionRiverValueModifierTimes100(const TradeConne
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayerTrade::GetTradeConnectionValueTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer) const
+int CvPlayerTrade::CalcTradeConnectionValueTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer) const
 {
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 	int iValue = 0;
@@ -2772,11 +2772,12 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100(const TradeConnection& kTrade
 
 	iValue += 100 * GetTradeConnectionValueExtra(kTradeConnection, eYield, bAsOriginPlayer);
 
-	// reduce from other trade routes originating here
+	// reduce from other trade routes originating here FOR GOLD ONLY
 	const CvCity* pCityOrigin = CvGameTrade::GetOriginCity(kTradeConnection);
-	if (pCityOrigin != NULL)
+	if (pCityOrigin != NULL && eYield == YIELD_GOLD)
 	{
-		const T100 factor = iPow(85, GetNumTradeRoutesOriginatingFrom(pCityOrigin));
+		// lose 20% for each one
+		const T100 factor = iPow(100 - 20, CalcNumTradeRoutesOriginatingFromExcept(pCityOrigin, kTradeConnection));
 		iValue *= factor;
 		iValue /= 100;
 	}
@@ -2798,7 +2799,7 @@ void CvPlayerTrade::UpdateTradeConnectionValues()
 		{
 			for (uint uiYields = 0; uiYields < NUM_YIELD_TYPES; uiYields++)
 			{
-				pConnection->m_aiOriginYields[uiYields] = GetTradeConnectionValueTimes100(*pConnection, (YieldTypes)uiYields, true);
+				pConnection->m_aiOriginYields[uiYields] = CalcTradeConnectionValueTimes100(*pConnection, (YieldTypes)uiYields, true);
 			}
 		}
 
@@ -2806,13 +2807,12 @@ void CvPlayerTrade::UpdateTradeConnectionValues()
 		{
 			for (uint uiYields = 0; uiYields < NUM_YIELD_TYPES; uiYields++)
 			{
-				pConnection->m_aiDestYields[uiYields] = GetTradeConnectionValueTimes100(*pConnection, (YieldTypes)uiYields, false);
+				pConnection->m_aiDestYields[uiYields] = CalcTradeConnectionValueTimes100(*pConnection, (YieldTypes)uiYields, false);
 			}
 		}
 	}
 }
-//	------------------------------------------------------------------------------------------------------------
-int CvPlayerTrade::GetNumTradeRoutesOriginatingFrom(const CvCity* const pCity) const
+int CvPlayerTrade::CalcNumTradeRoutesOriginatingFromExcept(const CvCity* const pCity, const TradeConnection& except) const
 {
 	int iResult = 0;
 	const int iCityX = pCity->getX();
@@ -2824,9 +2824,12 @@ int CvPlayerTrade::GetNumTradeRoutesOriginatingFrom(const CvCity* const pCity) c
 		if (pTrade->IsTradeRouteIndexEmpty(i))
 			continue;
 
+		// dont include the given connection
 		const TradeConnection* pConnection = &(pTrade->m_aTradeConnections[i]);
-		if (pConnection->m_iOriginX == iCityX &&
-			pConnection->m_iOriginY == iCityY)
+		if (&except == pConnection) // compare address
+			continue;
+
+		if (pConnection->m_iOriginX == iCityX && pConnection->m_iOriginY == iCityY)
 		{
 			iResult += 1;
 		}
@@ -4696,8 +4699,8 @@ int CvTradeAI::ScoreInternationalTR(const TradeConnection& kTradeConnection) con
 	}
 
 	// gold
-	int iGoldAmount = pPlayerTrade->GetTradeConnectionValueTimes100(kTradeConnection, YIELD_GOLD, true);
-	int iOtherGoldAmount = pOtherPlayerTrade->GetTradeConnectionValueTimes100(kTradeConnection, YIELD_GOLD, false);
+	int iGoldAmount = pPlayerTrade->CalcTradeConnectionValueTimes100(kTradeConnection, YIELD_GOLD, true);
+	int iOtherGoldAmount = pOtherPlayerTrade->CalcTradeConnectionValueTimes100(kTradeConnection, YIELD_GOLD, false);
 	int iGoldDelta = iGoldAmount - iOtherGoldAmount;
 
 	// getting out of a logjam at the beginning of the game on an archepeligo map

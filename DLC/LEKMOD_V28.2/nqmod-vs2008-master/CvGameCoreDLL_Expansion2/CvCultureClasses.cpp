@@ -2834,7 +2834,7 @@ int CvPlayerCulture::GetTourismModifierWithT100(PlayerTypes eOtherPlayer, bool, 
 	if (newTourismT100 < 100 || oldTourismT100 < 100)
 		return 0;
 
-	return 100 - ((newTourismT100 * 100) / oldTourismT100);
+	return ((newTourismT100 * 100) / oldTourismT100) - 100;
 }
 
 T100 CvPlayerCulture::GetTourismModifierTradeRoutesT100(const PlayerTypes eOtherPlayer) const
@@ -4868,7 +4868,7 @@ CvString CvCityCulture::GetTourismTooltip()
 
 	{
 		szRtnValue += spacing;
-		const int iTradeYield = GET_PLAYER(m_pCity->getOwner()).GetTrade()->GetTradeValuesAtCityTimes100(m_pCity, YIELD_TOURISM) / 100;
+		const int iTradeYield = GET_PLAYER(m_pCity->getOwner()).GetTrade()->GetTradeValuesAtCityTimes100(m_pCity, YIELD_TOURISM) / f100;
 		szRtnValue += GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_TRADE_ROUTES", iTradeYield);
 	}
 
