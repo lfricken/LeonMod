@@ -637,7 +637,17 @@ public:
 	void ChangeUnhappinessMod(int iChange);
 
 	// Calculates and sets the input variable to the number of allowed cities. Returns a multi line description string of how the number was calculated.
-	string GetCityCap_WithTooltip(int* numCitiesAllowed) const;
+	string GetCityCapCurrent_WithSourcesTooltip(int* numCitiesAllowed) const;
+	// returns -6 if each additional city should reduce productivity by -6%
+	T100 GetCityCapYieldModPerCity(const YieldTypes eYield) const;
+	// total percentage penalty this player is currently getting, returns -20 if the player should get -20%
+	T100 GetCityCapYieldMod(const YieldTypes eYield) const;
+	// number of cities this player can still build, negative if they are over
+	int GetCityCapNumCanStillBuild() const;
+	// shown at the top of the screen (not mouseover)
+	CvString GetCityCap_TopPanel() const;
+	// generates the mouseover hover text to describe this players city cap status
+	CvString GetCityCap_Tooltip() const;
 
 	int GetCityCountUnhappinessMod() const;
 	void ChangeCityCountUnhappinessMod(int iChange);
@@ -1488,6 +1498,7 @@ public:
 	CvCity* firstCity(int* pIterIdx, bool bRev=false);
 	const CvCity* nextCity(int* pIterIdx, bool bRev=false) const;
 	CvCity* nextCity(int* pIterIdx, bool bRev=false);
+	// number of cities this player owns, including puppets
 	int getNumCities() const;
 	CvCity* getCity(int iID);
 	const CvCity* getCity(int iID) const;

@@ -10917,10 +10917,23 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 
 	iModifier += iExtra;
 
+	// compounding:
+	T100 factorT100 = (iModifier + 100);
+	if (eIndex == YIELD_PRODUCTION)
+	{
+		const CvPlayer& player = GET_PLAYER(getOwner());
+		const T100 cityCapPenaltyFactor = player.GetCityCapYieldMod(YIELD_PRODUCTION);
+		if (toolTipSink)
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_CITYCAP", cityCapPenaltyFactor);
+
+		factorT100 *= (100 + cityCapPenaltyFactor);
+		factorT100 /= 100;
+	}
+
 	// note: player->invalidateYieldRankCache() must be called for anything that is checked here
 	// so if any extra checked things are added here, the cache needs to be invalidated
 
-	return std::max(0, (iModifier + 100));
+	return std::max((T100)0, factorT100);
 }
 
 //	--------------------------------------------------------------------------------

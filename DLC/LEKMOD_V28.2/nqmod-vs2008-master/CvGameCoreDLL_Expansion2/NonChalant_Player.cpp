@@ -17,34 +17,33 @@ void appendNewLine(stringstream* ss, int* numCitiesAllowed,
 	*numCitiesAllowed += numToAdd;
 }
 
-string CvPlayer::GetCityCap_WithTooltip(int* sum) const
+string CvPlayer::GetCityCapCurrent_WithSourcesTooltip(int* sum) const
 {
 	stringstream ss;
 	const CvPlayer& player = *this;
 
 	{ // the base amount to start with always
-		appendNewLine(&ss, sum, "Base", 3);
+		const int baseNum = 3 * (true);
+		appendNewLine(&ss, sum, "Base", baseNum);
 	}
 
 	// 1 for every other era, first unlock in classical
 	{
 		// ancient era is id 0, classical is id 1...
-		const int Classical = (player.GetCurrentEra() >= 1); // evaluates to 0(false) or 1(true)
+		const int Classical = 1 * (player.GetCurrentEra() >= 1); // evaluates to 0(false) or 1(true)
 		appendNewLine(&ss, sum, "from the {TXT_KEY_ERA_1}", Classical); // {} evaluates to Classical Era
 
-		const int Renaissance = (player.GetCurrentEra() >= 3);
+		const int Renaissance = 1 * (player.GetCurrentEra() >= 3);
 		appendNewLine(&ss, sum, "from the {TXT_KEY_ERA_3}", Renaissance);
 
-		const int Modern = (player.GetCurrentEra() >= 5);
+		const int Modern = 1 * (player.GetCurrentEra() >= 5);
 		appendNewLine(&ss, sum, "from the {TXT_KEY_ERA_5}", Modern);
 
-		const int Future = (player.GetCurrentEra() >= 7);
+		const int Future = 1 * (player.GetCurrentEra() >= 7);
 		appendNewLine(&ss, sum, "from the {TXT_KEY_ERA_7}", Modern);
 		// last era is 8 (future)
 	}
 
-	// localize
-	CvString cvStr = ss.str().c_str();
-	return GetLocalizedText(cvStr);
+	return ss.str();
 }
 

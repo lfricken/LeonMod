@@ -13464,6 +13464,68 @@ void CvPlayer::ChangeUnhappinessMod(int iChange)
 		m_iUnhappinessMod += iChange;
 	}
 }
+T100 CvPlayer::GetCityCapYieldModPerCity(const YieldTypes eYield) const
+{
+	if (eYield == YIELD_PRODUCTION)
+	{
+		return -15; // 15% production penalty per city
+	}
+	return 0;
+}
+T100 CvPlayer::GetCityCapYieldMod(const YieldTypes eYield) const
+{
+	T100 factorT100 = 100;
+	// number of cities this player has past their cap
+	const int numOver = max(0, -GetCityCapNumCanStillBuild());
+	if (eYield == YIELD_PRODUCTION)
+	{
+		factorT100 = iPow(100ll + GetCityCapYieldModPerCity(eYield), numOver);
+	}
+	return factorT100 - 100;
+}
+int CvPlayer::GetCityCapNumCanStillBuild() const
+{
+	int maxAllowed = 0;
+	GetCityCapCurrent_WithSourcesTooltip(&maxAllowed);
+	return maxAllowed - getNumCities();
+}
+CvString CvPlayer::GetCityCap_TopPanel() const
+{
+	int maxAllowed = 0;
+	GetCityCapCurrent_WithSourcesTooltip(&maxAllowed);
+
+	stringstream ss;
+
+	ss << "[ICON_CITY] ";
+	ss << getNumCities() << "/" << maxAllowed;
+
+	// localize
+	CvString cvStr = ss.str().c_str();
+	return GetLocalizedText(cvStr);
+}
+CvString CvPlayer::GetCityCap_Tooltip() const
+{
+	int currentCap = 0;
+	string sources = GetCityCapCurrent_WithSourcesTooltip(&currentCap);
+
+	// construct hover text
+	stringstream ss;
+	ss << "You have " << getNumCities() << " of " << currentCap << " possible cities.";
+	ss << "[NEWLINE]";
+	ss << "[NEWLINE]";
+	ss << "Your sources of [ICON_CITY] Cities:[NEWLINE]";
+	ss << sources;
+	ss << "[NEWLINE]";
+	ss << "Each city past your limit causes more Corruption, a compounding ";
+	addColoredValue(ss, GetCityCapYieldModPerCity(YIELD_PRODUCTION), "[ICON_PRODUCTION]", true, false, '-');
+	ss << " in every city. Your current Corruption penalty is ";
+	addColoredValue(ss, GetCityCapYieldMod(YIELD_PRODUCTION), "[ICON_PRODUCTION]", true, false, '-');
+	ss << ".";
+
+	// localize
+	CvString cvStr = ss.str().c_str();
+	return GetLocalizedText(cvStr);
+}
 
 //	--------------------------------------------------------------------------------
 /// City Count Unhappiness Mod (-50 = 50% of normal)
@@ -21723,7 +21785,6 @@ const CvCity* CvPlayer::nextCity(int* pIterIdx, bool bRev) const
 	return !bRev ? m_cities.NextIter(pIterIdx) : m_cities.PrevIter(pIterIdx);
 }
 
-//	--------------------------------------------------------------------------------
 int CvPlayer::getNumCities() const
 {
 	return m_cities.GetCount();

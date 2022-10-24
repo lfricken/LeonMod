@@ -152,7 +152,8 @@ struct CompetitionDelegates;
 long bound(const long minInc, const long maxInc, const long val);
 
 // positive values are green, negative values are red, 0 values are gray, can optionally include symbols
-void addColoredValue(stringstream& s, const long value, const string description, const bool includePercentSymbol = true);
+void addColoredValue(stringstream& s, const long value, const string description, 
+	const bool includePercentSymbol = true, const bool includeNewline = true, const char zeroSymbol = '+');
 
 // Returns a T100 that is the floor of square root of a T100 using only deterministic integer math.
 // So if you pass 1000 (aka 10) it will return 316 because sqrt(10) is 3.16...

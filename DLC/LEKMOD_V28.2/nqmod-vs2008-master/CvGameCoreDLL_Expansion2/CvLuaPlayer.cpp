@@ -255,6 +255,8 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetInfluenceTrend);
 	Method(GetTurnsToInfluential);
 	Method(GetNumCivsInfluentialOn);
+	Method(GetTopPanelCityCap);
+	Method(GetTooltipTopPanelCityCap);
 	Method(GetTooltipTopPanelTourism);
 	Method(GetNumCivsToBeInfluentialOn);
 	Method(GetInfluenceTradeRouteScienceBonus);
@@ -2499,8 +2501,6 @@ int CvLuaPlayer::lGetTurnsToInfluential(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-//------------------------------------------------------------------------------
-//int GetNumCivsInfluentialOn();
 int CvLuaPlayer::lGetNumCivsInfluentialOn(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
@@ -2508,8 +2508,20 @@ int CvLuaPlayer::lGetNumCivsInfluentialOn(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-//------------------------------------------------------------------------------
-// move tourism panel to server
+int CvLuaPlayer::lGetTopPanelCityCap(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const CvString result = pkPlayer->GetCityCap_TopPanel();
+	lua_pushstring(L, result);
+	return 1;
+}
+int CvLuaPlayer::lGetTooltipTopPanelCityCap(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const CvString result = pkPlayer->GetCityCap_Tooltip();
+	lua_pushstring(L, result);
+	return 1;
+}
 int CvLuaPlayer::lGetTooltipTopPanelTourism(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);

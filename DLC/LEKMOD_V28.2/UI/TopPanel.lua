@@ -116,7 +116,7 @@ function UpdateData()
 			-- Update City Cap
 			-----------------------------
 			
-			Controls.CityCapString:SetText("[ICON_CITY] 2/3");
+			Controls.CityCapString:SetText(pPlayer:GetTopPanelCityCap());
 			
 			-----------------------------
 			-- Update Golden Age Info
@@ -815,18 +815,11 @@ end
 function CityCapTipHandler( control )
 	local pid = Game.GetActivePlayer();
 	local pPlayer = Players[pid];
-	local txt = "You have 2 of 3 possible cities. Each city past your limit will incur -6% [ICON_PRODUCTION] in every city.[NEWLINE]";
-	txt = txt .. "[NEWLINE]";
-
-	txt = txt .. "Your sources of Cities:[NEWLINE]"
-	txt = txt .. "[COLOR_POSITIVE_TEXT]+1 from xyz[ENDCOLOR][NEWLINE]";
-	txt = txt .. "[NEWLINE]";
-
-	txt = txt .. "Current penalties are -6% [ICON_PRODUCTION]";
+	local txt = pPlayer:GetTooltipTopPanelCityCap();
 	
 	tipControlTable.TooltipLabel:SetText(txt);
 	tipControlTable.TopPanelMouseover:SetHide(false);
-    tipControlTable.TopPanelMouseover:DoAutoSize(); -- Autosize tooltip
+    tipControlTable.TopPanelMouseover:DoAutoSize();
 end
 
 -- Golden Age Tooltip

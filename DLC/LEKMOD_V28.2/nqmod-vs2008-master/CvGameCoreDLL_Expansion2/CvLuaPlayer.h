@@ -242,6 +242,8 @@ protected:
 	static int lGetInfluenceTrend(lua_State* L);
 	static int lGetTurnsToInfluential(lua_State* L);
 	static int lGetNumCivsInfluentialOn(lua_State* L);
+	static int lGetTopPanelCityCap(lua_State* L);
+	static int lGetTooltipTopPanelCityCap(lua_State* L);
 	// move tourism panel to server
 	static int lGetTooltipTopPanelTourism(lua_State* L);
 	static int lGetNumCivsToBeInfluentialOn(lua_State* L);
