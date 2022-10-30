@@ -3528,19 +3528,19 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 		GC.messagePlayer(0, m_pPlayer->GetID(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer);
 	}
 
-	// barbarians get a bonus unit out of the deal!
-	if (m_pPlayer->isBarbarian() && pPlot)
-	{
-		int iLoop = 0;
-		for(CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
-		{
-			if (pLoopUnit->plot() == pPlunderPlot)
-			{
-				CvBarbarians::DoSpawnBarbarianUnit(pPlunderPlot, true, true, false);
-				break;
-			}
-		}
-	}
+	// removed: barbarians no longer get a unit from plundering a trade route
+	//if (m_pPlayer->isBarbarian() && pPlot)
+	//{
+	//	int iLoop = 0;
+	//	for(CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
+	//	{
+	//		if (pLoopUnit->plot() == pPlunderPlot)
+	//		{
+	//			CvBarbarians::DoSpawnBarbarianUnit(pPlunderPlot, true, true, false);
+	//			break;
+	//		}
+	//	}
+	//}
 
 	// do the notification stuff
 	if (pOriginCity && pDestCity)
