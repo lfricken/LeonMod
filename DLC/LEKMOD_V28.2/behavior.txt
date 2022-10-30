@@ -1,4 +1,4 @@
-This file is for cescriptions of obscure behavior and functionality code locations.
+This file is for descriptions of obscure behavior and functionality code locations.
 Also general things that could be improved.
 
 
@@ -17,6 +17,15 @@ replace floats:
 
 icon atlas and images (contains readme with more info)
 \Mods\[BNW] Colonialist Legacies - Malaysia (v 3)\Art\IconAtlas
+
+
+
+barbarians only get 1 move per turn
+CvUnit::getMoves()
+
+
+plunder trade route
+CvPlayerTrade::PlunderTradeRoute
 
 
 minor civ city state friendship calculation

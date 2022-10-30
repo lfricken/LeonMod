@@ -16047,6 +16047,9 @@ int CvUnit::changeDamage(int iChange, PlayerTypes ePlayer, decimal fAdditionalTe
 int CvUnit::getMoves() const
 {
 	VALIDATE_OBJECT
+
+	if (isBarbarian()) // barbarian units only get 1 move per turn
+		return min(0, m_iMoves.get());
 	return m_iMoves;
 }
 
