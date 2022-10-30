@@ -1680,6 +1680,7 @@ void CvGame::update()
 				else
 					resetTurnTimer(false);
 #else
+			// all players done, round over
 			if(getNumGameTurnActive() == 0)
 			{
 				if(gDLL->CanAdvanceTurn())
@@ -1690,17 +1691,13 @@ void CvGame::update()
 			if(!isPaused())	// Check for paused again, the doTurn call might have called something that paused the game and we don't want an update to sneak through
 			{
 				updateScore();
-
 				updateWar();
-
 				updateMoves();
 
 				if(!isPaused())	// And again, the player can change after the automoves and that can pause the game
 				{
 					updateTimers();
-
 					UpdatePlayers(); // slewis added!
-
 					testAlive();
 
 					if((getAIAutoPlay() == 0) && !(gDLL->GetAutorun()) && GAMESTATE_EXTENDED != getGameState())
@@ -1712,9 +1709,7 @@ void CvGame::update()
 					}
 
 					CheckPlayerTurnDeactivate();
-
 					changeTurnSlice(1);
-
 					gDLL->FlushTurnReminders();
 				}
 			}
@@ -8068,9 +8063,9 @@ void CvGame::addGreatPersonBornName(const CvString& szName)
 }
 
 
-// Protected Functions...
 
-//	--------------------------------------------------------------------------------
+
+
 void CvGame::doTurn()
 {
 #ifndef FINAL_RELEASE
@@ -8138,9 +8133,8 @@ void CvGame::doTurn()
 	if (!isOption(GAMEOPTION_DYNAMIC_TURNS) && !isOption(GAMEOPTION_SIMULTANEOUS_TURNS))
 #endif
 	{
-	CvBarbarians::DoCamps();
-
-	CvBarbarians::DoUnits(m_barbSpawnX, m_barbSpawnY, &m_barbSpawnCounter);
+		CvBarbarians::DoCamps();
+		CvBarbarians::DoUnits(m_barbSpawnX, m_barbSpawnY, &m_barbSpawnCounter);
 	}
 
 #ifndef AUI_YIELDS_APPLIED_AFTER_TURN_NOT_BEFORE
@@ -8920,10 +8914,10 @@ void CvGame::updateMoves()
 
 #ifndef AUI_GAME_BETTER_HYBRID_MODE
 	int currentTurn = getGameTurn();
-	bool activatePlayers = playersToProcess.empty() && m_lastTurnAICivsProcessed != currentTurn;
+	bool activateHumanPlayers = playersToProcess.empty() && m_lastTurnAICivsProcessed != currentTurn;
 #endif
 #if defined(MOD_BUGFIX_AI_DOUBLE_TURN_MP_LOAD)
-	m_firstActivationOfPlayersAfterLoad = activatePlayers && m_lastTurnAICivsProcessed == -1;
+	m_firstActivationOfPlayersAfterLoad = activateHumanPlayers && m_lastTurnAICivsProcessed == -1;
 #endif
 	// If no AI with an active turn, check humans.
 	if(playersToProcess.empty())
@@ -9213,52 +9207,52 @@ void CvGame::updateMoves()
 		}
 	}
 
-	if(activatePlayers)
+	// activate humans who are playing simultaneous turns now that AI turns are done
+#ifdef AUI_GAME_BETTER_HYBRID_MODE
+	if (activateHumanPlayers && isAnySimultaneousTurns())
+#else
+	if (activateHumanPlayers && (isOption(GAMEOPTION_DYNAMIC_TURNS) || isOption(GAMEOPTION_SIMULTANEOUS_TURNS)))
+#endif
 	{
-#ifdef AUI_GAME_BETTER_HYBRID_MODE
-		if (isAnySimultaneousTurns())
-#else
-		if (isOption(GAMEOPTION_DYNAMIC_TURNS) || isOption(GAMEOPTION_SIMULTANEOUS_TURNS))
-#endif
-		{//Activate human players who are playing simultaneous turns now that we've finished moves for the AI.
-			// Only spawn barbarians now, otherwise the barbarian player gets a turn to move/attack after its units spawn before the human players do
-			if (GC.getGame().getElapsedGameTurns() > 0)
-			{
-			CvBarbarians::DoCamps();
-			CvBarbarians::DoUnits(m_barbSpawnX, m_barbSpawnY, &m_barbSpawnCounter);
-			}
-			// KWG: This code should go into CheckPlayerTurnDeactivate
-#ifdef NQM_GAME_RANDOMIZE_TURN_ACTIVATION_ORDER_IN_SIMULTANEOUS
-			int aiShuffle[MAX_PLAYERS];
-			if (GC.getGame().isOption("GAMEOPTION_SIMULTANEOUS_PLAYER_TURN_ACTIVATION_ORDER_RANDOMIZED"))
-			{
-				shuffleArray(aiShuffle, MAX_PLAYERS, getJonRand());
-			}
-			else
-			{
-				for (iI = 0; iI < MAX_PLAYERS; iI++)
-				{
-					aiShuffle[iI] = iI;
-				}
-			}
+		activateAllSimultaneousHumanPlayers();
+	}
+}
 
-			for (int iJ = 0; iJ < MAX_PLAYERS; iJ++)
-			{
-				iI = aiShuffle[iJ];
-#else
-			for(iI = 0; iI < MAX_PLAYERS; iI++)
-			{
-#endif
-				CvPlayer& player = GET_PLAYER((PlayerTypes)iI);
+void CvGame::activateAllSimultaneousHumanPlayers()
+{
+	// spawn barbarians when human turn starts to prevent barbarians spawning and then moving
+	if (GC.getGame().getElapsedGameTurns() > 0)
+	{
+		CvBarbarians::DoCamps();
+		CvBarbarians::DoUnits(m_barbSpawnX, m_barbSpawnY, &m_barbSpawnCounter);
+	}
+
+	// KWG: This code should go into CheckPlayerTurnDeactivate
+	int aiShuffle[MAX_PLAYERS];
+	if (GC.getGame().isOption("GAMEOPTION_SIMULTANEOUS_PLAYER_TURN_ACTIVATION_ORDER_RANDOMIZED"))
+	{
+		shuffleArray(aiShuffle, MAX_PLAYERS, getJonRand(), GC.getGame().getElapsedGameTurns() * 1234);
+	}
+	else
+	{
+		for (int iI = 0; iI < MAX_PLAYERS; iI++)
+		{
+			aiShuffle[iI] = iI;
+		}
+	}
+
+	// loop over each human and activate
+	for (int iJ = 0; iJ < MAX_PLAYERS; iJ++)
+	{
+		int iI = aiShuffle[iJ];
+		CvPlayer& player = GET_PLAYER((PlayerTypes)iI);
 #ifdef AUI_GAME_BETTER_HYBRID_MODE
-				if (!player.isTurnActive() && player.isHuman() && player.isAlive() && (player.getTurnOrder() == m_iCurrentTurnOrderActive))
+		if (!player.isTurnActive() && player.isHuman() && player.isAlive() && (player.getTurnOrder() == m_iCurrentTurnOrderActive))
 #else
-				if(!player.isTurnActive() && player.isHuman() && player.isAlive() && player.isSimultaneousTurns())
+		if (!player.isTurnActive() && player.isHuman() && player.isAlive() && player.isSimultaneousTurns())
 #endif
-				{
-					player.setTurnActive(true);
-				}
-			}
+		{
+			player.setTurnActive(true);
 		}
 	}
 }

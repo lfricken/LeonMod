@@ -837,7 +837,7 @@ protected:
 	void SetForceEndingTurn(bool bValue);
 
 	void DoCacheMapScoreMod();
-
+	// end round (all players including AI have taken their turn)
 	void doTurn();
 	// find the winners of the global competitions
 	void calculateGlobalCompetitions();
@@ -854,6 +854,7 @@ protected:
 #endif
 #endif
 
+	void activateAllSimultaneousHumanPlayers();
 	void updateWar();
 	void updateMoves();
 	void updateTimers();

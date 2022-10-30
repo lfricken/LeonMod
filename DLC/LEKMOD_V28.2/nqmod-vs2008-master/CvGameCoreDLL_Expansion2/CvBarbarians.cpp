@@ -738,7 +738,7 @@ void CvBarbarians::DoUnits(const std::vector<int>& spawnPointsX, const std::vect
 			const int x = max(0, spawnPointsX[*spawnCounter] / inverseX) % maxX;
 			const int y = max(0, spawnPointsY[*spawnCounter] / inverseY) % maxY;
 			const CvPlot* pLoopPlot = kMap.plot(x, y);
-			const bool didSpawn = DoSpawnBarbarianUnit(pLoopPlot, false, false, false);
+			const bool didSpawn = DoSpawnBarbarianUnit(pLoopPlot, false, true, false);
 			if (!didSpawn)
 				i--; // back up and try again
 			(*spawnCounter) = ((*spawnCounter) + 1) % spawnPointsX.size();
@@ -756,7 +756,7 @@ void CvBarbarians::DoUnits(const std::vector<int>& spawnPointsX, const std::vect
 		{
 			if(ShouldSpawnBarbFromCamp(pLoopPlot))
 			{
-				DoSpawnBarbarianUnit(pLoopPlot, false, false, true);
+				DoSpawnBarbarianUnit(pLoopPlot, false, true, true);
 				DoCampActivationNotice(pLoopPlot);
 			}
 		}
