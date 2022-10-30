@@ -2,6 +2,24 @@
 # LeonMod
 This mod changes a bunch of things you can [read about here](https://docs.google.com/document/d/12eoA7EOY_42vgNyLlonejqKW4pcny9x_-KcpemVLlEg/edit).
 
+# Install Instructions
+Basically, the files you see above need to be merged into your `Sid Meier's Civilization V\Assets` folder. So the whole path looks like `Sid Meier's Civilization V\Assets\DLC\LEKMOD_V28.2`, but if you use [GitHub Desktop](https://desktop.github.com/) with a [GitHub account](github.com/login) you will be able to get updates or turn `on/off` the mod instantly with the press of a button.
+1. Uninstall any other multiplayer mod packs you have (non mod pack mods do not need to be uninstalled, those are mods that show up under the Mods section in Civ)
+1. Install [GitHub Desktop](https://desktop.github.com/) and login to it with your [GitHub account](github.com/login)
+1. To get the files, click the green `Code` button at the top right and select `Open with GitHub Desktop`
+1. Click `Clone` at the bottom, this will take several minutes but only needs to be done once
+1. Once done, at the top select `Repository` and `Show in Explorer`, this should open the files you just downloaded
+3. You should see `.git, DLC, Maps, UI` folders and some files (if you don't see `.git`, switch your windows Explorer View to enable `Hidden items`)
+4. In another window, navigate to your `Sid Meier's Civilization V\Assets` folder where you should see `DLC, Maps, UI` folders
+5. Drag all the contents, including `.git` from that download folder to your civ assets folder so it Merges the folders
+6. GitHub Desktop will cry about not being able to find the repository
+7. Launch `GitHub Desktop > File > Add local repostory > Choose` and navigate to `Sid Meier's Civilization V\Assets` > `Select Folder` and select `Add repository`
+
+In GitHub Desktop (CLOSE CIV!):
+* To update, click `Fetch origin` twice (wait a second in between)
+* To disable the mod, click `Current branch` and select `no_mod`
+* To enable the mod, click `Current branch` and select `main`
+* To see update info, click `History`
 
 
 ### Want to contribute?
