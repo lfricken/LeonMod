@@ -6,10 +6,11 @@ PopupLayouts[ButtonPopupTypes.BUTTONPOPUP_CONFIRM_CITY_TASK] = function(popupInf
 	local iCityID	= popupInfo.Data1;
 	local iTask	= popupInfo.Data2;
 	
+	local popupText = "NO POPUP TEXT DEFINED";
 	if (iTask == TaskTypes.TASK_RAZE) then
 		popupText = Locale.ConvertTextKey("TXT_KEY_POPUP_ARE_YOU_SURE_RAZE");
-	else
-		popupText = "NO TEXT HERE";
+	elseif (popupInfo.Text ~= nil) then
+		popupText = popupInfo.Text;
 	end
 	
 	SetPopupText(popupText);

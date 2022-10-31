@@ -2461,38 +2461,40 @@ function OnReturnToMapButton()
 end
 Controls.ReturnToMapButton:RegisterCallback( Mouse.eLClick, OnReturnToMapButton);
 
--------------------------------------------------
--------------------------------------------------
-function OnRazeButton()
 
-	local pCity = UI.GetHeadSelectedCity();
-	
-	if (pCity == nil) then
-		return;
-	end;
-	
-	local popupInfo = {
-		Type = ButtonPopupTypes.BUTTONPOPUP_CONFIRM_CITY_TASK,
-		Data1 = pCity:GetID(),
-		Data2 = TaskTypes.TASK_RAZE,
+
+function OnRazeButton()
+	if Players[Game.GetActivePlayer()]:IsTurnActive() then
+		local pCity = UI.GetHeadSelectedCity();
+		if (pCity == nil) then
+			return;
+		end
+		
+		local popupInfo = {
+			Type = ButtonPopupTypes.BUTTONPOPUP_CONFIRM_CITY_TASK,
+			Data1 = pCity:GetID(),
+			Data2 = TaskTypes.TASK_RAZE,
+			Text = "TXT_KEY_CITYVIEW_RAZE_BUTTON_CONFIRM",
 		}
-    
-	Events.SerialEventGameMessagePopup( popupInfo );
+		Events.SerialEventGameMessagePopup(popupInfo);
+	end
 end
 Controls.RazeCityButton:RegisterCallback( Mouse.eLClick, OnRazeButton);
 
--------------------------------------------------
--------------------------------------------------
 function OnUnrazeButton()
-
 	if Players[Game.GetActivePlayer()]:IsTurnActive() then
 		local pCity = UI.GetHeadSelectedCity();
-		
 		if (pCity == nil) then
 			return;
-		end;
+		end
 		
-		Network.SendDoTask(pCity:GetID(), TaskTypes.TASK_UNRAZE, -1, -1, false, false, false, false);
+		local popupInfo = {
+			Type = ButtonPopupTypes.BUTTONPOPUP_CONFIRM_CITY_TASK,
+			Data1 = pCity:GetID(),
+			Data2 = TaskTypes.TASK_UNRAZE,
+			Text = "TXT_KEY_CITYVIEW_UNRAZE_BUTTON_CONFIRM",
+		}
+		Events.SerialEventGameMessagePopup(popupInfo);
 	end
 end
 Controls.UnrazeCityButton:RegisterCallback( Mouse.eLClick, OnUnrazeButton);
@@ -2505,7 +2507,13 @@ function OnPuppetButton()
 			return;
 		end
 		
-		Network.SendDoTask(pCity:GetID(), TaskTypes.TASK_CREATE_PUPPET, -1, -1, false, false, false, false);
+		local popupInfo = {
+			Type = ButtonPopupTypes.BUTTONPOPUP_CONFIRM_CITY_TASK,
+			Data1 = pCity:GetID(),
+			Data2 = TaskTypes.TASK_CREATE_PUPPET,
+			Text = "TXT_KEY_CITYVIEW_PUPPET_BUTTON_CONFIRM",
+		}
+		Events.SerialEventGameMessagePopup(popupInfo);
 	end
 end
 Controls.PuppetCityButton:RegisterCallback( Mouse.eLClick, OnPuppetButton);
@@ -2518,7 +2526,13 @@ function OnAnnexButton()
 			return;
 		end
 		
-		Network.SendDoTask(pCity:GetID(), TaskTypes.TASK_ANNEX_PUPPET, -1, -1, false, false, false, false);
+		local popupInfo = {
+			Type = ButtonPopupTypes.BUTTONPOPUP_CONFIRM_CITY_TASK,
+			Data1 = pCity:GetID(),
+			Data2 = TaskTypes.TASK_ANNEX_PUPPET,
+			Text = "TXT_KEY_CITYVIEW_ANNEX_BUTTON_CONFIRM",
+		}
+		Events.SerialEventGameMessagePopup(popupInfo);
 	end
 end
 Controls.AnnexCityButton:RegisterCallback( Mouse.eLClick, OnAnnexButton);
