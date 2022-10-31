@@ -821,6 +821,7 @@ public:
 	// Accessor functions
 	bool HasPolicy(PolicyTypes eIndex) const;
 	void SetPolicy(PolicyTypes eIndex, bool bNewValue);
+	// total number of policies owned by this player BY ANY MEANS (includes free and branch, etc.)
 	int GetNumPoliciesOwned() const;
 	int GetNumPoliciesOwnedInBranch(PolicyBranchTypes eBranch) const;
 	CvPolicyXMLEntries* GetPolicies() const;

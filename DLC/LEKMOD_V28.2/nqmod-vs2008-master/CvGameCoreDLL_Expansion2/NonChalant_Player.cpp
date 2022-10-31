@@ -6,15 +6,28 @@
 
 using namespace std;
 
+
+void addColoredValue(stringstream& s, bool isGreen, const long value, const string description)
+{
+	const long absValue = abs(value);
+	if (isGreen) s << "[COLOR_POSITIVE_TEXT]+" << absValue;
+	else		 s << "[COLOR_GREY]+" << absValue;
+
+	s << " " << description << "[ENDCOLOR]";
+	s << "[NEWLINE]";
+}
+
 // will construct a string
 void appendNewLine(stringstream* ss, int* numCitiesAllowed, 
 	// The description of where the numToAdd amount came from.
 	string desc, 
 	// The number of additional cities the player could add.
-	int numToAdd)
+	int numToAdd,
+	bool isUnlocked)
 {
-	addColoredValue(*ss, numToAdd, desc, false);
-	*numCitiesAllowed += numToAdd;
+	addColoredValue(*ss, isUnlocked, numToAdd, desc);
+	if (isUnlocked)
+		*numCitiesAllowed += numToAdd;
 }
 
 string CvPlayer::GetCityCapCurrent_WithSourcesTooltip(int* sum) const
@@ -24,25 +37,39 @@ string CvPlayer::GetCityCapCurrent_WithSourcesTooltip(int* sum) const
 
 	{ // the base amount to start with always
 		const int baseNum = 3 * (true);
-		appendNewLine(&ss, sum, "Base", baseNum);
+		appendNewLine(&ss, sum, "Base", baseNum, true);
 	}
 
 	// 1 for every other era, first unlock in classical
 	{
 		// ancient era is id 0, classical is id 1...
-		const int Classical = 1 * (player.GetCurrentEra() >= 1); // evaluates to 0(false) or 1(true)
-		appendNewLine(&ss, sum, "from the {TXT_KEY_ERA_1}", Classical); // {} evaluates to Classical Era
+		const int Classical = 1;
+		appendNewLine(&ss, sum, "from the {TXT_KEY_ERA_1}", Classical, player.GetCurrentEra() >= 1); // {} evaluates to Classical Era
 
-		const int Renaissance = 1 * (player.GetCurrentEra() >= 3);
-		appendNewLine(&ss, sum, "from the {TXT_KEY_ERA_3}", Renaissance);
+		const int Renaissance = 1;
+		appendNewLine(&ss, sum, "from the {TXT_KEY_ERA_3}", Renaissance, player.GetCurrentEra() >= 3);
 
-		const int Modern = 1 * (player.GetCurrentEra() >= 5);
-		appendNewLine(&ss, sum, "from the {TXT_KEY_ERA_5}", Modern);
+		const int Modern = 1;
+		appendNewLine(&ss, sum, "from the {TXT_KEY_ERA_5}", Modern, player.GetCurrentEra() >= 5);
 
-		const int Future = 1 * (player.GetCurrentEra() >= 7);
-		appendNewLine(&ss, sum, "from the {TXT_KEY_ERA_7}", Modern);
+		const int Future = 1;
+		appendNewLine(&ss, sum, "from the {TXT_KEY_ERA_7}", Future, player.GetCurrentEra() >= 7);
 		// last era is 8 (future)
 	}
+
+	{ // 1 per courthouse
+		const int numCourthouses = player.countNumBuildingClasses(BuildingClass("BUILDINGCLASS_COURTHOUSE"));
+		appendNewLine(&ss, sum, "from 1 per Courthouse", numCourthouses, numCourthouses > 0);
+	}
+
+	{ // 1 for 8 policies (free policies included)
+		const int numPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwned();
+		appendNewLine(&ss, sum, "from 8 or more Social Policies", 1, player.GetNumPolicies() >= 8);
+	}
+
+	// ai get to build as many as they want
+	if (!isHuman())
+		*sum += 999;
 
 	return ss.str();
 }

@@ -2924,7 +2924,6 @@ void CvPlayerPolicies::SetOneShotFreeUnitsFired(PolicyTypes eIndex, bool bFired)
 	m_pabHaveOneShotFreeUnitsFired[eIndex] = bFired;
 }
 
-/// Returns number of policies purchased by this player
 int CvPlayerPolicies::GetNumPoliciesOwned() const
 {
 	int rtnValue = 0;

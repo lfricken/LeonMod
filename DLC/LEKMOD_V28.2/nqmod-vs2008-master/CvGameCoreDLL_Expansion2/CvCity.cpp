@@ -10914,11 +10914,6 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PUPPET", iTempMod);
 		}
 	}
-
-	iModifier += iExtra;
-
-	// compounding:
-	T100 factorT100 = (iModifier + 100);
 	if (eIndex == YIELD_PRODUCTION)
 	{
 		const CvPlayer& player = GET_PLAYER(getOwner());
@@ -10926,9 +10921,13 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 		if (toolTipSink)
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_CITYCAP", cityCapPenaltyFactor);
 
-		factorT100 *= (100 + cityCapPenaltyFactor);
-		factorT100 /= 100;
+		iModifier += cityCapPenaltyFactor;
 	}
+
+	iModifier += iExtra;
+
+	// compounding:
+	T100 factorT100 = (iModifier + 100);
 
 	// note: player->invalidateYieldRankCache() must be called for anything that is checked here
 	// so if any extra checked things are added here, the cache needs to be invalidated

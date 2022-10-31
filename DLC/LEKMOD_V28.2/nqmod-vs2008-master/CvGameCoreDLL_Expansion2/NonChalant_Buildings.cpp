@@ -33,11 +33,6 @@
 // Include this after all other headers.
 #include "LintFree.h"
 
-BuildingClassTypes BuildingClass(const string name)
-{
-	return GC.GetGameBuildings()->BuildingClass(name);
-}
-
 
 // Extra yields for buildings.
 int CvPlayer::GetExtraYieldForBuilding

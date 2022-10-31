@@ -6278,15 +6278,29 @@ int CvPlayer::countNumBuildings(BuildingTypes eBuilding) const
 
 	iCount = 0;
 
-	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		if(pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+		if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 		{
 			iCount += pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding);
 		}
 	}
 
 	return iCount;
+}
+int CvPlayer::countNumBuildingClasses(BuildingClassTypes eBuilding) const
+{
+	const CvCity* pLoopCity;
+	int iLoop;
+
+	int sum = 0;
+
+	for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		pLoopCity->GetCityBuildings()->HasBuildingClass(eBuilding, &sum);
+	}
+
+	return sum;
 }
 
 //	--------------------------------------------------------------------------------
@@ -13469,15 +13483,19 @@ T100 CvPlayer::GetCityCapYieldMod(const YieldTypes eYield) const
 	const int numOver = max(0, -GetCityCapNumCanStillBuild());
 	if (eYield == YIELD_PRODUCTION)
 	{
-		factorT100 = iPow(100ll + GetCityCapYieldModPerCity(eYield), numOver);
+		factorT100 = numOver * GetCityCapYieldModPerCity(eYield);
 	}
-	return factorT100 - 100;
+	return factorT100;
 }
 int CvPlayer::GetCityCapNumCanStillBuild() const
 {
 	int maxAllowed = 0;
 	GetCityCapCurrent_WithSourcesTooltip(&maxAllowed);
-	return maxAllowed - getNumCities();
+	return maxAllowed - GetNumCityTowardCap();
+}
+int CvPlayer::GetNumCityTowardCap() const
+{
+	return GetMaxEffectiveCities(false);
 }
 CvString CvPlayer::GetCityCap_TopPanel() const
 {
@@ -13487,7 +13505,7 @@ CvString CvPlayer::GetCityCap_TopPanel() const
 	stringstream ss;
 
 	ss << "[ICON_CITY] ";
-	ss << getNumCities() << "/" << maxAllowed;
+	ss << GetNumCityTowardCap() << "/" << maxAllowed;
 
 	// localize
 	CvString cvStr = ss.str().c_str();
@@ -13500,17 +13518,16 @@ CvString CvPlayer::GetCityCap_Tooltip() const
 
 	// construct hover text
 	stringstream ss;
-	ss << "You have " << getNumCities() << " of " << currentCap << " possible cities.";
+	ss << "You have " << GetNumCityTowardCap() << " of " << currentCap << " possible cities. Any [ICON_PUPPET] Puppets do not count toward this limit.";
 	ss << "[NEWLINE]";
 	ss << "[NEWLINE]";
 	ss << "Your sources of [ICON_CITY] Cities:[NEWLINE]";
 	ss << sources;
 	ss << "[NEWLINE]";
-	ss << "Each city past your limit causes more Corruption, a compounding ";
+	ss << "Each city past your limit causes ";
 	addColoredValue(ss, GetCityCapYieldModPerCity(YIELD_PRODUCTION), "[ICON_PRODUCTION]", true, false, '-');
 	ss << " in every city. Your current Corruption penalty is ";
 	addColoredValue(ss, GetCityCapYieldMod(YIELD_PRODUCTION), "[ICON_PRODUCTION]", true, false, '-');
-	ss << ".";
 
 	// localize
 	CvString cvStr = ss.str().c_str();
@@ -26621,7 +26638,7 @@ int CvPlayer::GetNumPuppetCities() const
 }
 //	--------------------------------------------------------------------------------
 // How many Cities does this player have for policy/tech cost purposes?
-int CvPlayer::GetMaxEffectiveCities(bool bIncludePuppets)
+int CvPlayer::GetMaxEffectiveCities(bool bIncludePuppets) const
 {
 	int iNumCities = getNumCities();
 
@@ -26646,7 +26663,7 @@ int CvPlayer::GetMaxEffectiveCities(bool bIncludePuppets)
 		iNumCities = 1;
 
 	// Update member variable
-	m_iMaxEffectiveCities = (m_iMaxEffectiveCities > iNumCities) ? m_iMaxEffectiveCities : iNumCities;
+	m_iMaxEffectiveCities = iNumCities;
 
 	if (bIncludePuppets)
 	{

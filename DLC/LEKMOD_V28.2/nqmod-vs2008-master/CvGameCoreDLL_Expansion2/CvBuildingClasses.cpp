@@ -2717,12 +2717,16 @@ int CvCityBuildings::GetNumBuilding(BuildingTypes eIndex) const
 }
 
 /// Accessor: Is there at least one building of the class in the city? Potentially faster function than the above.
-bool CvCityBuildings::HasBuildingClass(BuildingClassTypes eClass) const
+bool CvCityBuildings::HasBuildingClass(BuildingClassTypes eClass, int* pCount) const
 {
 	CvAssertMsg(eClass != NO_BUILDINGCLASS, "BuildingClassTypes eIndex is expected to not be NO_BUILDINGCLASS");
 
 	// for every building
 	const int numBuildings = GC.GetGameBuildings()->GetNumBuildings();
+	int count;
+	if (pCount == NULL)
+		pCount = &count;
+
 	for (int i = 0; i < numBuildings; ++i)
 	{
 		// if this city has it
@@ -2733,11 +2737,11 @@ bool CvCityBuildings::HasBuildingClass(BuildingClassTypes eClass) const
 			const CvBuildingEntry* pkInfo = GC.getBuildingInfo(type);
 			if (pkInfo && pkInfo->GetBuildingClassType() == eClass)
 			{
-				return true;
+				(*pCount)++;;
 			}
 		}
 	}
-	return false;
+	return *pCount > 0;
 }
 /// Accessor: How many of these buildings are not obsolete?
 int CvCityBuildings::GetNumActiveBuilding(BuildingTypes eIndex) const

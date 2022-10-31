@@ -121,6 +121,13 @@ T100 iPow(const long long valT100, int iPower)
 	return (T100)result;
 }
 
+BuildingClassTypes BuildingClass(const string name)
+{
+	return GC.GetGameBuildings()->BuildingClass(name);
+}
+
+
+
 template <class T>
 void deleteInfoArray(std::vector<T*>& array)
 {

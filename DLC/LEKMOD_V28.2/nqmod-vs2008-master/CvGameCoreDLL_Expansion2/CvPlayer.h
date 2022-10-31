@@ -287,6 +287,7 @@ public:
 
 	int countCityFeatures(FeatureTypes eFeature) const;
 	int countNumBuildings(BuildingTypes eBuilding) const;
+	int countNumBuildingClasses(BuildingClassTypes eBuilding) const;
 	//int countNumCitiesConnectedToCapital() const;
 
 	int countCitiesFeatureSurrounded() const;
@@ -644,6 +645,7 @@ public:
 	T100 GetCityCapYieldMod(const YieldTypes eYield) const;
 	// number of cities this player can still build, negative if they are over
 	int GetCityCapNumCanStillBuild() const;
+	int GetNumCityTowardCap() const;
 	// shown at the top of the screen (not mouseover)
 	CvString GetCityCap_TopPanel() const;
 	// generates the mouseover hover text to describe this players city cap status
@@ -1624,7 +1626,7 @@ public:
 	CvCity* GetClosestFriendlyCity(CvPlot& plot, int iSearchRadius);
 
 	int GetNumPuppetCities() const;
-	int GetMaxEffectiveCities(bool bIncludePuppets = false);
+	int GetMaxEffectiveCities(bool bIncludePuppets = false)  const;
 
 	int GetNumNaturalWondersDiscoveredInArea() const;
 	void SetNumNaturalWondersDiscoveredInArea(int iValue);
@@ -2156,7 +2158,7 @@ protected:
 	int m_iNumFreeTenets;
 	FAutoVariable<int, CvPlayer> m_iNumGoodyHutsPopped;
 	FAutoVariable<int, CvPlayer> m_nextGoodyType;
-    int m_iMaxEffectiveCities;
+    mutable int m_iMaxEffectiveCities;
 
 	int m_iLastSliceMoved;
 

@@ -8,12 +8,12 @@ PopupLayouts[ButtonPopupTypes.BUTTONPOPUP_CONFIRM_CITY_TASK] = function(popupInf
 	
 	local popupText = "NO POPUP TEXT DEFINED";
 	if (iTask == TaskTypes.TASK_RAZE) then
-		popupText = Locale.ConvertTextKey("TXT_KEY_POPUP_ARE_YOU_SURE_RAZE");
+		popupText = "TXT_KEY_POPUP_ARE_YOU_SURE_RAZE";
 	elseif (popupInfo.Text ~= nil) then
 		popupText = popupInfo.Text;
 	end
 	
-	SetPopupText(popupText);
+	SetPopupText(Locale.ConvertTextKey(popupText));
 		
 	-- Initialize 'yes' button.
 	local OnYesClicked = function()
