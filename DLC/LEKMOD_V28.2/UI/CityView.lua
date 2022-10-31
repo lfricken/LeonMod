@@ -29,8 +29,6 @@ local specialistTable = {};
 
 local g_iBuildingToSell = -1;
 
-local g_bRazeButtonDisabled = false;
-
 -- Add any interface modes that need special processing to this table
 local InterfaceModeMessageHandler = 
 {
@@ -1577,42 +1575,41 @@ function OnCityViewUpdate()
 		Controls.NotificationStack:ReprocessAnchoring();
 		
 		-------------------------------------------
-		-- Raze City Button (Occupied Cities only)
+		-- Raze/Unraze Cities
 		-------------------------------------------
-		
-		if (not pCity:IsOccupied() or pCity:IsRazing()) then		
-			g_bRazeButtonDisabled = true;
+		-- flip between showing Raze or Unraze
+		Controls.RazeCityButton:SetHide(pCity:IsRazing());
+		Controls.RazeCityButton:SetDisabled(pCity:IsRazing());
+		Controls.RazeCityButton:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_CITYVIEW_RAZE_BUTTON_TT"));
+
+		Controls.UnrazeCityButton:SetHide(not pCity:IsRazing());
+		Controls.UnrazeCityButton:SetDisabled(not pCity:IsRazing());
+
+		-- possibly disable Razing/Unrazing
+		local canRazeWithCapitalConsideration = pPlayer:CanRaze(pCity, false);
+		local canRazeEver = pPlayer:CanRaze(pCity, true); -- true ignores capital
+		if (not canRazeEver) then -- just hide because razing isn't an option in this city, might not be ours, or razing is disabled in this game
 			Controls.RazeCityButton:SetHide(true);
-		else
-			-- Can we not actually raze this city?
-			if (not pPlayer:CanRaze(pCity, false)) then
-				-- We COULD raze this city if it weren't a capital
-				if (pPlayer:CanRaze(pCity, true)) then
-					g_bRazeButtonDisabled = true;
-					Controls.RazeCityButton:SetHide(false);
-					Controls.RazeCityButton:SetDisabled(true);
-					Controls.RazeCityButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_RAZE_BUTTON_DISABLED_BECAUSE_CAPITAL_TT" ) );
-				-- Can't raze this city period
-				else
-					g_bRazeButtonDisabled = true;
-					Controls.RazeCityButton:SetHide(true);
-				end
-			else
-				g_bRazeButtonDisabled = false;
-				Controls.RazeCityButton:SetHide(false);
-				Controls.RazeCityButton:SetDisabled(false);		
-				Controls.RazeCityButton:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_RAZE_BUTTON_TT" ) );
-			end
+			Controls.RazeCityButton:SetDisabled(true);
+			Controls.UnrazeCityButton:SetHide(true);
+			Controls.UnrazeCityButton:SetDisabled(true);
+		elseif (not canRazeWithCapitalConsideration) then
+			Controls.RazeCityButton:SetDisabled(true);
+			Controls.RazeCityButton:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_CITYVIEW_RAZE_BUTTON_DISABLED_BECAUSE_CAPITAL_TT"));
 		end
 
-		-- Stop city razing
-		if (pCity:IsRazing()) then
-			g_bRazeButtonDisabled = false;
-			Controls.UnrazeCityButton:SetHide(false);
-		else
-			g_bRazeButtonDisabled = true;
-			Controls.UnrazeCityButton:SetHide(true);
+		-------------------------------------------
+		-- Puppet/Annex Cities
+		-------------------------------------------
+		-- if we arent razing, 
+		if (not pCity:IsRazing()) then
+			Controls.PuppetCityButton:SetHide(pCity:IsPuppet());
+			Controls.PuppetCityButton:SetDisabled(pCity:IsPuppet());
+			Controls.AnnexCityButton:SetHide(not pCity:IsPuppet());
+			Controls.AnnexCityButton:SetDisabled(not pCity:IsPuppet());
 		end
+
+
 		
 --		UpdateSpecialists(pCity);
 		UpdateWorkingHexes();
@@ -1717,6 +1714,8 @@ function OnCityViewUpdate()
 			-- Other
 			Controls.RazeCityButton:SetDisabled( true );
 			Controls.UnrazeCityButton:SetDisabled( true );
+			Controls.PuppetCityButton:SetDisabled( true );
+			Controls.AnnexCityButton:SetDisabled( true );
 			
 			Controls.BuyPlotButton:SetDisabled( true );
 			
@@ -1741,12 +1740,6 @@ function OnCityViewUpdate()
 			Controls.BoxOSlackers:SetDisabled( false );
 			Controls.NoAutoSpecialistCheckbox:SetDisabled( false );
 			Controls.NoAutoSpecialistCheckbox2:SetDisabled( false );
-			
-			-- Other
-			if (not g_bRazeButtonDisabled) then
-				Controls.RazeCityButton:SetDisabled( false );
-				Controls.UnrazeCityButton:SetDisabled( false );
-			end
 			
 			Controls.BuyPlotButton:SetDisabled( false );
 		end
@@ -2503,6 +2496,32 @@ function OnUnrazeButton()
 	end
 end
 Controls.UnrazeCityButton:RegisterCallback( Mouse.eLClick, OnUnrazeButton);
+
+
+function OnPuppetButton()
+	if Players[Game.GetActivePlayer()]:IsTurnActive() then
+		local pCity = UI.GetHeadSelectedCity();	
+		if (pCity == nil) then
+			return;
+		end
+		
+		Network.SendDoTask(pCity:GetID(), TaskTypes.TASK_CREATE_PUPPET, -1, -1, false, false, false, false);
+	end
+end
+Controls.PuppetCityButton:RegisterCallback( Mouse.eLClick, OnPuppetButton);
+
+
+function OnAnnexButton()
+	if Players[Game.GetActivePlayer()]:IsTurnActive() then
+		local pCity = UI.GetHeadSelectedCity();		
+		if (pCity == nil) then
+			return;
+		end
+		
+		Network.SendDoTask(pCity:GetID(), TaskTypes.TASK_ANNEX_PUPPET, -1, -1, false, false, false, false);
+	end
+end
+Controls.AnnexCityButton:RegisterCallback( Mouse.eLClick, OnAnnexButton);
 
 -------------------------------------------------
 -------------------------------------------------

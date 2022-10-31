@@ -6438,14 +6438,8 @@ bool CvPlayer::canRaze(CvCity* pCity, bool bIgnoreCapitals) const
 		return false;
 	}
 
-	// If we don't own this city right now then we can't raze it!
+	// only current owner can raze
 	if(pCity->getOwner() != GetID())
-	{
-		return false;
-	}
-
-	// Can't raze a city that originally belonged to us
-	if(pCity->getOriginalOwner() == GetID())
 	{
 		return false;
 	}
@@ -6469,11 +6463,7 @@ bool CvPlayer::canRaze(CvCity* pCity, bool bIgnoreCapitals) const
 	}
 
 	// No razing of capitals
-	CvPlayer* pOriginalOwner = &GET_PLAYER(pCity->getOriginalOwner());
-	bool bOriginalCapital =	pCity->getX() == pOriginalOwner->GetOriginalCapitalX() &&
-	                        pCity->getY() == pOriginalOwner->GetOriginalCapitalY();
-
-	if(!bIgnoreCapitals && pCity->IsEverCapital() && bOriginalCapital)
+	if(!bIgnoreCapitals && pCity->IsOriginalCapital())
 	{
 		return false;
 	}
@@ -6485,15 +6475,15 @@ bool CvPlayer::canRaze(CvCity* pCity, bool bIgnoreCapitals) const
 	}
 
 	// No razing of cities with unique luxuries
-	ResourceTypes eResource = pCity->plot()->getResourceType();
-	if (eResource != NO_RESOURCE)
-	{
-		CvResourceInfo *pkResource = GC.getResourceInfo(eResource);
-		if (pkResource && pkResource->GetRequiredCivilization() != NO_CIVILIZATION)
-		{
-			return false;
-		}
-	}
+	//ResourceTypes eResource = pCity->plot()->getResourceType();
+	//if (eResource != NO_RESOURCE)
+	//{
+	//	CvResourceInfo *pkResource = GC.getResourceInfo(eResource);
+	//	if (pkResource && pkResource->GetRequiredCivilization() != NO_CIVILIZATION)
+	//	{
+	//		return false;
+	//	}
+	//}
 
 	if(pkScriptSystem)
 	{
