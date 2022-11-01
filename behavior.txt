@@ -19,6 +19,10 @@ icon atlas and images (contains readme with more info)
 \Mods\[BNW] Colonialist Legacies - Malaysia (v 3)\Art\IconAtlas
 
 
+Ideology selection
+POLICY_NUM_FOR_IDEOLOGY
+
+
 
 barbarians only get 1 move per turn
 CvUnit::getMoves()
