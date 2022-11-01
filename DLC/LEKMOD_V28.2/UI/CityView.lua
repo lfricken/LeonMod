@@ -1488,7 +1488,7 @@ function OnCityViewUpdate()
 			if thisBuildingClass.MaxGlobalInstances <= 0 and thisBuildingClass.MaxPlayerInstances ~= 1 and thisBuildingClass.MaxTeamInstances <= 0 then
 				local buildingID= building.ID;
 				if pCity:GetNumSpecialistsAllowedByBuilding(buildingID) <= 0 then
-					if (pCity:IsHasBuilding(buildingID) and GameInfo.Buildings[buildingID].GreatWorkCount == 0) then
+					if (pCity:IsHasBuilding(buildingID) and GameInfo.Buildings[buildingID].GreatWorkCount <= 0) then
 						numBuildingsInThisCity = numBuildingsInThisCity + 1;
 						local element = {};
 						local name = Locale.ConvertTextKey( building.Description )
