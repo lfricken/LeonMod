@@ -2723,7 +2723,7 @@ bool CvCityBuildings::HasBuildingClass(BuildingClassTypes eClass, int* pCount) c
 
 	// for every building
 	const int numBuildings = GC.GetGameBuildings()->GetNumBuildings();
-	int count;
+	int count = 0;
 	if (pCount == NULL)
 		pCount = &count;
 
