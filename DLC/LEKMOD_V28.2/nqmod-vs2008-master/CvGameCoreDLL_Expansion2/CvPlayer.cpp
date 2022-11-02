@@ -1057,6 +1057,7 @@ void CvPlayer::uninit()
 	m_iLifetimeCombatExperience = 0;
 	m_iNavalCombatExperience = 0;
 	m_iBorderObstacleCount = 0;
+	m_iNumInitialFreePolicies = 0;
 	m_iPopRushHurryCount = 0;
 	m_uiStartTime = 0;
 	m_iTotalImprovementsBuilt = 0;
@@ -5824,7 +5825,7 @@ int CvPlayer::GetScoreFromPolicies() const
 		return 0;
 	}
 #ifdef NQM_OPTIONAL_SCORING_TWEAKS
-	int iScore = GetPlayerPolicies()->GetNumPoliciesOwned();
+	int iScore = GetNumPoliciesTotal();
 	if (GC.getGame().isOption("GAMEOPTION_TWEAKED_SCORING"))
 		iScore *= GC.getNEW_SCORE_POLICY_MULTIPLIER();
 	else
@@ -12643,7 +12644,7 @@ int CvPlayer::GetHappinessFromBuildings() const
 	// Increase from num policies -- MOVE THIS CODE (and provide a new tool tip string) if we ever get happiness per X policies to something beside a building
 	if(m_iHappinessPerXPolicies > 0)
 	{
-		iHappiness += GetPlayerPolicies()->GetNumPoliciesOwned() / m_iHappinessPerXPolicies;
+		iHappiness += GetNumPoliciesTotal() / m_iHappinessPerXPolicies;
 	}
 
 	// 
@@ -13968,6 +13969,13 @@ CvTacticalAI* CvPlayer::GetTacticalAI() const
 CvHomelandAI* CvPlayer::GetHomelandAI() const
 {
 	return m_pHomelandAI;
+}
+
+int CvPlayer::GetNumPoliciesTotal() const
+{
+	const int numTotalPolicies = GetPlayerPolicies()->GetNumPoliciesOwned();
+	// subtract off initial free policies
+	return numTotalPolicies - m_iNumInitialFreePolicies;
 }
 
 
@@ -18216,6 +18224,10 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 		stringstream ss;
 		ss << "Player(" << GetID() << ")::setTurnActive(" << (bNewValue ? "true" : "FALSE") << ", bDoTurn:" << (bDoTurn ? "true" : "FALSE") << ")";
 		netMessageDebug(NET_MESSAGE_PLAYER_EVENTS, ss.str());
+
+		// store initial policy count
+		if (m_iNumInitialFreePolicies == 0 && GC.getGame().getGameTurn() == 1) // turn 0 does not work
+			m_iNumInitialFreePolicies = GetNumPoliciesTotal();
 
 		CvGame& kGame = GC.getGame();
 #if defined(MOD_BUGFIX_AI_DOUBLE_TURN_MP_LOAD)
@@ -24972,6 +24984,7 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_iNavalCombatExperience;
 	kStream >> m_iLifetimeCombatExperience;
 	kStream >> m_iBorderObstacleCount;
+	kStream >> m_iNumInitialFreePolicies;
 	kStream >> m_iNextOperationID;
 	kStream >> m_iCostNextPolicyT100;
 	kStream >> m_iNumBuilders;
@@ -25532,6 +25545,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_iNavalCombatExperience;
 	kStream << m_iLifetimeCombatExperience;
 	kStream << m_iBorderObstacleCount;
+	kStream << m_iNumInitialFreePolicies;
 	kStream << m_iNextOperationID;
 	kStream << m_iCostNextPolicyT100;
 	kStream << m_iNumBuilders;
@@ -27876,7 +27890,7 @@ void CvPlayer::GatherPerTurnReplayStats(int iGameTurn)
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_UNITMAINTENANCE"), iGameTurn, pkTreasury->GetExpensePerTurnUnitMaintenance());
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_BUILDINGMAINTENANCE"), iGameTurn, pkTreasury->GetBuildingGoldMaintenance());
 		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_IMPROVEMENTMAINTENANCE"), iGameTurn, pkTreasury->GetImprovementGoldMaintenance());
-		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMBEROFPOLICIES"), iGameTurn, GetPlayerPolicies()->GetNumPoliciesOwned());
+		setReplayDataValue(getReplayDataSetIndex("REPLAYDATASET_NUMBEROFPOLICIES"), iGameTurn, GetNumPoliciesTotal());
 
 		// workers
 		int iWorkerCount = 0;

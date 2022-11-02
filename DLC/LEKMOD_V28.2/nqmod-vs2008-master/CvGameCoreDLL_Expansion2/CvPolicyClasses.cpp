@@ -4794,7 +4794,7 @@ bool CvPlayerPolicies::IsTimeToChooseIdeology() const
 
 	// have adopted enough policies?
 	GC.getPOLICY_WEIGHT_PROPAGATION_PERCENT();
-	if (GetNumPoliciesOwned() >= GC.getPOLICY_NUM_FOR_IDEOLOGY())
+	if (GetPlayer()->GetNumPoliciesTotal() >= GC.getPOLICY_NUM_FOR_IDEOLOGY())
 	{
 		return true;
 	}

@@ -1373,7 +1373,7 @@ void CvEconomicAI::LogMonitor(void)
 	AppendToLog(strHeader, strLog, "Num Techs", GET_TEAM(GetPlayer()->getTeam()).GetTeamTechs()->GetNumTechsKnown());
 
 	// Culture
-	AppendToLog(strHeader, strLog, "Policies", GetPlayer()->GetPlayerPolicies()->GetNumPoliciesOwned());
+	AppendToLog(strHeader, strLog, "Policies", GetPlayer()->GetNumPoliciesTotal());
 	AppendToLog(strHeader, strLog, "Culture (lifetime)", GetPlayer()->GetJONSCultureEverGenerated());
 
 	// Faith

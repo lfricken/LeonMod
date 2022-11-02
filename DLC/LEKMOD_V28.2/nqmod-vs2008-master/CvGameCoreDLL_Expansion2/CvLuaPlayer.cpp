@@ -5061,7 +5061,7 @@ int CvLuaPlayer::lGetNumPolicies(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
-	const int iResult = pkPlayer->GetPlayerPolicies()->GetNumPoliciesOwned();
+	const int iResult = pkPlayer->GetNumPoliciesTotal();
 	lua_pushinteger(L, iResult);
 	return 1;
 }

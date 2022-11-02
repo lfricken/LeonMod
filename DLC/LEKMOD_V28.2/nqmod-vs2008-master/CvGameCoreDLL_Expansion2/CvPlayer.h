@@ -1739,6 +1739,9 @@ public:
 	CvFlavorManager* GetFlavorManager() const;
 	CvTacticalAI* GetTacticalAI() const;
 	CvHomelandAI* GetHomelandAI() const;
+
+	// total number of policies owned by this player BY ANY MEANS EXCEPT policies owned on turn 1
+	int CvPlayer::GetNumPoliciesTotal() const;
 	// true if this player has this policy
 	// includes ideology
 	bool HasPolicy(const string name) const;
@@ -2112,6 +2115,8 @@ protected:
 	int m_iLifetimeCombatExperience;
 	int m_iNavalCombatExperience;
 	int m_iBorderObstacleCount;
+	// records the number of free policies this player had at the beginning of the game
+	int m_iNumInitialFreePolicies;
 	FAutoVariable<int, CvPlayer> m_iPopRushHurryCount;
 	FAutoVariable<int, CvPlayer> m_iTotalImprovementsBuilt;
 	FAutoVariable<int, CvPlayer> m_iNextOperationID;
