@@ -2500,7 +2500,6 @@ end
 Controls.ReturnToMapButton:RegisterCallback( Mouse.eLClick, OnReturnToMapButton);
 
 
-
 function OnRazeButton()
 	if Players[Game.GetActivePlayer()]:IsTurnActive() then
 		local pCity = UI.GetHeadSelectedCity();
@@ -2512,12 +2511,13 @@ function OnRazeButton()
 			Type = ButtonPopupTypes.BUTTONPOPUP_CONFIRM_CITY_TASK,
 			Data1 = pCity:GetID(),
 			Data2 = TaskTypes.TASK_RAZE,
-			Text = "TXT_KEY_CITYVIEW_RAZE_BUTTON_CONFIRM",
+			Text = Locale.ConvertTextKey("TXT_KEY_CITYVIEW_RAZE_BUTTON_CONFIRM", 3),
 		}
 		Events.SerialEventGameMessagePopup(popupInfo);
 	end
 end
 Controls.RazeCityButton:RegisterCallback( Mouse.eLClick, OnRazeButton);
+
 
 function OnUnrazeButton()
 	if Players[Game.GetActivePlayer()]:IsTurnActive() then
@@ -2530,7 +2530,7 @@ function OnUnrazeButton()
 			Type = ButtonPopupTypes.BUTTONPOPUP_CONFIRM_CITY_TASK,
 			Data1 = pCity:GetID(),
 			Data2 = TaskTypes.TASK_UNRAZE,
-			Text = "TXT_KEY_CITYVIEW_UNRAZE_BUTTON_CONFIRM",
+			Text = Locale.ConvertTextKey("TXT_KEY_CITYVIEW_UNRAZE_BUTTON_CONFIRM", 3),
 		}
 		Events.SerialEventGameMessagePopup(popupInfo);
 	end
@@ -2549,7 +2549,7 @@ function OnPuppetButton()
 			Type = ButtonPopupTypes.BUTTONPOPUP_CONFIRM_CITY_TASK,
 			Data1 = pCity:GetID(),
 			Data2 = TaskTypes.TASK_CREATE_PUPPET,
-			Text = "TXT_KEY_CITYVIEW_PUPPET_BUTTON_CONFIRM",
+			Text = Locale.ConvertTextKey("TXT_KEY_CITYVIEW_PUPPET_BUTTON_CONFIRM", 3),
 		}
 		Events.SerialEventGameMessagePopup(popupInfo);
 	end
@@ -2568,7 +2568,7 @@ function OnAnnexButton()
 			Type = ButtonPopupTypes.BUTTONPOPUP_CONFIRM_CITY_TASK,
 			Data1 = pCity:GetID(),
 			Data2 = TaskTypes.TASK_ANNEX_PUPPET,
-			Text = "TXT_KEY_CITYVIEW_ANNEX_BUTTON_CONFIRM",
+			Text = Locale.ConvertTextKey("TXT_KEY_CITYVIEW_ANNEX_BUTTON_CONFIRM", 3),
 		}
 		Events.SerialEventGameMessagePopup(popupInfo);
 	end
