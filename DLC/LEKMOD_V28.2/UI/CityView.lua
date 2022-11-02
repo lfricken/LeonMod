@@ -1577,13 +1577,9 @@ function OnCityViewUpdate()
 		-------------------------------------------
 		-- Raze/Unraze Cities
 		-------------------------------------------
-		-- flip between showing Raze or Unraze
-		Controls.RazeCityButton:SetHide(pCity:IsRazing());
-		Controls.RazeCityButton:SetDisabled(pCity:IsRazing());
-		Controls.RazeCityButton:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_CITYVIEW_RAZE_BUTTON_TT"));
 
-		Controls.UnrazeCityButton:SetHide(not pCity:IsRazing());
-		Controls.UnrazeCityButton:SetDisabled(not pCity:IsRazing());
+		local turnsTill = pCity:GetTurnsTillCanDoMajorTask();
+		local turnsRemainStr = Locale.ConvertTextKey("TXT_KEY_CITYVIEW_MAJORTASK_LIMIT", 3, turnsTill);
 
 		-- possibly disable Razing/Unrazing
 		local canRazeWithCapitalConsideration = pPlayer:CanRaze(pCity, false);
@@ -1593,20 +1589,56 @@ function OnCityViewUpdate()
 			Controls.RazeCityButton:SetDisabled(true);
 			Controls.UnrazeCityButton:SetHide(true);
 			Controls.UnrazeCityButton:SetDisabled(true);
-		elseif (not canRazeWithCapitalConsideration) then
-			Controls.RazeCityButton:SetDisabled(true);
-			Controls.RazeCityButton:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_CITYVIEW_RAZE_BUTTON_DISABLED_BECAUSE_CAPITAL_TT"));
+		else -- might be able to raze/unraze now
+			-- flip between showing Raze or Unraze
+			Controls.RazeCityButton:SetHide(pCity:IsRazing());
+			Controls.RazeCityButton:SetDisabled(pCity:IsRazing());
+			Controls.RazeCityButton:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_CITYVIEW_RAZE_BUTTON_TT"));
+
+			Controls.UnrazeCityButton:SetHide(not pCity:IsRazing());
+			Controls.UnrazeCityButton:SetDisabled(not pCity:IsRazing());
+			Controls.UnrazeCityButton:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_CITYVIEW_UNRAZE_BUTTON_TT"));
+
+			-- but maybe we can't because of recent activity
+			if (turnsTill > 0) then
+				Controls.RazeCityButton:SetDisabled(true);
+				Controls.RazeCityButton:SetToolTipString(turnsRemainStr);
+				Controls.UnrazeCityButton:SetDisabled(true);
+				Controls.UnrazeCityButton:SetToolTipString(turnsRemainStr);
+			end
+			-- but also consider capitalness as even more important to explain
+			if (not canRazeWithCapitalConsideration) then
+				Controls.RazeCityButton:SetDisabled(true);
+				Controls.RazeCityButton:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_CITYVIEW_RAZE_BUTTON_DISABLED_BECAUSE_CAPITAL_TT"));
+			end
 		end
 
 		-------------------------------------------
 		-- Puppet/Annex Cities
 		-------------------------------------------
-		-- if we arent razing, 
-		if (not pCity:IsRazing()) then
+		-- cannot puppet/annex a burning city
+		if (pCity:IsRazing()) then
+			Controls.PuppetCityButton:SetHide(true);
+			Controls.PuppetCityButton:SetDisabled(true);
+			Controls.AnnexCityButton:SetHide(true);
+			Controls.AnnexCityButton:SetDisabled(true);
+		else -- if we arent razing, show a puppet button
 			Controls.PuppetCityButton:SetHide(pCity:IsPuppet());
-			Controls.PuppetCityButton:SetDisabled(pCity:IsPuppet());
+
+			-- TXT_KEY_CITYVIEW_ANNEX_BUTTON_TT
 			Controls.AnnexCityButton:SetHide(not pCity:IsPuppet());
-			Controls.AnnexCityButton:SetDisabled(not pCity:IsPuppet());
+
+			if (turnsTill > 0) then
+				Controls.PuppetCityButton:SetDisabled(true);
+				Controls.PuppetCityButton:SetToolTipString(turnsRemainStr);
+				Controls.AnnexCityButton:SetDisabled(true);
+				Controls.AnnexCityButton:SetToolTipString(turnsRemainStr);
+			else				
+				Controls.PuppetCityButton:SetDisabled(pCity:IsPuppet());
+				Controls.PuppetCityButton:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_CITYVIEW_PUPPET_BUTTON_TT"));
+				Controls.AnnexCityButton:SetDisabled(not pCity:IsPuppet());
+				Controls.AnnexCityButton:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_CITYVIEW_ANNEX_BUTTON_TT"));
+			end
 		end
 
 
@@ -1690,7 +1722,8 @@ function OnCityViewUpdate()
 		
 		-- Viewing mode only
 		if (UI.IsCityScreenViewingMode()) then
-			
+			local viewOnlyStr = Locale.ConvertTextKey("TXT_KEY_CITYVIEW_VIEWONLY");
+
 			-- City Cycling
 			Controls.PrevCityButton:SetDisabled( true );
 			Controls.NextCityButton:SetDisabled( true );
@@ -1716,6 +1749,11 @@ function OnCityViewUpdate()
 			Controls.UnrazeCityButton:SetDisabled( true );
 			Controls.PuppetCityButton:SetDisabled( true );
 			Controls.AnnexCityButton:SetDisabled( true );
+
+			Controls.RazeCityButton:SetToolTipString(viewOnlyStr);
+			Controls.UnrazeCityButton:SetToolTipString(viewOnlyStr);
+			Controls.PuppetCityButton:SetToolTipString(viewOnlyStr);
+			Controls.AnnexCityButton:SetToolTipString(viewOnlyStr);
 			
 			Controls.BuyPlotButton:SetDisabled( true );
 			

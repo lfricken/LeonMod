@@ -37,6 +37,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(CanWork);
 	Method(IsPlotBlockaded);
 	Method(ClearWorkingOverride);
+	Method(GetTurnsTillCanDoMajorTask);
 	Method(CountNumImprovedPlots);
 	Method(CountNumWaterPlots);
 	Method(CountNumRiverPlots);
@@ -600,6 +601,14 @@ int CvLuaCity::lIsPlotBlockaded(lua_State* L)
 int CvLuaCity::lClearWorkingOverride(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvCity::clearWorkingOverride);
+}
+int CvLuaCity::lGetTurnsTillCanDoMajorTask(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iResult = pkCity->GetTurnsTillCanDoMajorTask();
+
+	lua_pushinteger(L, iResult);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int countNumImprovedPlots();

@@ -1,4 +1,49 @@
 
+
+
+-- Add a button to popup.
+-- NOTE: Current Limitation is 4 buttons
+function AddButton(buttonText, buttonClickFunc, strToolTip, bPreventClose, bDisable)
+	local i = 1;
+	repeat
+		local button = Controls["Button"..i];
+		if button and button:IsHidden() then
+			local buttonLabel = Controls["Button"..i.."Text"];
+			buttonLabel:SetText( buttonText );
+			
+			button:SetToolTipString(strToolTip);
+
+			--By default, button clicks will hide the popup window after
+			--executing the click function
+			local clickHandler = function()
+				if buttonClickFunc ~= nil then
+					buttonClickFunc();
+				end
+				
+				HideWindow();
+			end
+			local clickHandlerPreventClose = function()
+				if buttonClickFunc ~= nil then
+					buttonClickFunc();
+				end
+			end
+			
+			-- This is only used in one case, when viewing a captured city (PuppetCityPopup)
+			if (bPreventClose) then
+				button:RegisterCallback(Mouse.eLClick, clickHandlerPreventClose);
+			else
+				button:RegisterCallback(Mouse.eLClick, clickHandler);
+			end
+			
+			button:SetHide(false);
+			button:SetDisabled(bDisable);
+			
+			return;
+		end
+		i = i + 1;
+	until button == nil;
+end
+
 -- ANNEX CITY POPUP
 -- This popup occurs when a player clicks on a puppeted City
 PopupLayouts[ButtonPopupTypes.BUTTONPOPUP_ANNEX_CITY] = function(popupInfo)
@@ -20,7 +65,16 @@ PopupLayouts[ButtonPopupTypes.BUTTONPOPUP_ANNEX_CITY] = function(popupInfo)
 	end
 	
 	local buttonText = Locale.ConvertTextKey("TXT_KEY_POPUP_ANNEX_CITY");
-	AddButton(buttonText, OnAnnexClicked);
+	local maxTurns = 3;
+
+	local turnsTill = newCity:GetTurnsTillCanDoMajorTask();
+	if (turnsTill > 0) then
+		local turnsRemainStr = Locale.ConvertTextKey("TXT_KEY_CITYVIEW_MAJORTASK_LIMIT", maxTurns, turnsTill);
+		AddButton(buttonText, OnAnnexClicked, turnsRemainStr, false, true);
+	else
+		local hoverText = Locale.ConvertTextKey("TXT_KEY_CITYVIEW_ADDENDUM", maxTurns);
+		AddButton(buttonText, OnAnnexClicked, hoverText);
+	end
 	
 	-- Initialize 'Leave City as a Puppet' button.
 	--local OnNoClicked = function()

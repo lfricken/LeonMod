@@ -90,6 +90,9 @@ public:
 	void createGreatAdmiral(UnitTypes eGreatPersonUnit);
 
 	CityTaskResult doTask(TaskTypes eTask, int iData1 = -1, int iData2 = -1, bool bOption = false, bool bAlt = false, bool bShift = false, bool bCtrl = false);
+	void doMajorTask(TaskTypes eTask);
+	int GetTurnsTillCanDoMajorTask() const;
+	int GetLastMajorTaskTurn() const;
 
 	void chooseProduction(UnitTypes eTrainUnit = NO_UNIT, BuildingTypes eConstructBuilding = NO_BUILDING, ProjectTypes eCreateProject = NO_PROJECT, bool bFinish = false, bool bFront = false);
 
@@ -1047,6 +1050,8 @@ protected:
 
 	int m_iBaseHappinessFromBuildings;
 	int m_iUnmoddedHappinessFromBuildings;
+	// founding, annexing, puppeting, razing, or unrazing
+	int m_iLastMajorTaskTurn;
 
 	bool m_bRouteToCapitalConnectedLastTurn;
 	bool m_bRouteToCapitalConnectedThisTurn;

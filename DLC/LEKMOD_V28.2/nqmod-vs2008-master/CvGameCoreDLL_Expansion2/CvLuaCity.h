@@ -39,6 +39,7 @@ protected:
 	static int lCanWork(lua_State* L);
 	static int lIsPlotBlockaded(lua_State* L);
 	static int lClearWorkingOverride(lua_State* L);
+	static int lGetTurnsTillCanDoMajorTask(lua_State* L);
 	static int lCountNumImprovedPlots(lua_State* L);
 	static int lCountNumWaterPlots(lua_State* L);
 	static int lCountNumRiverPlots(lua_State* L);

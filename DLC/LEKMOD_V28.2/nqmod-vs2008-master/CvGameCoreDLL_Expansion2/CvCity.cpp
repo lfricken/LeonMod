@@ -281,6 +281,7 @@ CvCity::CvCity() :
 	, m_paiFreePromotionCount("CvCity::m_paiFreePromotionCount", m_syncArchive)
 	, m_iBaseHappinessFromBuildings(0)
 	, m_iUnmoddedHappinessFromBuildings(0)
+	, m_iLastMajorTaskTurn(0) // negative infinity since no major task has been taken
 	, m_bRouteToCapitalConnectedLastTurn(false)
 	, m_bRouteToCapitalConnectedThisTurn(false)
 	, m_strName("")
@@ -2224,13 +2225,6 @@ CityTaskResult CvCity::doTask(TaskTypes eTask, int iData1, int iData2, bool bOpt
 	CityTaskResult eResult = TASK_COMPLETED;
 	switch(eTask)
 	{
-	case TASK_RAZE:
-		GET_PLAYER(getOwner()).raze(this);
-		break;
-
-	case TASK_UNRAZE:
-		GET_PLAYER(getOwner()).unraze(this);
-		break;
 
 	case TASK_DISBAND:
 		GET_PLAYER(getOwner()).disband(this);
@@ -2310,12 +2304,11 @@ CityTaskResult CvCity::doTask(TaskTypes eTask, int iData1, int iData2, bool bOpt
 		eResult = rangeStrike(iData1,iData2);
 		break;
 
+	case TASK_RAZE:
+	case TASK_UNRAZE:
 	case TASK_CREATE_PUPPET:
-		DoCreatePuppet();
-		break;
-
 	case TASK_ANNEX_PUPPET:
-		DoAnnex();
+		doMajorTask(eTask);
 		break;
 
 	default:
@@ -2325,7 +2318,41 @@ CityTaskResult CvCity::doTask(TaskTypes eTask, int iData1, int iData2, bool bOpt
 
 	return eResult;
 }
+void CvCity::doMajorTask(TaskTypes eTask)
+{
+	m_iLastMajorTaskTurn = GC.getGame().getGameTurn();
+	switch (eTask)
+	{
 
+	case TASK_RAZE:
+		GET_PLAYER(getOwner()).raze(this);
+		break;
+
+	case TASK_UNRAZE:
+		GET_PLAYER(getOwner()).unraze(this);
+		break;
+
+	case TASK_CREATE_PUPPET:
+		DoCreatePuppet();
+		break;
+
+	case TASK_ANNEX_PUPPET:
+		DoAnnex();
+		break;
+
+	default:
+		CvAssertMsg(false, "doMajorTask eTask failed to match a valid option");
+		break;
+	}
+}
+int CvCity::GetTurnsTillCanDoMajorTask() const
+{
+	return max(0, (m_iLastMajorTaskTurn + 3) - GC.getGame().getGameTurn());
+}
+int CvCity::GetLastMajorTaskTurn() const
+{
+	return m_iLastMajorTaskTurn;
+}
 
 //	--------------------------------------------------------------------------------
 void CvCity::chooseProduction(UnitTypes eTrainUnit, BuildingTypes eConstructBuilding, ProjectTypes eCreateProject, bool /*bFinish*/, bool /*bFront*/)
@@ -8348,6 +8375,7 @@ void CvCity::setGameTurnFounded(int iNewValue)
 	if(m_iGameTurnFounded != iNewValue)
 	{
 		m_iGameTurnFounded = iNewValue;
+		m_iLastMajorTaskTurn = m_iGameTurnFounded;
 		CvAssert(getGameTurnFounded() >= 0);
 	}
 }
@@ -16055,6 +16083,7 @@ void CvCity::read(FDataStream& kStream)
 	// City Building Happiness
 	kStream >> m_iBaseHappinessFromBuildings;
 	kStream >> m_iUnmoddedHappinessFromBuildings;
+	kStream >> m_iLastMajorTaskTurn;
 
 	kStream >> m_bRouteToCapitalConnectedLastTurn;
 	kStream >> m_bRouteToCapitalConnectedThisTurn;
@@ -16316,6 +16345,7 @@ void CvCity::write(FDataStream& kStream) const
 
 	kStream << m_iBaseHappinessFromBuildings;
 	kStream << m_iUnmoddedHappinessFromBuildings;
+	kStream << m_iLastMajorTaskTurn;
 
 	kStream << m_bRouteToCapitalConnectedLastTurn;
 	kStream << m_bRouteToCapitalConnectedThisTurn;
