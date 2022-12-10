@@ -3616,7 +3616,7 @@ void applyScore(CvDiplomacyAI& us, CvPlayer& them, FStaticVector<int, 128, true,
 	{
 		//fdloat topScore = scoreSortedCivs.GetElement(0);
 		int secondPlaceScore = scoreSortedCivs.GetElement(1);
-		*scoreRatio = (them.GetScore() * 100) / secondPlaceScore;
+		*scoreRatio = (them.GetScore() * 100) / max(1, secondPlaceScore); // +1 to avoid div by 0
 		int weight = findWarWeightFromTopScoresRatio(*scoreRatio);
 		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += weight;
 	}
@@ -3641,7 +3641,7 @@ bool nearScienceVictory(const CvPlayer& them)
 {
 	int perTurn;
 	them.GetScientificInfluencePerTurn(&perTurn);
-	const int turnsRemaining = (them.GetScientificInfluenceNeeded() - them.GetScientificInfluence()) / perTurn;
+	const int turnsRemaining = (them.GetScientificInfluenceNeeded() - them.GetScientificInfluence()) / max(1, perTurn);
 	const bool isNear = turnsRemaining < turnsNearThreshold;
 	return isNear;
 }
@@ -3649,7 +3649,7 @@ bool nearDiplomaticVictory(const CvPlayer& them)
 {
 	int perTurn, controlled;
 	them.GetDiplomaticInfluencePerTurn(&perTurn, &controlled);
-	const int turnsRemaining = (them.GetDiplomaticInfluenceNeeded() - them.GetDiplomaticInfluence()) / perTurn;
+	const int turnsRemaining = (them.GetDiplomaticInfluenceNeeded() - them.GetDiplomaticInfluence()) / max(1, perTurn);
 	const bool isNear = turnsRemaining < turnsNearThreshold;
 	return isNear;
 }
