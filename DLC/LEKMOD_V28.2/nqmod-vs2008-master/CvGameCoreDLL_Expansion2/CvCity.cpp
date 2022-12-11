@@ -7832,6 +7832,12 @@ bool CvCity::isCoastal(int iMinWaterSize) const
 //	--------------------------------------------------------------------------------
 int CvCity::foodConsumption(bool /*bNoAngry*/, int iExtra) const
 {
+	// puppets do not consume or produce
+	if (IsPuppet())
+	{
+		return 0;
+	}
+
 	VALIDATE_OBJECT
 	int iPopulation = getPopulation() + iExtra;
 
@@ -8923,6 +8929,11 @@ int CvCity::getJONSCulturePerTurnTimes100() const
 int CvCity::GetBaseJONSCulturePerTurn() const
 {
 	VALIDATE_OBJECT
+	// puppets do not consume or produce
+	if (IsPuppet())
+	{
+		return 0;
+	}
 
 	int iCulturePerTurn = 0;
 	iCulturePerTurn += GetJONSCulturePerTurnFromBuildings();
@@ -10963,8 +10974,19 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 	// compounding:
 	T100 factorT100 = (iModifier + 100);
 
+
+	// puppets do not consume or produce
+	if (IsPuppet())
+	{
+		factorT100 = (T100)0;
+	}
+
+
 	// note: player->invalidateYieldRankCache() must be called for anything that is checked here
 	// so if any extra checked things are added here, the cache needs to be invalidated
+	// 
+	// .. Hi, OK, well how about I just call it all the time?
+	GET_PLAYER(getOwner()).invalidateYieldRankCache(eIndex);
 
 	return std::max((T100)0, factorT100);
 }
@@ -11006,6 +11028,11 @@ int CvCity::getHappinessModifier(YieldTypes eIndex) const
 //	--------------------------------------------------------------------------------
 int CvCity::getYieldRate(YieldTypes eIndex, bool bIgnoreTrade) const
 {
+	// puppets do not consume or produce
+	if (IsPuppet())
+	{
+		return 0;
+	}
 	VALIDATE_OBJECT
 	return (getYieldRateTimes100(eIndex, bIgnoreTrade) / 100);
 }
@@ -16585,6 +16612,10 @@ bool CvCity::canRangeStrike() const
 
 	// Can't shoot when in resistance
 	if(IsResistance() || IsRazing())
+		return false;
+
+	// puppet cities cannot defend themselves
+	if (IsPuppet())
 		return false;
 
 	// Can't shoot if we have no HP left (shouldn't really ever happen)
