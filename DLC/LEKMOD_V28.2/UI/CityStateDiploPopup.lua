@@ -521,15 +521,22 @@ function OnDisplay()
 		-- Warmongering player
 		-- NQ_PEACE_BLOCKED_IF_INFLUENCE_TOO_LOW begin
 		--if (pPlayer:IsPeaceBlocked(iActiveTeam)) then
+		Controls.PeaceButton:SetHide(false);
 		if (pPlayer:IsPeaceBlocked(iActiveTeam) or pPlayer:IsInfluenceTooLowForPeace(iActivePlayer)) then
 		-- NQ_PEACE_BLOCKED_IF_INFLUENCE_TOO_LOW end
-			strText = Locale.ConvertTextKey("TXT_KEY_CITY_STATE_DIPLO_HELLO_WARMONGER");
-			Controls.PeaceButton:SetHide(true);
-			
+			strText = Locale.ConvertTextKey("TXT_KEY_CITY_STATE_DIPLO_HELLO_WARMONGER");			
+			local tooltip = Locale.ConvertTextKey("TXT_KEY_INFLUENCE_TOO_LOW_FOR_PEACE_CSTATE_TT", strShortDescKey);
+
+			Controls.PeaceButton:SetText(Locale.ConvertTextKey("[COLOR_WARNING_TEXT]{TXT_KEY_POP_CSTATE_MAKE_PEACE}[ENDCOLOR]"));
+			Controls.PeaceButton:SetDisabled(true);
+			Controls.PeaceButton:SetToolTipString(tooltip);
 		-- Normal War
 		else
 			strText = Locale.ConvertTextKey("TXT_KEY_CITY_STATE_DIPLO_HELLO_WAR");
-			Controls.PeaceButton:SetHide(false);
+
+			Controls.PeaceButton:SetText(Locale.ConvertTextKey("TXT_KEY_POP_CSTATE_MAKE_PEACE"));
+			Controls.PeaceButton:SetDisabled(false);
+			Controls.PeaceButton:SetToolTipString("");
 		end
 		
 		Controls.GiveButton:SetHide(true);

@@ -301,7 +301,7 @@ function GetCityStateStatusToolTip(iMajor, iMinor, bFullInfo)
 										    iInfluence - GameDefines["FRIENDSHIP_THRESHOLD_NEUTRAL"], 
 											GameDefines["FRIENDSHIP_THRESHOLD_FRIENDS"] - GameDefines["FRIENDSHIP_THRESHOLD_NEUTRAL"]);
 										    
-		strStatusTT = strStatusTT .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_NEUTRAL_CSTATE_TT", strShortDescKey);
+		strStatusTT = strStatusTT .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_NEUTRAL_CSTATE_TT");
 	end
 	
 	--[[ start NQ_SHOW_BASE_INFLUENCE_WHILE_AT_WAR_IN_CS_TOOLTIP
@@ -317,18 +317,20 @@ function GetCityStateStatusToolTip(iMajor, iMinor, bFullInfo)
 	local displayedInfluenceChange = "" .. math.floor((iInfluenceChangeThisTurn * 10) + 0.5) / 10;
 	if (iInfluenceChangeThisTurn > 0) then
 		displayedInfluenceChange = "[COLOR_POSITIVE_TEXT]+" .. displayedInfluenceChange .. "[ENDCOLOR]";
-	elseif (iInfluenceChangeThisTurn <= 0) then
+	elseif (iInfluenceChangeThisTurn < 0) then
 		displayedInfluenceChange = "[COLOR_NEGATIVE_TEXT]" .. displayedInfluenceChange .. "[ENDCOLOR]";
+	else
+		displayedInfluenceChange = "+" .. displayedInfluenceChange;
 	end
 
 	-- highlight anchor
 	local displayedInfluenceAnchor = "" .. iInfluenceAnchor .. "";
 
 	-- Influence change
-	if (iInfluence ~= iInfluenceAnchor) then
+	--if (iInfluenceChangeThisTurn ~= 0) then
 		strStatusTT = strStatusTT .. "[NEWLINE][NEWLINE]";
 		strStatusTT = strStatusTT .. Locale.ConvertTextKey("TXT_KEY_CSTATE_INFLUENCE_RATE", displayedInfluenceChange, displayedInfluenceAnchor);
-	end
+	--end
 	
 	-- Bullying
 	if (bCanBully) then
