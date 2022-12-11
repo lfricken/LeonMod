@@ -1034,7 +1034,7 @@ bool CvMinorCivQuest::DoFinishQuest(const T100 bonusFactorT100)
 	const int diplomaticSupportReward = (m_rewards.support * bonusFactorT100) / 100;
 
 	// apply rewards
-	pMinor->GetMinorCivAI()->ChangeFriendshipWithMajorTimes100Instant(m_eAssignedPlayer, friendshipRewardT100, /*bFromQuest*/ true);
+	pMinor->GetMinorCivAI()->ChangeFriendshipWithMajorTimes100(m_eAssignedPlayer, friendshipRewardT100, /*bFromQuest*/ true);
 
 	pMajor->ChangeDiplomaticInfluence(diplomaticSupportReward);
 
@@ -1219,7 +1219,7 @@ void CvMinorCivAI::Reset()
 
 		m_abRouteConnectionEstablished[iI] = false;
 
-		m_aiFriendshipWithMajorTimes100[iI] = 0;
+		m_aiFriendshipWithMajorTimes100[iI] = 0; // class init
 		m_aiFriendshipDeltaWithMajorTimes100[iI] = 0;
 		m_aiAngerFreeIntrusionCounter[iI] = 0;
 		m_aiPlayerQuests[iI] = NO_MINOR_CIV_QUEST_TYPE;
@@ -1578,9 +1578,6 @@ void CvMinorCivAI::DoTurn()
 		DoIntrusion();
 	}
 }
-
-
-/// Minor is now dead or alive (haha, get it?)
 void CvMinorCivAI::DoChangeAliveStatus(bool bAlive)
 {
 	if (!bAlive)
@@ -1588,7 +1585,7 @@ void CvMinorCivAI::DoChangeAliveStatus(bool bAlive)
 		// Final check for quests
 		DoTestActiveQuests(/*bTestComplete*/ true, /*bTestObsolete*/ true);
 
-		std::vector<int> vNewInfluence;
+		int changesT100[MAX_MAJOR_CIVS] = { 0 };
 		for (int i = 0; i < MAX_MAJOR_CIVS; ++i)
 		{
 			PlayerTypes e = (PlayerTypes)i;
@@ -1596,70 +1593,16 @@ void CvMinorCivAI::DoChangeAliveStatus(bool bAlive)
 			// Cancel quests and PtPs
 			DoChangeProtectionFromMajor(e, false);
 			EndAllActiveQuestsForPlayer(e);
-
-			// Calculate new influence levels (don't set here, since that could create a false temporary ally)
-			int iOldInfluence = GetBaseFriendshipWithMajor(e);
-			int iNewInfluence = iOldInfluence;
-			if (IsFriendshipAboveAlliesThreshold(iOldInfluence))
-			{
-				iNewInfluence = GC.getFRIENDSHIP_ALLIES_ON_DEATH();
-			}
-			else if (IsFriendshipAboveFriendsThreshold(iOldInfluence))
-			{
-				iNewInfluence = GC.getFRIENDSHIP_FRIENDS_ON_DEATH();
-			}
-			else if (iOldInfluence > GC.getFRIENDSHIP_THRESHOLD_NEUTRAL())
-			{
-				iNewInfluence = GC.getFRIENDSHIP_NEUTRAL_ON_DEATH();
-			}
-			vNewInfluence.push_back(iNewInfluence);
+			// apply friendship changes
+			changesT100[i] = -GetBaseFriendshipWithMajorTimes100(e);
 		}
-
-		// Set new influence values
-		SetDisableNotifications(true);
-		for (unsigned int i = 0; i < vNewInfluence.size(); ++i)
-		{
-			PlayerTypes e = (PlayerTypes)i;
-			// special workaround to allow status changes despite minor already being dead
-			DoFriendshipChangeEffects(e, GetEffectiveFriendshipWithMajor(e), vNewInfluence.at(i), /*bFromQuest*/false, /*bIgnoreMinorDeath*/true);
-			SetFriendshipWithMajor(e, vNewInfluence.at(i));
-		}
-		SetDisableNotifications(false);
-	}
-
-	// Apply or Remove any active bonuses
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
-
-		bool bFriends = false;
-		bool bAllies = false;
-		if(IsFriendshipAboveFriendsThreshold(GetEffectiveFriendshipWithMajor(ePlayer)))
-		{
-			bFriends = true;
-		}
-		if(GetAlly() == ePlayer)
-		{
-			CvAssertMsg(bAlive, "A Minor about to die still has an Ally, when it should have none.");
-			bAllies = true;
-		}
-		if(bFriends || bAllies)
-		{
-			DoSetBonus(ePlayer, bAlive, bFriends, bAllies);
-		}
-	}
-
-	// Death - Reset the cached ally and barbarian threat counter
-	if (!bAlive)
-	{
-		bool bHasAlly = GetAlly() != NO_PLAYER;
-		CvAssertMsg(!bHasAlly, "A Minor about to die still has an Ally, when it should have none.");
-		if(bHasAlly)
-		{
-			SetAlly(NO_PLAYER);
-		}
+		ChangeAndUpdateFriendship(changesT100);
 
 		SetTurnsSinceThreatenedAnnouncement(-1);
+	}
+	else
+	{
+		// default friend update will run and apply benefits and notifications
 	}
 }
 
@@ -2267,7 +2210,7 @@ void CvMinorCivAI::DoThreateningBarbKilled(PlayerTypes eKillingPlayer, int iX, i
 		amountFriendshipT100 *= 5;
 	}
 
-	ChangeFriendshipWithMajorTimes100Instant(eKillingPlayer, amountFriendshipT100);
+	ChangeFriendshipWithMajorTimes100(eKillingPlayer, amountFriendshipT100);
 
 	ChangeAngerFreeIntrusionCounter(eKillingPlayer, 5);
 
@@ -4092,110 +4035,103 @@ void CvMinorCivAI::DoFriendship()
 		}
 	}
 
-	// this should consider not modifying like this unless the player is above their anchor (or some threshold)
-	// find biggest change
-	//{
-	//int largestChangeT100 = 0;
-	//int secondLargestChangeT100 = 0;
-	//for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	//{
-	//	const PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
-	//	if (GET_PLAYER(ePlayer).isAlive())
-	//	{
-	//		const int iChangeThisTurnT100 = m_aiFriendshipDeltaWithMajorTimes100[ePlayer];
-	//		if (iChangeThisTurnT100 > largestChangeT100)
-	//		{
-	//			secondLargestChangeT100 = largestChangeT100; // shift 1st to second
-	//			largestChangeT100 = iChangeThisTurnT100;
-	//		}
-	//		else if (iChangeThisTurnT100 > secondLargestChangeT100) // did not beat 1st place, but did beat 2nd
-	//		{
-	//			secondLargestChangeT100 = iChangeThisTurnT100;
-	//		}
-	//	}
-	//}
-	// reduce all by second largest so that only the leader makes progress, second place stays put, everyone else loses
-	//	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	//	{
-	//		const PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
-	//		if (GET_PLAYER(ePlayer).isAlive())
-	//		{
-	//			ChangeFriendshipWithMajorTimes100(ePlayer, -secondLargestChangeT100);
-	//		}
-	//	}
-	//}
+	ChangeAndUpdateFriendship(m_aiFriendshipDeltaWithMajorTimes100);
+	for (int i = 0; i < MAX_MAJOR_CIVS; ++i)
+	{
+		m_aiFriendshipDeltaWithMajorTimes100[i] = 0;
+	}
+}
+void CvMinorCivAI::SetAndUpdateFriendshipSelective(const int setsNegativeOneT100[MAX_CIV_PLAYERS])
+{
+	int sets[MAX_CIV_PLAYERS] = { 0 }; // all elements 0
+	for (int i = 0; i < MAX_CIV_PLAYERS; ++i)
+	{
+		const PlayerTypes e = (PlayerTypes)i;
+		if (setsNegativeOneT100[i] == SkipFriendshipUpdate)
+		{
+			sets[i] = GetBaseFriendshipWithMajorTimes100(e);
+		}
+		else
+		{
+			sets[i] = setsNegativeOneT100[i];
+		}
+	}
+	SetAndUpdateFriendship(sets);
+}
+void CvMinorCivAI::SetAndUpdateFriendship(const int setsT100[MAX_CIV_PLAYERS])
+{
+	int changesT100[MAX_CIV_PLAYERS] = { 0 }; // all elements 0
+	for (int i = 0; i < MAX_CIV_PLAYERS; ++i)
+	{
+		const PlayerTypes e = (PlayerTypes)i;
+		changesT100[i] = setsT100[i] - GetBaseFriendshipWithMajorTimes100(e);
+	}
+	ChangeAndUpdateFriendship(changesT100);
+}
+void CvMinorCivAI::ChangeAndUpdateFriendship(const int changesT100[MAX_CIV_PLAYERS])
+{
+	int oldFriendshipT100[MAX_CIV_PLAYERS] = { 0 }; // all elements 0
 
-	// apply changes
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	const PlayerTypes previousAlly = GetAlly();
+
+	int highestAllyFriendshipT100 = 0;
+	PlayerTypes highestAllyPlayer = NO_PLAYER;
+
+	// apply friendship number changes
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
 		const PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
-
+		oldFriendshipT100[iPlayerLoop] = GetBaseFriendshipWithMajorTimes100(ePlayer);
 		// Update friendship even if the player hasn't met us yet, since we may have heard things through the grapevine (Wary Of, SP, etc.)
 		if (GET_PLAYER(ePlayer).isAlive())
 		{
-			const int iChangeThisTurnT100 = m_aiFriendshipDeltaWithMajorTimes100[ePlayer];
-			m_aiFriendshipDeltaWithMajorTimes100[ePlayer] = 0; // reset delta
+			const int iChangeThisApplicationT100 = changesT100[ePlayer];
 
-			const int iOldFriendship = GetBaseFriendshipWithMajor(ePlayer);
-			int iNewFriendship = iOldFriendship + (iChangeThisTurnT100 / 100);
+			const T100 iOldFriendshipT100 = GetBaseFriendshipWithMajorTimes100(ePlayer);
+			T100 iNewFriendshipT100 = iOldFriendshipT100 + iChangeThisApplicationT100;
 
 			// stay in range
-			if (iNewFriendship < minAnchorT100)
-				iNewFriendship = minAnchorT100;
-			else if (iNewFriendship > maxAnchorT100)
-				iNewFriendship = maxAnchorT100;
+			if (iNewFriendshipT100 < minAnchorT100)
+				iNewFriendshipT100 = minAnchorT100;
+			else if (iNewFriendshipT100 > maxAnchorT100)
+				iNewFriendshipT100 = maxAnchorT100;
 
 			// friendship changed
-			if (iNewFriendship != iOldFriendship)
+			if (iNewFriendshipT100 != iOldFriendshipT100)
 			{
-				SetFriendshipWithMajor(ePlayer, iNewFriendship);
+				SetFriendshipWithMajorTimes100(ePlayer, iNewFriendshipT100); // this is the official place to change friendship
 			}
 
-			// even if Friendship amount doesn't change, but ally state could have (ex. current ally decays below our level)
-			DoFriendshipChangeEffects(ePlayer, iOldFriendship, iNewFriendship);
-
-			//	// remove stupid notifications
-			// Notification for status changes
-			//if(GetPlayer()->isAlive() && IsHasMetPlayer(ePlayer))
-			//{
-			//	const int iTurnsWarning = 2;
-			//	const int iAlliesThreshold = GetAlliesThreshold() * 100;
-			//	const int iFriendsThreshold = GetFriendsThreshold() * 100;
-			//	int iEffectiveFriendship = GetEffectiveFriendshipWithMajorTimes100(ePlayer);
-			//	//if(IsAllies(ePlayer))
-			//	//{
-			//	//	if(iEffectiveFriendship + (iTurnsWarning * iChangeThisTurn) < iAlliesThreshold &&
-			//	//		iEffectiveFriendship + ((iTurnsWarning-1) * iChangeThisTurn) >= iAlliesThreshold)
-			//	//	{
-			//	//		strMessage = Localization::Lookup("TXT_KEY_NTFN_CITY_STATE_ALMOST_NOT_ALLIES");
-			//	//		strMessage << strMinorsNameKey;
-			//	//		strSummary = Localization::Lookup("TXT_KEY_NTFN_CITY_STATE_ALMOST_SM");
-			//	//		strSummary << strMinorsNameKey;
-
-			//	//		AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), ePlayer);
-			//	//	}
-			//	//	if(!GC.getGame().isGameMultiPlayer() && GET_PLAYER(ePlayer).isHuman())
-			//	//	{
-			//	//		gDLL->UnlockAchievement(ACHIEVEMENT_CITYSTATE_ALLY);
-			//	//	}
-
-			//	//}
-			//	//else if(IsFriends(ePlayer))
-			//	//{
-			//	//	if(iEffectiveFriendship + (iTurnsWarning * iChangeThisTurn) < iFriendsThreshold &&
-			//	//		iEffectiveFriendship + ((iTurnsWarning-1) * iChangeThisTurn) >= iFriendsThreshold)
-			//	//	{
-			//	//		//strMessage = Localization::Lookup("TXT_KEY_NTFN_CITY_STATE_ALMOST_NOT_FRIENDS");
-			//	//		//strMessage << strMinorsNameKey;
-			//	//		//strSummary = Localization::Lookup("TXT_KEY_NTFN_CITY_STATE_ALMOST_SM");
-			//	//		//strSummary << strMinorsNameKey;
-
-			//	//		//AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), ePlayer);
-			//	//	}
-			//	//}
-			//}
+			// find the new ally
+			if (iNewFriendshipT100 >= GetAlliesThreshold() * 100) // if qualifies for ally
+			{
+				// if higher, they win
+				if (iNewFriendshipT100 > highestAllyFriendshipT100)
+				{
+					highestAllyPlayer = ePlayer;
+					highestAllyFriendshipT100 = iNewFriendshipT100;
+				}
+				// if tied, current ally wins
+				else if (iNewFriendshipT100 == highestAllyFriendshipT100 && ePlayer == previousAlly)
+				{
+					highestAllyPlayer = ePlayer;
+					highestAllyFriendshipT100 = iNewFriendshipT100;
+				}
+			}
 		}
 	}
+
+
+	// apply effects of friendship number changes
+	for (int i = 0; i < MAX_MAJOR_CIVS; i++)
+	{
+		const PlayerTypes ePlayer = (PlayerTypes)i;
+		const int newTotalFriendshipT100 = GetBaseFriendshipWithMajorTimes100(ePlayer);
+		// even if Friendship amount doesn't change, but ally state could have (ex. current ally decays below our level)
+		UpdateOnAnyFriendshipChangeEffects(previousAlly, highestAllyPlayer, ePlayer, oldFriendshipT100[i], newTotalFriendshipT100);
+	}
+
+	SetAlly(highestAllyPlayer);	// We KNOW no one else can be higher, so set the Ally to NO_PLAYER
 }
 
 
@@ -4350,26 +4286,23 @@ int CvMinorCivAI::GetBaseFriendshipWithMajorTimes100(PlayerTypes ePlayer) const
 
 	return m_aiFriendshipWithMajorTimes100[ePlayer];
 }
-
-/// Sets the base level of Friendship between this Minor and the specified Major Civ
 void CvMinorCivAI::SetFriendshipWithMajorTimes100(PlayerTypes ePlayer, int iNum, bool bFromQuest)
 {
 	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
 	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 
-	int iOldEffectiveFriendship = GetEffectiveFriendshipWithMajorTimes100(ePlayer);
+	//int iOldEffectiveFriendship = GetEffectiveFriendshipWithMajorTimes100(ePlayer);
 
 	// bound value
 	m_aiFriendshipWithMajorTimes100[ePlayer] = max(minAnchorT100, min(maxAnchorT100, iNum));
 
-	const int iNewEffectiveFriendship = m_aiFriendshipWithMajorTimes100[ePlayer];
-
+	//const int iNewEffectiveFriendship = m_aiFriendshipWithMajorTimes100[ePlayer];
 	// Has the friendship in effect changed?
-	if(iOldEffectiveFriendship != iNewEffectiveFriendship)
-	{
-		DoFriendshipChangeEffects(ePlayer, iOldEffectiveFriendship/100, iNewEffectiveFriendship/100, bFromQuest);
-	}
+	//if(iOldEffectiveFriendship != iNewEffectiveFriendship)
+	//{
+	//	UdpdateAnyFriendshipChangeEffects(ePlayer, iOldEffectiveFriendship/100, iNewEffectiveFriendship/100, bFromQuest);
+	//}
 
 	// Update City banners and game info if this is the active player
 	if(ePlayer == GC.getGame().getActivePlayer())
@@ -4379,7 +4312,6 @@ void CvMinorCivAI::SetFriendshipWithMajorTimes100(PlayerTypes ePlayer, int iNum,
 	}
 }
 
-/// Changes the base level of Friendship between this Minor and the specified Major Civ
 void CvMinorCivAI::ChangeFriendshipWithMajorTimes100(PlayerTypes ePlayer, int iChange, bool bFromQuest)
 {
 	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
@@ -4397,28 +4329,28 @@ void CvMinorCivAI::ChangeFriendshipWithMajorTimes100(PlayerTypes ePlayer, int iC
 			}
 		}
 		m_aiFriendshipDeltaWithMajorTimes100[ePlayer] += iChange;
-		//SetFriendshipWithMajorTimes100(ePlayer, GetBaseFriendshipWithMajorTimes100(ePlayer) + iChange, bFromQuest);
+		//SeetFriendshipWithMajorTimes100(ePlayer, GetBaseFriendshipWithMajorTimes100(ePlayer) + iChange, bFromQuest);
 	}
 }
-
-/// Changes the base level of Friendship between this Minor and the specified Major Civ
-void CvMinorCivAI::ChangeFriendshipWithMajorTimes100Instant(PlayerTypes ePlayer, int iChange, bool bFromQuest)
+void CvMinorCivAI::ChangeFriendshipWithMajorTimes100Instant(PlayerTypes ePlayer, int iChangeT100, bool bFromQuest)
 {
 	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
 
-	if (iChange != 0)
+	if (iChangeT100 != 0)
 	{
 		// If this friendship was earned from a Quest, then we might apply a modifier to it
-		if (bFromQuest && iChange > 0)
+		if (bFromQuest && iChangeT100 > 0)
 		{
 			if (GET_PLAYER(ePlayer).getMinorQuestFriendshipMod() != 0)
 			{
-				iChange *= (100 + GET_PLAYER(ePlayer).getMinorQuestFriendshipMod());
-				iChange /= 100;
+				iChangeT100 *= (100 + GET_PLAYER(ePlayer).getMinorQuestFriendshipMod());
+				iChangeT100 /= 100;
 			}
 		}
-		SetFriendshipWithMajorTimes100(ePlayer, GetBaseFriendshipWithMajorTimes100(ePlayer) + iChange, bFromQuest);
+		int changesT100[MAX_CIV_PLAYERS] = { 0 }; // all elements 0
+		changesT100[ePlayer] = iChangeT100;
+		ChangeAndUpdateFriendship(changesT100);
 	}
 }
 
@@ -4434,12 +4366,6 @@ int CvMinorCivAI::GetEffectiveFriendshipWithMajor(PlayerTypes ePlayer)
 int CvMinorCivAI::GetBaseFriendshipWithMajor(PlayerTypes ePlayer) const
 {
 	return GetBaseFriendshipWithMajorTimes100(ePlayer) / 100;
-}
-
-/// Sets the base level of Friendship between this Minor and the specified Major Civ
-void CvMinorCivAI::SetFriendshipWithMajor(PlayerTypes ePlayer, int iNum, bool bFromQuest)
-{
-	SetFriendshipWithMajorTimes100(ePlayer, iNum * 100, bFromQuest);
 }
 
 /// What is the resting point of Influence this major has?  Affected by religion, social policies, Wary Of, etc.
@@ -4482,27 +4408,6 @@ int CvMinorCivAI::GetFriendshipAnchorWithMajor(PlayerTypes eMajor)
 	iAnchor += pMajorReligions->GetCityStateMinimumInfluence(pMinorCapitalReligions->GetReligiousMajority());
 
 	return iAnchor;
-}
-
-/// Resets the base level of Friendship to zero
-void CvMinorCivAI::ResetFriendshipWithMajor(PlayerTypes ePlayer)
-{
-	// If ePlayer isn't a major civ then there is no influence value to reset, so just return
-	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return; // as defined during Reset()
-
-	int iOldFriendship = GetEffectiveFriendshipWithMajor(ePlayer);
-	const int iResetFriendship = 0;
-	if(GetPlayer()->isAlive())
-	{
-		SetFriendshipWithMajor(ePlayer, iResetFriendship);
-	}
-	else
-	{
-		// special workaround to allow status changes despite minor already being dead
-		DoFriendshipChangeEffects(ePlayer, iOldFriendship, iResetFriendship, /*bFromQuest*/false, /*bIgnoreMinorDeath*/true);
-		SetFriendshipWithMajor(ePlayer, iResetFriendship);
-	}
-
 }
 
 /// How many turns left does this player have of anger-free intrusion?
@@ -4843,131 +4748,76 @@ int CvMinorCivAI::GetFriendshipNeededForNextLevel(PlayerTypes ePlayer)
 	return 0;
 }
 
-/// What happens when Friendship changes?
-void CvMinorCivAI::DoFriendshipChangeEffects(PlayerTypes ePlayer, int iOldFriendship, int iNewFriendship, bool bFromQuest, bool bIgnoreMinorDeath)
+void CvMinorCivAI::OnChangeFriendStatus(const bool isAtLeastFriends, const PlayerTypes ePlayer, const int iOldFriendshipT100, const int iNewFriendshipT100, const bool suppressNotifs)
 {
-	// Can't give out bonuses if we're dead!
+	DoSetBonus(ePlayer, isAtLeastFriends, true, false, suppressNotifs);
+
+	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+	if (pkScriptSystem)
+	{
+		CvLuaArgsHandle args;
+		args->Push(m_pPlayer->GetID());
+		args->Push(ePlayer);
+		args->Push(isAtLeastFriends);
+		args->Push(iOldFriendshipT100);
+		args->Push(iNewFriendshipT100);
+
+		bool bResult;
+		LuaSupport::CallHook(pkScriptSystem, "MinorFriendsChanged", args.get(), bResult);
+	}
+}
+void CvMinorCivAI::OnChangeAllyStatus(const bool isAtLeastAllies, const PlayerTypes ePlayer, const int iOldFriendshipT100, const int iNewFriendshipT100, const bool suppressNotifs)
+{
+	DoSetBonus(ePlayer, isAtLeastAllies, false, true, suppressNotifs);
+
+	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+	if (pkScriptSystem)
+	{
+		CvLuaArgsHandle args;
+		args->Push(m_pPlayer->GetID());
+		args->Push(ePlayer);
+		args->Push(isAtLeastAllies);
+		args->Push(iOldFriendshipT100);
+		args->Push(iNewFriendshipT100);
+
+		bool bResult;
+		LuaSupport::CallHook(pkScriptSystem, "MinorAlliesChanged", args.get(), bResult);
+	}
+}
+
+void CvMinorCivAI::UpdateOnAnyFriendshipChangeEffects(const PlayerTypes ePreviosAlly, const PlayerTypes newAlly, PlayerTypes ePlayer, int iOldFriendshipT100, int iNewFriendshipT100, bool bFromQuest, bool bIgnoreMinorDeath)
+{
+	// avoid giving out bonuses if we're dead
 	if(!bIgnoreMinorDeath && !GetPlayer()->isAlive())
 		return;
 
 	Localization::String strMessage;
 	Localization::String strSummary;
 
-	bool bAdd = false;
-	bool bFriends = false;
-	bool bAllies = false;
+	{ // friend status updates
+		const bool wasFriends = IsFriendshipAboveFriendsThreshold(iOldFriendshipT100 / 100);
+		const bool isNowFriends = IsFriendshipAboveFriendsThreshold(iNewFriendshipT100 / 100);
 
-	bool bWasAboveFriendsThreshold = IsFriendshipAboveFriendsThreshold(iOldFriendship);
-	bool bNowAboveFriendsThreshold = IsFriendshipAboveFriendsThreshold(iNewFriendship);
+		// If we are Friends now, mark that we've been Friends at least once this game
+		if (isNowFriends)
+			SetEverFriends(ePlayer, true);
 
-	// If we are Friends now, mark that we've been Friends at least once this game
-	if(bNowAboveFriendsThreshold)
-		SetEverFriends(ePlayer, true);
-
-	// Add Friends Bonus
-	if(!bWasAboveFriendsThreshold && bNowAboveFriendsThreshold)
-	{
-		bAdd = true;
-		bFriends = true;
-
-		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-		if (pkScriptSystem) 
+		// friendship state changed
+		if (wasFriends != isNowFriends)
 		{
-			CvLuaArgsHandle args;
-			args->Push(m_pPlayer->GetID());
-			args->Push(ePlayer);
-			args->Push(true);
-			args->Push(iOldFriendship);
-			args->Push(iNewFriendship);
-
-			bool bResult;
-			LuaSupport::CallHook(pkScriptSystem, "MinorFriendsChanged", args.get(), bResult);
-		}
-	}
-	// Remove Friends bonus
-	else if(bWasAboveFriendsThreshold && !bNowAboveFriendsThreshold)
-	{
-		bAdd = false;
-		bFriends = true;
-
-#ifdef NQ_POLICY_TOGGLE_NO_MINOR_DOW_IF_FRIENDS
-		// if we are at war with a city state's ally but it didn't declare on us because we were friends and had a special policy 
-		// preventing that declaration, declare war here
-
-		//if (GetAlly() != NO_PLAYER)
-		//{
-		//	TeamTypes ePlayerTeam = GET_PLAYER(ePlayer).getTeam();
-		//	TeamTypes eAllyTeam = GET_PLAYER(GetAlly()).getTeam();
-		//	TeamTypes eOurTeam = GetPlayer()->getTeam();
-		//	if (GET_TEAM(ePlayerTeam).isAtWar(eAllyTeam))
-		//	{
-		//		GET_TEAM(eOurTeam).declareWar(ePlayerTeam);
-		//	}
-		//}
-#endif
-
-		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-		if (pkScriptSystem) 
-		{
-			CvLuaArgsHandle args;
-			args->Push(m_pPlayer->GetID());
-			args->Push(ePlayer);
-			args->Push(false);
-			args->Push(iOldFriendship);
-			args->Push(iNewFriendship);
-
-			bool bResult;
-			LuaSupport::CallHook(pkScriptSystem, "MinorFriendsChanged", args.get(), bResult);
+			OnChangeFriendStatus(isNowFriends, ePlayer, iOldFriendshipT100, iNewFriendshipT100, /*bSuppressNotifications*/ bFromQuest);
 		}
 	}
 
-	// Resolve Allies status
-	bool bWasAboveAlliesThreshold = IsFriendshipAboveAlliesThreshold(iOldFriendship);
-	bool bNowAboveAlliesThreshold = IsFriendshipAboveAlliesThreshold(iNewFriendship);
+	{ // ally status updates
+		const bool wasAlly = ePlayer == ePreviosAlly;
+		const bool isNowAlly = ePlayer == newAlly;
 
-	PlayerTypes eOldAlly = GetAlly();
-
-	// No old ally and our friendship is now above the threshold, OR our friendship is now higher than a previous ally
-	if((eOldAlly == NO_PLAYER && bNowAboveAlliesThreshold)
-	        || (eOldAlly != NO_PLAYER && GetEffectiveFriendshipWithMajor(ePlayer) > GetEffectiveFriendshipWithMajor(eOldAlly)))
-	{
-		bAdd = true;
-		bAllies = true;
-
-		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-		if (pkScriptSystem) 
+		// friendship state changed
+		if (wasAlly != isNowAlly)
 		{
-			CvLuaArgsHandle args;
-			args->Push(m_pPlayer->GetID());
-			args->Push(ePlayer);
-			args->Push(true);
-			args->Push(iOldFriendship);
-			args->Push(iNewFriendship);
-
-			bool bResult;
-			LuaSupport::CallHook(pkScriptSystem, "MinorAlliesChanged", args.get(), bResult);
+			OnChangeAllyStatus(isNowAlly, ePlayer, iOldFriendshipT100, iNewFriendshipT100, /*bSuppressNotifications*/ bFromQuest);
 		}
-	}
-	// Remove Allies bonus
-	else if(eOldAlly == ePlayer && bWasAboveAlliesThreshold && !bNowAboveAlliesThreshold)
-	{
-		bAdd = false;
-		bAllies = true;
-
-		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-		if (pkScriptSystem)
-		{
-			CvLuaArgsHandle args;
-			args->Push(m_pPlayer->GetID());
-			args->Push(ePlayer);
-			args->Push(false);
-			args->Push(iOldFriendship);
-			args->Push(iNewFriendship);
-
-			bool bResult;
-			LuaSupport::CallHook(pkScriptSystem, "MinorAlliesChanged", args.get(), bResult);
-		}
-
 	}
 
 	// influence dropped into war
@@ -4975,19 +4825,6 @@ void CvMinorCivAI::DoFriendshipChangeEffects(PlayerTypes ePlayer, int iOldFriend
 	{
 		CvTeam& kOurTeam = GET_TEAM(GetPlayer()->getTeam());
 		kOurTeam.declareWar(GET_PLAYER(ePlayer).getTeam());
-	}
-
-	// Make changes to bonuses here. Only send notifications if this change is not related to quests (otherwise it is rolled into quest notification)
-	if(bFriends || bAllies)
-		DoSetBonus(ePlayer, bAdd, bFriends, bAllies, /*bSuppressNotifications*/ bFromQuest);
-
-	// Now actually changed Allied status, since we needed the old player in effect to create the notifications in the function above us
-	if(bAllies)
-	{
-		if(bAdd)
-			SetAlly(ePlayer);
-		else
-			SetAlly(NO_PLAYER);	// We KNOW no one else can be higher, so set the Ally to NO_PLAYER
 	}
 }
 
@@ -5409,30 +5246,29 @@ void CvMinorCivAI::DoLiberationByMajor(PlayerTypes eLiberator, TeamTypes eConque
 	Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_MINOR_LIBERATION");
 	strSummary << GetPlayer()->getNameKey();
 
-	int iHighestOtherMajorInfluence = GC.getMINOR_FRIENDSHIP_AT_WAR();
+	const int liberateFriendshipT100 = 100 * GC.getMINOR_LIBERATION_FRIENDSHIP();
 
-	PlayerTypes ePlayer;
+	int setsT100[MAX_CIV_PLAYERS] = { 0 };
 	for(int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 	{
-		ePlayer = (PlayerTypes) iI;
+		const PlayerTypes ePlayer = (PlayerTypes)iI;
 
 		if(ePlayer != eLiberator)
 		{
-			int iInfluence = GetBaseFriendshipWithMajor(ePlayer);
-			if(iInfluence > iHighestOtherMajorInfluence)
-				iHighestOtherMajorInfluence = iInfluence;
+			setsT100[iI] = 0; // didn't liberate us, you get 0 influence
 
 			if(GET_PLAYER(ePlayer).isAlive())
 			{
+				// have we met?
 				if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(GetPlayer()->getTeam()))
 				{
-					// Influence for other players - Were you the one that conquered us before?
+					// your team conquered us
 					if(GET_PLAYER(ePlayer).getTeam() == eConquerorTeam)
 					{
-						SetFriendshipWithMajor(ePlayer, GC.getMINOR_FRIENDSHIP_AT_WAR());
+						setsT100[iI] = 100 * GC.getMINOR_FRIENDSHIP_AT_WAR(); // conquered us? we hate you
 					}
 
-					// Notification for other players
+					// notify
 					CvNotifications* pNotifications = GET_PLAYER(ePlayer).GetNotifications();
 					if(pNotifications)
 					{
@@ -5441,24 +5277,26 @@ void CvMinorCivAI::DoLiberationByMajor(PlayerTypes eLiberator, TeamTypes eConque
 				}
 			}
 		}
+		else
+		{
+			// ally with liberator
+			setsT100[iI] = liberateFriendshipT100;
+		}
 	}
+	SetAndUpdateFriendship(setsT100);
 
 	// diplo points
 	const int diplomaticInfluenceReward = 250;
 	// reward liberator
 	liberator.ChangeDiplomaticInfluence(diplomaticInfluenceReward);
 
-	// Influence for liberator - raise to ally status
-	int iNewInfluence = max(iHighestOtherMajorInfluence + GC.getMINOR_LIBERATION_FRIENDSHIP(), GetBaseFriendshipWithMajor(eLiberator) + GC.getMINOR_LIBERATION_FRIENDSHIP());
-	iNewInfluence = max(GetAlliesThreshold(), iNewInfluence); // Must be at least enough to make us allies
-	SetFriendshipWithMajor(eLiberator, iNewInfluence);
 
-	// Notification for liberator
+	// notify liberator
 	stringstream s;
 	strMessage << Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_LIBERATION_YOU");
 	strMessage << GetPlayer()->getNameKey();
 	s << strMessage.toUTF8();
-	s << "[NEWLINE][ICON_BULLET]+" << iNewInfluence << " {FRIENDSHIP}";
+	s << "[NEWLINE][ICON_BULLET]+" << (liberateFriendshipT100 / 100) << " {FRIENDSHIP}";
 	s << "[NEWLINE][ICON_BULLET]+" << diplomaticInfluenceReward << " {DIPLOMATIC_INFLUENCE}";
 
 	strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_MINOR_LIBERATION");
@@ -7587,7 +7425,7 @@ void CvMinorCivAI::DoBulliedByMajorReaction(PlayerTypes eBully, int iInfluenceCh
 	if (!pBully) return;
 
 	SetTurnLastBulliedByMajor(eBully, GC.getGame().getGameTurn());
-	ChangeFriendshipWithMajorTimes100Instant(eBully, iInfluenceChangeTimes100);
+	ChangeFriendshipWithMajorTimes100(eBully, iInfluenceChangeTimes100);
 
 #ifdef NQ_MINOR_FRIENDSHIP_GAIN_BULLY_GOLD_SUCCESS_FROM_POLICIES
 	if (bShouldRemoveQuests)
@@ -8039,7 +7877,7 @@ void CvMinorCivAI::DoGoldGiftFromMajor(const PlayerTypes ePlayer, const int iGol
 			}
 
 
-			ChangeFriendshipWithMajorTimes100Instant(ePlayer, iFriendshipChangeT100);
+			ChangeFriendshipWithMajorTimes100(ePlayer, iFriendshipChangeT100);
 
 			// In case we had a Gold Gift quest active, complete it now
 			DoTestActiveQuestsForPlayer(ePlayer, /*bTestComplete*/ true, /*bTestObsolete*/ false, MINOR_CIV_QUEST_GIVE_GOLD);
@@ -8293,8 +8131,9 @@ void CvMinorCivAI::DoTileImprovementGiftFromMajor(PlayerTypes eMajor, int iPlotX
 /// Now at war with eTeam
 void CvMinorCivAI::DoNowAtWarWithTeam(TeamTypes eTeam)
 {
-	int iOldFriendship;
-	int iWarFriendship = /*-60*/ GC.getMINOR_FRIENDSHIP_AT_WAR();
+	int iWarFriendshipT100 = /*-100*/ GC.getMINOR_FRIENDSHIP_AT_WAR() * 100;
+
+	int changesT100[MAX_CIV_PLAYERS] = { 0 };
 
 	PlayerTypes ePlayer;
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -8304,8 +8143,7 @@ void CvMinorCivAI::DoNowAtWarWithTeam(TeamTypes eTeam)
 		if(GET_PLAYER(ePlayer).getTeam() == eTeam)
 		{
 			// Friendship change
-			iOldFriendship = GetBaseFriendshipWithMajor(ePlayer);
-			DoFriendshipChangeEffects(ePlayer, iOldFriendship, iWarFriendship);
+			changesT100[iPlayerLoop] = iWarFriendshipT100 - GetBaseFriendshipWithMajorTimes100(ePlayer) - m_aiFriendshipDeltaWithMajorTimes100[iPlayerLoop];
 
 			// Revoke PtP is there was one
 			if(IsProtectedByMajor(ePlayer))
@@ -8318,13 +8156,6 @@ void CvMinorCivAI::DoNowAtWarWithTeam(TeamTypes eTeam)
 			{
 				EndAllActiveQuestsForPlayer(ePlayer);
 			}
-
-			// Nullify Quests - Deprecated?
-			//GET_PLAYER((PlayerTypes) iMinorCivLoop).GetMinorCivAI()->SetPeaceQuestCompletedByMajor((PlayerTypes) iMajorCivLoop, true);
-			//GET_PLAYER((PlayerTypes) iMinorCivLoop).GetMinorCivAI()->SetWarQuestCompletedByMajor((PlayerTypes) iMajorCivLoop, true);
-
-			//// Is this player declaring war also already a Bully?  If so, he's gonna regret it
-			//GET_PLAYER((PlayerTypes) iMinorCivLoop).GetMinorCivAI()->DoBullyDeclareWar((PlayerTypes) iMajorCivLoop);
 		}
 		else if (!IsAtWarWithPlayersTeam(ePlayer) && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(eTeam))
 		{
@@ -8341,27 +8172,30 @@ void CvMinorCivAI::DoNowAtWarWithTeam(TeamTypes eTeam)
 		}
 	}
 
+	ChangeAndUpdateFriendship(changesT100);
+
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 }
 
 /// Now at peace with eTeam
 void CvMinorCivAI::DoNowPeaceWithTeam(TeamTypes eTeam)
 {
-	int iWarFriendship = /*-60*/ GC.getMINOR_FRIENDSHIP_AT_WAR();
-	int iNewFriendship;
+	//int iWarFriendship = /*-60*/ GC.getMINOR_FRIENDSHIP_AT_WAR();
 
-	PlayerTypes ePlayer;
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		ePlayer = (PlayerTypes) iPlayerLoop;
+	//for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	//{
+	//	const PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
 
-		if(GET_PLAYER(ePlayer).getTeam() == eTeam)
-		{
-			// Friendship change
-			iNewFriendship = GetBaseFriendshipWithMajor(ePlayer);
-			DoFriendshipChangeEffects(ePlayer, iWarFriendship, iNewFriendship);
-		}
-	}
+	//	if(GET_PLAYER(ePlayer).getTeam() == eTeam)
+	//	{
+	//		// Friendship change
+	//		const int iNewFriendship = GetBaseFriendshipWithMajor(ePlayer);
+	//		//UpdateAnyFriendshipChangeEffects(ePlayer, iWarFriendship, iNewFriendship);
+	//	}
+	//}
+
+	int changesT100[MAX_CIV_PLAYERS] = { 0 };
+	ChangeAndUpdateFriendship(changesT100); // force an update
 
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 }
@@ -8409,6 +8243,7 @@ void CvMinorCivAI::DoTeamDeclaredWarOnMe(TeamTypes eEnemyTeam)
 	CivsList veMinorsNowWary;
 	int iRand;
 
+	int sets[MAX_CIV_PLAYERS] = { SkipFriendshipUpdate };
 	// Since eEnemyTeam was the aggressor, drop the base influence to the minimum
 	for(int iEnemyMajorLoop = 0; iEnemyMajorLoop < MAX_MAJOR_CIVS; iEnemyMajorLoop++)
 	{
@@ -8416,12 +8251,12 @@ void CvMinorCivAI::DoTeamDeclaredWarOnMe(TeamTypes eEnemyTeam)
 		if(!GET_PLAYER(eEnemyMajorLoop).isAlive())
 			continue;
 		if(GET_PLAYER(eEnemyMajorLoop).getTeam() != eEnemyTeam)
-			continue;		
-
-		//antonjs: consider: forcibly revoke PtP here instead, and have negative INF / broken PtP fallout
+			continue;
 		
-		SetFriendshipWithMajor(eEnemyMajorLoop, GC.getMINOR_FRIENDSHIP_AT_WAR());
+		sets[iEnemyMajorLoop] = 100 * GC.getMINOR_FRIENDSHIP_AT_WAR();
 	}
+
+	SetAndUpdateFriendshipSelective(sets);
 
 	// xml, rename xml to indicate it is for WaryOf, not Permanent War
 	// Minor Civ Warmonger

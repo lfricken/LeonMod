@@ -18099,7 +18099,10 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 			for(int iPlayerLoop = MAX_MAJOR_CIVS; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 			{
 				PlayerTypes eOtherPlayer = (PlayerTypes) iPlayerLoop;
-				GET_PLAYER(eOtherPlayer).GetMinorCivAI()->ResetFriendshipWithMajor(GetID());
+
+				int sets[MAX_CIV_PLAYERS] = { CvMinorCivAI::SkipFriendshipUpdate }; // all elements 0
+				sets[GetID()] = 0;
+				GET_PLAYER(eOtherPlayer).GetMinorCivAI()->SetAndUpdateFriendshipSelective(sets);
 			}
 
 			setTurnActive(false);

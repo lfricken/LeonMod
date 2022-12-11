@@ -1270,7 +1270,8 @@ bool CvWorldBuilderMapLoader::InitMap()
 					const PlayerTypes eMajorCivPlayer = GetPlayerType((byte)uiMajorCiv);
 					if(eMajorCivPlayer != NO_PLAYER)
 					{
-						pkAI->SetFriendshipWithMajor(eMajorCivPlayer, sg_kSave.m_aiCityStateInfluence[uiMajorCiv][uiCityState]);
+						// map load, it's ok to set directly
+						pkAI->SetFriendshipWithMajorTimes100(eMajorCivPlayer, 100 * sg_kSave.m_aiCityStateInfluence[uiMajorCiv][uiCityState]);
 					}
 				}
 			}

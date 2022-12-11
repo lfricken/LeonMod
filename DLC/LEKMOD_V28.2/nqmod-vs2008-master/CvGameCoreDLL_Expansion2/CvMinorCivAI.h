@@ -411,20 +411,27 @@ public:
 	// ******************************
 
 	void DoFriendship();
+	static const int SkipFriendshipUpdate = -9999999;
+	// ONLY sets friendship values if -1 is not passed for them
+	void SetAndUpdateFriendshipSelective(const int setsNegativeOneT100[MAX_CIV_PLAYERS]);
+	// sets every friendship value
+	void SetAndUpdateFriendship(const int setsT100[MAX_CIV_TEAMS]);
+	// changes every friendship value
+	void ChangeAndUpdateFriendship(const int changesT100[MAX_CIV_TEAMS]);
 
 	int GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer);
 
 	int GetEffectiveFriendshipWithMajorTimes100(PlayerTypes ePlayer);
 	int GetBaseFriendshipWithMajorTimes100(PlayerTypes ePlayer) const;
+	// changes friendship at the end of the round
 	void ChangeFriendshipWithMajorTimes100(PlayerTypes ePlayer, int iChange, bool bFromQuest = false);
+	// changes friendship and INSTANTLY has effects. Probably don't use this.
 	void ChangeFriendshipWithMajorTimes100Instant(PlayerTypes ePlayer, int iChange, bool bFromQuest = false);
 
 	int GetEffectiveFriendshipWithMajor(PlayerTypes ePlayer);
 	int GetBaseFriendshipWithMajor(PlayerTypes ePlayer) const;
 
 	int GetFriendshipAnchorWithMajor(PlayerTypes ePlayer);
-	
-	void ResetFriendshipWithMajor(PlayerTypes ePlayer);
 
 	int GetAngerFreeIntrusionCounter(PlayerTypes ePlayer) const;
 	void SetAngerFreeIntrusionCounter(PlayerTypes ePlayer, int iNum);
@@ -449,7 +456,9 @@ public:
 	int GetFriendshipLevelWithMajor(PlayerTypes ePlayer);
 	int GetFriendshipNeededForNextLevel(PlayerTypes ePlayer);
 
-	void DoFriendshipChangeEffects(PlayerTypes ePlayer, int iOldFriendship, int iNewFriendship, bool bFromQuest = false, bool bIgnoreMinorDeath = false);
+	// IDEMPOTENT Safe to repeatedly call (except for notifications firing)
+	// Updates any benefits from changing status.
+	void UpdateOnAnyFriendshipChangeEffects(const PlayerTypes ePreviosAlly, const PlayerTypes newAlly, PlayerTypes ePlayer, int iOldFriendship, int iNewFriendship, bool bFromQuest = false, bool bIgnoreMinorDeath = false);
 
 	bool IsFriendshipAboveFriendsThreshold(int iFriendship) const;
 	int GetFriendsThreshold() const;
@@ -650,9 +659,14 @@ public:
 	bool IsDisableNotifications() const;
 	void SetDisableNotifications(bool bDisableNotifications);
 
-	void SetFriendshipWithMajor(PlayerTypes ePlayer, int iNum, bool bFromQuest = false);
-private:
+	// DO NOT CALL THIS
 	void SetFriendshipWithMajorTimes100(PlayerTypes ePlayer, int iNum, bool bFromQuest = false);
+private:
+
+	// Call ONLY when the status has changed. Calling this multiple times will cause bugs. Do not call directly. See ChangeAndUpdateFriendship
+	void OnChangeFriendStatus(const bool isAtLeastFriends, const PlayerTypes ePlayer, const int iOldFriendship, const int iNewFriendship, const bool suppressNotifs);
+	// Call ONLY when the status has changed. Calling this multiple times will cause bugs. Do not call directly. See ChangeAndUpdateFriendship
+	void OnChangeAllyStatus(const bool isAtLeastAllies, const PlayerTypes ePlayer, const int iOldFriendship, const int iNewFriendship, const bool suppressNotifs);
 
 	CvPlayer* m_pPlayer;
 	MinorCivTypes m_minorCivType;
@@ -673,6 +687,7 @@ private:
 	PlayerTypes m_eMajorBoughtOutBy;
 
 	int m_aiFriendshipWithMajorTimes100[MAX_MAJOR_CIVS];
+	// applied at the end of a round
 	int m_aiFriendshipDeltaWithMajorTimes100[MAX_MAJOR_CIVS];
 	int m_aiAngerFreeIntrusionCounter[MAX_MAJOR_CIVS];
 	int m_aiPlayerQuests[MAX_MAJOR_CIVS]; //antonjs: DEPRECATED
