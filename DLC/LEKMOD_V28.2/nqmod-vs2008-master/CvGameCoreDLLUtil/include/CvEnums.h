@@ -1482,6 +1482,17 @@ enum BuildingTypes
 	NO_BUILDING = -1,
 };
 
+/*Controls how free buildings get added or removed from a city.*/
+enum BuildingAddType
+{
+	/*The city should have this building ADDED if it doesn't exist.*/
+	ADD,
+	/*The city should have this building REMOVED if it does exist.*/
+	REMOVE,
+	/*Whether or not the building is present, no action will be taken.*/
+	INDIFFERENT,
+};
+
 enum ProjectTypes				
 {
 	NO_PROJECT = -1,

@@ -310,9 +310,9 @@ public:
 	void AwardFreeBuildings(CvCity* pCity); // slewis - broken out so that Venice can get free buildings when they purchase something
 	bool canFound(int iX, int iY, bool bTestVisible = false) const;
 	void found(int iX, int iY);
-	// true if a players city should have this building class in it automatically
-	// you still have to pay maintenance, which is why this isn't called "ForFree"
-	static bool ShouldHaveBuilding(const CvPlayer& rPlayer, const CvCity& rCity, const bool isYourCapital, const bool isConquered, const bool isNewlyFounded, const BuildingClassTypes eBuildingClass);
+	// Determines if a players city should have this building class in it without having to build it.
+	// You still have to pay maintenance, which is why this isn't called "ForFree".
+	static BuildingAddType ShouldHaveBuilding(const CvPlayer& rPlayer, const CvCity& rCity, const bool isYourCapital, const bool isConquered, const bool isNewlyFounded, const BuildingClassTypes eBuildingClass);
 	// gets the building for this player based on the building class so unique buildings can be respected
 	BuildingTypes getBuildingForPlayer(const BuildingClassTypes eBuildingClass) const;
 
