@@ -22,7 +22,8 @@ icon atlas and images (contains readme with more info)
 Ideology selection
 POLICY_NUM_FOR_IDEOLOGY
 
-
+unit movement costs terrain
+CvUnitMovement::GetCostsForMove
 
 barbarians only get 1 move per turn
 CvUnit::getMoves()

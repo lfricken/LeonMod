@@ -186,10 +186,10 @@ void CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlo
 	}
 	*/
 
-	// 2x cost for non coast
-	if (pUnit->getDomainType() == DOMAIN_SEA)
+	// 2x cost for non coast tiles if it is effectively a water unit
+	if (pUnit->getDomainType() == DOMAIN_SEA || pUnit->isEmbarked())
 	{
-		if (!pToPlot->HasTerrain(TERRAIN_COAST)) // ship not in coast costs 2 move
+		if (!pToPlot->HasTerrain(TERRAIN_COAST))
 		{
 			iRegularCost = 2 * iMoveDenominator;
 		}
