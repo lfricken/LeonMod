@@ -6107,7 +6107,9 @@ int CvPlayer::GetDiplomaticInfluenceNeeded() const
 
 	// truncate FLOORs to the nearest value
 	const int truncate = 10;
-	return ((influenceNeededT100 / 100) / truncate) * truncate;
+	const int amountNeeded = ((influenceNeededT100 / 100) / truncate) * truncate;
+
+	return max(10, amountNeeded); // prevent glitches with 0 city states
 }
 //	--------------------------------------------------------------------------------
 void CvPlayer::GetScientificInfluencePerTurn(int* influenceThisTurn) const
@@ -13516,10 +13518,14 @@ CvString CvPlayer::GetCityCap_Tooltip() const
 {
 	int currentCap = 0;
 	string sources = GetCityCapCurrent_WithSourcesTooltip(&currentCap);
+	const int numEffectiveCities = GetNumCityTowardCap();
 
 	// construct hover text
 	stringstream ss;
-	ss << "You have " << GetNumCityTowardCap() << " of " << currentCap << " possible cities. Any [ICON_PUPPET] Puppets do not count toward this limit.";
+	ss << "You have " << numEffectiveCities << " of " << currentCap << " possible cities. Any [ICON_PUPPET] Puppets do not count toward this limit.";
+	if (numEffectiveCities == GetNumPuppetCities())
+		ss << " All your cities are puppets, and this counts as 1 city."; // see logic in GetMaxEffectiveCities
+
 	ss << "[NEWLINE]";
 	ss << "[NEWLINE]";
 	ss << "Your sources of [ICON_CITY] Cities:[NEWLINE]";
