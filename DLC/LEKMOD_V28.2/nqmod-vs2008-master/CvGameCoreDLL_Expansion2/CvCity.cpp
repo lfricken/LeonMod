@@ -7553,12 +7553,12 @@ void CvCity::UpdateFreeBuildings(const bool isNewlyFounded)
 		const BuildingClassTypes eBuildingClass = (BuildingClassTypes)i;
 		const BuildingAddType addType = rPlayer.ShouldHaveBuilding(rPlayer, *this, isOriginalCapital, isConquered(), isNewlyFounded, eBuildingClass);
 
-		if (addType == BuildingAddType::ADD)
+		if (addType == ADD)
 		{
 			const BuildingTypes eBuilding = rPlayer.getBuildingForPlayer(eBuildingClass);
 			GetCityBuildings()->SetNumRealBuilding(eBuilding, 1);
 		}
-		else if (addType == BuildingAddType::REMOVE)
+		else if (addType == REMOVE)
 		{
 			const BuildingTypes eBuilding = rPlayer.getBuildingForPlayer(eBuildingClass);
 			GetCityBuildings()->SetNumRealBuilding(eBuilding, 0);
