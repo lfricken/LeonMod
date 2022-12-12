@@ -14012,11 +14012,47 @@ int CvPlayer::GetPolicyRebate(const PolicyTypes ePolicy, const bool isBranch) co
 }
 bool CvPlayer::HasTech(const string name) const
 {
+	// do sanity check to make sure this thing exists
+	bool found = false;
+	for (int i = 0; i < GC.getNumTechInfos(); ++i)
+	{
+		const CvTechEntry* pInfo = GC.getTechInfo((TechTypes)i);
+		if (pInfo != NULL && pInfo->GetType() == name)
+		{
+			found = true;
+			break;
+		}
+	}
+	if (!found)
+	{
+		stringstream ss;
+		ss << name << " was not a valid tech to call HasTech with.";
+		throw new std::exception(ss.str().c_str());
+	}
+
 	const TechTypes e = GC.GetGameTechs()->Tech(name);
 	return GET_TEAM(getTeam()).GetTeamTechs()->HasTech(e);
 }
 bool CvPlayer::IsCiv(const string name) const
 {
+	// do sanity check to make sure this thing exists
+	bool found = false;
+	for (int i = 0; i < GC.getNumCivilizationInfos(); ++i)
+	{
+		const CvCivilizationInfo* pInfo = GC.getCivilizationInfo((CivilizationTypes)i);
+		if (pInfo != NULL && pInfo->GetType() == name)
+		{
+			found = true;
+			break;
+		}
+	}
+	if (!found)
+	{
+		stringstream ss;
+		ss << name << " was not a valid tech to call IsCiv with.";
+		throw new std::exception(ss.str().c_str());
+	}
+
 	return this->getCivilizationInfo().GetType() == name;
 }
 
