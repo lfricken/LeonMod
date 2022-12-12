@@ -412,7 +412,7 @@ int CvPlot::getExtraYield
 			{// CIVILIZATION_ENGLAND - 1 FD 1 PD from Cattle, Sheep, After Trapping
 				const bool hasCattle = plot.HasResource("RESOURCE_COW");
 				const bool hasSheep = plot.HasResource("RESOURCE_SHEEP");
-				const bool isEngland = player.IsCiv("CIVILIZATION_ENGLAND");
+				const bool isEngland = player.IsCiv("CIVILIZATION_MC_SCOTLAND");
 				const bool hasTrapping = player.HasTech("TECH_TRAPPING");
 				if (eYieldType == YIELD_FOOD && isEngland && hasTrapping && (hasCattle || hasSheep))
 					yieldChange += 1;
