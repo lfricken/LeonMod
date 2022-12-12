@@ -13523,8 +13523,8 @@ CvString CvPlayer::GetCityCap_Tooltip() const
 	// construct hover text
 	stringstream ss;
 	ss << "You have " << numEffectiveCities << " of " << currentCap << " possible cities. Any [ICON_PUPPET] Puppets do not count toward this limit.";
-	if (numEffectiveCities == GetNumPuppetCities())
-		ss << " All your cities are puppets, and this counts as 1 city."; // see logic in GetMaxEffectiveCities
+	if (getNumCities() == GetNumPuppetCities())
+		ss << " All your cities are puppets. For calculations this counts as 1 city."; // see logic in GetMaxEffectiveCities
 
 	ss << "[NEWLINE]";
 	ss << "[NEWLINE]";
