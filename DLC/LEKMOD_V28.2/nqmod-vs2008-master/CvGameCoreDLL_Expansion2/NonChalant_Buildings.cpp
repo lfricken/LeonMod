@@ -376,6 +376,21 @@ BuildingAddType CvPlayer::ShouldHaveBuilding(const CvPlayer& rPlayer, const CvCi
 		}
 	}
 
+	{// CIVILIZATION_RUSSIA gets free Jarliq in Capital upon discovery of Philosophy
+		const bool isJarliq = eBuildingClass == BuildingClass("BUILDINGCLASS_COURTHOUSE");
+		const bool isFrance = rPlayer.IsCiv("CIVILIZATION_FRANCE");
+		const bool hasPhilosophy = rPlayer.HasTech("TECH_PHILOSOPHY");
+		if (isJarliq)
+		{
+			const bool isFrance = rPlayer.IsCiv("CIVILIZATION_FRANCE");
+			const bool hasPhilosophy = rPlayer.HasTech("TECH_PHILOSOPHY");
+			if (isFrance && hasPhilosophy)
+				return ADD;
+			else
+				return REMOVE;
+		}
+	}
+
 	return INDIFFERENT;
 }
 int CvPlayer::getSpecialistGpp(const CvCity* pCity, const SpecialistTypes eSpecialist, const SpecialistTypes eGppType, const bool) const

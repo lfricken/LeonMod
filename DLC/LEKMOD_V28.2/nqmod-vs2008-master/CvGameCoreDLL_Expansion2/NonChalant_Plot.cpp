@@ -409,7 +409,7 @@ int CvPlot::getExtraYield
 					yieldChange += 3;
 			}
 
-			{// CIVILIZATION_ENGLAND - 1 FD 1 PD from Cattle, Sheep, After Trapping
+			{// CIVILIZATION_MC_SCOTLAND - 1 FD 1 PD from Cattle, Sheep, After Trapping
 				const bool hasCattle = plot.HasResource("RESOURCE_COW");
 				const bool hasSheep = plot.HasResource("RESOURCE_SHEEP");
 				const bool isEngland = player.IsCiv("CIVILIZATION_MC_SCOTLAND");
@@ -419,6 +419,18 @@ int CvPlot::getExtraYield
 				if (eYieldType == YIELD_PRODUCTION && isEngland && hasTrapping && (hasCattle || hasSheep))
 						yieldChange += 1;
 			}	
+
+			{// CIVILIZATION_RUSSIA - 1 PD from Strategic Resources (only available after you can see Horse or Iron, etc.)
+				const bool isRussia = player.IsCiv("CIVILIZATION_RUSSIA");				
+				if (eYieldType == YIELD_PRODUCTION && isRussia && hasStrategic)
+					yieldChange += 1;
+			}
+
+			{// CIVILIZATION_FRANCE - 1 G from Strategic Resources (only available after you can see Horse or Iron, etc.)
+				const bool isFrance = player.IsCiv("CIVILIZATION_FRANCE");
+				if (eYieldType == YIELD_GOLD && isFrance && hasStrategic)
+					yieldChange += 1;
+			}
 
 			{// CIVILIZATION_INDONESIA - +1 to Atolls +2G from Coastal Luxes After Sailing
 				const bool isAtoll = plot.HasFeature("FEATURE_ATOLL");
