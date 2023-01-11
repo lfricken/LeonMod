@@ -2700,6 +2700,17 @@ void CvGlobals::logSpecificMessage(PlayerTypes ePlayer, const char* strString)
 	}
 }
 
+void CvGlobals::debugState(const stringstream& s)
+{
+	FILogFile* pLog = LOGFILEMGR.GetLog("state.log", 0);
+	if (pLog)
+	{
+		stringstream b;
+		b << "T " << getGame().getGameTurn() << " " << s.str();
+		pLog->DebugMsg(b.str().c_str());
+	}
+}
+
 CvRandom& CvGlobals::getASyncRand()
 {
 	return *m_asyncRand;

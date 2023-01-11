@@ -80,6 +80,13 @@ void CvUnitMission::AutoMission(UnitHandle hUnit)
 /// Queue up a new mission
 void CvUnitMission::PushMission(UnitHandle hUnit, MissionTypes eMission, int iData1, int iData2, int iFlags, bool bAppend, bool bManual, MissionAITypes eMissionAI, CvPlot* pMissionAIPlot, CvUnit* pMissionAIUnit)
 {
+	stringstream s;
+	s << "CvUnitMission:PushMission " << eMission << " " << iData1 << " " << iData2 << " " << iFlags << " " << bAppend << " "
+		<< bManual << " " << eMissionAI;
+	if (pMissionAIPlot != NULL) { s << " " << pMissionAIPlot->getX() << " " << pMissionAIPlot->getY(); }
+	GC.debugState(s); // CvUnitMission::PushMission
+
+
 	const CvPlayer& owner = GET_PLAYER(hUnit->getOwner());
 	if(CvPreGame::isHuman(hUnit->getOwner()))
 	{
@@ -536,6 +543,9 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 			        kMissionData.eMissionType == CvTypes::getMISSION_EMBARK() ||
 			        kMissionData.eMissionType == CvTypes::getMISSION_DISEMBARK())
 			{
+				stringstream s;
+				s << "Mission:ContinueMission " << kMissionData.iData1 << " " << kMissionData.iData2;
+				GC.debugState(s); // CvUnitMission::ContinueMission
 				if(hUnit->getDomainType() == DOMAIN_AIR)
 				{
 					hUnit->UnitPathTo(kMissionData.iData1, kMissionData.iData2, kMissionData.iFlags);
