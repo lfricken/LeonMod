@@ -342,6 +342,8 @@ public:
 	);
 	// adds only to the log
 	void logSpecificMessage(PlayerTypes ePlayer, const char* strString);
+	// logs to state.log
+	void debugState(const stringstream& s);
 
 	CvRandom& getASyncRand();
 	CvTwoLayerPathFinder& getPathFinder();

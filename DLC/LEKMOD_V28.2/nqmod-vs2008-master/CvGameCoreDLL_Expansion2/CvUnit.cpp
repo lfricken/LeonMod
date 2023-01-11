@@ -14872,6 +14872,11 @@ void CvUnit::setHotKeyNumber(int iNewValue)
 //	-----------------------------------------------------------------------------------------------------------
 void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool bCheckPlotVisible, bool bNoMove)
 {
+	// log unit info
+	stringstream s;
+	s << "Unit:setXY " << m_eOwner << " " << iX << " " << iY << " " << bGroup << " " << bUpdate << " " << bShow << " " << bCheckPlotVisible << " " << bNoMove;
+	GC.debugState(s); // CvUnit::setXY
+
 	VALIDATE_OBJECT
 	IDInfo* pUnitNode = 0;
 	CvCity* pOldCity = 0;

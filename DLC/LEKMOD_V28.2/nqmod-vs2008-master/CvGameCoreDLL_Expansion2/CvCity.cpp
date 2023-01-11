@@ -2083,6 +2083,13 @@ void CvCity::doTurn()
 #endif
 		// XXX
 	}
+
+	stringstream s;
+	s << "City:doTurn " << m_eOwner << " " << getNameKey() << " " << getYieldRateTimes100(YIELD_FOOD, false) << " " << getYieldRateTimes100(YIELD_PRODUCTION, false)
+		<< " " << getYieldRateTimes100(YIELD_GOLD, false) << " " << getYieldRateTimes100(YIELD_SCIENCE, false) << " " << getYieldRateTimes100(YIELD_CULTURE, false)
+		<< " " << getYieldRateTimes100(YIELD_FAITH, false) << " " << getYieldRateTimes100(YIELD_SCIENTIFIC_INSIGHT, false) 
+		<< " " << getYieldRateTimes100(YIELD_TOURISM, false) << " " << getYieldRateTimes100(YIELD_DIPLOMATIC_SUPPORT, false);
+	GC.debugState(s); // CvCity::doTurn
 }
 
 
@@ -12123,6 +12130,9 @@ void CvCity::updateStrengthValue()
 	iStrengthValueT100 /= 100;
 
 	m_iStrengthValueT100 = iStrengthValueT100;
+	stringstream s;
+	s << "City:updStr " << m_eOwner << " " << getNameKey() << " " << m_iStrengthValueT100 << " " << iBuildingDefenseT100 << " " << iTechProgressT100;
+	GC.debugState(s); // CvCity::updateStrengthValue
 
 	// Terrain mod
 	if(plot()->isHills())
@@ -13493,6 +13503,10 @@ void CvCity::clearOrderQueue()
 //	--------------------------------------------------------------------------------
 void CvCity::pushOrder(OrderTypes eOrder, int iData1, int iData2, bool bSave, bool bPop, bool bAppend, bool bRush)
 {
+	stringstream s;
+	s << "City:pushOrder " << m_eOwner << " " << getNameKey() << " " << eOrder << " " << iData1
+		<< " " << iData2 << " " << bSave << " " << bPop << " " << bAppend << " " << bRush;
+	GC.debugState(s); // CvCity::pushOrder
 	VALIDATE_OBJECT
 	OrderData order;
 	bool bValid;

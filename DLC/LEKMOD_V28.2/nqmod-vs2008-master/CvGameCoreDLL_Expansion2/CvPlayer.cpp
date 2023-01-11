@@ -4677,10 +4677,16 @@ void CvPlayer::doTurn()
 	GetDiplomaticInfluencePerTurn(&diploThisTurn, &numControlled);
 	ChangeDiplomaticInfluence(diploThisTurn);
 
-	// scientific influene
+	// scientific influence
 	int insightThisTurn;
 	GetScientificInfluencePerTurn(&insightThisTurn);
 	ChangeScientificInfluence(insightThisTurn);
+
+
+	TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
+	stringstream s;
+	s << "Player:doTurn " << GetID() << " " << eCurrentTech << " " << GetNonLeaderBoostT100() << " " << m_iOverflowResearch << " " << GetScienceTimes100(true);
+	GC.debugState(s); // Player::doTurn
 }
 
 //	--------------------------------------------------------------------------------
