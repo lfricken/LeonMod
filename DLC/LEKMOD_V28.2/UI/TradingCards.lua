@@ -261,7 +261,7 @@ end
 function OnPopupMessage(popupInfo)
 
 	local popupType = popupInfo.Type;
-	if popupType ~= ButtonPopupTypes.BUTTONPOPUP_TRADE_ROUTE_OVERVIEW then
+	if popupType ~= 7091 then
 		return;
 	end
 	

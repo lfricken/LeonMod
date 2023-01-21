@@ -76,7 +76,7 @@
     <Box Style="MenuLeftSideTreatment"/>
     <Box Style="MenuRightSideTreatment"/>
     
-		<Label Style="MenuTitleCaption" String="TXT_KEY_TRADE_ROUTE_OVERVIEW" />
+		<Label Style="MenuTitleCaption" String="Trading Card Overview" />
 		<!-- Top Panel  -->
 		<Box Anchor="C,T" Size="955,32" Offset="0,44" Color="0.0.0.128">
 			<Stack Anchor="C,T" Size="971,32" Offset="0,0" Padding="0" StackGrowth="Right">

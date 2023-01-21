@@ -40,7 +40,11 @@ function RefreshAdditionalInformationEntries()
 		{ text = Locale.Lookup("TXT_KEY_VP_TT"),							call=function() Popup(ButtonPopupTypes.BUTTONPOPUP_VICTORY_INFO); end };
 		{ text = Locale.Lookup("TXT_KEY_DEMOGRAPHICS"),						call=function() Popup(ButtonPopupTypes.BUTTONPOPUP_DEMOGRAPHICS); end };
 		{ text = Locale.Lookup("TXT_KEY_POP_NOTIFICATION_LOG"),				call=function() Popup(ButtonPopupTypes.BUTTONPOPUP_NOTIFICATION_LOG,Game.GetActivePlayer()); end };
-		{ text = Locale.Lookup("TXT_KEY_TRADE_ROUTE_OVERVIEW"),				call=function() Popup(ButtonPopupTypes.BUTTONPOPUP_TRADE_ROUTE_OVERVIEW); end };
+        { text = Locale.Lookup("TXT_KEY_TRADE_ROUTE_OVERVIEW"),             call=function() Popup(ButtonPopupTypes.BUTTONPOPUP_TRADE_ROUTE_OVERVIEW); end };
+
+        -- popup enum value of 7091 was arbitrarily chosen but must match other cases of this popup id
+        -- and should probably avoid "search collision" with other values so you can easily find uses
+        { text = "Trading Cards", call=function() Popup(7091); end };
 	};
 
 	-- Obtain any modder/dlc entries.
