@@ -277,11 +277,11 @@ function OnPopupMessage(popupInfo)
 	end
 	
 	if( g_PopupInfo.Data1 == 1 ) then
-    	if( ContextPtr:IsHidden() == false ) then
-    		OnClose();
+		if( ContextPtr:IsHidden() == false ) then
+			OnClose();
 		else
-        	UIManager:QueuePopup( ContextPtr, PopupPriority.InGameUtmost );
-    	end
+			UIManager:QueuePopup( ContextPtr, PopupPriority.InGameUtmost );
+		end
 	else
 		UIManager:QueuePopup( ContextPtr, PopupPriority.SocialPolicy );
 	end
@@ -296,20 +296,20 @@ end
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 function InputHandler( uiMsg, wParam, lParam )
-    ----------------------------------------------------------------        
-    -- Key Down Processing
-    ----------------------------------------------------------------        
-    if(uiMsg == KeyEvents.KeyDown) then
-        if (wParam == Keys.VK_ESCAPE) then
+	----------------------------------------------------------------		
+	-- Key Down Processing
+	----------------------------------------------------------------		
+	if(uiMsg == KeyEvents.KeyDown) then
+		if (wParam == Keys.VK_ESCAPE) then
 			OnClose();
 			return true;
-        end
-        
-        -- Do Nothing.
-        if(wParam == Keys.VK_RETURN) then
+		end
+		
+		-- Do Nothing.
+		if(wParam == Keys.VK_RETURN) then
 			return true;
-        end
-    end
+		end
+	end
 end
 ContextPtr:SetInputHandler( InputHandler );
 -------------------------------------------------------------------------------
@@ -338,8 +338,8 @@ Controls.TabButtonTRWithYou:RegisterCallback( Mouse.eLClick, function() TabSelec
 
 function RefreshYourTR()
 	local pPlayer = Players[ Game.GetActivePlayer() ];
-    
-    --print("RefreshYourTR");
+	
+	--print("RefreshYourTR");
 	SetData(pPlayer:GetTradeRoutes());
 	SortData();
 	DisplayData();
@@ -350,7 +350,7 @@ g_Tabs["YourTR"].RefreshContent = RefreshYourTR;
 function RefreshAvailableTR()
 	local pPlayer = Players[ Game.GetActivePlayer() ];
 
-    SetData(pPlayer:GetTradeRoutesAvailable());
+	SetData(pPlayer:GetTradeRoutesAvailable());
 	SortData();
 	DisplayData();
 end
@@ -358,11 +358,11 @@ g_Tabs["AvailableTR"].RefreshContent = RefreshAvailableTR;
 
 function RefreshTRWithYou()
 	local pPlayer = Players[ Game.GetActivePlayer() ];
-    
-    SetData(pPlayer:GetTradeRoutesToYou());
-    SortData();
-    DisplayData();
-    
+	
+	SetData(pPlayer:GetTradeRoutesToYou());
+	SortData();
+	DisplayData();
+	
 end
 g_Tabs["TRWithYou"].RefreshContent = RefreshTRWithYou;
 
@@ -402,126 +402,28 @@ end
 
 function DisplayData()
 	Controls.MainStack:DestroyAllChildren(); 
-    for i,v in ipairs(g_Data) do
-        local instance = {};
-		ContextPtr:BuildInstanceForControl( "TRInstance", instance, Controls.MainStack );
-	
-		instance.Domain_Land:LocalizeAndSetToolTip("TXT_KEY_TRO_LAND_DOMAIN_TT"); 
-		instance.Domain_Sea:LocalizeAndSetToolTip("TXT_KEY_TRO_SEA_DOMAIN_TT"); 	
-	
-		instance.Domain_Land:SetHide(true);
-		instance.Domain_Sea:SetHide(true);
-		
-		if (v.FromCity == nil) then
-			print("v.FromCity is nil");
-		end
-		
-		if (v.ToCity == nil) then
-			print("v.ToCity is nil");
-		end
-		
-		local strTT = BuildTradeRouteToolTipString(Players[v.FromID], v.FromCity, v.ToCity, v.Domain);
-		
-		if (v.Domain == DomainTypes.DOMAIN_LAND) then
-			instance.Domain_Land:SetHide(false);
-			instance.Domain_Land:SetToolTipString(strTT);
-		elseif (v.Domain == DomainTypes.DOMAIN_SEA) then
-			instance.Domain_Sea:SetHide(false);
-			instance.Domain_Sea:SetToolTipString(strTT);
-		end
-		
-		CivIconHookup(v.FromID, 32, instance.FromCivIcon, instance.FromCivIconBG, instance.FromCivIconShadow, false, true, instance.FromCivIconHighlight);
-		
-		--Since I don't know which icon to use, use em all!
-		instance.FromCivIcon:SetToolTipString(v.FromCiv);
-		instance.FromCivIconBG:SetToolTipString(v.FromCiv);
-		instance.FromCivIconShadow:SetToolTipString(v.FromCiv);
-		instance.FromCivIconHighlight:SetToolTipString(v.FromCiv);
-		instance.FromCity:SetText(v.FromCityName);
-		instance.FromCity:SetToolTipString(strTT);
-		
-		CivIconHookup(v.ToID, 32, instance.ToCivIcon, instance.ToCivIconBG, instance.ToCivIconShadow, false, true, instance.ToCivIconHighlight);
-		instance.ToCivIcon:SetToolTipString(v.ToCiv);
-		instance.ToCivIconBG:SetToolTipString(v.ToCiv);
-		instance.ToCivIconShadow:SetToolTipString(v.ToCiv);
-		instance.ToCivIconHighlight:SetToolTipString(v.ToCiv);
-		instance.ToCity:SetText(v.ToCityName);
-		instance.ToCity:SetToolTipString(strTT);
-		
-		local strToGPT = "";
-		if (v.ToGPT ~= 0) then
-			strToGPT = Locale.ConvertTextKey("TXT_KEY_TRO_GPT_ENTRY",  v.ToGPT / 100);
-			instance.ToGPT:SetToolTipString(strTT);	
-		end
-		instance.ToGPT:SetText(strToGPT);
 
-		local strFromGPT = "";		
-		if (v.FromGPT ~= 0) then
-			strFromGPT = Locale.ConvertTextKey("TXT_KEY_TRO_GPT_ENTRY",  v.FromGPT / 100);
-			instance.FromGPT:SetToolTipString(strTT);	
-		end
-		instance.FromGPT:SetText(strFromGPT);
-		
-		local strToFood = "";
-		if (v.ToFood ~= 0) then
-			strToFood = round(v.ToFood / 100, 1);
-			instance.ToFood:SetToolTipString(strTT);	
-		end
-		instance.ToFood:SetText(strToFood);
-		
-		local strToProduction = "";
-		if (v.ToProduction ~= 0) then
-			strToProduction = round(v.ToProduction / 100, 1);
-			instance.ToProduction:SetToolTipString(strTT);	
-		end
-		instance.ToProduction:SetText(strToProduction);
-		
-		local strToPressure = "";
-		if (v.ToReligion > 0 and v.ToPressure ~= 0) then
-			local religion = GameInfo.Religions[v.ToReligion];
-			local strIcon = religion.IconString;
-			strToPressure = Locale.ConvertTextKey("TXT_KEY_TRO_RELIGIOUS_PRESSURE_ENTRY", strIcon, v.ToPressure);
-			instance.ToReligion:SetToolTipString(strTT);	
-		end
-		instance.ToReligion:SetText(strToPressure);
-		
-		local strFromPressure = "";
-		if (v.FromReligion > 0 and v.FromPressure ~= 0) then
-			local religion = GameInfo.Religions[v.FromReligion];
-			local strIcon = religion.IconString;
-			strFromPressure = Locale.ConvertTextKey("TXT_KEY_TRO_RELIGIOUS_PRESSURE_ENTRY", strIcon, v.FromPressure);
-			instance.FromReligion:SetToolTipString(strTT);	
-		end
-		instance.FromReligion:SetText(strFromPressure);
-		
-		local fromScience = "";
-		local toScience = "";
-		
-		if (v.FromID ~= v.ToID) then
-		
-			if(v.FromScience ~= 0) then
-				fromScience = v.FromScience / 100;
-				instance.FromScience:SetToolTipString(strTT);	
-			end
-			
-			if(v.ToScience ~= 0) then
-				toScience = v.ToScience / 100;
-				instance.ToScience:SetToolTipString(strTT);	
-			end
-		end
-		instance.FromScience:SetText(fromScience);
-		instance.ToScience:SetText(toScience);
-		
-		local strTurnsRemaining = "";
-		if (v.TurnsLeft ~= nil and v.TurnsLeft >= 0) then
-			strTurnsRemaining = v.TurnsLeft;
-		end
-		instance.TurnsLeft:SetText(strTurnsRemaining);
-    end
-    
-    Controls.MainStack:CalculateSize();
-    Controls.MainStack:ReprocessAnchoring();
-    Controls.MainScroll:CalculateInternalSize();
+
+
+
+
+	for i = 1, 10, 1 do
+		local inst = {};
+		ContextPtr:BuildInstanceForControl( "TradeCardInstance", inst, Controls.MainStack );
+
+		inst.Name:SetText("nameee");
+		inst.Name:SetToolTipString("nameee2");
+
+		inst.Desc:SetText("desc");
+		inst.Desc:SetToolTipString("desc222");
+
+		inst.Activate:SetText("act");
+		inst.Activate:SetToolTipString("act222");
+	end
+	
+	Controls.MainStack:CalculateSize();
+	Controls.MainStack:ReprocessAnchoring();
+	Controls.MainScroll:CalculateInternalSize();
 
 end
 
@@ -532,19 +434,19 @@ function ShowHideHandler( bIsHide, bInitState )
 	-- Set Civ Icon
 	CivIconHookup( Game.GetActivePlayer(), 64, Controls.CivIcon, Controls.CivIconBG, Controls.CivIconShadow, false, true );
 
-    if( not bInitState ) then
-        if( not bIsHide ) then
-        	UI.incTurnTimerSemaphore();  
-        	Events.SerialEventGameMessagePopupShown(g_PopupInfo);
-        	
-        	TabSelect(g_CurrentTab);
-        else
+	if( not bInitState ) then
+		if( not bIsHide ) then
+			UI.incTurnTimerSemaphore();  
+			Events.SerialEventGameMessagePopupShown(g_PopupInfo);
+			
+			TabSelect(g_CurrentTab);
+		else
 			if(g_PopupInfo ~= nil) then
 				Events.SerialEventGameMessagePopupProcessed.CallImmediate(g_PopupInfo.Type, 0);
-            end
-            UI.decTurnTimerSemaphore();
-        end
-    end
+			end
+			UI.decTurnTimerSemaphore();
+		end
+	end
 end
 ContextPtr:SetShowHideHandler( ShowHideHandler );
 
