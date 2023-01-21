@@ -492,6 +492,7 @@
     <ClCompile Include="NonChalant_Misc.cpp" />
     <ClCompile Include="NonChalant_Player.cpp" />
     <ClCompile Include="NonChalant_TradingCards.cpp" />
+    <ClCompile Include="NonChalant_TradingCards_Policies.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CvDllBuildInfo.h">

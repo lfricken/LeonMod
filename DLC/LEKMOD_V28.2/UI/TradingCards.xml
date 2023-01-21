@@ -5,7 +5,7 @@
 		<Box ID="Root" Offset="0,0" Anchor="L,T" Size="1000,99" Color="255,255,255,0">
 			<Stack Anchor="L,C" StackGrowth="Right" Offset="0,0" Padding="1">
 				<Box Anchor="L,C" Color="255.255.255.0" Offset="0,0" Size="191,34">
-					<Label Anchor="C,C" Offset="0,0" String="ERROR1111"  Color0="Gold.255" Color1="Black.255"  TruncateWidth="156" Font="TwCenMT20" FontStyle="Stroke" ID="Name"/>
+					<Label Anchor="C,C" Offset="0,0" String="ERROR1111"  Color0="Gold.255" Color1="Black.255"  WrapWidth="180" Font="TwCenMT20" FontStyle="Stroke" ID="Name"/>
 				</Box>
 				<Box Anchor="L,C" Color="255.255.255.0" Offset="0,0" Size="601,99">
 					<Label Size="601,99" Anchor="C,C" Offset="0,0" String="ERROR1234" Font="TwCenMT20" FontStyle="Stroke" WrapWidth="580" ID="Desc"/>
@@ -23,6 +23,14 @@
 						<Label Anchor="C,C" Offset="0.-1" Font="TwCenMT18" String="Activate" ToolTip="In order to gain this benefit, you must activate it, which consumes it."/>
 					</Button>
 				</Stack>
+				<Button ID="Delete" Anchor="L,C" Size="60,45" Style="BoxButton">
+					<ShowOnMouseOver>
+						<AlphaAnim Anchor="C,C" Offset="0,0" Size="101,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+							<Grid Size="101,30" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+						</AlphaAnim>
+					</ShowOnMouseOver>
+					<Label Anchor="C,C" Offset="0.-1" Font="TwCenMT18" String="DELETE" ToolTip="Deletes this card. NOT NETWORK SAFE."/>
+				</Button>
 			</Stack>
       <Grid ID="Divider" Style="Grid9Bar" Padding="0,0" Anchor="L,B" Size="940,1" Offset="0,0"/>
 		</Box>

@@ -16,7 +16,6 @@ enum eCiv5GameCoreMPoolType
 };
 
 
-//! An enumeration for indexing units within a CvBattleDefinition
 enum TradingCardTypes
 {
 	CARD_INVALID = -1,

@@ -7584,7 +7584,7 @@ void CvPlayer::found(int iX, int iY)
 		return;
 	}
 
-	m_cards.push_back(CARD_FISH_GOLD);
+	CardsAdd(CARD_NAVAL_MOVES);
 
 	SetTurnsSinceSettledLastCity(0);
 
@@ -28044,11 +28044,51 @@ bool CvPlayer::HasBuildingClass(BuildingClassTypes iBuildingClassType)
 	return false;
 }
 */
+const InterfaceDirtyBits CardsDirtyBit = GreatWorksScreen_DIRTY_BIT;
+void TogglePolicy(CvPlayer& player, string policyName, bool newVal)
+{
+	if (policyName.size() > 0)
+	{
+		const CvPolicyXMLEntries* pAllPolicies = GC.GetGamePolicies();
+		const PolicyTypes ePolicy = pAllPolicies->Policy(policyName);
+		player.setHasPolicy(ePolicy, newVal);
+	}
+}
+void CvPlayer::CardsActivate(int cardIdx)
+{
+	if (cardIdx >= 0 && cardIdx < (int)m_cards.size())
+	{
+		const TradingCardTypes cardType = m_cards[cardIdx];
+		const bool didActivate = TradingCard::TryActivate(cardType, this);
+		if (didActivate)
+		{
+			CardsDestroy(cardIdx);
 
-
+			const string policyName = TradingCard::GetActivePolicy(cardType);
+			TogglePolicy(*this, policyName, true);
+		}
+	}
+}
 void CvPlayer::CardsAdd(TradingCardTypes cardType)
 {
 	m_cards.push_back(cardType);
+	const string policyName = TradingCard::GetPassivePolicy(cardType);
+	TogglePolicy(*this, policyName, true);
+	DLLUI->setDirty(CardsDirtyBit, true);
+}
+void CvPlayer::CardsDestroy(int cardIdx)
+{
+	if (cardIdx >= 0 && cardIdx < (int)m_cards.size())
+	{
+		const TradingCardTypes cardType = m_cards[cardIdx];
+		m_cards.erase(cardIdx);
+		if (!CardsHasAny(cardType)) // no more of this kind left!
+		{
+			const string policyName = TradingCard::GetPassivePolicy(cardType);
+			TogglePolicy(*this, policyName, false);
+		}
+	}
+	DLLUI->setDirty(CardsDirtyBit, true);
 }
 TradingCardTypes CvPlayer::CardsType(int cardIdx) const
 {
@@ -28062,11 +28102,20 @@ int CvPlayer::CardsCount() const
 {
 	return m_cards.size();
 }
-void CvPlayer::CardsDestroy(int cardIdx)
+int CvPlayer::CardsCount(TradingCardTypes cardType) const
 {
-	if (cardIdx >= 0 && cardIdx < (int)m_cards.size())
+	int count = 0;
+	for (int i = 0; i < (int)m_cards.size(); ++i)
 	{
-		m_cards.erase(cardIdx);
+		if (m_cards[i] == cardType)
+		{
+			count++;
+		}
 	}
+	return count;
+}
+bool CvPlayer::CardsHasAny(TradingCardTypes cardType) const
+{
+	return CardsCount(cardType) >= 1;
 }
 

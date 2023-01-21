@@ -398,7 +398,7 @@ void CvDllNetMessageHandler::SendActivateCard(const PlayerTypes ePlayer, const i
 }
 void ResponseActivateCard(const PlayerTypes ePlayer, int cardIdx)
 {
-
+	GET_PLAYER(ePlayer).CardsActivate(cardIdx);
 }
 //------------------------------------------------------------------------------
 void CvDllNetMessageHandler::ResponseFoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion, const char* szCustomName, BeliefTypes eBelief1, BeliefTypes eBelief2, BeliefTypes eBelief3, BeliefTypes eBelief4, int iCityX, int iCityY)

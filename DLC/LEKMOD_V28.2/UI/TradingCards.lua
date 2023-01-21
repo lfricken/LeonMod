@@ -128,31 +128,48 @@ function RefreshTab3()
 end
 g_Tabs[g_Tab3].RefreshContent = RefreshTab3;
 
+local function isempty(s)
+  return s == nil or s == ''
+end
+
 function DisplayData()
 	Controls.MainStack:DestroyAllChildren();
 	local iPlayerId = Game.GetActivePlayer();
     local pPlayer = Players[iPlayerId];
 
 	local count = pPlayer:CardCount();
+	local isDebugMode = true; -- allows card manipulation
 
 	for cardIdx = 0, count-1, 1 do
 		local inst = {};
-		ContextPtr:BuildInstanceForControl( "TradeCardInstance", inst, Controls.MainStack );
+		ContextPtr:BuildInstanceForControl("TradeCardInstance", inst, Controls.MainStack);
 
 		local cardName = pPlayer:CardName(cardIdx);
 		inst.Name:SetText(cardName);
-		inst.Name:SetToolTipString("nameee2");
+		inst.Name:SetToolTipString(cardName);
 
 		local cardDesc = pPlayer:CardDesc(cardIdx);
 		inst.Desc:SetText(cardDesc);
-		inst.Desc:SetToolTipString("desc222");
+		inst.Desc:SetToolTipString(cardDesc);
 
-		local isPassive = pPlayer:CardIsPassive(cardIdx);
-		inst.Passive:SetHide(not isPassive);
-		inst.Activate:SetHide(not isPassive);
-		inst.Activate:SetDisabled(not isPassive);
+		local passiveDesc = pPlayer:CardPassiveDesc(cardIdx);
+		local hasPassive = not isempty(passiveDesc);
+		inst.Passive:SetHide(not hasPassive);
+		inst.Passive:SetToolTipString(passiveDesc);
+
+		local activeDesc = pPlayer:CardActiveDesc(cardIdx);
+		local hasActive = not isempty(activeDesc);
+		inst.Activate:SetHide(not hasActive);
+		inst.Activate:SetToolTipString(activeDesc);
+
+		--inst.Activate:SetHide(not isPassive);
+		--inst.Activate:SetDisabled(not isPassive);
 
 		inst.Activate:RegisterCallback(Mouse.eLClick, function() OnClickedActivate(iPlayerId, cardIdx); end);
+
+		inst.Delete:SetHide(not isDebugMode);
+		inst.Delete:SetDisabled(not isDebugMode);
+		inst.Delete:RegisterCallback(Mouse.eLClick, function() OnClickedDelete(iPlayerId, cardIdx); end);
 	end
 	
 	Controls.MainStack:CalculateSize();
@@ -164,7 +181,12 @@ end
 function OnClickedActivate(iPlayerId, cardIdx)
     local pPlayer = Players[iPlayerId];
     pPlayer:CardActivate(cardIdx);
-	TabSelect(g_Tab3);
+end
+
+-- DEBUG ONLY, NOT NETWORK SAFE
+function OnClickedDelete(iPlayerId, cardIdx)
+    local pPlayer = Players[iPlayerId];
+    pPlayer:CardDelete(cardIdx);
 end
 
 -------------------------------------------------------------------------------
@@ -189,5 +211,14 @@ function ShowHideHandler( bIsHide, bInitState )
 	end
 end
 ContextPtr:SetShowHideHandler( ShowHideHandler );
+
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+-- Update on dirty bits
+function OnDirtyBit()
+	g_Tabs[g_CurrentTab].RefreshContent();
+end
+-- Register Events
+Events.SerialEventGreatWorksScreenDirty.Add(OnDirtyBit);
 
 TabSelect(g_Tab1);

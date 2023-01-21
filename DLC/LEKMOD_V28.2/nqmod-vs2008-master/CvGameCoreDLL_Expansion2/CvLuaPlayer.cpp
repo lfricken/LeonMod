@@ -829,8 +829,10 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(CardCount);
 	Method(CardName);
 	Method(CardDesc);
-	Method(CardIsPassive);
+	Method(CardPassiveDesc);
+	Method(CardActiveDesc);
 	Method(CardActivate);
+	Method(CardDelete);
 
 	//Method(IsWorkingAgainstPlayerAccepted);
 	Method(GetCoopWarAcceptedState);
@@ -8254,7 +8256,7 @@ int CvLuaPlayer::lCardDesc(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-int CvLuaPlayer::lCardIsPassive(lua_State* L)
+int CvLuaPlayer::lCardPassiveDesc(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const int cardIdx = (PlayerTypes)lua_tointeger(L, 2);
@@ -8266,8 +8268,26 @@ int CvLuaPlayer::lCardIsPassive(lua_State* L)
 	}
 	else
 	{
-		const bool isPassive = TradingCard::IsPassive(type);
-		lua_pushboolean(L, isPassive);
+		const string desc = TradingCard::GetPassivePolicyDesc(type);
+		lua_pushstring(L, desc.c_str());
+	}
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lCardActiveDesc(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int cardIdx = (PlayerTypes)lua_tointeger(L, 2);
+
+	const TradingCardTypes type = pkPlayer->CardsType(cardIdx);
+	if (type == CARD_INVALID)
+	{
+		lua_pushboolean(L, true);
+	}
+	else
+	{
+		const string desc = TradingCard::GetActivePolicyDesc(type);
+		lua_pushstring(L, desc.c_str());
 	}
 	return 1;
 }
@@ -8278,6 +8298,17 @@ int CvLuaPlayer::lCardActivate(lua_State* L)
 	const int cardIdx = (PlayerTypes)lua_tointeger(L, 2);
 
 	CvDllNetMessageHandler::SendActivateCard(pkPlayer->GetID(), cardIdx);
+
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lCardDelete(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int cardIdx = (PlayerTypes)lua_tointeger(L, 2);
+
+	// WARNING NOT NETWORK SAFE -- DEBUG ONLY
+	pkPlayer->CardsDestroy(cardIdx);
 
 	return 1;
 }

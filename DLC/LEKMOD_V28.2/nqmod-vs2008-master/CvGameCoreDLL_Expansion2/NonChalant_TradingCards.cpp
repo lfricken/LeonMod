@@ -24,34 +24,45 @@ FDataStream& operator >>(FDataStream& kStream, TradingCardTypes& data)
 	data = (TradingCardTypes)type;
 	return kStream;
 }
+const CvPolicyEntry* GetPolicyInfo(const string policyName)
+{
+	if (policyName.size() == 0)
+	{
+		return NULL;
+	}
+	const CvPolicyXMLEntries* pAllPolicies = GC.GetGamePolicies();
+	const PolicyTypes ePolicy = pAllPolicies->Policy(policyName);
+	const CvPolicyEntry* pInfo = GC.getPolicyInfo(ePolicy);
+	return pInfo;
+}
 string TradingCard::GetName(TradingCardTypes type, CvPlayer* pOwner)
 {
-	return "GetName";
+	const CvPolicyEntry* activeInfo = GetPolicyInfo(TradingCard::GetActivePolicy(type));
+	string active = activeInfo == NULL ? "" : activeInfo->GetDescription();
+	const CvPolicyEntry* passiveInfo = GetPolicyInfo(TradingCard::GetPassivePolicy(type));
+	string passive = passiveInfo == NULL ? "" : passiveInfo->GetDescription();
+	string joiner = "";
+	if (active.size() != 0 && active.size() != 0)
+	{
+		joiner = " ";
+	}
+	return passive + joiner + active;
 }
 string TradingCard::GetDesc(TradingCardTypes type, CvPlayer* pOwner)
 {
-	return "GetDesc";
-}
-bool TradingCard::IsPassive(TradingCardTypes type)
-{
-	switch(type)
+	const CvPolicyEntry* activeInfo = GetPolicyInfo(TradingCard::GetActivePolicy(type));
+	string active = activeInfo == NULL ? "" : activeInfo->GetHelp();
+	const CvPolicyEntry* passiveInfo = GetPolicyInfo(TradingCard::GetPassivePolicy(type));
+	string passive = passiveInfo == NULL ? "" : passiveInfo->GetHelp();
+	string joiner = "";
+	if (active.size() != 0 && active.size() != 0)
 	{
-	case CARD_NAVAL_MOVES: return true;
-	case CARD_FISH_GOLD: return true;
-	case CARD_RANDOM_SPY: return false;
-	default: return true;
-	};
-	return true;
+		joiner = " ";
+	}
+	return passive + joiner + active;
 }
 bool TradingCard::TryActivate(TradingCardTypes type, CvPlayer* pActivatingPlayer)
 {
-	if (IsPassive(type))
-	{
-		return false;
-	}
-
-	pActivatingPlayer->GetTreasury()->ChangeGold(100);
-
 	switch (type)
 	{
 	case CARD_RANDOM_SPY: PlaceRandomSpy(pActivatingPlayer); return true;
@@ -59,4 +70,24 @@ bool TradingCard::TryActivate(TradingCardTypes type, CvPlayer* pActivatingPlayer
 	};
 
 	return true;
+}
+string TradingCard::GetActivePolicyDesc(TradingCardTypes type)
+{
+	const CvPolicyEntry* pInfo = GetPolicyInfo(TradingCard::GetActivePolicy(type));
+	if (pInfo == NULL)
+	{
+		return "";
+	}
+	const string desc = GetLocalizedText(pInfo->GetHelp());
+	return desc;
+}
+string TradingCard::GetPassivePolicyDesc(TradingCardTypes type)
+{
+	const CvPolicyEntry* pInfo = GetPolicyInfo(TradingCard::GetPassivePolicy(type));
+	if (pInfo == NULL)
+	{
+		return "";
+	}
+	const string desc = GetLocalizedText(pInfo->GetHelp());
+	return desc;
 }

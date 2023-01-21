@@ -1,6 +1,7 @@
 
-
-toggle trade visibility
+add trading ability
+toggle trade visibility (defaults to invisible except for AI)
+probably can't allow policy stacking if there are true/false values
 
 lua
 	get count(local id)

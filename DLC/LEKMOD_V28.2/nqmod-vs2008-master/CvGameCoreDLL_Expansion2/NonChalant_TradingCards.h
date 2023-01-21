@@ -15,11 +15,15 @@ public:
 	static string GetName(TradingCardTypes type, CvPlayer* pOwner);
 	// what does this card do?
 	static string GetDesc(TradingCardTypes type, CvPlayer* pOwner);
-	// true if this applies a passive benefit
-	static bool IsPassive(TradingCardTypes type);
 	// Applies the active benefit of this card. returns true if this card did activate.
 	// you need to destroy this card now.
 	static bool TryActivate(TradingCardTypes type, CvPlayer* activatingPlayer);
+
+
+	static string GetActivePolicy(TradingCardTypes type);
+	static string GetPassivePolicy(TradingCardTypes type);
+	static string GetActivePolicyDesc(TradingCardTypes type);
+	static string GetPassivePolicyDesc(TradingCardTypes type);
 private:
 };
 FDataStream& operator <<(FDataStream& kStream, const TradingCardTypes& data);

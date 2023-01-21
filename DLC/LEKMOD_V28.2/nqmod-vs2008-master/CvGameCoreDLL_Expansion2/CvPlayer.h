@@ -1833,10 +1833,13 @@ public:
 
 	bool hasTurnTimerExpired();
 
+	void CardsActivate(int cardIdx);
 	void CardsAdd(TradingCardTypes cardType);
+	void CardsDestroy(int cardIdx);
 	TradingCardTypes CardsType(int cardIdx) const;
 	int CardsCount() const;
-	void CardsDestroy(int cardIdx);
+	int CardsCount(TradingCardTypes cardType) const;
+	bool CardsHasAny(TradingCardTypes cardType) const;
 
 protected:
 	class ConqueredByBoolField

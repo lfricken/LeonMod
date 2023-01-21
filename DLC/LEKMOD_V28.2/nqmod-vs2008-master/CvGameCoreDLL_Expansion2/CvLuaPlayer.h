@@ -815,8 +815,10 @@ protected:
 	static int lCardCount(lua_State* L);
 	static int lCardName(lua_State* L);
 	static int lCardDesc(lua_State* L);
-	static int lCardIsPassive(lua_State* L);
+	static int lCardPassiveDesc(lua_State* L);
+	static int lCardActiveDesc(lua_State* L);
 	static int lCardActivate(lua_State* L);
+	static int lCardDelete(lua_State* L);
 
 	static int lGetNumRequestsRefused(lua_State* L);
 	//static int lIsWorkingAgainstPlayerAccepted(lua_State* L);
