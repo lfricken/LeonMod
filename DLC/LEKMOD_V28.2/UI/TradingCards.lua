@@ -13,248 +13,25 @@ local g_PopupInfo = nil;
 g_CurrentTab = nil;		-- The currently selected Tab.
 g_iSelectedPlayerID = Game.GetActivePlayer();
 
+g_Tab1 = "YourTR";
+g_Tab2 = "AvailableTR";
+g_Tab3 = "TRWithYou";
 -------------------------------------------------
 -- Global Constants
 -------------------------------------------------
 g_Tabs = {
-	["YourTR"] = {
+	[g_Tab1] = {
 		SelectHighlight = Controls.YourTRSelectHighlight,
 	},
 	
-	["AvailableTR"] = {
+	[g_Tab2] = {
 		SelectHighlight = Controls.AvailableTRSelectHighlight,
 	},
 	
-	["TRWithYou"] = {
+	[g_Tab3] = {
 		SelectHighlight = Controls.TRWithYouSelectHighlight,
 	},
 }
-
-g_SortOptions = {
-	{
-		Button = Controls.Domain,
-		Column = "Domain",
-		DefaultDirection = "asc",
-		CurrentDirection = nil,
-	},
-	{
-		Button = Controls.FromOwnerHeader,
-		Column = "FromCiv",
-		SecondaryColumn = "FromCityName",
-		SecondaryDirection = "asc",
-		DefaultDirection = "asc",
-		CurrentDirection = nil,
-	},
-	{
-		Button = Controls.FromCityHeader,
-		Column = "FromCityName",
-		DefaultDirection = "asc",
-		CurrentDirection = "asc",
-	},
-	{
-		Button = Controls.ToOwnerHeader,
-		Column = "ToCiv",
-		SecondaryColumn = "ToCityName",
-		SecondaryDirection = "asc",
-		DefaultDirection = "asc",
-		CurrentDirection = nil,
-	},
-	{
-		Button = Controls.ToCityHeader,
-		Column = "ToCityName",
-		DefaultDirection = "asc",
-		CurrentDirection = nil,
-	},
-	{
-		Button = Controls.FromGPT,
-		Column = "FromGPT",
-		DefaultDirection = "desc",
-		CurrentDirection = nil,
-		SortType = "numeric",
-	},
-	{
-		Button = Controls.ToGPT,
-		Column = "ToGPT",
-		DefaultDirection = "desc",
-		CurrentDirection = nil,
-		SortType = "numeric",
-	},
-	{
-		Button = Controls.ToFood,
-		Column = "ToFood",
-		DefaultDirection = "desc",
-		CurrentDirection = nil,
-		SortType = "numeric",
-	},
-	{
-		Button = Controls.ToProduction,
-		Column = "ToProduction",
-		DefaultDirection = "desc",
-		CurrentDirection = nil,
-		SortType = "numeric",
-	},
-	{
-		Button = Controls.FromReligion,
-		Column = "FromReligion",
-		DefaultDirection = "desc",
-		CurrentDirection = nil,
-		SortType = "numeric",
-	},
-	{
-		Button = Controls.ToReligion,
-		Column = "ToReligion",
-		DefaultDirection = "desc",
-		CurrentDirection = nil,
-		SortType = "numeric",
-	},
-	{
-		Button = Controls.FromScience,
-		Column = "FromScience",
-		DefaultDirection = "desc",
-		CurrentDirection = nil,
-		SortType = "numeric",
-	},
-	{
-		Button = Controls.ToScience,
-		Column = "ToScience",
-		DefaultDirection = "desc",
-		CurrentDirection = nil,
-		SortType = "numeric",
-	},
-	{
-		Button = Controls.TurnsLeft,
-		Column = "TurnsLeft",
-		DefaultDirection = "asc",
-		CurrentDirection = nil,
-		SortType = "numeric",
-	},
-};
-
-g_SortFunction = nil;
-
--------------------------------------------------------------------------------
--- Sorting Support
--------------------------------------------------------------------------------
-function AlphabeticalSortFunction(field, direction, secondarySort)
-	if(direction == "asc") then
-		return function(a,b)
-			local va = (a ~= nil and a[field] ~= nil) and a[field] or "";
-			local vb = (b ~= nil and b[field] ~= nil) and b[field] or "";
-			
-			if(secondarySort ~= nil and va == vb) then
-				return secondarySort(a,b);
-			else
-				return Locale.Compare(va, vb) == -1;
-			end
-		end
-	elseif(direction == "desc") then
-		return function(a,b)
-			local va = (a ~= nil and a[field] ~= nil) and a[field] or "";
-			local vb = (b ~= nil and b[field] ~= nil) and b[field] or "";
-			
-			if(secondarySort ~= nil and va == vb) then
-				return secondarySort(a,b);
-			else
-				return Locale.Compare(va, vb) == 1;
-			end
-		end
-	end
-end
-
-function NumericSortFunction(field, direction, secondarySort)
-	if(direction == "asc") then
-		return function(a,b)
-			local va = (a ~= nil and a[field] ~= nil) and a[field] or -1;
-			local vb = (b ~= nil and b[field] ~= nil) and b[field] or -1;
-			
-			if(secondarySort ~= nil and tonumber(va) == tonumber(vb)) then
-				return secondarySort(a,b);
-			else
-				return tonumber(va) < tonumber(vb);
-			end
-		end
-	elseif(direction == "desc") then
-		return function(a,b)
-			local va = (a ~= nil and a[field] ~= nil) and a[field] or -1;
-			local vb = (b ~= nil and b[field] ~= nil) and b[field] or -1;
-
-			if(secondarySort ~= nil and tonumber(va) == tonumber(vb)) then
-				return secondarySort(a,b);
-			else
-				return tonumber(vb) < tonumber(va);
-			end
-		end
-	end
-end
-
--- Registers the sort option controls click events
-function RegisterSortOptions()
-	
-	for i,v in ipairs(g_SortOptions) do
-		if(v.Button ~= nil) then
-			v.Button:RegisterCallback(Mouse.eLClick, function() SortOptionSelected(v); end);
-		end
-	end
-	
-	g_SortFunction = GetSortFunction(g_SortOptions);
-end
-
-function GetSortFunction(sortOptions)
-	local orderBy = nil;
-	for i,v in ipairs(sortOptions) do
-		if(v.CurrentDirection ~= nil) then
-			local secondarySort = nil;
-			if(v.SecondaryColumn ~= nil) then
-				if(v.SecondarySortType == "numeric") then
-					secondarySort = NumericSortFunction(v.SecondaryColumn, v.SecondaryDirection)
-				else
-					secondarySort = AlphabeticalSortFunction(v.SecondaryColumn, v.SecondaryDirection);
-				end
-			end
-		
-			if(v.SortType == "numeric") then
-				return NumericSortFunction(v.Column, v.CurrentDirection, secondarySort);
-			else
-				return AlphabeticalSortFunction(v.Column, v.CurrentDirection, secondarySort);
-			end
-		end
-	end
-	
-	return nil;
-end
-
--- Updates the sort option structure
-function UpdateSortOptionState(sortOptions, selectedOption)
-	-- Current behavior is to only have 1 sort option enabled at a time 
-	-- though the rest of the structure is built to support multiple in the future.
-	-- If a sort option was selected that wasn't already selected, use the default 
-	-- direction.  Otherwise, toggle to the other direction.
-	for i,v in ipairs(sortOptions) do
-		if(v == selectedOption) then
-			if(v.CurrentDirection == nil) then			
-				v.CurrentDirection = v.DefaultDirection;
-			else
-				if(v.CurrentDirection == "asc") then
-					v.CurrentDirection = "desc";
-				else
-					v.CurrentDirection = "asc";
-				end
-			end
-		else
-			v.CurrentDirection = nil;
-		end
-	end
-end
-
--- Callback for when sort options are selected.
-function SortOptionSelected(option)
-	local sortOptions = g_SortOptions;
-	UpdateSortOptionState(sortOptions, option);
-	g_SortFunction = GetSortFunction(sortOptions);
-	
-	SortData();
-	DisplayData();
-end
 
 -------------------------------------------------
 -------------------------------------------------
@@ -269,11 +46,11 @@ function OnPopupMessage(popupInfo)
 	
 	-- Data 2 parameter holds desired tab to open on
 	if (g_PopupInfo.Data2 == 1) then
-		g_CurrentTab = "YourTR";
+		g_CurrentTab = g_Tab1;
 	elseif (g_PopupInfo.Data2 == 2) then
-		g_CurrentTab = "AvailableTR";
+		g_CurrentTab = g_Tab2;
 	elseif (g_PopupInfo.Data2 == 3) then
-		g_CurrentTab = "TRWithYou";
+		g_CurrentTab = g_Tab3;
 	end
 	
 	if( g_PopupInfo.Data1 == 1 ) then
@@ -332,102 +109,55 @@ function TabSelect(tab)
 	g_CurrentTab = tab;
 	g_Tabs[tab].RefreshContent();	
 end
-Controls.TabButtonYourTR:RegisterCallback( Mouse.eLClick, function() TabSelect("YourTR"); end);
-Controls.TabButtonAvailableTR:RegisterCallback( Mouse.eLClick, function() TabSelect("AvailableTR"); end );
-Controls.TabButtonTRWithYou:RegisterCallback( Mouse.eLClick, function() TabSelect("TRWithYou"); end );
+Controls.TabButtonYourTR:RegisterCallback( Mouse.eLClick, function() TabSelect(g_Tab1); end);
+Controls.TabButtonAvailableTR:RegisterCallback( Mouse.eLClick, function() TabSelect(g_Tab2); end );
+Controls.TabButtonTRWithYou:RegisterCallback( Mouse.eLClick, function() TabSelect(g_Tab3); end );
 
-function RefreshYourTR()
-	local pPlayer = Players[ Game.GetActivePlayer() ];
-	
-	--print("RefreshYourTR");
-	SetData(pPlayer:GetTradeRoutes());
-	SortData();
-	DisplayData();
-	
-end
-g_Tabs["YourTR"].RefreshContent = RefreshYourTR;
-
-function RefreshAvailableTR()
-	local pPlayer = Players[ Game.GetActivePlayer() ];
-
-	SetData(pPlayer:GetTradeRoutesAvailable());
-	SortData();
+function RefreshTab1()
 	DisplayData();
 end
-g_Tabs["AvailableTR"].RefreshContent = RefreshAvailableTR;
+g_Tabs[g_Tab1].RefreshContent = RefreshTab1;
 
-function RefreshTRWithYou()
-	local pPlayer = Players[ Game.GetActivePlayer() ];
-	
-	SetData(pPlayer:GetTradeRoutesToYou());
-	SortData();
+function RefreshTab2()
 	DisplayData();
-	
 end
-g_Tabs["TRWithYou"].RefreshContent = RefreshTRWithYou;
+g_Tabs[g_Tab2].RefreshContent = RefreshTab2;
 
-
-function SetData(data)
-	local cityStateCiv = GameInfo.Civilizations["CIVILIZATION_MINOR"];
-	local cityStateCivID = cityStateCiv and cityStateCiv.ID or -1;
-
-	function GetCivName(playerID)
-		local civType = PreGame.GetCivilization(playerID);
-		local civ = GameInfo.Civilizations[civType];
-		if(civ.ID == cityStateCivID) then
-			local minorCivPlayer = Players[playerID];
-			local minorCivType = minorCivPlayer:GetMinorCivType();
-			local minorCiv = GameInfo.MinorCivilizations[minorCivType];
-		
-			return Locale.Lookup(minorCiv.ShortDescription);
-		else
-			return Locale.Lookup(civ.Description);
-		end
-	end
-	
-	for i,v in ipairs(data) do
-		v.FromCiv = GetCivName(v.FromID);
-		v.ToCiv = GetCivName(v.ToID);
-	end
-	g_Data = data;
+function RefreshTab3()
+	DisplayData();
 end
-
-function SortData()
-	table.sort(g_Data, g_SortFunction);
-end
-
-function round(num, idp)
-  return tonumber(string.format("%." .. (idp or 0) .. "f", num))
-end
+g_Tabs[g_Tab3].RefreshContent = RefreshTab3;
 
 function DisplayData()
 	Controls.MainStack:DestroyAllChildren(); 
 
+	local count = 3;
 
-
-
-
-	for i = 1, 10, 1 do
+	for idx = 0, count-1, 1 do
 		local inst = {};
 		ContextPtr:BuildInstanceForControl( "TradeCardInstance", inst, Controls.MainStack );
 
 		inst.Name:SetText("nameee");
 		inst.Name:SetToolTipString("nameee2");
 
-		inst.Desc:SetText("descdescdescdescdescdescdescdescdescdescdescdescdescd\nescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdesc");
+		inst.Desc:SetText("avaaescdescdescdescdescdescdescdescdescdescdescdescd\nescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdesc");
 		inst.Desc:SetToolTipString("desc222");
 
 		local isPassive = false;
 		inst.Passive:SetHide(not isPassive);
 		inst.Activate:SetHide(isPassive);
 
-		inst.Activate:RegisterCallback(Mouse.eLClick, function() TabSelect("TRWithYou"); end);
+		inst.Activate:RegisterCallback(Mouse.eLClick, function() OnClickedActivate(idx); end);
 	end
 	
 	Controls.MainStack:CalculateSize();
 	Controls.MainStack:ReprocessAnchoring();
 	Controls.MainScroll:CalculateInternalSize();
 
+end
+
+function OnClickedActivate(idx)
+	TabSelect(g_Tab3);
 end
 
 -------------------------------------------------------------------------------
@@ -453,5 +183,4 @@ function ShowHideHandler( bIsHide, bInitState )
 end
 ContextPtr:SetShowHideHandler( ShowHideHandler );
 
-RegisterSortOptions();
-TabSelect("YourTR");
+TabSelect(g_Tab1);
