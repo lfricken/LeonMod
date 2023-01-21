@@ -185,6 +185,7 @@
     <ClCompile Include="NonChalant_Misc.cpp" />
     <ClCompile Include="NonChalant_Player.cpp" />
     <ClCompile Include="NonChalant_Plot.cpp" />
+    <ClCompile Include="NonChalant_TradingCards.cpp" />
     <ClCompile Include="_precompile.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Mod|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -454,6 +455,7 @@
     <ClInclude Include="CvVotingClasses.h" />
     <ClInclude Include="CvWonderProductionAI.h" />
     <ClInclude Include="CvWorldBuilderMapLoader.h" />
+    <ClInclude Include="NonChalant_TradingCards.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="CvDllBuildInfo.h" />
     <ClInclude Include="CvDllBuildingInfo.h" />

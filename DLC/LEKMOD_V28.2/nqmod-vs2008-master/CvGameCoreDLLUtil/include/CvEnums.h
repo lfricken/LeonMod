@@ -15,6 +15,15 @@ enum eCiv5GameCoreMPoolType
 	c_eCiv5GameplayDLL = c_eMPoolTypeUserStart + 0x100,		// Adding 0x100 because we don't want to collide with the app's IDs
 };
 
+
+//! An enumeration for indexing units within a CvBattleDefinition
+enum TradingCardTypes
+{
+	CARD_NAVAL_MOVES,
+	CARD_FISH_GOLD,
+	CARD_RANDOM_SPY,
+};
+
 enum MiniCompetitionTypes
 {
 	COMPETITION_CULTURE_START = 0,

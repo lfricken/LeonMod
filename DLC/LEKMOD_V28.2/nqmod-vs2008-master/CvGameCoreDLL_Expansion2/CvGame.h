@@ -20,6 +20,7 @@
 
 #include "CvDealClasses.h"
 #include "CvCompetition.h"
+#include "NonChalant_TradingCards.h"
 
 class CvPlot;
 class CvCity;
