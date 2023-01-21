@@ -1,7 +1,6 @@
 
 
-
-
+toggle trade visibility
 
 lua
 	get count(local id)

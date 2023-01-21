@@ -1835,7 +1835,7 @@ public:
 
 	void CardsAdd(TradingCardTypes cardType);
 	TradingCardTypes CardsType(int cardIdx) const;
-	int CardsGetNum(int cardIdx) const;
+	int CardsCount() const;
 	void CardsDestroy(int cardIdx);
 
 protected:

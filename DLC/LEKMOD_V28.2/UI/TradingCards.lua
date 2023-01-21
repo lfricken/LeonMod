@@ -129,25 +129,30 @@ end
 g_Tabs[g_Tab3].RefreshContent = RefreshTab3;
 
 function DisplayData()
-	Controls.MainStack:DestroyAllChildren(); 
+	Controls.MainStack:DestroyAllChildren();
+	local iPlayerId = Game.GetActivePlayer();
+    local pPlayer = Players[iPlayerId];
 
-	local count = 3;
+	local count = pPlayer:CardCount();
 
-	for idx = 0, count-1, 1 do
+	for cardIdx = 0, count-1, 1 do
 		local inst = {};
 		ContextPtr:BuildInstanceForControl( "TradeCardInstance", inst, Controls.MainStack );
 
-		inst.Name:SetText("nameee");
+		local cardName = pPlayer:CardName(cardIdx);
+		inst.Name:SetText(cardName);
 		inst.Name:SetToolTipString("nameee2");
 
-		inst.Desc:SetText("avaaescdescdescdescdescdescdescdescdescdescdescdescd\nescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdesc");
+		local cardDesc = pPlayer:CardDesc(cardIdx);
+		inst.Desc:SetText(cardDesc);
 		inst.Desc:SetToolTipString("desc222");
 
-		local isPassive = false;
+		local isPassive = pPlayer:CardIsPassive(cardIdx);
 		inst.Passive:SetHide(not isPassive);
-		inst.Activate:SetHide(isPassive);
+		inst.Activate:SetHide(not isPassive);
+		inst.Activate:SetDisabled(not isPassive);
 
-		inst.Activate:RegisterCallback(Mouse.eLClick, function() OnClickedActivate(idx); end);
+		inst.Activate:RegisterCallback(Mouse.eLClick, function() OnClickedActivate(iPlayerId, cardIdx); end);
 	end
 	
 	Controls.MainStack:CalculateSize();
@@ -156,7 +161,9 @@ function DisplayData()
 
 end
 
-function OnClickedActivate(idx)
+function OnClickedActivate(iPlayerId, cardIdx)
+    local pPlayer = Players[iPlayerId];
+    pPlayer:CardActivate(cardIdx);
 	TabSelect(g_Tab3);
 end
 

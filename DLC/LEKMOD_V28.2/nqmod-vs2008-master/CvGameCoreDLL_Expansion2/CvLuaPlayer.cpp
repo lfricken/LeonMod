@@ -27,6 +27,7 @@
 #include "CvInternalGameCoreUtils.h"
 #include "ICvDLLUserInterface.h"
 #include "CvDllInterfaces.h"
+#include "CvDllNetMessageHandler.h"
 
 // include this last to turn warnings into errors for code analysis
 #include "LintFree.h"
@@ -824,6 +825,13 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetWeDenouncedFriendCount);
 	Method(IsFriendDeclaredWarOnUs);
 	Method(GetWeDeclaredWarOnFriendCount);
+
+	Method(CardCount);
+	Method(CardName);
+	Method(CardDesc);
+	Method(CardIsPassive);
+	Method(CardActivate);
+
 	//Method(IsWorkingAgainstPlayerAccepted);
 	Method(GetCoopWarAcceptedState);
 	Method(GetNumWarsFought);
@@ -8198,6 +8206,79 @@ int CvLuaPlayer::lGetWeDeclaredWarOnFriendCount(lua_State* L)
 	const int iValue = pkPlayer->GetDiplomacyAI()->GetWeDeclaredWarOnFriendCount();
 
 	lua_pushinteger(L, iValue);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lCardCount(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int count = pkPlayer->CardsCount();
+	lua_pushinteger(L, count);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lCardName(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int cardIdx = (PlayerTypes)lua_tointeger(L, 2);
+
+	const TradingCardTypes type = pkPlayer->CardsType(cardIdx);
+
+	if (type == CARD_INVALID)
+	{
+		lua_pushstring(L, "ERROR549812");
+	}
+	else
+	{
+		const string desc = TradingCard::GetName(type, pkPlayer);
+		lua_pushstring(L, desc.c_str());
+	}
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lCardDesc(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int cardIdx = (PlayerTypes)lua_tointeger(L, 2);
+
+	const TradingCardTypes type = pkPlayer->CardsType(cardIdx);
+	if (type == CARD_INVALID)
+	{
+		lua_pushstring(L, "ERROR59111");
+	}
+	else
+	{
+		const string desc = TradingCard::GetDesc(type, pkPlayer);
+		lua_pushstring(L, desc.c_str());
+	}
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lCardIsPassive(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int cardIdx = (PlayerTypes)lua_tointeger(L, 2);
+
+	const TradingCardTypes type = pkPlayer->CardsType(cardIdx);
+	if (type == CARD_INVALID)
+	{
+		lua_pushboolean(L, true);
+	}
+	else
+	{
+		const bool isPassive = TradingCard::IsPassive(type);
+		lua_pushboolean(L, isPassive);
+	}
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lCardActivate(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int cardIdx = (PlayerTypes)lua_tointeger(L, 2);
+
+	CvDllNetMessageHandler::SendActivateCard(pkPlayer->GetID(), cardIdx);
+
 	return 1;
 }
 ////------------------------------------------------------------------------------

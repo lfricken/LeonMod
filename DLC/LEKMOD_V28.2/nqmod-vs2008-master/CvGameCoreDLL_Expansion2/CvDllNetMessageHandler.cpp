@@ -382,9 +382,37 @@ void CvDllNetMessageHandler::ResponseFoundPantheon(PlayerTypes ePlayer, BeliefTy
 		throw new exception("ResponseFoundPantheon was null.");
 	}
 }
+const int SpecialIdx = 0;
+const int SubTypeIdx = 1;
+const char SpecialMessageId = 5;
+
+// this message is to activate a card
+const char ActivateCardId = 1;
+void CvDllNetMessageHandler::SendActivateCard(const PlayerTypes ePlayer, const int cardIdx)
+{
+	std::string messageIdentifier = "00"; // need at least 2 chars
+	messageIdentifier[SpecialIdx] = SpecialMessageId;
+	messageIdentifier[SubTypeIdx] = ActivateCardId;
+	gDLL->SendFoundReligion(ePlayer, (ReligionTypes)cardIdx, messageIdentifier.c_str(), 
+		(BeliefTypes)0, (BeliefTypes)0, (BeliefTypes)0, (BeliefTypes)0, 0, 0);
+}
+void ResponseActivateCard(const PlayerTypes ePlayer, int cardIdx)
+{
+
+}
 //------------------------------------------------------------------------------
 void CvDllNetMessageHandler::ResponseFoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion, const char* szCustomName, BeliefTypes eBelief1, BeliefTypes eBelief2, BeliefTypes eBelief3, BeliefTypes eBelief4, int iCityX, int iCityY)
 {
+	// actually a different type of message
+	if (szCustomName[SpecialIdx] == SpecialMessageId)
+	{
+		if (szCustomName[SubTypeIdx] == ActivateCardId)
+		{
+			ResponseActivateCard(ePlayer, eReligion);
+		}
+		return;
+	}
+
 	CvGame& kGame(GC.getGame());
 	CvGameReligions* pkGameReligions(kGame.GetGameReligions());
 

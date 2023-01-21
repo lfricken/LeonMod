@@ -39,6 +39,8 @@ public:
 	void DLLCALL ResponseDoCommand(PlayerTypes ePlayer, int iUnitID, CommandTypes eCommand, int iData1, int iData2, bool bAlt);
 	void DLLCALL ResponseExtendedGame(PlayerTypes ePlayer);
 	void DLLCALL ResponseFoundPantheon(PlayerTypes ePlayer, BeliefTypes eBelief);
+
+	static void SendActivateCard(const PlayerTypes ePlayer, const int cardIdx);
 	void DLLCALL ResponseFoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion, const char* szCustomName, BeliefTypes eBelief1, BeliefTypes eBelief2, BeliefTypes eBelief3, BeliefTypes eBelief4, int iCityX, int iCityY);
 	void DLLCALL ResponseEnhanceReligion(PlayerTypes ePlayer, ReligionTypes eReligion, const char* szCustomName, BeliefTypes eBelief1, BeliefTypes eBelief2, int iCityX, int iCityY);
 	void DLLCALL ResponseMoveSpy(PlayerTypes ePlayer, int iSpyIndex, int iTargetPlayer, int iTargetCity, bool bAsDiplomat);

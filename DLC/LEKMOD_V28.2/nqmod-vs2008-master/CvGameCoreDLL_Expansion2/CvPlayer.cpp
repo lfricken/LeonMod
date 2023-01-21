@@ -7584,6 +7584,8 @@ void CvPlayer::found(int iX, int iY)
 		return;
 	}
 
+	m_cards.push_back(CARD_FISH_GOLD);
+
 	SetTurnsSinceSettledLastCity(0);
 
 	CvCity* pCity = initCity(iX, iY);
@@ -28050,19 +28052,19 @@ void CvPlayer::CardsAdd(TradingCardTypes cardType)
 }
 TradingCardTypes CvPlayer::CardsType(int cardIdx) const
 {
-	if (cardIdx >= 0 && cardIdx < m_cards.size())
+	if (cardIdx >= 0 && cardIdx < (int)m_cards.size())
 	{
 		return m_cards[cardIdx];
 	}
 	return CARD_INVALID;
 }
-int CvPlayer::CardsGetNum(int cardIdx) const
+int CvPlayer::CardsCount() const
 {
 	return m_cards.size();
 }
 void CvPlayer::CardsDestroy(int cardIdx)
 {
-	if (cardIdx >= 0 && cardIdx < m_cards.size())
+	if (cardIdx >= 0 && cardIdx < (int)m_cards.size())
 	{
 		m_cards.erase(cardIdx);
 	}
