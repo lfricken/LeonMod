@@ -451,6 +451,7 @@ CvPlayer::CvPlayer() :
 	, m_paiHurryModifier("CvPlayer::m_paiHurryModifier", m_syncArchive)
 	, m_pabLoyalMember("CvPlayer::m_pabLoyalMember", m_syncArchive)
 	, m_pabGetsScienceFromPlayer("CvPlayer::m_pabGetsScienceFromPlayer", m_syncArchive)
+	, m_cards("CvPlayer::m_cards", m_syncArchive)
 	, m_ppaaiSpecialistExtraYield("CvPlayer::m_ppaaiSpecialistExtraYield", m_syncArchive)
 	, m_ppaaiImprovementYieldChange("CvPlayer::m_ppaaiImprovementYieldChange", m_syncArchive)
 	, m_ppaaiBuildingClassYieldMod("CvPlayer::m_ppaaiBuildingClassYieldMod", m_syncArchive)
@@ -774,6 +775,7 @@ void CvPlayer::uninit()
 
 	m_pabLoyalMember.clear();
 	m_pabGetsScienceFromPlayer.clear();
+	m_cards.clear();
 
 	m_pPlayerPolicies->Uninit();
 	m_pEconomicAI->Uninit();
@@ -1311,6 +1313,7 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 		m_pabGetsScienceFromPlayer.clear();
 		m_pabGetsScienceFromPlayer.resize(MAX_CIV_PLAYERS, false);
+		m_cards.clear();
 
 		m_pEconomicAI->Init(GC.GetGameEconomicAIStrategies(), this);
 		m_pMilitaryAI->Init(GC.GetGameMilitaryAIStrategies(), this, GetDiplomacyAI());
@@ -25220,6 +25223,7 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_pabLoyalMember;
 
 	kStream >> m_pabGetsScienceFromPlayer;
+	kStream >> m_cards;
 
 	m_pPlayerPolicies->Read(kStream);
 	m_pEconomicAI->Read(kStream);
@@ -25731,6 +25735,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_pabLoyalMember;
 
 	kStream << m_pabGetsScienceFromPlayer;
+	kStream << m_cards;
 
 	m_pPlayerPolicies->Write(kStream);
 	m_pEconomicAI->Write(kStream);
@@ -28037,3 +28042,29 @@ bool CvPlayer::HasBuildingClass(BuildingClassTypes iBuildingClassType)
 	return false;
 }
 */
+
+
+void CvPlayer::CardsAdd(TradingCardTypes cardType)
+{
+	m_cards.push_back(cardType);
+}
+TradingCardTypes CvPlayer::CardsType(int cardIdx) const
+{
+	if (cardIdx >= 0 && cardIdx < m_cards.size())
+	{
+		return m_cards[cardIdx];
+	}
+	return CARD_INVALID;
+}
+int CvPlayer::CardsGetNum(int cardIdx) const
+{
+	return m_cards.size();
+}
+void CvPlayer::CardsDestroy(int cardIdx)
+{
+	if (cardIdx >= 0 && cardIdx < m_cards.size())
+	{
+		m_cards.erase(cardIdx);
+	}
+}
+

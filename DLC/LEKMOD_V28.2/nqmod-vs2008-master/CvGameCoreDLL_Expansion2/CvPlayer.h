@@ -1833,6 +1833,11 @@ public:
 
 	bool hasTurnTimerExpired();
 
+	void CardsAdd(TradingCardTypes cardType);
+	TradingCardTypes CardsType(int cardIdx) const;
+	int CardsGetNum(int cardIdx) const;
+	void CardsDestroy(int cardIdx);
+
 protected:
 	class ConqueredByBoolField
 	{
@@ -2259,6 +2264,8 @@ protected:
 	FAutoVariable<std::vector<bool>, CvPlayer> m_pabLoyalMember;
 
 	FAutoVariable<std::vector<bool>, CvPlayer> m_pabGetsScienceFromPlayer;
+	// which cards this player owns (they can own multiple of one type)
+	FAutoVariable<std::vector<TradingCardTypes>, CvPlayer> m_cards;
 
 	FAutoVariable< std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > >, CvPlayer> m_ppaaiSpecialistExtraYield;
 	FAutoVariable< std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > >, CvPlayer> m_ppaaiImprovementYieldChange;

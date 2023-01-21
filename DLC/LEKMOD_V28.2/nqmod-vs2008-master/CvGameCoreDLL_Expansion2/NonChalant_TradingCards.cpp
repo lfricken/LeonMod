@@ -12,29 +12,29 @@ void PlaceRandomSpy(CvPlayer* pPlayer)
 }
 
 
-FDataStream& operator <<(FDataStream& kStream, const TradingCard& data)
+FDataStream& operator <<(FDataStream& kStream, const TradingCardTypes& data)
 {
-	kStream << (int)data.GetType();
+	kStream << (int)data;
 	return kStream;
 }
-FDataStream& operator >>(FDataStream& kStream, TradingCard& data)
+FDataStream& operator >>(FDataStream& kStream, TradingCardTypes& data)
 {
 	int type;
 	kStream >> type;
-	data = TradingCard((TradingCardTypes)type);
+	data = (TradingCardTypes)type;
 	return kStream;
 }
-TradingCard::TradingCard(const TradingCardTypes type)
+string TradingCard::GetName(TradingCardTypes type, CvPlayer* pOwner)
 {
-	m_type = type;
+	return "GetName";
 }
-TradingCardTypes TradingCard::GetType() const
+string TradingCard::GetDesc(TradingCardTypes type, CvPlayer* pOwner)
 {
-	return m_type;
+	return "GetDesc";
 }
-bool TradingCard::IsPassive() const
+bool TradingCard::IsPassive(TradingCardTypes type)
 {
-	switch(m_type)
+	switch(type)
 	{
 	case CARD_NAVAL_MOVES: return true;
 	case CARD_FISH_GOLD: return true;
@@ -43,16 +43,16 @@ bool TradingCard::IsPassive() const
 	};
 	return true;
 }
-bool TradingCard::TryActivate(CvPlayer* pActivatingPlayer) const
+bool TradingCard::TryActivate(TradingCardTypes type, CvPlayer* pActivatingPlayer)
 {
-	if (IsPassive())
+	if (IsPassive(type))
 	{
 		return false;
 	}
 
 	pActivatingPlayer->GetTreasury()->ChangeGold(100);
 
-	switch (m_type)
+	switch (type)
 	{
 	case CARD_RANDOM_SPY: PlaceRandomSpy(pActivatingPlayer); return true;
 	default: return true;
