@@ -414,11 +414,14 @@ function DisplayData()
 		inst.Name:SetText("nameee");
 		inst.Name:SetToolTipString("nameee2");
 
-		inst.Desc:SetText("desc");
+		inst.Desc:SetText("descdescdescdescdescdescdescdescdescdescdescdescdescd\nescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdescdesc");
 		inst.Desc:SetToolTipString("desc222");
 
-		inst.Activate:SetText("act");
-		inst.Activate:SetToolTipString("act222");
+		local isPassive = false;
+		inst.Passive:SetHide(not isPassive);
+		inst.Activate:SetHide(isPassive);
+
+		inst.Activate:RegisterCallback(Mouse.eLClick, function() TabSelect("TRWithYou"); end);
 	end
 	
 	Controls.MainStack:CalculateSize();
