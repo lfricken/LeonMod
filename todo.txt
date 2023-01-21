@@ -1,4 +1,77 @@
 
+
+
+
+
+lua
+	get count(local id)
+	get name(local id)
+	get description(local id)
+	get active type(local id)
+	try activate (id, activateType)
+
+
+
+extract stuff to txt file
+
+
+get trade working
+
+
+
+
+use strategics for something (used to build wonders?)
+accumulate strategics
+trade strategics in lump sum
+
+
+"cards"
+unlock wonder construction
+
+
+trade great works?
+
+
+
+
+
+
+void AddCityTrade(PlayerTypes eFrom, int iCityID);
+
+CvLuaDeal::lGetNextItem
+
+TradeLogic.lua
+
+
+for pCity in g_pThem:Cities() do
+    if( g_Deal:IsPossibleToTradeItem( g_iThem, g_iUs, TradeableItems.TRADE_ITEM_CITIES, pCity:GetX(), pCity:GetY() ) ) then
+        bFound = true;
+        break;
+    end
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 try packet dropper
 try network latency
 UDP 1200 (used for friends service)

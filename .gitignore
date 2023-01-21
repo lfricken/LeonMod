@@ -4,6 +4,7 @@
 # not sure why this is needed for next part, but it is
 
 # allow these exact files:
+!*.sublime-project
 !.gitignore
 !*/
 !/readme.md
