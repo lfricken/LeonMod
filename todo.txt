@@ -1,7 +1,8 @@
 
 add trading ability
+extract text to txt file
+have tabs be All, Active Only, Passive Only
 toggle trade visibility (defaults to invisible except for AI)
-probably can't allow policy stacking if there are true/false values
 
 lua
 	get count(local id)
@@ -12,7 +13,6 @@ lua
 
 
 
-extract stuff to txt file
 
 
 get trade working
