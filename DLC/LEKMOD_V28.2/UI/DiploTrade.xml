@@ -18,6 +18,11 @@
 			<Label Offset="5,0" Anchor="R,C" ID="CityPop"/>
 		</Button>
 	</Instance>
+	<Instance Name="CardInstance">
+		<Button Style="TradeItemButton" ID="Button">
+			<Label Offset="5,0" Anchor="L,C" ID="CardName" ToolTip="Card TOOLTIPS"/>
+		</Button>
+	</Instance>
 	<Instance Name="PocketResource">
 		<Button Style="TradeItemButton" Anchor="L,C" String="[ICON_RES_IRON] IRON" ID="Button"/>
 	</Instance>
@@ -78,6 +83,7 @@
 					<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="0" Hidden="0" ID="UsPocketStrategicStack"/>
 					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_TRADE_ITEM_VOTES" ID="UsPocketVote"/>
 					<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="0" Hidden="0" ID="UsPocketVoteStack"/>
+					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_CARD_PLURAL" ID="UsPocketCards"/>
 					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_ALLOW_EMBASSY" ID="UsPocketAllowEmbassy"/>
 					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_OPEN_BORDERS" ID="UsPocketOpenBorders"/>
 					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_DEF_PACT" ID="UsPocketDefensivePact"/>
@@ -113,6 +119,11 @@
 						<Box Color="255,255,255,128" Size="195,1" Anchor="C,B" Offset="0,-1"/>
 					</Button>
 				</Stack>
+				<Stack Anchor="R,T" Offset="17,0" StackGrowth="B" Padding="2" ID="ThemPocketCardsStack">
+					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_CLOSE" ID="ThemPocketCardsClose">
+						<Box Color="255,255,255,128" Size="195,1" Anchor="C,B" Offset="0,-1"/>
+					</Button>
+				</Stack>
 				<Stack Anchor="R,T" Offset="17,0" StackGrowth="Bottom" Padding="0" ID="ThemPocketStack">
 					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_GOLD" ID="ThemPocketGold"/>
 					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_GOLD_PER_TURN" ID="ThemPocketGoldPerTurn"/>
@@ -124,6 +135,7 @@
                     </Stack>
 					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_TRADE_ITEM_VOTES" ID="ThemPocketVote"/>
 					<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="0" Hidden="0" ID="ThemPocketVoteStack"/>
+					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_CARD_PLURAL" ID="ThemPocketCards"/>
 					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_ALLOW_EMBASSY" ID="ThemPocketAllowEmbassy"/>
 					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_OPEN_BORDERS" ID="ThemPocketOpenBorders"/>
 					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_DEF_PACT" ID="ThemPocketDefensivePact"/>
@@ -244,6 +256,7 @@
 					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_DEF_PACT" ID="ThemTableDefensivePact"/>
 					<Button Style="TradeItemButton" Anchor="L,C" String="Research agreement" ID="ThemTableResearchAgreement"/>
 					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_TRADE_AGREEMENT" ID="ThemTableTradeAgreement"/>
+					<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="5" Hidden="0" ID="ThemTableCardsStack"/>
 					<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="5" Hidden="0" ID="ThemTableCitiesStack"/>
 					<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="5" Hidden="0" ID="ThemTableDeclareWarStack">
 						<Box Color="255,255,255,0" Size="194,18">

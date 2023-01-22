@@ -143,21 +143,22 @@ function DisplayData()
 	for cardIdx = 0, count-1, 1 do
 		local inst = {};
 		ContextPtr:BuildInstanceForControl("TradeCardInstance", inst, Controls.MainStack);
-
-		local cardName = pPlayer:CardName(cardIdx);
+		local cardType = pPlayer:CardName(cardIdx);
+		
+		local cardName = pPlayer:CardName(cardType);
 		inst.Name:SetText(cardName);
 		inst.Name:SetToolTipString(cardName);
 
-		local cardDesc = pPlayer:CardDesc(cardIdx);
+		local cardDesc = pPlayer:CardDesc(cardType);
 		inst.Desc:SetText(cardDesc);
 		inst.Desc:SetToolTipString(cardDesc);
 
-		local passiveDesc = pPlayer:CardPassiveDesc(cardIdx);
+		local passiveDesc = pPlayer:CardPassiveDesc(cardType);
 		local hasPassive = not isempty(passiveDesc);
 		inst.Passive:SetHide(not hasPassive);
 		inst.Passive:SetToolTipString(passiveDesc);
 
-		local activeDesc = pPlayer:CardActiveDesc(cardIdx);
+		local activeDesc = pPlayer:CardActiveDesc(cardType);
 		local hasActive = not isempty(activeDesc);
 		inst.Activate:SetHide(not hasActive);
 		inst.Activate:SetToolTipString(activeDesc .. ". Consumes this card.");
