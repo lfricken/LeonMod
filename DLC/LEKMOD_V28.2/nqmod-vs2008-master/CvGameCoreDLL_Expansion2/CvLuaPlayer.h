@@ -813,6 +813,7 @@ protected:
 	static int lGetWeDeclaredWarOnFriendCount(lua_State* L);
 
 	static int lCardCount(lua_State* L);
+	static int lCardType(lua_State* L);
 	static int lCardName(lua_State* L);
 	static int lCardDesc(lua_State* L);
 	static int lCardPassiveDesc(lua_State* L);

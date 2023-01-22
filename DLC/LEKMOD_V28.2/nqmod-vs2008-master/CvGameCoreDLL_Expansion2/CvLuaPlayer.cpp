@@ -828,6 +828,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 
 	Method(CardCount);
 	Method(CardName);
+	Method(CardType);
 	Method(CardDesc);
 	Method(CardPassiveDesc);
 	Method(CardActiveDesc);
@@ -8219,12 +8220,19 @@ int CvLuaPlayer::lCardCount(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
+int CvLuaPlayer::lCardType(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int cardIdx = lua_tointeger(L, 2);
+	const TradingCardTypes type = pkPlayer->CardsType(cardIdx);
+	lua_pushinteger(L, (int)type);
+	return 1;
+}
+//------------------------------------------------------------------------------
 int CvLuaPlayer::lCardName(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	const int cardIdx = (PlayerTypes)lua_tointeger(L, 2);
-
-	const TradingCardTypes type = pkPlayer->CardsType(cardIdx);
+	const TradingCardTypes type = (TradingCardTypes)lua_tointeger(L, 2);
 
 	if (type == CARD_INVALID)
 	{
@@ -8241,9 +8249,7 @@ int CvLuaPlayer::lCardName(lua_State* L)
 int CvLuaPlayer::lCardDesc(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	const int cardIdx = (PlayerTypes)lua_tointeger(L, 2);
-
-	const TradingCardTypes type = pkPlayer->CardsType(cardIdx);
+	const TradingCardTypes type = (TradingCardTypes)lua_tointeger(L, 2);
 	if (type == CARD_INVALID)
 	{
 		lua_pushstring(L, "ERROR59111");
@@ -8259,9 +8265,7 @@ int CvLuaPlayer::lCardDesc(lua_State* L)
 int CvLuaPlayer::lCardPassiveDesc(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	const int cardIdx = (PlayerTypes)lua_tointeger(L, 2);
-
-	const TradingCardTypes type = pkPlayer->CardsType(cardIdx);
+	const TradingCardTypes type = (TradingCardTypes)lua_tointeger(L, 2);
 	if (type == CARD_INVALID)
 	{
 		lua_pushboolean(L, true);
@@ -8277,9 +8281,7 @@ int CvLuaPlayer::lCardPassiveDesc(lua_State* L)
 int CvLuaPlayer::lCardActiveDesc(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	const int cardIdx = (PlayerTypes)lua_tointeger(L, 2);
-
-	const TradingCardTypes type = pkPlayer->CardsType(cardIdx);
+	const TradingCardTypes type = (TradingCardTypes)lua_tointeger(L, 2);
 	if (type == CARD_INVALID)
 	{
 		lua_pushboolean(L, true);
@@ -8295,7 +8297,7 @@ int CvLuaPlayer::lCardActiveDesc(lua_State* L)
 int CvLuaPlayer::lCardActivate(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	const int cardIdx = (PlayerTypes)lua_tointeger(L, 2);
+	const int cardIdx = lua_tointeger(L, 2);
 
 	CvDllNetMessageHandler::SendActivateCard(pkPlayer->GetID(), cardIdx);
 
@@ -8305,7 +8307,7 @@ int CvLuaPlayer::lCardActivate(lua_State* L)
 int CvLuaPlayer::lCardDelete(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	const int cardIdx = (PlayerTypes)lua_tointeger(L, 2);
+	const int cardIdx = lua_tointeger(L, 2);
 
 	// WARNING NOT NETWORK SAFE -- DEBUG ONLY
 	pkPlayer->CardsDestroy(cardIdx);

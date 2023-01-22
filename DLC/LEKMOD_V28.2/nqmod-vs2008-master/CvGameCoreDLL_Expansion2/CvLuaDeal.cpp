@@ -54,6 +54,7 @@ void CvLuaDeal::PushMethods(lua_State* L, int t)
 	Method(AddGoldPerTurnTrade);
 	Method(AddMapTrade);
 	Method(AddResourceTrade);
+	Method(AddCardTrade);
 	Method(AddCityTrade);
 	Method(AddUnitTrade);
 	Method(AddAllowEmbassy);
@@ -73,6 +74,7 @@ void CvLuaDeal::PushMethods(lua_State* L, int t)
 
 	Method(RemoveByType);
 	Method(RemoveResourceTrade);
+	Method(RemoveCardTrade);
 	Method(RemoveCityTrade);
 	Method(RemoveUnitTrade);
 	Method(RemoveThirdPartyPeace);

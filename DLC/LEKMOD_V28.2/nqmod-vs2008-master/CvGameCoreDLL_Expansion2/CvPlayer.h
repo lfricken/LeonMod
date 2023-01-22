@@ -1835,6 +1835,7 @@ public:
 
 	void CardsActivate(int cardIdx);
 	void CardsAdd(TradingCardTypes cardType);
+	void CardsRemove(TradingCardTypes cardType);
 	void CardsDestroy(int cardIdx);
 	TradingCardTypes CardsType(int cardIdx) const;
 	int CardsCount() const;

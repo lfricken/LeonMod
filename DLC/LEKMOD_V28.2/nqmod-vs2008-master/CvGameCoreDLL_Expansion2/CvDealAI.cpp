@@ -859,12 +859,14 @@ int CvDealAI::GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes 
 
 	int iItemValue = 0;
 
-	if(eItem == TRADE_ITEM_GOLD)
+	if (eItem == TRADE_ITEM_GOLD)
 		iItemValue = GetGoldForForValueExchange(/*Gold Amount*/ iData1, /*bNumGoldFromValue*/ false, bFromMe, eOtherPlayer, bUseEvenValue, /*bRoundUp*/ false);
-	else if(eItem == TRADE_ITEM_GOLD_PER_TURN)
+	else if (eItem == TRADE_ITEM_GOLD_PER_TURN)
 		iItemValue = GetGPTforForValueExchange(/*Gold Per Turn Amount*/ iData1, /*bNumGPTFromValue*/ false, iDuration, bFromMe, eOtherPlayer, bUseEvenValue, /*bRoundUp*/ false);
-	else if(eItem == TRADE_ITEM_RESOURCES)
-		iItemValue = GetResourceValue(/*ResourceType*/ (ResourceTypes) iData1, /*Quantity*/ iData2, iDuration, bFromMe, eOtherPlayer);
+	else if (eItem == TRADE_ITEM_RESOURCES)
+		iItemValue = GetResourceValue(/*ResourceType*/ (ResourceTypes)iData1, /*Quantity*/ iData2, iDuration, bFromMe, eOtherPlayer);
+	else if (eItem == TRADE_ITEM_CARD)
+		iItemValue = 1;
 	else if(eItem == TRADE_ITEM_CITIES)
 		iItemValue = GetCityValue(/*iX*/ iData1, /*iY*/ iData2, bFromMe, eOtherPlayer, bUseEvenValue);
 	else if(eItem == TRADE_ITEM_ALLOW_EMBASSY)

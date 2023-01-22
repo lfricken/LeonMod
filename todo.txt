@@ -1,54 +1,52 @@
 
-add trading ability
-extract text to txt file
-have tabs be All, Active Only, Passive Only
-toggle trade visibility (defaults to invisible except for AI)
-
-lua
-	get count(local id)
-	get name(local id)
-	get description(local id)
-	get active type(local id)
-	try activate (id, activateType)
 
 
 
+Trading Cards
+	Don't allow selecting duplicates
+	Can we invalidate the deal if the player cards change?
+	extract text to txt file
+	have tabs be All, Active Only, Passive Only
+	toggle trade visibility (defaults to invisible except for AI)
+	AI trade card value function
 
 
-get trade working
+	2540  dealclasses.cpp
+	"cards"
+	unlock wonder construction
 
 
+	trade great works?
+
+	        m_pocketStack = Controls.ThemPocketStack;
+	        m_citiesStack = Controls.ThemPocketCitiesStack;
+	        m_panel       = Controls.ThemPocketPanel;
+	        m_pIM   = g_ThemPocketCitiesIM;
+	UsPocketCards
+	ThemPocketCards
+
+	UsPocketCities choser
+	GetTradeItemValue
+	IsPossibleToTradeItem // Can't already have this city in the deal
+	GetItemTradeableState
+	RegisterEnum(TRADE_ITEM_CITIES);
+
+	TRADE_ITEM_CITIES
 
 
-use strategics for something (used to build wonders?)
-accumulate strategics
-trade strategics in lump sum
+	void AddCityTrade(PlayerTypes eFrom, int iCityID);
+
+	CvLuaDeal::lGetNextItem
+
+	TradeLogic.lua
 
 
-"cards"
-unlock wonder construction
-
-
-trade great works?
-
-
-
-
-
-
-void AddCityTrade(PlayerTypes eFrom, int iCityID);
-
-CvLuaDeal::lGetNextItem
-
-TradeLogic.lua
-
-
-for pCity in g_pThem:Cities() do
-    if( g_Deal:IsPossibleToTradeItem( g_iThem, g_iUs, TradeableItems.TRADE_ITEM_CITIES, pCity:GetX(), pCity:GetY() ) ) then
-        bFound = true;
-        break;
-    end
-end
+	for pCity in g_pThem:Cities() do
+	    if( g_Deal:IsPossibleToTradeItem( g_iThem, g_iUs, TradeableItems.TRADE_ITEM_CITIES, pCity:GetX(), pCity:GetY() ) ) then
+	        bFound = true;
+	        break;
+	    end
+	end
 
 
 
@@ -64,6 +62,8 @@ end
 
 
 
+
+C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization V\Assets\DLC\LEKMOD_V28.2\UI, C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization V\Assets\DLC\Expansion2\UI, C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization V\Assets\DLC\Expansion\UI, C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization V\Assets\UI
 
 
 

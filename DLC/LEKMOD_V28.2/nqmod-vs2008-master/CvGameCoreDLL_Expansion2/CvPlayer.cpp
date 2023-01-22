@@ -28076,6 +28076,19 @@ void CvPlayer::CardsAdd(TradingCardTypes cardType)
 	TogglePolicy(*this, policyName, true);
 	DLLUI->setDirty(CardsDirtyBit, true);
 }
+void CvPlayer::CardsRemove(TradingCardTypes cardType)
+{
+	int cardIdx = -1;
+	for (int i = 0; i < (int)m_cards.size(); ++i)
+	{
+		if (m_cards[i] == cardType)
+		{
+			cardIdx = i;
+			break;
+		}
+	}
+	CardsDestroy(cardIdx);
+}
 void CvPlayer::CardsDestroy(int cardIdx)
 {
 	if (cardIdx >= 0 && cardIdx < (int)m_cards.size())

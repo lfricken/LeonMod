@@ -531,6 +531,19 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			}
 		}
 	}
+	else if (eItem == TRADE_ITEM_CARD)
+	{
+		for (TradedItemList::iterator it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
+		{
+			const bool isCard = it->m_eItemType == TRADE_ITEM_CARD;
+			const bool doesCardTypeMatch = it->m_iData2 == iData2;
+			if (isCard && doesCardTypeMatch)
+			{
+				return false; // no duplicates
+			}
+		}
+		return true;
+	}
 	// City
 	else if(eItem == TRADE_ITEM_CITIES)
 	{
@@ -1220,6 +1233,25 @@ void CvDeal::AddResourceTrade(PlayerTypes eFrom, ResourceTypes eResource, int iA
 	}
 }
 
+void CvDeal::AddCardTrade(PlayerTypes eFrom, TradingCardTypes cardType)
+{
+	const bool hasSome = GET_PLAYER(eFrom).CardsHasAny(cardType);
+	if (cardType != CARD_INVALID && hasSome)
+	{
+		CvTradedItem item;
+		item.m_eFromPlayer = eFrom;
+		item.m_eItemType = TRADE_ITEM_CARD;
+		item.m_iDuration = 0;
+#ifdef AUI_YIELDS_APPLIED_AFTER_TURN_NOT_BEFORE
+		item.m_iTurnsRemaining = -1;
+#else
+		item.m_iFinalTurn = -1;
+#endif
+		item.m_iData1 = cardType;
+		item.m_iData2 = cardType;
+		m_TradedItems.push_back(item);
+	}
+}
 /// Insert a city trade
 void CvDeal::AddCityTrade(PlayerTypes eFrom, int iCityID)
 {
@@ -1880,6 +1912,7 @@ CvDeal::DealRenewStatus CvDeal::GetItemTradeableState(TradeableItems eTradeItem)
 	{
 		// not renewable
 	case TRADE_ITEM_ALLOW_EMBASSY:
+	case TRADE_ITEM_CARD:
 	case TRADE_ITEM_CITIES:
 	case TRADE_ITEM_UNITS:
 	case TRADE_ITEM_SURRENDER:
@@ -1964,6 +1997,20 @@ void CvDeal::RemoveResourceTrade(ResourceTypes eResource)
 	}
 }
 
+void CvDeal::RemoveCardTrade(PlayerTypes eFrom, TradingCardTypes cardType)
+{
+	TradedItemList::iterator it;
+	for (it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
+	{
+		if (it->m_eItemType == TRADE_ITEM_CARD && 
+			it->m_eFromPlayer == eFrom &&
+			it->m_iData1 == cardType)
+		{
+			m_TradedItems.erase(it);
+			return;
+		}
+	}
+}
 /// Delete a city trade
 void CvDeal::RemoveCityTrade(PlayerTypes eFrom, int iCityID)
 {
@@ -2492,6 +2539,12 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 							}
 						}
 					}
+				}
+				// Cards
+				else if (it->m_eItemType == TRADE_ITEM_CARD)
+				{
+					GET_PLAYER(eAcceptedToPlayer).CardsAdd((TradingCardTypes)it->m_iData2);
+					GET_PLAYER(eAcceptedFromPlayer).CardsRemove((TradingCardTypes)it->m_iData2);
 				}
 				// City
 				else if(it->m_eItemType == TRADE_ITEM_CITIES)

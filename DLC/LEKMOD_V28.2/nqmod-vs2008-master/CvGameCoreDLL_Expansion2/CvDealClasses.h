@@ -35,6 +35,7 @@ enum TradeableItems
     TRADE_ITEM_ALLOW_EMBASSY,
 	TRADE_ITEM_DECLARATION_OF_FRIENDSHIP,	// Only "traded" between human players
 	TRADE_ITEM_VOTE_COMMITMENT,
+	TRADE_ITEM_CARD,
     NUM_TRADEABLE_ITEMS,
 };
 FDataStream& operator>>(FDataStream&, TradeableItems&);
@@ -178,6 +179,7 @@ public:
 	void AddGoldPerTurnTrade(PlayerTypes eFrom, int iAmount, int iDuration);
 	void AddMapTrade(PlayerTypes eFrom);
 	void AddResourceTrade(PlayerTypes eFrom, ResourceTypes eResource, int iAmount, int iDuration);
+	void AddCardTrade(PlayerTypes eFrom, TradingCardTypes cardType);
 	void AddCityTrade(PlayerTypes eFrom, int iCityID);
 	void AddUnitTrade(PlayerTypes eFrom, int iUnitID);
 	void AddAllowEmbassy(PlayerTypes eFrom);
@@ -222,6 +224,7 @@ public:
 
 	void RemoveByType(TradeableItems eType, PlayerTypes eFrom = NO_PLAYER);
 	void RemoveResourceTrade(ResourceTypes eResource);
+	void RemoveCardTrade(PlayerTypes eFrom, TradingCardTypes cardType);
 	void RemoveCityTrade(PlayerTypes eFrom, int iCityID);
 	void RemoveUnitTrade(int iUnitID);
 	void RemoveThirdPartyPeace(PlayerTypes eFrom, TeamTypes eThirdPartyTeam);
