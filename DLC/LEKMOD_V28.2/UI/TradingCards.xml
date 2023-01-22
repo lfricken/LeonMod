@@ -20,7 +20,7 @@
 								<Grid Size="101,30" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
 							</AlphaAnim>
 						</ShowOnMouseOver>
-						<Label Anchor="C,C" Offset="0.-1" Font="TwCenMT18" String="Activate" ToolTip="In order to gain this benefit, you must activate it, which consumes it."/>
+						<Label Anchor="C,C" Offset="0.-1" Font="TwCenMT18" String="Activate"/>
 					</Button>
 				</Stack>
 				<Button ID="Delete" Anchor="L,C" Size="60,45" Style="BoxButton">

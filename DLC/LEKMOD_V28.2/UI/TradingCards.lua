@@ -160,7 +160,7 @@ function DisplayData()
 		local activeDesc = pPlayer:CardActiveDesc(cardIdx);
 		local hasActive = not isempty(activeDesc);
 		inst.Activate:SetHide(not hasActive);
-		inst.Activate:SetToolTipString(activeDesc);
+		inst.Activate:SetToolTipString(activeDesc .. ". Consumes this card.");
 
 		--inst.Activate:SetHide(not isPassive);
 		--inst.Activate:SetDisabled(not isPassive);
