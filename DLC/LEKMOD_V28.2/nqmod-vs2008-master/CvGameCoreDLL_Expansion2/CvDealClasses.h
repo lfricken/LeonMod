@@ -179,7 +179,7 @@ public:
 	void AddGoldPerTurnTrade(PlayerTypes eFrom, int iAmount, int iDuration);
 	void AddMapTrade(PlayerTypes eFrom);
 	void AddResourceTrade(PlayerTypes eFrom, ResourceTypes eResource, int iAmount, int iDuration);
-	void AddCardTrade(PlayerTypes eFrom, TradingCardTypes cardType);
+	void AddCardTrade(PlayerTypes eFrom, int cardIdx);
 	void AddCityTrade(PlayerTypes eFrom, int iCityID);
 	void AddUnitTrade(PlayerTypes eFrom, int iUnitID);
 	void AddAllowEmbassy(PlayerTypes eFrom);
@@ -224,7 +224,7 @@ public:
 
 	void RemoveByType(TradeableItems eType, PlayerTypes eFrom = NO_PLAYER);
 	void RemoveResourceTrade(ResourceTypes eResource);
-	void RemoveCardTrade(PlayerTypes eFrom, TradingCardTypes cardType);
+	void RemoveCardTrade(PlayerTypes eFrom, int cardIdx);
 	void RemoveCityTrade(PlayerTypes eFrom, int iCityID);
 	void RemoveUnitTrade(int iUnitID);
 	void RemoveThirdPartyPeace(PlayerTypes eFrom, TeamTypes eThirdPartyTeam);

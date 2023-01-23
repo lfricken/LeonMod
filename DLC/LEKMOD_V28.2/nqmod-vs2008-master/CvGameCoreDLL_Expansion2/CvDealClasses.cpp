@@ -533,14 +533,28 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	}
 	else if (eItem == TRADE_ITEM_CARD)
 	{
-		for (TradedItemList::iterator it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
+		if (!bFinalizing) // finalizing passes in each existing trade item
 		{
-			const bool isCard = it->m_eItemType == TRADE_ITEM_CARD;
-			const bool doesCardTypeMatch = it->m_iData2 == iData2;
-			if (isCard && doesCardTypeMatch)
+			for (TradedItemList::iterator it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
 			{
-				return false; // no duplicates
+				const bool isCard = it->m_eItemType == TRADE_ITEM_CARD;
+				const bool isAlreadyInDeal = it->m_iData1 == iData1; // same card
+				if (isCard && isAlreadyInDeal)
+				{
+					return false; // no duplicate
+				}
 			}
+		}
+		if (!pFromPlayer->CardsIsVisible(iData1))
+		{
+			return false; // cannot trade hidden cards
+		}
+		// compare the passed cardType to the one the player actually has in this cardIdx slot
+		// if they don't match, something went wrong
+		const bool isTypeExpected = pFromPlayer->CardsType(iData1) == iData2;
+		if (!isTypeExpected)
+		{
+			return false; // card types were wrong
 		}
 		return true;
 	}
@@ -1233,10 +1247,10 @@ void CvDeal::AddResourceTrade(PlayerTypes eFrom, ResourceTypes eResource, int iA
 	}
 }
 
-void CvDeal::AddCardTrade(PlayerTypes eFrom, TradingCardTypes cardType)
+void CvDeal::AddCardTrade(PlayerTypes eFrom, int cardIdx)
 {
-	const bool hasSome = GET_PLAYER(eFrom).CardsHasAny(cardType);
-	if (cardType != CARD_INVALID && hasSome)
+	const TradingCardTypes cardType = GET_PLAYER(eFrom).CardsType(cardIdx);
+	if (cardType != CARD_INVALID) // possibly cardIdx is out of bounds
 	{
 		CvTradedItem item;
 		item.m_eFromPlayer = eFrom;
@@ -1247,7 +1261,7 @@ void CvDeal::AddCardTrade(PlayerTypes eFrom, TradingCardTypes cardType)
 #else
 		item.m_iFinalTurn = -1;
 #endif
-		item.m_iData1 = cardType;
+		item.m_iData1 = cardIdx;
 		item.m_iData2 = cardType;
 		m_TradedItems.push_back(item);
 	}
@@ -1997,14 +2011,13 @@ void CvDeal::RemoveResourceTrade(ResourceTypes eResource)
 	}
 }
 
-void CvDeal::RemoveCardTrade(PlayerTypes eFrom, TradingCardTypes cardType)
+void CvDeal::RemoveCardTrade(PlayerTypes eFrom, int cardIdx)
 {
-	TradedItemList::iterator it;
-	for (it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
+	for (TradedItemList::iterator it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
 	{
 		if (it->m_eItemType == TRADE_ITEM_CARD && 
 			it->m_eFromPlayer == eFrom &&
-			it->m_iData1 == cardType)
+			it->m_iData1 == cardIdx)
 		{
 			m_TradedItems.erase(it);
 			return;
@@ -2544,7 +2557,7 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 				else if (it->m_eItemType == TRADE_ITEM_CARD)
 				{
 					GET_PLAYER(eAcceptedToPlayer).CardsAdd((TradingCardTypes)it->m_iData2);
-					GET_PLAYER(eAcceptedFromPlayer).CardsRemove((TradingCardTypes)it->m_iData2);
+					GET_PLAYER(eAcceptedFromPlayer).CardsDestroy(it->m_iData1);
 				}
 				// City
 				else if(it->m_eItemType == TRADE_ITEM_CITIES)

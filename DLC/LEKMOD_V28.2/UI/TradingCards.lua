@@ -114,17 +114,17 @@ Controls.TabButtonAvailableTR:RegisterCallback( Mouse.eLClick, function() TabSel
 Controls.TabButtonTRWithYou:RegisterCallback( Mouse.eLClick, function() TabSelect(g_Tab3); end );
 
 function RefreshTab1()
-	DisplayData();
+	DisplayData(true, true);
 end
 g_Tabs[g_Tab1].RefreshContent = RefreshTab1;
 
 function RefreshTab2()
-	DisplayData();
+	DisplayData(true, false);
 end
 g_Tabs[g_Tab2].RefreshContent = RefreshTab2;
 
 function RefreshTab3()
-	DisplayData();
+	DisplayData(false, true);
 end
 g_Tabs[g_Tab3].RefreshContent = RefreshTab3;
 
@@ -132,7 +132,7 @@ local function isempty(s)
   return s == nil or s == ''
 end
 
-function DisplayData()
+function DisplayData(includePassive, includeActive)
 	Controls.MainStack:DestroyAllChildren();
 	local iPlayerId = Game.GetActivePlayer();
     local pPlayer = Players[iPlayerId];
@@ -141,36 +141,48 @@ function DisplayData()
 	local isDebugMode = true; -- allows card manipulation
 
 	for cardIdx = 0, count-1, 1 do
-		local inst = {};
-		ContextPtr:BuildInstanceForControl("TradeCardInstance", inst, Controls.MainStack);
 		local cardType = pPlayer:CardName(cardIdx);
-		
+
 		local cardName = pPlayer:CardName(cardType);
-		inst.Name:SetText(cardName);
-		inst.Name:SetToolTipString(cardName);
-
 		local cardDesc = pPlayer:CardDesc(cardType);
-		inst.Desc:SetText(cardDesc);
-		inst.Desc:SetToolTipString(cardDesc);
-
 		local passiveDesc = pPlayer:CardPassiveDesc(cardType);
 		local hasPassive = not isempty(passiveDesc);
-		inst.Passive:SetHide(not hasPassive);
-		inst.Passive:SetToolTipString(passiveDesc);
-
 		local activeDesc = pPlayer:CardActiveDesc(cardType);
 		local hasActive = not isempty(activeDesc);
-		inst.Activate:SetHide(not hasActive);
-		inst.Activate:SetToolTipString(activeDesc .. ". Consumes this card.");
+		local isVisible = pPlayer:CardIsVisible(cardIdx);
 
-		--inst.Activate:SetHide(not isPassive);
-		--inst.Activate:SetDisabled(not isPassive);
+		-- should we limit the display of the cards?
+		if ((hasPassive and includePassive) or (hasActive and includeActive)) then
+			local inst = {};
+			ContextPtr:BuildInstanceForControl("TradeCardInstance", inst, Controls.MainStack);
 
-		inst.Activate:RegisterCallback(Mouse.eLClick, function() OnClickedActivate(iPlayerId, cardIdx); end);
+			inst.Name:SetText(cardName);
+			inst.Name:SetToolTipString(cardName);
 
-		inst.Delete:SetHide(not isDebugMode);
-		inst.Delete:SetDisabled(not isDebugMode);
-		inst.Delete:RegisterCallback(Mouse.eLClick, function() OnClickedDelete(iPlayerId, cardIdx); end);
+			inst.Desc:SetText(cardDesc);
+			inst.Desc:SetToolTipString(cardDesc);
+
+			-- passive info
+			inst.Passive:SetHide(not hasPassive);
+			inst.Passive:SetToolTipString(passiveDesc);
+
+			-- activate button
+			inst.Activate:SetHide(not hasActive);
+			inst.Activate:SetToolTipString(activeDesc .. ". Consumes this card.");
+			inst.Activate:RegisterCallback(Mouse.eLClick, function() OnClickedActivate(iPlayerId, cardIdx); end);
+
+			-- visibility button
+			inst.VisibilityToggle:RegisterCallback(Mouse.eLClick, function() OnClickedVisibility(iPlayerId, cardIdx); end);
+			if (not isVisible) then
+				inst.VisibilityToggle:LocalizeAndSetText("TXT_KEY_CARD_VISIBILITY_BUTTON_ON");
+				inst.VisibilityToggle:LocalizeAndSetToolTip("TXT_KEY_CARD_VISIBILITY_BUTTON_ON_TIP");
+			end
+
+			-- delete button (DEBUG ONLY)
+			inst.Delete:SetHide(not isDebugMode);
+			inst.Delete:SetDisabled(not isDebugMode);
+			inst.Delete:RegisterCallback(Mouse.eLClick, function() OnClickedDelete(iPlayerId, cardIdx); end);
+		end
 	end
 	
 	Controls.MainStack:CalculateSize();
@@ -182,6 +194,11 @@ end
 function OnClickedActivate(iPlayerId, cardIdx)
     local pPlayer = Players[iPlayerId];
     pPlayer:CardActivate(cardIdx);
+end
+
+function OnClickedVisibility(iPlayerId, cardIdx)
+	local pPlayer = Players[iPlayerId];
+	pPlayer:CardToggleVisibility(cardIdx);
 end
 
 -- DEBUG ONLY, NOT NETWORK SAFE

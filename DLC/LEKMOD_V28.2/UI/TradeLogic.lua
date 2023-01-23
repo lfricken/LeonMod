@@ -2983,23 +2983,6 @@ function OnChooseCity( playerID, cityID )
 end
 
 -----------------------------------------------------------------------------------------------------------------------
------------------------------------------------------------------------------------------------------------------------
--- add a card to the deal
-function AddCard(playerID, cardType)
-    g_Deal:AddCardTrade(playerID, cardType);
-    
-    DisplayDeal();
-    DoUIDealChangedByHuman();
-end
--------------------------------------------------------------
--- remove a card from the deal
-function RemoveCard(playerID, cardType)
-    g_Deal:RemoveCardTrade(playerID, cardType);
-
-    DoClearTable();
-    DisplayDeal();
-    DoUIDealChangedByHuman();
-end
 
 ----------------------------------------------------
 ----------------------------------------------------
@@ -3165,18 +3148,26 @@ function ShowCardChooser( isUs )
     local instance; 
     local bFound = false;
 	local count = m_pFrom:CardCount();
-	for cardIdx = 0, count-1, 1 do        
-		local instance = m_pIM:GetInstance();
+	for cardIdx = 0, count-1, 1 do
 
-		local cardName = m_pFrom:CardName(cardIdx);
-		local cardDesc = m_pFrom:CardDesc(cardIdx);
+		-- canTrade does a hidden check
+		local canTradeCard = g_Deal:IsPossibleToTradeItem(m_iFrom, m_iTo, TradeableItems.TRADE_ITEM_CARD, cardIdx, cardType);
+        if (canTradeCard) then
+			local cardType = m_pFrom:CardType(cardIdx);
+			local cardName = m_pFrom:CardName(cardType);
+			local cardDesc = m_pFrom:CardDesc(cardType);
 
-		instance.CardName:SetText(cardName);
-		instance.CardName:SetToolTipString(cardDesc);
-		instance.Button:SetVoids(m_iFrom, cardIdx);
-		instance.Button:RegisterCallback(Mouse.eLClick, AddCard);
+			-- text
+			local instance = m_pIM:GetInstance();
+			instance.CardName:SetText(cardName);
+			instance.CardName:SetToolTipString(cardDesc);
 
-		bFound = true;
+			-- button logic
+			instance.Button:SetVoids(m_iFrom, cardIdx);
+			instance.Button:RegisterCallback(Mouse.eLClick, AddCard);
+
+			bFound = true; -- is there anything to trade?
+	    end
     end
     
     -- there were none in this list, so switch back off this menu
@@ -3206,8 +3197,24 @@ end
 
 Controls.ThemPocketCards:SetVoid1( 0 );
 Controls.ThemPocketCards:RegisterCallback( Mouse.eLClick, ShowCardChooser );
------------------------------------------------------------------------------------------------------------------------
------------------------------------------------------------------------------------------------------------------------
+
+----------------------------------------------------------------------------------------
+-- add a card to the deal
+function AddCard(playerID, cardIdx)
+    g_Deal:AddCardTrade(playerID, cardIdx);
+    
+    DisplayDeal();
+    DoUIDealChangedByHuman();
+end
+----------------------------------------------------------------------------------------
+-- remove a card from the deal
+function RemoveCard(playerID, cardIdx)
+    g_Deal:RemoveCardTrade(playerID, cardIdx);
+
+    DoClearTable();
+    DisplayDeal();
+    DoUIDealChangedByHuman();
+end
 
 
 -----------------------------------------------------------------------------------------------------------------------

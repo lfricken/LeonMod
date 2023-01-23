@@ -12,24 +12,32 @@
 				</Box>
 				<Stack Anchor="C,C" StackGrowth="Bottom" Offset="0,0" Padding="1">
 					<Box Anchor="L,C" Color="0,0,0,0" Offset="0,0" Size="101,30">
-						<Label Anchor="C,C" Offset="0,0" String="Passive" Color0="Green.185" Color1="Black.255"  Font="TwCenMT20" FontStyle="Stroke" ToolTip="This benefit applies while you have this rite." ID="Passive"/>
+						<Label Anchor="C,C" Offset="0,0" String="TXT_KEY_CARD_BUTTON_PASSIVE" Color0="Green.185" Color1="Black.255"  Font="TwCenMT20" FontStyle="Stroke" ToolTip="This benefit applies while you have this rite." ID="Passive"/>
 					</Box>
-					<Button ID="Activate" Anchor="L,C" Size="101,45" Style="BoxButton">
+					<Button ID="Activate" Anchor="L,C" Size="101,30" Style="BoxButton">
 						<ShowOnMouseOver>
 							<AlphaAnim Anchor="C,C" Offset="0,0" Size="101,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
 								<Grid Size="101,30" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
 							</AlphaAnim>
 						</ShowOnMouseOver>
-						<Label Anchor="C,C" Offset="0.-1" Font="TwCenMT18" String="Activate"/>
+						<Label Anchor="C,C" Offset="0.-1" Font="TwCenMT18" String="TXT_KEY_CARD_BUTTON_ACTIVATE"/>
+					</Button>
+					<Button ID="VisibilityToggle" Anchor="L,C" Size="101,30" Style="BoxButton" String="TXT_KEY_CARD_VISIBILITY_BUTTON" ToolTip="TXT_KEY_CARD_VISIBILITY_BUTTON_TIP">
+						<ShowOnMouseOver>
+							<AlphaAnim Anchor="C,C" Offset="0,0" Size="101,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+								<Grid Size="101,30" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+							</AlphaAnim>
+						</ShowOnMouseOver>
+						<Label Anchor="C,C" Offset="0.-1" Font="TwCenMT18"/>
 					</Button>
 				</Stack>
-				<Button ID="Delete" Anchor="L,C" Size="60,45" Style="BoxButton">
+				<Button ID="Delete" Anchor="L,C" Size="60,45" Style="BoxButton" ToolTip="DEBUG MODE IS ENABLED. Deletes this card. NOT NETWORK SAFE.">
 					<ShowOnMouseOver>
 						<AlphaAnim Anchor="C,C" Offset="0,0" Size="101,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
 							<Grid Size="101,30" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
 						</AlphaAnim>
 					</ShowOnMouseOver>
-					<Label Anchor="C,C" Offset="0.-1" Font="TwCenMT18" String="DELETE" ToolTip="Deletes this card. NOT NETWORK SAFE."/>
+					<Label Anchor="C,C" Offset="0.-1" Font="TwCenMT18" String="DELETE" />
 				</Button>
 			</Stack>
       <Grid ID="Divider" Style="Grid9Bar" Padding="0,0" Anchor="L,B" Size="940,1" Offset="0,0"/>
@@ -47,11 +55,11 @@
     <Box Style="MenuLeftSideTreatment"/>
     <Box Style="MenuRightSideTreatment"/>
     
-		<Label Style="MenuTitleCaption" String="Trading Card Overview" />
+		<Label Style="MenuTitleCaption" String="TXT_KEY_CARD_SCREEN" />
 		<!-- Top Panel  -->
 		<Box Anchor="C,T" Size="955,32" Offset="0,44" Color="0.0.0.128">
 			<Stack Anchor="C,T" Size="971,32" Offset="0,0" Padding="0" StackGrowth="Right">
-				<Button Anchor="L,T" Size="300,24" Offset="0,0" String="TXT_KEY_TRO_TAB_EXISTING_TR" ToolTip="TXT_KEY_TO_EXISTING_TR_TT" ID="TabButtonYourTR">
+				<Button Anchor="L,T" Size="300,24" Offset="0,0" String="TXT_KEY_CARD_TAB_ALL" ID="TabButtonYourTR">
 					<ShowOnMouseOver>
 						<AlphaAnim Anchor="L,C" Size="300,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
 							<Grid Size="300,27" Offset="0,2" Padding="0,0" Style="Grid9FrameTurnsHL"/>
@@ -60,7 +68,7 @@
 					<!-- Selected State  -->
 					<Grid Anchor="C,C" Offset="0,1" Size="300,26" Style="Grid9FrameTurns" Hidden="0" ID="YourTRSelectHighlight"/>
 				</Button>
-				<Button Anchor="L,T" Size="300,24" Offset="0,0" String="TXT_KEY_TRO_TAB_AVAILABLE_TR" ToolTip="TXT_KEY_TO_AVAILABLE_TR_TT" ID="TabButtonAvailableTR">
+				<Button Anchor="L,T" Size="300,24" Offset="0,0" String="TXT_KEY_CARD_TAB_PASSIVE" ID="TabButtonAvailableTR">
 					<ShowOnMouseOver>
 						<AlphaAnim Anchor="L,C" Size="300,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
 							<Grid Size="300,27" Offset="0,2" Padding="0,0" Style="Grid9FrameTurnsHL"/>
@@ -69,7 +77,7 @@
 					<!-- Selected State  -->
 					<Grid Anchor="C,C" Offset="0,1" Size="300,26" Style="Grid9FrameTurns" Hidden="1" ID="AvailableTRSelectHighlight"/>
 				</Button>
-				<Button Anchor="L,T" Size="300,24" Offset="0,0" String="TXT_KEY_TRO_TAB_TR_WITH_YOU" ToolTip="TXT_KEY_TO_OTHERS_TR_TT" ID="TabButtonTRWithYou">
+				<Button Anchor="L,T" Size="300,24" Offset="0,0" String="TXT_KEY_CARD_TAB_ACTIVE" ID="TabButtonTRWithYou">
 					<ShowOnMouseOver>
 						<AlphaAnim Anchor="L,C" Size="300,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
 							<Grid Size="300,27" Offset="0,2" Padding="0,0" Style="Grid9FrameTurnsHL"/>
@@ -105,7 +113,7 @@
 							<Grid Size="191,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
 						</AlphaAnim>
 					</ShowOnMouseOver>
-					<Label Anchor="C,C" Offset="0.-1" Font="TwCenMT18" String="Name" ToolTip="TXT_KEY_TRO_COL_FROM_CITY_TT"/>
+					<Label Anchor="C,C" Offset="0.-1" Font="TwCenMT18" String="TXT_KEY_CARD_COLUMN_NAME"/>
 				</Button>
 
 
@@ -115,7 +123,7 @@
 							<Grid Size="601,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
 						</AlphaAnim>
 					</ShowOnMouseOver>
-					<Label Anchor="C,C" Offset="0.-1" Font="TwCenMT18" String="Description" ToolTip="TXT_KEY_TRO_COL_TO_CITY_TT"/>
+					<Label Anchor="C,C" Offset="0.-1" Font="TwCenMT18" String="TXT_KEY_CARD_COLUMN_DESC"/>
 				</Button>
 
 
@@ -125,7 +133,7 @@
 							<Grid Size="101,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
 						</AlphaAnim>
 					</ShowOnMouseOver>
-					<Label Anchor="C,C" Offset="0.-1" Font="TwCenMT18" String="Activate?" ToolTip="TXT_KEY_TRO_COL_FROM_GPT_TT"/>
+					<Label Anchor="C,C" Offset="0.-1" Font="TwCenMT18" String="TXT_KEY_CARD_COLUMN_BUTTONS"/>
 				</Button>
 
 

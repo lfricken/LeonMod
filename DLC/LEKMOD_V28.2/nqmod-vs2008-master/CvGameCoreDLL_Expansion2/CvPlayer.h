@@ -1833,11 +1833,16 @@ public:
 
 	bool hasTurnTimerExpired();
 
+	// called when state information about a card changes (add, remove, visible, etc.)
+	virtual void CardsOnChanged();
 	void CardsActivate(int cardIdx);
 	void CardsAdd(TradingCardTypes cardType);
 	void CardsRemove(TradingCardTypes cardType);
 	void CardsDestroy(int cardIdx);
+	bool CardsToggleVisibility(int cardIdx);
 	TradingCardTypes CardsType(int cardIdx) const;
+	bool CardsIsVisible(int cardIdx) const;
+	// total number of cards this player has
 	int CardsCount() const;
 	int CardsCount(TradingCardTypes cardType) const;
 	bool CardsHasAny(TradingCardTypes cardType) const;
@@ -2269,7 +2274,7 @@ protected:
 
 	FAutoVariable<std::vector<bool>, CvPlayer> m_pabGetsScienceFromPlayer;
 	// which cards this player owns (they can own multiple of one type)
-	FAutoVariable<std::vector<TradingCardTypes>, CvPlayer> m_cards;
+	FAutoVariable<std::vector<TradingCardState>, CvPlayer> m_cards;
 
 	FAutoVariable< std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > >, CvPlayer> m_ppaaiSpecialistExtraYield;
 	FAutoVariable< std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > >, CvPlayer> m_ppaaiImprovementYieldChange;

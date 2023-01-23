@@ -6,24 +6,34 @@
 #include "CvGameCoreUtils.h"
 
 
-void PlaceRandomSpy(CvPlayer* pPlayer)
-{
 
+
+bool operator==(const TradingCardState& lhs, const TradingCardState& rhs)
+{
+	if (&lhs == &rhs) return true;
+	if (lhs.type != rhs.type) return false;
+	if (lhs.isVisible != rhs.isVisible) return false;
+	return true;
 }
-
-
-FDataStream& operator <<(FDataStream& kStream, const TradingCardTypes& data)
+FDataStream& operator <<(FDataStream& kStream, const TradingCardState& data)
 {
-	kStream << (int)data;
+	kStream << data.type;
+	kStream << data.isVisible;
 	return kStream;
 }
-FDataStream& operator >>(FDataStream& kStream, TradingCardTypes& data)
+FDataStream& operator >>(FDataStream& kStream, TradingCardState& data)
 {
-	int type;
-	kStream >> type;
-	data = (TradingCardTypes)type;
+	kStream >> data.type;
+	kStream >> data.isVisible;
 	return kStream;
 }
+
+
+
+
+
+
+
 const CvPolicyEntry* GetPolicyInfo(const string policyName)
 {
 	if (policyName.size() == 0)
@@ -35,7 +45,7 @@ const CvPolicyEntry* GetPolicyInfo(const string policyName)
 	const CvPolicyEntry* pInfo = GC.getPolicyInfo(ePolicy);
 	return pInfo;
 }
-string TradingCard::GetName(TradingCardTypes type, CvPlayer* pOwner)
+string TradingCard::GetName(TradingCardTypes type, CvPlayer* player)
 {
 	const CvPolicyEntry* activeInfo = GetPolicyInfo(TradingCard::GetActivePolicy(type));
 	string active = activeInfo == NULL ? "" : activeInfo->GetDescription();
@@ -48,7 +58,7 @@ string TradingCard::GetName(TradingCardTypes type, CvPlayer* pOwner)
 	}
 	return passive + joiner + active;
 }
-string TradingCard::GetDesc(TradingCardTypes type, CvPlayer* pOwner)
+string TradingCard::GetDesc(TradingCardTypes type, CvPlayer* player)
 {
 	const CvPolicyEntry* activeInfo = GetPolicyInfo(TradingCard::GetActivePolicy(type));
 	string active = activeInfo == NULL ? "" : activeInfo->GetHelp();
@@ -61,15 +71,23 @@ string TradingCard::GetDesc(TradingCardTypes type, CvPlayer* pOwner)
 	}
 	return passive + joiner + active;
 }
-bool TradingCard::TryActivate(TradingCardTypes type, CvPlayer* pActivatingPlayer)
+void TrySetHasPolicy(CvPlayer* player, string policyName, bool newVal)
 {
-	switch (type)
+	if (policyName.size() > 0)
 	{
-	case CARD_RANDOM_SPY: PlaceRandomSpy(pActivatingPlayer); return true;
-	default: return true;
-	};
+		const CvPolicyXMLEntries* pAllPolicies = GC.GetGamePolicies();
+		const PolicyTypes ePolicy = pAllPolicies->Policy(policyName);
+		player->setHasPolicy(ePolicy, newVal);
+	}
+}
+void TradingCard::OnCountChanged(TradingCardTypes cardType, CvPlayer* player, int delta)
+{
+	const string policyName = TradingCard::GetPassivePolicy(cardType);
+	const bool hasType = player->CardsHasAny(cardType);
+	TrySetHasPolicy(player, policyName, hasType);
 
-	return true;
+	player->CardsOnChanged();
+	TryApplyPassiveEffects(cardType, player, delta);
 }
 string TradingCard::GetActivePolicyDesc(TradingCardTypes type)
 {
@@ -90,4 +108,16 @@ string TradingCard::GetPassivePolicyDesc(TradingCardTypes type)
 	}
 	const string desc = GetLocalizedText(pInfo->GetHelp());
 	return desc;
+}
+FDataStream& operator <<(FDataStream& kStream, const TradingCardTypes& data)
+{
+	kStream << (int)data;
+	return kStream;
+}
+FDataStream& operator >>(FDataStream& kStream, TradingCardTypes& data)
+{
+	int type;
+	kStream >> type;
+	data = (TradingCardTypes)type;
+	return kStream;
 }

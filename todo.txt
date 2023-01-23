@@ -3,12 +3,11 @@
 
 
 Trading Cards
-	Don't allow selecting duplicates
-	Can we invalidate the deal if the player cards change?
-	extract text to txt file
 	have tabs be All, Active Only, Passive Only
-	toggle trade visibility (defaults to invisible except for AI)
-	AI trade card value function
+
+	enable US card trading
+	defaults to invisible if human
+	card visibility needs to go through network
 
 
 	2540  dealclasses.cpp

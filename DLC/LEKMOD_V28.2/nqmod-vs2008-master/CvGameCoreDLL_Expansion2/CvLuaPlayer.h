@@ -814,6 +814,8 @@ protected:
 
 	static int lCardCount(lua_State* L);
 	static int lCardType(lua_State* L);
+	static int lCardToggleVisibility(lua_State* L);
+	static int lCardIsVisible(lua_State* L);
 	static int lCardName(lua_State* L);
 	static int lCardDesc(lua_State* L);
 	static int lCardPassiveDesc(lua_State* L);

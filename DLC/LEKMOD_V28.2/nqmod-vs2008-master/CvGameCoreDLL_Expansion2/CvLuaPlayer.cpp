@@ -829,6 +829,8 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(CardCount);
 	Method(CardName);
 	Method(CardType);
+	Method(CardToggleVisibility);
+	Method(CardIsVisible);
 	Method(CardDesc);
 	Method(CardPassiveDesc);
 	Method(CardActiveDesc);
@@ -8229,6 +8231,23 @@ int CvLuaPlayer::lCardType(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
+int CvLuaPlayer::lCardToggleVisibility(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int cardIdx = lua_tointeger(L, 2);
+	pkPlayer->CardsToggleVisibility(cardIdx);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lCardIsVisible(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int cardIdx = lua_tointeger(L, 2);
+	const bool isVisible = pkPlayer->CardsIsVisible(cardIdx);
+	lua_pushboolean(L, isVisible);
+	return 1;
+}
+//------------------------------------------------------------------------------
 int CvLuaPlayer::lCardName(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
@@ -8268,7 +8287,7 @@ int CvLuaPlayer::lCardPassiveDesc(lua_State* L)
 	const TradingCardTypes type = (TradingCardTypes)lua_tointeger(L, 2);
 	if (type == CARD_INVALID)
 	{
-		lua_pushboolean(L, true);
+		lua_pushstring(L, "ERROR184365");
 	}
 	else
 	{
@@ -8284,7 +8303,7 @@ int CvLuaPlayer::lCardActiveDesc(lua_State* L)
 	const TradingCardTypes type = (TradingCardTypes)lua_tointeger(L, 2);
 	if (type == CARD_INVALID)
 	{
-		lua_pushboolean(L, true);
+		lua_pushstring(L, "ERROR591241");
 	}
 	else
 	{

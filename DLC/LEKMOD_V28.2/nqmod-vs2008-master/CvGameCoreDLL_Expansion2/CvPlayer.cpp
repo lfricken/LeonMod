@@ -28044,44 +28044,32 @@ bool CvPlayer::HasBuildingClass(BuildingClassTypes iBuildingClassType)
 	return false;
 }
 */
-const InterfaceDirtyBits CardsDirtyBit = GreatWorksScreen_DIRTY_BIT;
-void TogglePolicy(CvPlayer& player, string policyName, bool newVal)
-{
-	if (policyName.size() > 0)
-	{
-		const CvPolicyXMLEntries* pAllPolicies = GC.GetGamePolicies();
-		const PolicyTypes ePolicy = pAllPolicies->Policy(policyName);
-		player.setHasPolicy(ePolicy, newVal);
-	}
-}
 void CvPlayer::CardsActivate(int cardIdx)
 {
 	if (cardIdx >= 0 && cardIdx < (int)m_cards.size())
 	{
-		const TradingCardTypes cardType = m_cards[cardIdx];
+		const TradingCardTypes cardType = m_cards[cardIdx].type;
 		const bool didActivate = TradingCard::TryActivate(cardType, this);
 		if (didActivate)
 		{
 			CardsDestroy(cardIdx);
-
-			const string policyName = TradingCard::GetActivePolicy(cardType);
-			TogglePolicy(*this, policyName, true);
 		}
 	}
 }
 void CvPlayer::CardsAdd(TradingCardTypes cardType)
 {
-	m_cards.push_back(cardType);
-	const string policyName = TradingCard::GetPassivePolicy(cardType);
-	TogglePolicy(*this, policyName, true);
-	DLLUI->setDirty(CardsDirtyBit, true);
+	TradingCardState card;
+	card.type = cardType;
+	card.isVisible = true;
+	m_cards.push_back(card);
+	TradingCard::OnCountChanged(cardType, this, +1);
 }
 void CvPlayer::CardsRemove(TradingCardTypes cardType)
 {
 	int cardIdx = -1;
 	for (int i = 0; i < (int)m_cards.size(); ++i)
 	{
-		if (m_cards[i] == cardType)
+		if (m_cards[i].type == cardType)
 		{
 			cardIdx = i;
 			break;
@@ -28089,27 +28077,41 @@ void CvPlayer::CardsRemove(TradingCardTypes cardType)
 	}
 	CardsDestroy(cardIdx);
 }
+bool CvPlayer::CardsToggleVisibility(int cardIdx)
+{
+	if (cardIdx >= 0 && cardIdx < (int)m_cards.size())
+	{
+		TradingCardState newVal = m_cards[cardIdx]; // juggle because lvalue
+		newVal.isVisible = !newVal.isVisible;
+		m_cards.setAt(cardIdx, newVal);
+	}
+	CardsOnChanged();
+	return false;
+}
 void CvPlayer::CardsDestroy(int cardIdx)
 {
 	if (cardIdx >= 0 && cardIdx < (int)m_cards.size())
 	{
-		const TradingCardTypes cardType = m_cards[cardIdx];
+		const TradingCardTypes cardType = m_cards[cardIdx].type;
 		m_cards.erase(cardIdx);
-		if (!CardsHasAny(cardType)) // no more of this kind left!
-		{
-			const string policyName = TradingCard::GetPassivePolicy(cardType);
-			TogglePolicy(*this, policyName, false);
-		}
+		TradingCard::OnCountChanged(cardType, this, -1);
 	}
-	DLLUI->setDirty(CardsDirtyBit, true);
 }
 TradingCardTypes CvPlayer::CardsType(int cardIdx) const
 {
 	if (cardIdx >= 0 && cardIdx < (int)m_cards.size())
 	{
-		return m_cards[cardIdx];
+		return m_cards[cardIdx].type;
 	}
 	return CARD_INVALID;
+}
+bool CvPlayer::CardsIsVisible(int cardIdx) const
+{
+	if (cardIdx >= 0 && cardIdx < (int)m_cards.size())
+	{
+		return m_cards[cardIdx].isVisible;
+	}
+	return false;
 }
 int CvPlayer::CardsCount() const
 {
@@ -28120,7 +28122,7 @@ int CvPlayer::CardsCount(TradingCardTypes cardType) const
 	int count = 0;
 	for (int i = 0; i < (int)m_cards.size(); ++i)
 	{
-		if (m_cards[i] == cardType)
+		if (m_cards[i].type == cardType)
 		{
 			count++;
 		}
@@ -28130,5 +28132,10 @@ int CvPlayer::CardsCount(TradingCardTypes cardType) const
 bool CvPlayer::CardsHasAny(TradingCardTypes cardType) const
 {
 	return CardsCount(cardType) >= 1;
+}
+const InterfaceDirtyBits CardsDirtyBit = GreatWorksScreen_DIRTY_BIT;
+void CvPlayer::CardsOnChanged()
+{
+	DLLUI->setDirty(CardsDirtyBit, true);
 }
 
