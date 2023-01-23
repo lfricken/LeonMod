@@ -168,7 +168,7 @@ function DisplayData(includePassive, includeActive)
 
 			-- activate button
 			inst.Activate:SetHide(not hasActive);
-			inst.Activate:SetToolTipString(activeDesc .. ". Consumes this card.");
+			inst.Activate:LocalizeAndSetToolTip(activeDesc .. ". {TXT_KEY_CARD_ACTIVATE_CONSUMED}");
 			inst.Activate:RegisterCallback(Mouse.eLClick, function() OnClickedActivate(iPlayerId, cardIdx); end);
 
 			-- visibility button
