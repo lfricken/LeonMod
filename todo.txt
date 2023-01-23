@@ -5,6 +5,7 @@
 Trading Cards
 	have tabs be All, Active Only, Passive Only
 
+	fix gold
 	enable US card trading
 	defaults to invisible if human
 	card visibility needs to go through network

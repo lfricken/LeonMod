@@ -458,6 +458,7 @@ function OnShowHide( isHide, bIsInit )
             -- reset all the controls on show
             Controls.UsPocketCitiesStack:SetHide( true );
             Controls.ThemPocketCitiesStack:SetHide( true );
+            Controls.ThemPocketCardsStack:SetHide( true );
             Controls.UsPocketOtherPlayerStack:SetHide( true );
             Controls.ThemPocketOtherPlayerStack:SetHide( true );
             Controls.UsPocketStrategicStack:SetHide( true );
@@ -934,6 +935,7 @@ function ResetDisplay()
 	Controls.ThemPocketLeaderStack:SetHide( true );
 	Controls.UsPocketCitiesStack:SetHide( true );
 	Controls.ThemPocketCitiesStack:SetHide( true );
+	Controls.ThemPocketCardsStack:SetHide( true );
 	
     Controls.UsPocketGold:SetHide( false );
     Controls.ThemPocketGold:SetHide( false );
@@ -1435,6 +1437,33 @@ function ResetDisplay()
 		end
 	end
 	
+    ---------------------------------------------------------------------------------- 
+    -- Pocket Cards
+    ---------------------------------------------------------------------------------- 
+
+    -- THEM -- display pocket button
+    local bFound = false;
+	local count = g_pThem:CardCount();
+	for cardIdx = 0, count-1, 1 do
+		if (g_Deal:IsPossibleToTradeItem(m_iFrom, m_iTo, TradeableItems.TRADE_ITEM_CARD, cardIdx, cardType)) then
+			bFound = true;
+			break;
+		end
+	end
+	local noneStr = "None available";
+    if( bFound ) then
+        Controls.ThemPocketCards:SetDisabled( false );
+        Controls.ThemPocketCards:SetToolTipString( Locale.ConvertTextKey(noneStr));
+		Controls.ThemPocketCards:GetTextControl():SetColorByName("Beige_Black");
+    else
+        Controls.ThemPocketCards:SetDisabled( true );
+        Controls.ThemPocketCards:SetToolTipString( Locale.ConvertTextKey(noneStr));
+		Controls.ThemPocketCards:GetTextControl():SetColorByName("Gray_Black");
+    end
+
+    -- US
+
+
     ---------------------------------------------------------------------------------- 
     -- Pocket Cities
     ---------------------------------------------------------------------------------- 
@@ -3107,9 +3136,8 @@ Controls.ThemPocketCities:SetVoid1( 0 );
 Controls.ThemPocketCities:RegisterCallback( Mouse.eLClick, ShowCityChooser );
 
 -------------------------------------------------------------
+-- display list of cards to choose
 function ShowCardChooser( isUs )
-
-    --print( "ShowCityChooser" );
     local m_pTo;
     local m_pFrom;
     local m_iTo;
@@ -3215,6 +3243,35 @@ function RemoveCard(playerID, cardIdx)
     DisplayDeal();
     DoUIDealChangedByHuman();
 end
+----------------------------------------------------------------------------------------
+-- button to close the card pocket
+function CardPocketClose( _, isUs )
+        
+    if( isUs == 1 ) then
+        Controls.UsPocketCardsStack:SetHide( true );
+        Controls.UsPocketCitiesStack:CalculateSize();
+        
+        Controls.UsPocketStack:SetHide( false );
+        Controls.UsPocketStack:CalculateSize();
+        
+        Controls.UsPocketPanel:CalculateInternalSize();
+        Controls.UsPocketPanel:SetScrollValue( 0 );
+    else
+        Controls.ThemPocketCardsStack:SetHide( true );
+        Controls.ThemPocketCardsStack:CalculateSize();
+        
+        Controls.ThemPocketStack:SetHide( false );
+        Controls.ThemPocketStack:CalculateSize();
+        
+        Controls.ThemPocketPanel:CalculateInternalSize();
+        Controls.ThemPocketPanel:SetScrollValue( 0 );
+    end
+
+end
+--Controls.UsPocketCitiesClose:RegisterCallback( Mouse.eLClick, CardPocketClose );
+--Controls.UsPocketCitiesClose:SetVoid2( 1 );
+Controls.ThemPocketCardsClose:RegisterCallback( Mouse.eLClick, CardPocketClose );
+Controls.ThemPocketCardsClose:SetVoid2( 0 );
 
 
 -----------------------------------------------------------------------------------------------------------------------
