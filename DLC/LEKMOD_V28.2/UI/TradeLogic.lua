@@ -7,8 +7,11 @@ include( "SupportFunctions"  );
 local g_UsTableCitiesIM     = InstanceManager:new( "CityInstance", "Button", Controls.UsTableCitiesStack );
 local g_UsPocketCitiesIM    = InstanceManager:new( "CityInstance", "Button", Controls.UsPocketCitiesStack );
 local g_ThemTableCitiesIM   = InstanceManager:new( "CityInstance", "Button", Controls.ThemTableCitiesStack );
-local g_ThemTableCardsIM   = InstanceManager:new( "CardInstance", "Button", Controls.ThemTableCardsStack );
 local g_ThemPocketCitiesIM  = InstanceManager:new( "CityInstance", "Button", Controls.ThemPocketCitiesStack );
+
+local g_UsTableCardsIM     = InstanceManager:new( "CardInstance", "Button", Controls.UsTableCardsStack );
+local g_UsPocketCardsIM    = InstanceManager:new( "CardInstance", "Button", Controls.UsPocketCardsStack );
+local g_ThemTableCardsIM   = InstanceManager:new( "CardInstance", "Button", Controls.ThemTableCardsStack );
 local g_ThemPocketCardsIM  = InstanceManager:new( "CardInstance", "Button", Controls.ThemPocketCardsStack );
 
 local g_UsTableVoteIM		= InstanceManager:new( "TableVote", "Container", Controls.UsTableVoteStack );
@@ -458,6 +461,7 @@ function OnShowHide( isHide, bIsInit )
             -- reset all the controls on show
             Controls.UsPocketCitiesStack:SetHide( true );
             Controls.ThemPocketCitiesStack:SetHide( true );
+            Controls.UsPocketCardsStack:SetHide( true );
             Controls.ThemPocketCardsStack:SetHide( true );
             Controls.UsPocketOtherPlayerStack:SetHide( true );
             Controls.ThemPocketOtherPlayerStack:SetHide( true );
@@ -935,6 +939,7 @@ function ResetDisplay()
 	Controls.ThemPocketLeaderStack:SetHide( true );
 	Controls.UsPocketCitiesStack:SetHide( true );
 	Controls.ThemPocketCitiesStack:SetHide( true );
+	Controls.UsPocketCardsStack:SetHide( true );
 	Controls.ThemPocketCardsStack:SetHide( true );
 	
     Controls.UsPocketGold:SetHide( false );
@@ -1441,11 +1446,31 @@ function ResetDisplay()
     -- Pocket Cards
     ---------------------------------------------------------------------------------- 
 
+    -- US
+    local bFound = false;
+	local count = g_pUs:CardCount();
+	for cardIdx = 0, count-1, 1 do
+		if (g_Deal:IsPossibleToTradeItem(g_iUs, g_iThem, TradeableItems.TRADE_ITEM_CARD, cardIdx, cardType)) then
+			bFound = true;
+			break;
+		end
+	end
+	local noneStr = "None available";
+    if( bFound ) then
+        Controls.UsPocketCards:SetDisabled( false );
+        Controls.UsPocketCards:SetToolTipString( Locale.ConvertTextKey(noneStr));
+		Controls.UsPocketCards:GetTextControl():SetColorByName("Beige_Black");
+    else
+        Controls.UsPocketCards:SetDisabled( true );
+        Controls.UsPocketCards:SetToolTipString( Locale.ConvertTextKey(noneStr));
+		Controls.UsPocketCards:GetTextControl():SetColorByName("Gray_Black");
+    end
+
     -- THEM -- display pocket button
     local bFound = false;
 	local count = g_pThem:CardCount();
 	for cardIdx = 0, count-1, 1 do
-		if (g_Deal:IsPossibleToTradeItem(m_iFrom, m_iTo, TradeableItems.TRADE_ITEM_CARD, cardIdx, cardType)) then
+		if (g_Deal:IsPossibleToTradeItem(g_iThem, g_iUs, TradeableItems.TRADE_ITEM_CARD, cardIdx, cardType)) then
 			bFound = true;
 			break;
 		end
@@ -1460,8 +1485,6 @@ function ResetDisplay()
         Controls.ThemPocketCards:SetToolTipString( Locale.ConvertTextKey(noneStr));
 		Controls.ThemPocketCards:GetTextControl():SetColorByName("Gray_Black");
     end
-
-    -- US
 
 
     ---------------------------------------------------------------------------------- 
@@ -1761,6 +1784,8 @@ end
 function DoClearTable()
     g_UsTableCitiesIM:ResetInstances();
     g_ThemTableCitiesIM:ResetInstances();
+
+    g_UsTableCardsIM:ResetInstances();
     g_ThemTableCardsIM:ResetInstances();
 
     g_UsTableVoteIM:ResetInstances();
@@ -1784,7 +1809,9 @@ function DoClearTable()
 	Controls.ThemTableTradeAgreement:SetHide( true );
     Controls.UsTableCitiesStack:SetHide( true );
     Controls.ThemTableCitiesStack:SetHide( true );
+    Controls.UsTableCardsStack:SetHide( true );
     Controls.ThemTableCardsStack:SetHide( true );
+
 	Controls.UsTableStrategicStack:SetHide( true );
 	Controls.ThemTableStrategicStack:SetHide( true );
 	Controls.UsTableLuxuryStack:SetHide( true );
@@ -1848,6 +1875,7 @@ function ResizeStacks()
     
 	Controls.UsTableCitiesStack:CalculateSize();
 	Controls.ThemTableCitiesStack:CalculateSize();
+    Controls.UsTableCardsStack:CalculateSize();
     Controls.ThemTableCardsStack:CalculateSize();
     Controls.UsPocketLeaderStack:CalculateSize();
     Controls.ThemPocketLeaderStack:CalculateSize();
@@ -1880,6 +1908,8 @@ end
 function DisplayDeal()
     g_UsTableCitiesIM:ResetInstances();
     g_ThemTableCitiesIM:ResetInstances();
+
+    g_UsTableCardsIM:ResetInstances();
     g_ThemTableCardsIM:ResetInstances();
 
     g_UsTableVoteIM:ResetInstances();
@@ -2027,25 +2057,29 @@ function DisplayDeal()
             end
 
 
+
 		-- TRADING CARDS
 		elseif(TradeableItems.TRADE_ITEM_CARD == itemType) then
+			local cardName="";
+			local cardDesc="";
 			if(bFromUs) then
 				instance = g_UsTableCardsIM:GetInstance();
 				instance.Button:SetVoids( g_iUs, data2 );
 				instance.Button:RegisterCallback( Mouse.eLClick, RemoveCard );
 				Controls.UsTableCardsStack:SetHide( false );
+				cardName = g_pUs:CardName(data2);
+				cardDesc = g_pUs:CardDesc(data2);
 			else
 				instance = g_ThemTableCardsIM:GetInstance();
 				instance.Button:SetVoids( g_iThem, data2 );
 				instance.Button:RegisterCallback( Mouse.eLClick, RemoveCard );
 				Controls.ThemTableCardsStack:SetHide( false );
+				cardName = g_pThem:CardName(data2);
+				cardDesc = g_pThem:CardDesc(data2);
 			end
-			local cardName = g_pUs:CardName(data2);
-			local cardDesc = g_pUs:CardDesc(data2);
-
 			instance.CardName:SetText(cardName);
 			instance.CardName:SetToolTipString(cardDesc);
-		
+
 
 
         elseif( TradeableItems.TRADE_ITEM_THIRD_PARTY_PEACE == itemType ) then
@@ -3149,9 +3183,9 @@ function ShowCardChooser( isUs )
     
     if( isUs == 1 ) then
         m_pocketStack = Controls.UsPocketStack;
-        m_editStack = Controls.UsPocketCitiesStack;
+        m_editStack = Controls.UsPocketCardsStack;
         m_panel       = Controls.UsPocketPanel;
-        m_pIM   = g_UsPocketCitiesIM;
+        m_pIM   = g_UsPocketCardsIM;
         m_iTo   = g_iThem;
         m_iFrom = g_iUs;
         m_pTo   = g_pThem;
@@ -3204,13 +3238,13 @@ function ShowCardChooser( isUs )
         m_editStack:SetHide( true );
         
         if( isUs == 1 ) then
-            Controls.UsPocketCities:SetDisabled( false );
-            Controls.UsPocketCities:LocalizeAndSetToolTip( "TXT_KEY_DIPLO_TO_TRADE_CITY_NO_TT" );
-    		Controls.UsPocketCities:GetTextControl():SetColorByName("Gray_Black");
+            Controls.UsPocketCards:SetDisabled( false );
+            Controls.UsPocketCards:LocalizeAndSetToolTip( "TXT_KEY_DIPLO_TO_TRADE_CITY_NO_TT" );
+    		Controls.UsPocketCards:GetTextControl():SetColorByName("Gray_Black");
         else
-            Controls.ThemPocketCities:SetDisabled( true );
-            Controls.ThemPocketCities:LocalizeAndSetToolTip( "TXT_KEY_DIPLO_TO_TRADE_CITY_NO_THEM" );
-    		Controls.ThemPocketCities:GetTextControl():SetColorByName("Gray_Black");
+            Controls.ThemPocketCards:SetDisabled( true );
+            Controls.ThemPocketCards:LocalizeAndSetToolTip( "TXT_KEY_DIPLO_TO_TRADE_CITY_NO_THEM" );
+    		Controls.ThemPocketCards:GetTextControl():SetColorByName("Gray_Black");
         end
     end
     
@@ -3220,9 +3254,8 @@ function ShowCardChooser( isUs )
     m_panel:SetScrollValue( 0 );
 end
 
---Controls.UsPocketCards:SetVoid1( 1 );
---Controls.UsPocketCards:RegisterCallback( Mouse.eLClick, ShowCardChooser );
-
+Controls.UsPocketCards:SetVoid1( 1 );
+Controls.UsPocketCards:RegisterCallback( Mouse.eLClick, ShowCardChooser );
 Controls.ThemPocketCards:SetVoid1( 0 );
 Controls.ThemPocketCards:RegisterCallback( Mouse.eLClick, ShowCardChooser );
 
@@ -3249,7 +3282,7 @@ function CardPocketClose( _, isUs )
         
     if( isUs == 1 ) then
         Controls.UsPocketCardsStack:SetHide( true );
-        Controls.UsPocketCitiesStack:CalculateSize();
+        Controls.UsPocketCardsStack:CalculateSize();
         
         Controls.UsPocketStack:SetHide( false );
         Controls.UsPocketStack:CalculateSize();
@@ -3268,8 +3301,8 @@ function CardPocketClose( _, isUs )
     end
 
 end
---Controls.UsPocketCitiesClose:RegisterCallback( Mouse.eLClick, CardPocketClose );
---Controls.UsPocketCitiesClose:SetVoid2( 1 );
+Controls.UsPocketCardsClose:RegisterCallback( Mouse.eLClick, CardPocketClose );
+Controls.UsPocketCardsClose:SetVoid2( 1 );
 Controls.ThemPocketCardsClose:RegisterCallback( Mouse.eLClick, CardPocketClose );
 Controls.ThemPocketCardsClose:SetVoid2( 0 );
 

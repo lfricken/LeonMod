@@ -4,9 +4,7 @@
 
 Trading Cards
 	have tabs be All, Active Only, Passive Only
-	defaults to invisible if human
 
-	enable US card trading
 	card visibility needs to go through network
 
 
@@ -58,6 +56,11 @@ ThemPocketCardsStack
 
 
 
+				<Stack Anchor="R,T" Offset="17,0" StackGrowth="B" Padding="2" ID="ThemPocketCardsStack">
+					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_CLOSE" ID="ThemPocketCardsClose">
+						<Box Color="255,255,255,128" Size="195,1" Anchor="C,B" Offset="0,-1"/>
+					</Button>
+				</Stack>
 
 
 

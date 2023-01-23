@@ -74,6 +74,11 @@
 						<Box Color="255,255,255,128" Size="195,1" Anchor="C,B" Offset="0,-1"/>
 					</Button>
 				</Stack>
+				<Stack Anchor="L,T" Offset="18,0" StackGrowth="B" Padding="2" ID="UsPocketCardsStack">
+					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_CLOSE" ID="UsPocketCardsClose">
+						<Box Color="255,255,255,128" Size="195,1" Anchor="C,B" Offset="0,-1"/>
+					</Button>
+				</Stack>
 				<Stack Anchor="L,T" Offset="18,0" StackGrowth="Bottom" Padding="0" ID="UsPocketStack" Hidden="1">
 					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_GOLD" ID="UsPocketGold"/>
 					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_GOLD_PER_TURN" ID="UsPocketGoldPerTurn"/>
@@ -201,6 +206,7 @@
 					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_DEF_PACT" ID="UsTableDefensivePact"/>
 					<Button Style="TradeItemButton" Anchor="L,C" String="Research agreement" ID="UsTableResearchAgreement"/>
 					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_TRADE_AGREEMENT" ID="UsTableTradeAgreement"/>
+					<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="5" Hidden="0" ID="UsTableCardsStack"/>
 					<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="5" Hidden="0" ID="UsTableCitiesStack"/>
 					<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="5" Hidden="0" ID="UsTableDeclareWarStack">
 						<Box Color="255,255,255,0" Size="194,18">
