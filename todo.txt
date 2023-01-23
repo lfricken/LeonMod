@@ -5,66 +5,10 @@
 Trading Cards
 	have tabs be All, Active Only, Passive Only
 
-	card visibility needs to go through network
-
-
-	2540  dealclasses.cpp
-	"cards"
-	unlock wonder construction
-
-
-	trade great works?
-
-	        m_pocketStack = Controls.ThemPocketStack;
-	        m_citiesStack = Controls.ThemPocketCitiesStack;
-	        m_panel       = Controls.ThemPocketPanel;
-	        m_pIM   = g_ThemPocketCitiesIM;
-	UsPocketCards
-	ThemPocketCards
-
-	UsPocketCities choser
-	GetTradeItemValue
-	IsPossibleToTradeItem // Can't already have this city in the deal
-	GetItemTradeableState
-	RegisterEnum(TRADE_ITEM_CITIES);
-
-	TRADE_ITEM_CITIES
-
-
-	void AddCityTrade(PlayerTypes eFrom, int iCityID);
-
-	CvLuaDeal::lGetNextItem
-
-	TradeLogic.lua
-
-
-	for pCity in g_pThem:Cities() do
-	    if( g_Deal:IsPossibleToTradeItem( g_iThem, g_iUs, TradeableItems.TRADE_ITEM_CITIES, pCity:GetX(), pCity:GetY() ) ) then
-	        bFound = true;
-	        break;
-	    end
-	end
 
 
 
-
-
-
-ThemPocketCardsStack
-
-
-
-
-
-				<Stack Anchor="R,T" Offset="17,0" StackGrowth="B" Padding="2" ID="ThemPocketCardsStack">
-					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_CLOSE" ID="ThemPocketCardsClose">
-						<Box Color="255,255,255,128" Size="195,1" Anchor="C,B" Offset="0,-1"/>
-					</Button>
-				</Stack>
-
-
-
-
+-- folders to search 
 C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization V\Assets\DLC\LEKMOD_V28.2\UI, C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization V\Assets\DLC\Expansion2\UI, C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization V\Assets\DLC\Expansion\UI, C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization V\Assets\UI
 
 

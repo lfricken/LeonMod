@@ -6,6 +6,7 @@ include( "InstanceManager" );
 include( "TradeRouteHelpers" );
 
 local g_PopupInfo = nil;
+local g_isDebugMode = true; -- allows card manipulation
 
 -------------------------------------------------
 -- Global Variables
@@ -138,8 +139,6 @@ function DisplayData(includePassive, includeActive)
     local pPlayer = Players[iPlayerId];
 
 	local count = pPlayer:CardCount();
-	local isDebugMode = true; -- allows card manipulation
-
 	for cardIdx = 0, count-1, 1 do
 		local cardType = pPlayer:CardName(cardIdx);
 
@@ -179,8 +178,8 @@ function DisplayData(includePassive, includeActive)
 			end
 
 			-- delete button (DEBUG ONLY)
-			inst.Delete:SetHide(not isDebugMode);
-			inst.Delete:SetDisabled(not isDebugMode);
+			inst.Delete:SetHide(not g_isDebugMode);
+			inst.Delete:SetDisabled(not g_isDebugMode);
 			inst.Delete:RegisterCallback(Mouse.eLClick, function() OnClickedDelete(iPlayerId, cardIdx); end);
 		end
 	end
