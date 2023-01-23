@@ -382,23 +382,29 @@ void CvDllNetMessageHandler::ResponseFoundPantheon(PlayerTypes ePlayer, BeliefTy
 		throw new exception("ResponseFoundPantheon was null.");
 	}
 }
+
 const int SpecialIdx = 0;
-const int SubTypeIdx = 1;
 const char SpecialMessageId = 5;
 
 // this message is to activate a card
 const char ActivateCardId = 1;
-void CvDllNetMessageHandler::SendActivateCard(const PlayerTypes ePlayer, const int cardIdx)
+void CvDllNetMessageHandler::SendNetAction(const PlayerTypes ePlayer, const int cardIdx, const NET_ACTION action)
 {
 	std::string messageIdentifier = "00"; // need at least 2 chars
 	messageIdentifier[SpecialIdx] = SpecialMessageId;
-	messageIdentifier[SubTypeIdx] = ActivateCardId;
 	gDLL->SendFoundReligion(ePlayer, (ReligionTypes)cardIdx, messageIdentifier.c_str(), 
-		(BeliefTypes)0, (BeliefTypes)0, (BeliefTypes)0, (BeliefTypes)0, 0, 0);
+		(BeliefTypes)action, (BeliefTypes)0, (BeliefTypes)0, (BeliefTypes)0, 0, 0);
 }
-void ResponseActivateCard(const PlayerTypes ePlayer, int cardIdx)
+void ResponseNetAction(const PlayerTypes ePlayer, int cardIdx, NET_ACTION cardAction)
 {
-	GET_PLAYER(ePlayer).CardsActivate(cardIdx);
+	if (cardAction == NET_ACTION_CARD_ACTIVATE)
+	{
+		GET_PLAYER(ePlayer).CardsActivate(cardIdx);
+	}
+	else if (cardAction == NET_ACTION_CARD_TOGGLE_VISIBILITY)
+	{
+		GET_PLAYER(ePlayer).CardsToggleVisibility(cardIdx);
+	}
 }
 //------------------------------------------------------------------------------
 void CvDllNetMessageHandler::ResponseFoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion, const char* szCustomName, BeliefTypes eBelief1, BeliefTypes eBelief2, BeliefTypes eBelief3, BeliefTypes eBelief4, int iCityX, int iCityY)
@@ -406,10 +412,7 @@ void CvDllNetMessageHandler::ResponseFoundReligion(PlayerTypes ePlayer, Religion
 	// actually a different type of message
 	if (szCustomName[SpecialIdx] == SpecialMessageId)
 	{
-		if (szCustomName[SubTypeIdx] == ActivateCardId)
-		{
-			ResponseActivateCard(ePlayer, eReligion);
-		}
+		ResponseNetAction(ePlayer, eReligion, (NET_ACTION)eBelief1);
 		return;
 	}
 

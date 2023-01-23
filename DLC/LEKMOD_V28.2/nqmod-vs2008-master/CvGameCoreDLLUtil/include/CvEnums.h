@@ -15,6 +15,11 @@ enum eCiv5GameCoreMPoolType
 	c_eCiv5GameplayDLL = c_eMPoolTypeUserStart + 0x100,		// Adding 0x100 because we don't want to collide with the app's IDs
 };
 
+enum NET_ACTION
+{
+	NET_ACTION_CARD_ACTIVATE,
+	NET_ACTION_CARD_TOGGLE_VISIBILITY,
+};
 
 enum TradingCardTypes
 {

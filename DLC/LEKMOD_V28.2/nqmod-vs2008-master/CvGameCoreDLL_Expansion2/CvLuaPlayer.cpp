@@ -8231,11 +8231,20 @@ int CvLuaPlayer::lCardType(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
+int CvLuaPlayer::lCardActivate(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int cardIdx = lua_tointeger(L, 2);
+	CvDllNetMessageHandler::SendNetAction(pkPlayer->GetID(), cardIdx, NET_ACTION_CARD_ACTIVATE);
+
+	return 1;
+}
+//------------------------------------------------------------------------------
 int CvLuaPlayer::lCardToggleVisibility(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const int cardIdx = lua_tointeger(L, 2);
-	pkPlayer->CardsToggleVisibility(cardIdx);
+	CvDllNetMessageHandler::SendNetAction(pkPlayer->GetID(), cardIdx, NET_ACTION_CARD_TOGGLE_VISIBILITY);
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -8310,16 +8319,6 @@ int CvLuaPlayer::lCardActiveDesc(lua_State* L)
 		const string desc = TradingCard::GetActivePolicyDesc(type);
 		lua_pushstring(L, desc.c_str());
 	}
-	return 1;
-}
-//------------------------------------------------------------------------------
-int CvLuaPlayer::lCardActivate(lua_State* L)
-{
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	const int cardIdx = lua_tointeger(L, 2);
-
-	CvDllNetMessageHandler::SendActivateCard(pkPlayer->GetID(), cardIdx);
-
 	return 1;
 }
 //------------------------------------------------------------------------------

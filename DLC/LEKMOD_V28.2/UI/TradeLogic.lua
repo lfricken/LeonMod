@@ -1455,7 +1455,7 @@ function ResetDisplay()
 			break;
 		end
 	end
-	local noneStr = "None available for trade";
+	local noneStr = "No more available for trade";
     if( bFound ) then
         Controls.UsPocketCards:SetDisabled( false );
         Controls.UsPocketCards:SetToolTipString("");

@@ -1835,11 +1835,13 @@ public:
 
 	// called when state information about a card changes (add, remove, visible, etc.)
 	virtual void CardsOnChanged();
+	// DO NOT CALL, should only be called from net handler
 	void CardsActivate(int cardIdx);
+	// DO NOT CALL, should only be called from net handler
+	bool CardsToggleVisibility(int cardIdx);
 	void CardsAdd(TradingCardTypes cardType);
 	void CardsRemove(TradingCardTypes cardType);
 	void CardsDestroy(int cardIdx);
-	bool CardsToggleVisibility(int cardIdx);
 	TradingCardTypes CardsType(int cardIdx) const;
 	bool CardsIsVisible(int cardIdx) const;
 	// total number of cards this player has

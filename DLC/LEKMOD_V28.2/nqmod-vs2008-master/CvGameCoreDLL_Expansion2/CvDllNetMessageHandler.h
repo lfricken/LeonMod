@@ -40,7 +40,7 @@ public:
 	void DLLCALL ResponseExtendedGame(PlayerTypes ePlayer);
 	void DLLCALL ResponseFoundPantheon(PlayerTypes ePlayer, BeliefTypes eBelief);
 
-	static void SendActivateCard(const PlayerTypes ePlayer, const int cardIdx);
+	static void SendNetAction(const PlayerTypes ePlayer, const int cardIdx, const NET_ACTION action);
 	void DLLCALL ResponseFoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion, const char* szCustomName, BeliefTypes eBelief1, BeliefTypes eBelief2, BeliefTypes eBelief3, BeliefTypes eBelief4, int iCityX, int iCityY);
 	void DLLCALL ResponseEnhanceReligion(PlayerTypes ePlayer, ReligionTypes eReligion, const char* szCustomName, BeliefTypes eBelief1, BeliefTypes eBelief2, int iCityX, int iCityY);
 	void DLLCALL ResponseMoveSpy(PlayerTypes ePlayer, int iSpyIndex, int iTargetPlayer, int iTargetCity, bool bAsDiplomat);
