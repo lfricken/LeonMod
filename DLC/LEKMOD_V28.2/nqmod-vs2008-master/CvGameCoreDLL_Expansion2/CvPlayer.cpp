@@ -28060,7 +28060,7 @@ void CvPlayer::CardsAdd(TradingCardTypes cardType)
 {
 	TradingCardState card;
 	card.type = cardType;
-	card.isVisible = true;
+	card.isVisible = !isHuman(); // cards will be default invisible if you're a human
 	m_cards.push_back(card);
 	TradingCard::OnCountChanged(cardType, this, +1);
 }

@@ -4,10 +4,9 @@
 
 Trading Cards
 	have tabs be All, Active Only, Passive Only
-
-	fix gold
-	enable US card trading
 	defaults to invisible if human
+
+	enable US card trading
 	card visibility needs to go through network
 
 
@@ -53,7 +52,7 @@ Trading Cards
 
 
 
-
+ThemPocketCardsStack
 
 
 
