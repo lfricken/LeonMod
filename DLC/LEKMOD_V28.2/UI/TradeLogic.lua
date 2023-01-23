@@ -1455,10 +1455,10 @@ function ResetDisplay()
 			break;
 		end
 	end
-	local noneStr = "None available";
+	local noneStr = "None available for trade";
     if( bFound ) then
         Controls.UsPocketCards:SetDisabled( false );
-        Controls.UsPocketCards:SetToolTipString( Locale.ConvertTextKey(noneStr));
+        Controls.UsPocketCards:SetToolTipString("");
 		Controls.UsPocketCards:GetTextControl():SetColorByName("Beige_Black");
     else
         Controls.UsPocketCards:SetDisabled( true );
@@ -1475,10 +1475,9 @@ function ResetDisplay()
 			break;
 		end
 	end
-	local noneStr = "None available";
     if( bFound ) then
         Controls.ThemPocketCards:SetDisabled( false );
-        Controls.ThemPocketCards:SetToolTipString( Locale.ConvertTextKey(noneStr));
+        Controls.ThemPocketCards:SetToolTipString("");
 		Controls.ThemPocketCards:GetTextControl():SetColorByName("Beige_Black");
     else
         Controls.ThemPocketCards:SetDisabled( true );
