@@ -1,9 +1,9 @@
 
 
 strat resource trading
-	acumulate per turn
+	ADD randomly
+	subtract non randomly
 	<Resources> random per turn based on XML
-	strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_RESOURCE_INFO", iNumCumulative, iNumTotal, iNumUsed);
 
 
 Trading Cards

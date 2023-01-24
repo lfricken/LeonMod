@@ -1,8 +1,11 @@
 -------------------------------
 -- TopPanel.lua
 -------------------------------
+include( "InstanceManager" );
+local g_resourceIM = InstanceManager:new( "ResourceInst", "ResourceEntry", Controls.ResourceStack );
 
 function UpdateData()
+	g_resourceIM:ResetInstances();
 
 	local iPlayerID = Game.GetActivePlayer();
 
@@ -184,57 +187,53 @@ function UpdateData()
 			-----------------------------
 			-- Update Resources
 			-----------------------------
-			local pResource;
-			local bShowResource;
-			local iNumAvailable;
-			local iNumUsed;
-			local iNumTotal;
-			local iNumCumulative;
-			
-			local strResourceText = "";
-			local strTempText = "";
-			
+			local pResource;			
 			for pResource in GameInfo.Resources() do
 				local iResourceLoop = pResource.ID;
 				
+				-- is strategic?
 				if (Game.GetResourceUsageType(iResourceLoop) == ResourceUsageTypes.RESOURCEUSAGE_STRATEGIC) then
-					
-					bShowResource = false;
-					
+					local iNumAvailable = pPlayer:GetNumResourceAvailable(iResourceLoop, true);
+					local iNumUsed = pPlayer:GetNumResourceUsed(iResourceLoop);
+					local iNumTotal = pPlayer:GetNumResourceTotal(iResourceLoop, true);
+					local iNumCumulative = pPlayer:GetResourceCumulative(iResourceLoop);
+
+					-- has tech?
+					local bShowResource = false;
 					if (pTeam:GetTeamTechs():HasTech(GameInfoTypes[pResource.TechReveal])) then
 						if (pTeam:GetTeamTechs():HasTech(GameInfoTypes[pResource.TechCityTrade])) then
 							bShowResource = true;
 						end
 					end
-					
-					iNumAvailable = pPlayer:GetNumResourceAvailable(iResourceLoop, true);
-					iNumUsed = pPlayer:GetNumResourceUsed(iResourceLoop);
-					iNumTotal = pPlayer:GetNumResourceTotal(iResourceLoop, true);
-					iNumCumulative = pPlayer:GetResourceCumulative(iResourceLoop);
-					
-					if (iNumUsed > 0) then
+					-- or has some?
+					if (iNumCumulative > 0 or iNumTotal > 0 or iNumUsed > 0) then
 						bShowResource = true;
 					end
-							
+					
+
 					if (bShowResource) then
+
 						-- Colorize for amount available
 						local netText = "";
 						if (iNumAvailable > 0) then
-							netText = "[COLOR_POSITIVE_TEXT]+" .. math.abs(iNumAvailable) .. "[ENDCOLOR]";
+							netText = Locale.ConvertTextKey("TXT_KEY_POSITIVE_NUM", math.abs(iNumAvailable));
 						elseif (iNumAvailable <= 0) then
-							netText = "[COLOR_WARNING_TEXT]-" .. math.abs(iNumAvailable) .. "[ENDCOLOR]";
+							netText = Locale.ConvertTextKey("TXT_KEY_NEGATIVE_NUM", math.abs(iNumAvailable));
 						end
-						local panelText = "{1_stored} ({2_net}){3_icon}";
-						local text = Locale.ConvertTextKey(panelText, iNumCumulative, netText, pResource.IconString);
-						--strTempText = string.format("%i %s   ", iNumAvailable, text);
+
+						-- panel display
+						local text = Locale.ConvertTextKey("TXT_KEY_TP_RESOURCE_SHORT", iNumCumulative, netText, pResource.IconString);
+
+						-- tooltip
+						local tooltip = Locale.ConvertTextKey("TXT_KEY_TP_RESOURCE_INFO", pResource.IconString, pResource.Description, iNumCumulative, iNumTotal, iNumUsed, netText);
 						
-						
-						strResourceText = strResourceText .. text;
+						-- populate instance
+                    	instance = g_resourceIM:GetInstance();
+                    	instance.ResourceEntry:SetText(text);
+                    	instance.ResourceEntry:SetToolTipString(tooltip);
 					end
 				end
 			end
-			
-			Controls.ResourceString:SetText(strResourceText);
 			
 		-- No Cities, so hide science
 		else
@@ -382,7 +381,6 @@ function DoInitTooltips()
 	Controls.CultureString:SetToolTipCallback( CultureTipHandler );
 	Controls.TourismString:SetToolTipCallback( TourismTipHandler );
 	Controls.FaithString:SetToolTipCallback( FaithTipHandler );
-	Controls.ResourceString:SetToolTipCallback( ResourcesTipHandler );
 	Controls.InternationalTradeRoutes:SetToolTipCallback( InternationalTradeRoutesTipHandler );
 end
 
@@ -1171,82 +1169,6 @@ function FaithTipHandler( control )
 
 	tipControlTable.TooltipLabel:SetText( strText );
 	tipControlTable.TopPanelMouseover:SetHide(false);
-    
-    -- Autosize tooltip
-    tipControlTable.TopPanelMouseover:DoAutoSize();
-	
-end
-
--- Resources Tooltip
-function ResourcesTipHandler( control )
-
-	local strText;
-	local iPlayerID = Game.GetActivePlayer();
-	local pPlayer = Players[iPlayerID];
-	local pTeam = Teams[pPlayer:GetTeam()];
-	local pCity = UI.GetHeadSelectedCity();
-	
-	strText = "";
-	
-	local pResource;
-	local bShowResource;
-	local bThisIsFirstResourceShown = true;
-	local iNumAvailable;
-	local iNumUsed;
-	local iNumTotal;
-	local iNumCumulative;
-	local netText;
-	
-	for pResource in GameInfo.Resources() do
-		local iResourceLoop = pResource.ID;
-		
-		--strText = "";
-		if (Game.GetResourceUsageType(iResourceLoop) == ResourceUsageTypes.RESOURCEUSAGE_STRATEGIC) then
-			
-			bShowResource = false;
-			
-			if (pTeam:GetTeamTechs():HasTech(GameInfoTypes[pResource.TechReveal])) then
-				if (pTeam:GetTeamTechs():HasTech(GameInfoTypes[pResource.TechCityTrade])) then
-					bShowResource = true;
-				end
-			end
-			
-			if (bShowResource) then
-				iNumAvailable = pPlayer:GetNumResourceAvailable(iResourceLoop, true);
-				iNumUsed = pPlayer:GetNumResourceUsed(iResourceLoop);
-				iNumTotal = pPlayer:GetNumResourceTotal(iResourceLoop, true);
-				iNumCumulative = pPlayer:GetResourceCumulative(iResourceLoop);
-				
-				-- Add newline to the front of all entries that AREN'T the first
-				if (bThisIsFirstResourceShown) then
-					strText = "";
-					bThisIsFirstResourceShown = false;
-				else
-					strText = strText .. "[NEWLINE][NEWLINE]";
-				end
-
-				-- Colorize the net amount
-				if (iNumAvailable > 0) then
-					netText = "[COLOR_POSITIVE_TEXT]+" .. math.abs(iNumAvailable) .. "[ENDCOLOR]";
-				elseif (iNumAvailable <= 0) then
-					netText = "[COLOR_WARNING_TEXT]-" .. math.abs(iNumAvailable) .. "[ENDCOLOR]";
-				end
-
-				local hoverText = "{1_Icon}{2_Name}[NEWLINE][NEWLINE][ICON_BULLET]{3_Cumulative} Stored[NEWLINE][NEWLINE]Per Turn:[NEWLINE][ICON_BULLET][COLOR_POSITIVE_TEXT]{4_PositivePerTurn}[ENDCOLOR] Gross[NEWLINE][ICON_BULLET][COLOR_WARNING_TEXT]{5_NegativePerTurn}[ENDCOLOR] Expended[NEWLINE][ICON_BULLET]{6_NetPerTurn} Net[NEWLINE]"
-				
-				-- Details
-				strText = Locale.ConvertTextKey(hoverText, pResource.IconString, pResource.Description, iNumCumulative, iNumTotal, iNumUsed, netText);
-			end
-		end
-	end
-	
-	print(strText);
-	if(strText ~= "") then
-		tipControlTable.TopPanelMouseover:SetHide(false);
-		tipControlTable.TooltipLabel:SetText( strText );
-	else
-		tipControlTable.TopPanelMouseover:SetHide(true);
-	end
     
     -- Autosize tooltip
     tipControlTable.TopPanelMouseover:DoAutoSize();
