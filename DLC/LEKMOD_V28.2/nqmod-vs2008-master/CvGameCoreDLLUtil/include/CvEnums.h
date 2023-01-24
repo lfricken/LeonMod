@@ -8,6 +8,7 @@
 #pragma once 
 #ifndef CVENUMS_H
 #define CVENUMS_H
+#include "NonChalant_Enums.h"
 
 // Mem Allocation Tags
 enum eCiv5GameCoreMPoolType
@@ -19,14 +20,6 @@ enum NET_ACTION
 {
 	NET_ACTION_CARD_ACTIVATE,
 	NET_ACTION_CARD_TOGGLE_VISIBILITY,
-};
-
-enum TradingCardTypes
-{
-	CARD_INVALID = -1,
-	CARD_NAVAL_MOVES,
-	CARD_FISH_GOLD,
-	CARD_RANDOM_SPY,
 };
 
 enum MiniCompetitionTypes

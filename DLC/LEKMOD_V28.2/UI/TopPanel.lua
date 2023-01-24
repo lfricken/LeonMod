@@ -189,6 +189,7 @@ function UpdateData()
 			local iNumAvailable;
 			local iNumUsed;
 			local iNumTotal;
+			local iNumCumulative;
 			
 			local strResourceText = "";
 			local strTempText = "";
@@ -209,23 +210,26 @@ function UpdateData()
 					iNumAvailable = pPlayer:GetNumResourceAvailable(iResourceLoop, true);
 					iNumUsed = pPlayer:GetNumResourceUsed(iResourceLoop);
 					iNumTotal = pPlayer:GetNumResourceTotal(iResourceLoop, true);
+					iNumCumulative = pPlayer:GetResourceCumulative(iResourceLoop);
 					
 					if (iNumUsed > 0) then
 						bShowResource = true;
 					end
 							
 					if (bShowResource) then
-						local text = Locale.ConvertTextKey(pResource.IconString);
-						strTempText = string.format("%i %s   ", iNumAvailable, text);
-						
 						-- Colorize for amount available
+						local netText = "";
 						if (iNumAvailable > 0) then
-							strTempText = "[COLOR_POSITIVE_TEXT]" .. strTempText .. "[ENDCOLOR]";
-						elseif (iNumAvailable < 0) then
-							strTempText = "[COLOR_WARNING_TEXT]" .. strTempText .. "[ENDCOLOR]";
+							netText = "[COLOR_POSITIVE_TEXT]+" .. math.abs(iNumAvailable) .. "[ENDCOLOR]";
+						elseif (iNumAvailable <= 0) then
+							netText = "[COLOR_WARNING_TEXT]-" .. math.abs(iNumAvailable) .. "[ENDCOLOR]";
 						end
+						local panelText = "{1_stored} ({2_net}){3_icon}";
+						local text = Locale.ConvertTextKey(panelText, iNumCumulative, netText, pResource.IconString);
+						--strTempText = string.format("%i %s   ", iNumAvailable, text);
 						
-						strResourceText = strResourceText .. strTempText;
+						
+						strResourceText = strResourceText .. text;
 					end
 				end
 			end
@@ -1190,10 +1194,13 @@ function ResourcesTipHandler( control )
 	local iNumAvailable;
 	local iNumUsed;
 	local iNumTotal;
+	local iNumCumulative;
+	local netText;
 	
 	for pResource in GameInfo.Resources() do
 		local iResourceLoop = pResource.ID;
 		
+		--strText = "";
 		if (Game.GetResourceUsageType(iResourceLoop) == ResourceUsageTypes.RESOURCEUSAGE_STRATEGIC) then
 			
 			bShowResource = false;
@@ -1208,6 +1215,7 @@ function ResourcesTipHandler( control )
 				iNumAvailable = pPlayer:GetNumResourceAvailable(iResourceLoop, true);
 				iNumUsed = pPlayer:GetNumResourceUsed(iResourceLoop);
 				iNumTotal = pPlayer:GetNumResourceTotal(iResourceLoop, true);
+				iNumCumulative = pPlayer:GetResourceCumulative(iResourceLoop);
 				
 				-- Add newline to the front of all entries that AREN'T the first
 				if (bThisIsFirstResourceShown) then
@@ -1216,14 +1224,18 @@ function ResourcesTipHandler( control )
 				else
 					strText = strText .. "[NEWLINE][NEWLINE]";
 				end
-				
-				strText = strText .. iNumAvailable .. " " .. pResource.IconString .. " " .. Locale.ConvertTextKey(pResource.Description);
+
+				-- Colorize the net amount
+				if (iNumAvailable > 0) then
+					netText = "[COLOR_POSITIVE_TEXT]+" .. math.abs(iNumAvailable) .. "[ENDCOLOR]";
+				elseif (iNumAvailable <= 0) then
+					netText = "[COLOR_WARNING_TEXT]-" .. math.abs(iNumAvailable) .. "[ENDCOLOR]";
+				end
+
+				local hoverText = "{1_Icon}{2_Name}[NEWLINE][NEWLINE][ICON_BULLET]{3_Cumulative} Stored[NEWLINE][NEWLINE]Per Turn:[NEWLINE][ICON_BULLET][COLOR_POSITIVE_TEXT]{4_PositivePerTurn}[ENDCOLOR] Gross[NEWLINE][ICON_BULLET][COLOR_WARNING_TEXT]{5_NegativePerTurn}[ENDCOLOR] Expended[NEWLINE][ICON_BULLET]{6_NetPerTurn} Net[NEWLINE]"
 				
 				-- Details
-				if (iNumUsed ~= 0 or iNumTotal ~= 0) then
-					strText = strText .. ": ";
-					strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_RESOURCE_INFO", iNumTotal, iNumUsed);
-				end
+				strText = Locale.ConvertTextKey(hoverText, pResource.IconString, pResource.Description, iNumCumulative, iNumTotal, iNumUsed, netText);
 			end
 		end
 	end

@@ -704,6 +704,7 @@ protected:
 	static int lIsPlayable(lua_State* L);
 	static int lSetPlayable(lua_State* L);
 
+	static int lGetResourceCumulative(lua_State* L);
 	static int lGetNumResourceUsed(lua_State* L);
 	static int lGetNumResourceTotal(lua_State* L);
 	static int lChangeNumResourceTotal(lua_State* L);

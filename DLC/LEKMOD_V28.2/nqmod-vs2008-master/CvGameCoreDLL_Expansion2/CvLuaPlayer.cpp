@@ -718,7 +718,8 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(SetOption);
 	Method(IsPlayable);
 	Method(SetPlayable);
-
+	
+	Method(GetResourceCumulative);
 	Method(GetNumResourceUsed);
 	Method(GetNumResourceTotal);
 	Method(ChangeNumResourceTotal);
@@ -7388,6 +7389,10 @@ int CvLuaPlayer::lIsPlayable(lua_State* L)
 int CvLuaPlayer::lSetPlayable(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::setPlayable);
+}
+int CvLuaPlayer::lGetResourceCumulative(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::getResourceCumulative);
 }
 //------------------------------------------------------------------------------
 //int getNumResourceUsed(ResourceTypes  iIndex);

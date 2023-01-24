@@ -430,6 +430,7 @@ CvPlayer::CvPlayer() :
 	, m_aOptions("CvPlayer::m_aOptions", m_syncArchive, true)
 	, m_strReligionKey("CvPlayer::m_strReligionKey", m_syncArchive)
 	, m_strScriptData("CvPlayer::m_strScriptData", m_syncArchive)
+	, m_paiNumResourceCumulative("CvPlayer::m_paiNumResourceCumulative", m_syncArchive)
 	, m_paiNumResourceUsed("CvPlayer::m_paiNumResourceUsed", m_syncArchive)
 	, m_paiNumResourceTotal("CvPlayer::m_paiNumResourceTotal", m_syncArchive)
 	, m_paiResourceGiftedToMinors("CvPlayer::m_paiResourceGiftedToMinors", m_syncArchive)
@@ -743,6 +744,7 @@ void CvPlayer::init(PlayerTypes eID)
 //	--------------------------------------------------------------------------------
 void CvPlayer::uninit()
 {
+	m_paiNumResourceCumulative.clear();
 	m_paiNumResourceUsed.clear();
 	m_paiNumResourceTotal.clear();
 	m_paiResourceGiftedToMinors.clear();
@@ -1230,6 +1232,10 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 	if(!bConstructorCall)
 	{
 		CvAssertMsg(0 < GC.getNumResourceInfos(), "GC.getNumResourceInfos() is not greater than zero but it is used to allocate memory in CvPlayer::reset");
+
+		m_paiNumResourceCumulative.clear();
+		m_paiNumResourceCumulative.resize(GC.getNumResourceInfos(), 0);
+		
 		m_paiNumResourceUsed.clear();
 		m_paiNumResourceUsed.resize(GC.getNumResourceInfos(), 0);
 
@@ -4685,6 +4691,15 @@ void CvPlayer::doTurn()
 	GetScientificInfluencePerTurn(&insightThisTurn);
 	ChangeScientificInfluence(insightThisTurn);
 
+	// accumulate resources
+	for (int i = 0; i < GC.getNumResourceInfos(); ++i)
+	{
+		const CvResourceInfo* info = GC.getResourceInfo((ResourceTypes)i);
+		if (info != NULL)
+		{
+			changeResourceCumulative((ResourceTypes)i, getNumResourceTotal((ResourceTypes)i, true));
+		}
+	}
 
 	TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
 	stringstream s;
@@ -20286,6 +20301,18 @@ void CvPlayer::setPlayable(bool bNewValue)
 	CvPreGame::setPlayable(GetID(), bNewValue);
 }
 
+
+int CvPlayer::changeResourceCumulative(ResourceTypes eIndex, int delta)
+{
+	int newTotal = getResourceCumulative(eIndex) + delta;
+	m_paiNumResourceCumulative.setAt(eIndex, newTotal);
+	return newTotal;
+}
+int CvPlayer::getResourceCumulative(ResourceTypes eIndex) const
+{
+	return m_paiNumResourceCumulative[(int)eIndex];
+}
+
 //	--------------------------------------------------------------------------------
 int CvPlayer::getNumResourceUsed(ResourceTypes eIndex) const
 {
@@ -25189,6 +25216,7 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_strScriptData;
 
 	CvAssertMsg((0 < GC.getNumResourceInfos()), "GC.getNumResourceInfos() is not greater than zero but it is expected to be in CvPlayer::read");
+	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiNumResourceCumulative.dirtyGet());
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiNumResourceUsed.dirtyGet());
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiNumResourceTotal.dirtyGet());
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiResourceGiftedToMinors.dirtyGet());
@@ -25707,6 +25735,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_strScriptData;
 
 	CvAssertMsg((0 < GC.getNumResourceInfos()), "GC.getNumResourceInfos() is not greater than zero but an array is being allocated in CvPlayer::write");
+	CvInfosSerializationHelper::WriteHashedDataArray<ResourceTypes, int>(kStream, m_paiNumResourceCumulative);
 	CvInfosSerializationHelper::WriteHashedDataArray<ResourceTypes, int>(kStream, m_paiNumResourceUsed);
 	CvInfosSerializationHelper::WriteHashedDataArray<ResourceTypes, int>(kStream, m_paiNumResourceTotal);
 	CvInfosSerializationHelper::WriteHashedDataArray<ResourceTypes, int>(kStream, m_paiResourceGiftedToMinors);

@@ -1379,6 +1379,8 @@ public:
 	bool isPlayable() const;
 	void setPlayable(bool bNewValue);
 
+	int changeResourceCumulative(ResourceTypes eIndex, int delta);
+	int getResourceCumulative(ResourceTypes eIndex) const;
 	int getNumResourceUsed(ResourceTypes eIndex) const;
 	void changeNumResourceUsed(ResourceTypes eIndex, int iChange);
 	int getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport = true) const;
@@ -2242,6 +2244,7 @@ protected:
 
 	CvString m_strEmbarkedGraphicOverride;
 
+	FAutoVariable<std::vector<int>, CvPlayer> m_paiNumResourceCumulative;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiNumResourceUsed;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiNumResourceTotal;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiResourceGiftedToMinors;
