@@ -3,7 +3,7 @@
 
 
 Trading Cards
-	have tabs be All, Active Only, Passive Only
+	have tabs be All, Active Only, Passive Only, previous applied effects
 
 
 

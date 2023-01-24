@@ -245,6 +245,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_bGarrisonFreeMaintenance(false),
 	m_bAbleToAnnexCityStates(false),
 	m_bOneShot(false),
+	m_bHiddenFromPolicyCount(false),
 	m_bIncludesOneShotFreeUnits(false),
 	m_piPrereqOrPolicies(NULL),
 	m_piPrereqAndPolicies(NULL),
@@ -572,6 +573,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bEnablesSSPartPurchase = kResults.GetBool("EnablesSSPartPurchase");
 	m_bAbleToAnnexCityStates = kResults.GetBool("AbleToAnnexCityStates");
 	m_bOneShot = kResults.GetBool("OneShot");
+	m_bHiddenFromPolicyCount = kResults.GetBool("HiddenFromPolicyCount");
 	m_bIncludesOneShotFreeUnits = kResults.GetBool("IncludesOneShotFreeUnits");
 
 	m_strWeLoveTheKingKey = kResults.GetText("WeLoveTheKing");
@@ -1959,6 +1961,10 @@ bool CvPolicyEntry::IsOneShot() const
 {
 	return m_bOneShot;
 }
+bool CvPolicyEntry::IsHiddenFromPolicyCount() const
+{
+	return m_bHiddenFromPolicyCount;
+}
 
 /// Are there one shot free units that come with this policy?
 bool CvPolicyEntry::IncludesOneShotFreeUnits() const
@@ -2930,6 +2936,10 @@ int CvPlayerPolicies::GetNumPoliciesOwned() const
 
 	for (int i = 0; i < m_pPolicies->GetNumPolicies(); i++)
 	{
+		if (m_pPolicies->GetPolicyEntry(i)->IsHiddenFromPolicyCount())
+		{
+			continue;
+		}
 		if(m_pabHasPolicy[i]) // Do we have this policy?
 		{
 			rtnValue++;

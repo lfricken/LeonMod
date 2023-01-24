@@ -93,7 +93,7 @@
 							<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="0" Hidden="0" ID="UsPocketStrategicStack"/>
 							<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_TRADE_ITEM_VOTES" ID="UsPocketVote"/>
 							<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="0" Hidden="0" ID="UsPocketVoteStack"/>
-							<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_CARD_PLURAL" ID="UsPocketCards"/>
+							<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_CARD_TRADE" ID="UsPocketCards"/>
 							<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_ALLOW_EMBASSY" ID="UsPocketAllowEmbassy"/>
 							<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_OPEN_BORDERS" ID="UsPocketOpenBorders"/>
 							<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_DEF_PACT" ID="UsPocketDefensivePact"/>
@@ -141,7 +141,7 @@
                             </Stack>
 							<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_TRADE_ITEM_VOTES" ID="ThemPocketVote"/>
 							<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="0" Hidden="0" ID="ThemPocketVoteStack"/>
-							<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_CARD_PLURAL" ID="ThemPocketCards"/>
+							<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_CARD_TRADE" ID="ThemPocketCards"/>
 							<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_ALLOW_EMBASSY" ID="ThemPocketAllowEmbassy"/>
 							<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_OPEN_BORDERS" ID="ThemPocketOpenBorders"/>
 							<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_DEF_PACT" ID="ThemPocketDefensivePact"/>
