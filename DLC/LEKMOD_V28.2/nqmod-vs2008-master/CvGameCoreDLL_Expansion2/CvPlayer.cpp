@@ -430,6 +430,7 @@ CvPlayer::CvPlayer() :
 	, m_aOptions("CvPlayer::m_aOptions", m_syncArchive, true)
 	, m_strReligionKey("CvPlayer::m_strReligionKey", m_syncArchive)
 	, m_strScriptData("CvPlayer::m_strScriptData", m_syncArchive)
+	, m_paiWasShortage("CvPlayer::m_paiWasShortage", m_syncArchive)
 	, m_paiNumResourceCumulative("CvPlayer::m_paiNumResourceCumulative", m_syncArchive)
 	, m_paiNumResourceUsed("CvPlayer::m_paiNumResourceUsed", m_syncArchive)
 	, m_paiNumResourceTotal("CvPlayer::m_paiNumResourceTotal", m_syncArchive)
@@ -744,6 +745,7 @@ void CvPlayer::init(PlayerTypes eID)
 //	--------------------------------------------------------------------------------
 void CvPlayer::uninit()
 {
+	m_paiWasShortage.clear();
 	m_paiNumResourceCumulative.clear();
 	m_paiNumResourceUsed.clear();
 	m_paiNumResourceTotal.clear();
@@ -1232,6 +1234,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 	if(!bConstructorCall)
 	{
 		CvAssertMsg(0 < GC.getNumResourceInfos(), "GC.getNumResourceInfos() is not greater than zero but it is used to allocate memory in CvPlayer::reset");
+
+		m_paiWasShortage.clear();
+		m_paiWasShortage.resize(GC.getNumResourceInfos(), 0);
 
 		m_paiNumResourceCumulative.clear();
 		m_paiNumResourceCumulative.resize(GC.getNumResourceInfos(), 0);
@@ -4666,6 +4671,7 @@ void CvPlayer::doTurn()
 	}
 	else
 	{
+		// updates cities and resources
 		doTurnPostDiplomacy();
 	}
 
@@ -4691,23 +4697,63 @@ void CvPlayer::doTurn()
 	GetScientificInfluencePerTurn(&insightThisTurn);
 	ChangeScientificInfluence(insightThisTurn);
 
-	// accumulate resources
-	for (int i = 0; i < GC.getNumResourceInfos(); ++i)
-	{
-		const CvResourceInfo* info = GC.getResourceInfo((ResourceTypes)i);
-		if (info != NULL)
-		{
-			changeResourceCumulative((ResourceTypes)i, getNumResourceTotal((ResourceTypes)i, true));
-		}
-	}
-
 	TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
 	stringstream s;
 	s << "Player:doTurn " << GetID() << " " << eCurrentTech << " " << GetNonLeaderBoostT100() << " " << m_iOverflowResearch << " " << GetScienceTimes100(true);
 	GC.debugState(s); // Player::doTurn
 }
 
-//	--------------------------------------------------------------------------------
+void CvPlayer::DoTurnResources()
+{
+	// accumulate resources
+	const int resourceVariation = max(1, GC.getRESOURCE_VARIATION()) - 1;
+	const uint randSeed = (uint)GC.getGame().getGameTurn() * (uint)GetScienceTimes100(true) * (uint)m_pCulture->GetCultureFromCitiesT100();
+	for (int i = 0; i < GC.getNumResourceInfos(); ++i)
+	{
+		const CvResourceInfo* info = GC.getResourceInfo((ResourceTypes)i);
+		if (info != NULL)
+		{
+			int gross = getNumResourceGross((ResourceTypes)i);
+			const int roll = GC.rand(resourceVariation, "rand resource gen", NULL, (i * 23509) + randSeed);
+			if (roll == 0)
+			{
+				changeResourceCumulative((ResourceTypes)i, +gross);
+			}
+		}
+
+		const int expenses = getNumResourceExpense((ResourceTypes)i);
+		if (getResourceCumulative((ResourceTypes)i) > 0) // if we have any left from last time
+		{
+			// it's ok to go negative
+			changeResourceCumulative((ResourceTypes)i, -expenses);
+			m_paiWasShortage.setAt(i, false);
+		}
+		else
+		{
+			// there was none left, we are now in a shortage
+			GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
+			return m_paiWasShortage.setAt(i, true);
+		}
+	}
+}
+void CvPlayer::DoTurnCities()
+{
+	// Do turn for all Cities
+	{
+		AI_PERF_FORMAT("AI-perf.csv", ("Do City Turns, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), getCivilizationShortDescription()));
+		if (getNumCities() > 0)
+		{
+			int iLoop = 0;
+			for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+			{
+#ifdef AUI_YIELDS_APPLIED_AFTER_TURN_NOT_BEFORE
+				kGame.GetGameReligions()->SpreadReligionToOneCity(pLoopCity);
+#endif
+				pLoopCity->doTurn();
+			}
+		}
+	}
+}
 void CvPlayer::doTurnPostDiplomacy()
 {
 	CvGame& kGame = GC.getGame();
@@ -4759,23 +4805,8 @@ void CvPlayer::doTurnPostDiplomacy()
 	// Great People gifts from Allied City States (if we have that policy)
 	DoGreatPeopleSpawnTurn();
 
-	// Do turn for all Cities
-	{
-		AI_PERF_FORMAT("AI-perf.csv", ("Do City Turns, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), getCivilizationShortDescription()) );
-		if(getNumCities() > 0)
-		{
-			int iLoop = 0;
-			for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-			{
-#ifdef AUI_YIELDS_APPLIED_AFTER_TURN_NOT_BEFORE
-				kGame.GetGameReligions()->SpreadReligionToOneCity(pLoopCity);
-#endif
-				pLoopCity->doTurn();
-			}
-		}
-	}
-
-	// Gold
+	DoTurnResources();
+	DoTurnCities();
 	GetTreasury()->DoGold();
 
 #ifdef AUI_YIELDS_APPLIED_AFTER_TURN_NOT_BEFORE
@@ -20306,11 +20337,16 @@ int CvPlayer::changeResourceCumulative(ResourceTypes eIndex, int delta)
 {
 	int newTotal = getResourceCumulative(eIndex) + delta;
 	m_paiNumResourceCumulative.setAt(eIndex, newTotal);
+	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 	return newTotal;
 }
 int CvPlayer::getResourceCumulative(ResourceTypes eIndex) const
 {
 	return m_paiNumResourceCumulative[(int)eIndex];
+}
+bool CvPlayer::wasShortage(ResourceTypes eIndex) const
+{
+	return m_paiWasShortage[eIndex];
 }
 
 //	--------------------------------------------------------------------------------
@@ -20319,6 +20355,16 @@ int CvPlayer::getNumResourceUsed(ResourceTypes eIndex) const
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_paiNumResourceUsed[eIndex];
+}
+int CvPlayer::getNumResourceGross(ResourceTypes eIndex) const
+{
+	return getNumResourceTotal(eIndex, true, false);
+}
+int CvPlayer::getNumResourceExpense(ResourceTypes eIndex) const
+{
+	const int used = getNumResourceUsed(eIndex);
+	const int export = getResourceExport(eIndex);
+	return used + export;
 }
 
 //	--------------------------------------------------------------------------------
@@ -20339,15 +20385,13 @@ void CvPlayer::changeNumResourceUsed(ResourceTypes eIndex, int iChange)
 
 	CvAssert(m_paiNumResourceUsed[eIndex] >= 0);
 }
-
-//	--------------------------------------------------------------------------------
-int CvPlayer::getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport) const
+int CvPlayer::getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport, bool includeExport) const
 {
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	// Mod applied to how much we have?
-	CvResourceInfo *pkResource = GC.getResourceInfo(eIndex);
+	const CvResourceInfo *pkResource = GC.getResourceInfo(eIndex);
 	if (pkResource == NULL)
 	{
 		return 0;
@@ -20371,7 +20415,10 @@ int CvPlayer::getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport) con
 		iTotalNumResource += getResourceSiphoned(eIndex);
 	}
 
-	iTotalNumResource -= getResourceExport(eIndex);
+	if (includeExport)
+	{
+		iTotalNumResource -= getResourceExport(eIndex);
+	}
 
 	return iTotalNumResource;
 }
@@ -25216,6 +25263,8 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_strScriptData;
 
 	CvAssertMsg((0 < GC.getNumResourceInfos()), "GC.getNumResourceInfos() is not greater than zero but it is expected to be in CvPlayer::read");
+	
+	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiWasShortage.dirtyGet());
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiNumResourceCumulative.dirtyGet());
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiNumResourceUsed.dirtyGet());
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiNumResourceTotal.dirtyGet());
@@ -25735,6 +25784,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_strScriptData;
 
 	CvAssertMsg((0 < GC.getNumResourceInfos()), "GC.getNumResourceInfos() is not greater than zero but an array is being allocated in CvPlayer::write");
+	CvInfosSerializationHelper::WriteHashedDataArray<ResourceTypes, int>(kStream, m_paiWasShortage);
 	CvInfosSerializationHelper::WriteHashedDataArray<ResourceTypes, int>(kStream, m_paiNumResourceCumulative);
 	CvInfosSerializationHelper::WriteHashedDataArray<ResourceTypes, int>(kStream, m_paiNumResourceUsed);
 	CvInfosSerializationHelper::WriteHashedDataArray<ResourceTypes, int>(kStream, m_paiNumResourceTotal);

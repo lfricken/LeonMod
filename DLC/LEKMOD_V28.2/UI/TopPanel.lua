@@ -193,7 +193,7 @@ function UpdateData()
 				
 				-- is strategic?
 				if (Game.GetResourceUsageType(iResourceLoop) == ResourceUsageTypes.RESOURCEUSAGE_STRATEGIC) then
-					local iNumAvailable = pPlayer:GetNumResourceAvailable(iResourceLoop, true);
+					local iNet = pPlayer:GetNumResourceAvailable(iResourceLoop, true);
 					local iNumUsed = pPlayer:GetNumResourceUsed(iResourceLoop);
 					local iNumTotal = pPlayer:GetNumResourceTotal(iResourceLoop, true);
 					local iNumCumulative = pPlayer:GetResourceCumulative(iResourceLoop);
@@ -215,10 +215,10 @@ function UpdateData()
 
 						-- Colorize for amount available
 						local netText = "";
-						if (iNumAvailable > 0) then
-							netText = Locale.ConvertTextKey("TXT_KEY_POSITIVE_NUM", math.abs(iNumAvailable));
-						elseif (iNumAvailable <= 0) then
-							netText = Locale.ConvertTextKey("TXT_KEY_NEGATIVE_NUM", math.abs(iNumAvailable));
+						if (iNet > 0) then
+							netText = Locale.ConvertTextKey("TXT_KEY_POSITIVE_NUM", math.abs(iNet));
+						elseif (iNet <= 0) then
+							netText = Locale.ConvertTextKey("TXT_KEY_NEGATIVE_NUM", math.abs(iNet));
 						end
 
 						-- panel display
@@ -227,6 +227,13 @@ function UpdateData()
 						-- tooltip
 						local tooltip = Locale.ConvertTextKey("TXT_KEY_TP_RESOURCE_INFO", pResource.IconString, pResource.Description, iNumCumulative, iNumTotal, iNumUsed, netText);
 						
+						-- going negative, display turns left
+						if (iNet < 0 and iNumCumulative > 0) then
+							local turnsRemaining = math.ceil(iNumCumulative / math.abs(iNet));
+							local remaining = Locale.ConvertTextKey("TXT_KEY_TP_RESOURCE_TURNS", turnsRemaining);
+							tooltip = tooltip .. remaining;
+						end
+
 						-- populate instance
                     	instance = g_resourceIM:GetInstance();
                     	instance.ResourceEntry:SetText(text);

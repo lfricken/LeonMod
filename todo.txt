@@ -3,7 +3,12 @@
 strat resource trading
 	ADD randomly
 	subtract non randomly
-	<Resources> random per turn based on XML
+	verify units are penalized
+	<Resources> random per turn based on XML globals
+
+	punish buildings
+	allow lump trade
+	allow trading duplicate luxuries
 
 
 Trading Cards

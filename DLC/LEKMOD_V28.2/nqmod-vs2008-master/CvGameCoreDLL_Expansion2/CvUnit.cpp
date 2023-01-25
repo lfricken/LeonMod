@@ -10699,7 +10699,7 @@ bool CvUnit::CanUpgradeRightNow(bool bOnlyTestVisible) const
 			if(iNumResourceNeeded > 0)
 			{
 				// Amount we have lying around
-				iNumOfThisResourceAvailable = kPlayer.getNumResourceAvailable(eResource);
+				iNumOfThisResourceAvailable = kPlayer.getResourceCumulative(eResource);
 				// Amount this old unit is using
 				iNumOfThisResourceAvailable += m_pUnitInfo->GetResourceQuantityRequirement(eResource);
 
@@ -11705,49 +11705,36 @@ bool CvUnit::IsDead() const
 /// Over strategic resource limit?
 int CvUnit::GetStrategicResourceCombatPenalty() const
 {
-	int iPenalty = 0;
-
 	// barbs don't have resources
-	if(isBarbarian())
-		return iPenalty;
+	if (isBarbarian())
+		return 0;
 
-	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
-
-	// Loop through all resources
-	ResourceTypes eResource;
-	int iNumResourceInfos = GC.getNumResourceInfos();
-	for(int iResourceLoop = 0; iResourceLoop < iNumResourceInfos; iResourceLoop++)
+	int iPenalty = 0;
+	const CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
+	const int iNumResourceInfos = GC.getNumResourceInfos();
+	for(int i = 0; i < iNumResourceInfos; i++)
 	{
-		eResource = (ResourceTypes) iResourceLoop;
-
-		int iAvailable = kPlayer.getNumResourceAvailable(eResource);
-		if (kPlayer.isMinorCiv())
-		{
-			iAvailable += kPlayer.getResourceExport(eResource);
-		}
-
 		// Over resource limit?
-		if(iAvailable < 0)
+		if (kPlayer.wasShortage((ResourceTypes)i))
 		{
-			if(m_pUnitInfo->GetResourceQuantityRequirement(eResource) > 0)
-			{
-				int iUsed = kPlayer.getNumResourceUsed(eResource);
-				int iMissing = iUsed - kPlayer.getNumResourceTotal(eResource);
+			iPenalty = GC.getSTRATEGIC_RESOURCE_EXHAUSTED_PENALTY();
+			//if(m_pUnitInfo->GetResourceQuantityRequirement(eResource) > 0)
+			//{
+			//	int iUsed = kPlayer.getNumResourceUsed(eResource);
+			//	int iMissing = iUsed - kPlayer.getNumResourceTotal(eResource);
 
-				CvAssertMsg(iUsed > 0, "Number of used resources is zero or negative, this is unexpected. Please send Anton your save file and version.");
-				if (iUsed <= 0)
-					continue;
-				CvAssertMsg(iMissing > 0, "Number of missing resources is zero or negative, this is unexpected. Please send Anton your save file and version.");
-				if (iMissing <= 0)
-					continue;
+			//	CvAssertMsg(iUsed > 0, "Number of used resources is zero or negative, this is unexpected. Please send Anton your save file and version.");
+			//	if (iUsed <= 0)
+			//		continue;
+			//	CvAssertMsg(iMissing > 0, "Number of missing resources is zero or negative, this is unexpected. Please send Anton your save file and version.");
+			//	if (iMissing <= 0)
+			//		continue;
 
-				T100 deficitT100 = (iMissing * 100) / iUsed;
-				iPenalty += ((deficitT100) * GC.getSTRATEGIC_RESOURCE_EXHAUSTED_PENALTY()) / 100; // round down (for larger negative penalty)
-			}
+			//	T100 deficitT100 = (iMissing * 100) / iUsed;
+			//	iPenalty += ((deficitT100) * GC.getSTRATEGIC_RESOURCE_EXHAUSTED_PENALTY()) / 100; // round down (for larger negative penalty)
+			//}
 		}
 	}
-
-	iPenalty = max(iPenalty, GC.getSTRATEGIC_RESOURCE_EXHAUSTED_PENALTY());
 	return iPenalty;
 }
 

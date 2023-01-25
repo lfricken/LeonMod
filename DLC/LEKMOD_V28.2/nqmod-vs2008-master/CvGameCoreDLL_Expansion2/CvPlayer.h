@@ -883,6 +883,8 @@ public:
 
 	int getFakeRand(const int iMax, string log, const CvPlot* plot, const int other) const;
 	void DoSpawnGreatPerson(PlayerTypes eMinor);
+	void DoTurnResources();
+	void DoTurnCities();
 	void DoGreatPeopleSpawnTurn();
 	CvCity* GetGreatPersonSpawnCity(UnitTypes eUnit);
 
@@ -1380,10 +1382,15 @@ public:
 	void setPlayable(bool bNewValue);
 
 	int changeResourceCumulative(ResourceTypes eIndex, int delta);
+	// true if there is a shortage
+	bool wasShortage(ResourceTypes eIndex) const;
 	int getResourceCumulative(ResourceTypes eIndex) const;
 	int getNumResourceUsed(ResourceTypes eIndex) const;
 	void changeNumResourceUsed(ResourceTypes eIndex, int iChange);
-	int getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport = true) const;
+	// gross resources
+	int getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport = true, bool includeExport = true) const;
+	int getNumResourceGross(ResourceTypes eIndex) const;
+	int getNumResourceExpense(ResourceTypes eIndex) const;
 	void changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bIgnoreResourceWarning = false);
 
 	int getSiphonLuxuryCount(PlayerTypes eFromPlayer) const;
@@ -2244,6 +2251,7 @@ protected:
 
 	CvString m_strEmbarkedGraphicOverride;
 
+	FAutoVariable<std::vector<int>, CvPlayer> m_paiWasShortage;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiNumResourceCumulative;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiNumResourceUsed;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiNumResourceTotal;
