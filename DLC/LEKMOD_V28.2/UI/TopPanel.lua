@@ -225,7 +225,7 @@ function UpdateData()
 						local text = Locale.ConvertTextKey("TXT_KEY_TP_RESOURCE_SHORT", iNumCumulative, netText, pResource.IconString);
 
 						-- tooltip
-						local tooltip = Locale.ConvertTextKey("TXT_KEY_TP_RESOURCE_INFO", pResource.IconString, pResource.Description, iNumCumulative, iNumTotal, iNumUsed, netText);
+						local tooltip = Locale.ConvertTextKey("TXT_KEY_TP_RESOURCE_INFO", pResource.IconString, pResource.Description, iNumCumulative, iNumTotal, iNumTotal-iNet, netText);
 						
 						-- going negative, display turns left
 						if (iNet < 0 and iNumCumulative > 0) then

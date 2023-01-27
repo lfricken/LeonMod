@@ -465,6 +465,8 @@ function OnShowHide( isHide, bIsInit )
             Controls.ThemPocketCardsStack:SetHide( true );
             Controls.UsPocketOtherPlayerStack:SetHide( true );
             Controls.ThemPocketOtherPlayerStack:SetHide( true );
+            Controls.UsPocketLumpStack:SetHide( true );
+            Controls.ThemPocketLumpStack:SetHide( true );
             Controls.UsPocketStrategicStack:SetHide( true );
             Controls.ThemPocketStrategicStack:SetHide( true );
             Controls.UsPocketLuxuryStack:SetHide( true );
@@ -754,6 +756,8 @@ Events.ClearDiplomacyTradeTable.Add(DoClearDeal);
 local g_SubStacks = {};
 g_SubStacks[ tostring( Controls.UsPocketOtherPlayer       ) ] = Controls.UsPocketOtherPlayerStack;
 g_SubStacks[ tostring( Controls.ThemPocketOtherPlayer     ) ] = Controls.ThemPocketOtherPlayerStack;
+g_SubStacks[ tostring( Controls.UsPocketLump   ) ] = Controls.UsPocketLumpStack;
+g_SubStacks[ tostring( Controls.ThemPocketLump ) ] = Controls.ThemPocketLumpStack;
 g_SubStacks[ tostring( Controls.UsPocketStrategic   ) ] = Controls.UsPocketStrategicStack;
 g_SubStacks[ tostring( Controls.ThemPocketStrategic ) ] = Controls.ThemPocketStrategicStack;
 g_SubStacks[ tostring( Controls.UsPocketLuxury      ) ] = Controls.UsPocketLuxuryStack;
@@ -762,12 +766,15 @@ g_SubStacks[ tostring( Controls.ThemPocketLuxury    ) ] = Controls.ThemPocketLux
 local g_SubLabels = {};
 g_SubLabels[ tostring( Controls.UsPocketOtherPlayer       ) ] = Locale.ConvertTextKey( "TXT_KEY_DIPLO_ITEMS_OTHER_PLAYERS" );
 g_SubLabels[ tostring( Controls.ThemPocketOtherPlayer     ) ] = Locale.ConvertTextKey( "TXT_KEY_DIPLO_ITEMS_OTHER_PLAYERS" );
+g_SubLabels[ tostring( Controls.UsPocketLump   ) ] = Locale.ConvertTextKey( "TXT_KEY_DIPLO_ITEMS_STRATEGIC_RESOURCES" );
+g_SubLabels[ tostring( Controls.ThemPocketLump ) ] = Locale.ConvertTextKey( "TXT_KEY_DIPLO_ITEMS_STRATEGIC_RESOURCES" );
 g_SubLabels[ tostring( Controls.UsPocketStrategic   ) ] = Locale.ConvertTextKey( "TXT_KEY_DIPLO_ITEMS_STRATEGIC_RESOURCES" );
 g_SubLabels[ tostring( Controls.ThemPocketStrategic ) ] = Locale.ConvertTextKey( "TXT_KEY_DIPLO_ITEMS_STRATEGIC_RESOURCES" );
 g_SubLabels[ tostring( Controls.UsPocketLuxury      ) ] = Locale.ConvertTextKey( "TXT_KEY_DIPLO_ITEMS_LUXURY_RESOURCES" );
 g_SubLabels[ tostring( Controls.ThemPocketLuxury    ) ] = Locale.ConvertTextKey( "TXT_KEY_DIPLO_ITEMS_LUXURY_RESOURCES" );
 
 Controls.UsPocketOtherPlayer:SetVoid1( 1 );
+Controls.UsPocketLump:SetVoid1( 1 );
 Controls.UsPocketStrategic:SetVoid1( 1 );
 Controls.UsPocketLuxury:SetVoid1( 1 );
 
@@ -792,8 +799,7 @@ function SubStackHandler( bIsUs, none, control )
         control:SetText( "[ICON_PLUS]" .. Locale.ConvertTextKey( label ) );
     end
     
-    if( bIsUs == 1 )
-    then
+    if( bIsUs == 1 ) then
         Controls.UsPocketStack:CalculateSize();
         Controls.UsPocketPanel:CalculateInternalSize();
         Controls.UsPocketPanel:ReprocessAnchoring();
@@ -805,6 +811,8 @@ function SubStackHandler( bIsUs, none, control )
 end
 Controls.UsPocketOtherPlayer:RegisterCallback( Mouse.eLClick, SubStackHandler );
 Controls.ThemPocketOtherPlayer:RegisterCallback( Mouse.eLClick, SubStackHandler );
+Controls.UsPocketLump:RegisterCallback( Mouse.eLClick, SubStackHandler );
+Controls.ThemPocketLump:RegisterCallback( Mouse.eLClick, SubStackHandler );
 Controls.UsPocketStrategic:RegisterCallback( Mouse.eLClick, SubStackHandler );
 Controls.ThemPocketStrategic:RegisterCallback( Mouse.eLClick, SubStackHandler );
 Controls.UsPocketLuxury:RegisterCallback( Mouse.eLClick, SubStackHandler );
@@ -1857,6 +1865,9 @@ end
 ----------------------------------------------------------------        
 ----------------------------------------------------------------        
 function ResizeStacks()
+    Controls.UsPocketLumpStack:CalculateSize();
+    Controls.ThemPocketLumpStack:CalculateSize();
+
     Controls.UsPocketStrategicStack:CalculateSize();
     Controls.ThemPocketStrategicStack:CalculateSize();
     Controls.UsTableStrategicStack:CalculateSize();
@@ -2728,7 +2739,7 @@ function TableResourceHandler( isUs, resourceId )
     DoUIDealChangedByHuman();
 end
 
-
+-- adds to the selectable deal modifier
 function AddPocketResource( row, isUs, stack )
     local controlTable = {};
     ContextPtr:BuildInstanceForControl( "PocketResource", controlTable, stack );
@@ -2744,7 +2755,7 @@ function AddPocketResource( row, isUs, stack )
     end
 end
 
- 
+-- Adds the strategic to the in progress deal
 function AddTableStrategic( row, isUs, stack )
     local controlTable = {};
     ContextPtr:BuildInstanceForControl( "TableStrategic", controlTable, stack );
@@ -2830,7 +2841,13 @@ end
 -------------------------------------------------------------------
 for row in GameInfo.Resources( "ResourceUsage = 1" ) 
 do 
-    --print( "adding strat: " .. row.Type );
+	-- lump strategics
+    AddPocketResource( row, 1, Controls.UsPocketLumpStack   );
+    AddPocketResource( row, 0, Controls.ThemPocketLumpStack );
+    AddTableStrategic( row, 1, Controls.UsTableLumpStack    );
+    AddTableStrategic( row, 0, Controls.ThemTableLumpStack  );
+
+    -- strategics
     AddPocketResource( row, 1, Controls.UsPocketStrategicStack   );
     AddPocketResource( row, 0, Controls.ThemPocketStrategicStack );
     AddTableStrategic( row, 1, Controls.UsTableStrategicStack    );
@@ -2839,7 +2856,7 @@ end
 
 for row in GameInfo.Resources( "ResourceUsage = 2" ) 
 do 
-    --print( "adding lux: " .. row.Type );
+	-- luxury
     AddPocketResource( row, 1, Controls.UsPocketLuxuryStack   );
     AddPocketResource( row, 0, Controls.ThemPocketLuxuryStack );
     AddTableLuxury(    row, 1, Controls.UsTableLuxuryStack    );
