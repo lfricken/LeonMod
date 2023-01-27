@@ -1617,7 +1617,6 @@ function ResetDisplay()
 
 	        -- resource buttons for lump
 	    	for resType, instance in pairs( g_fromPocketLump ) do
-				print(resType);
 				-- 1 here is the minimum quantity of tradeable resource
 				local bCanTradeResource = g_Deal:IsPossibleToTradeItem(iPlayerFrom, iPlayerTo, TradeableItems.TRADE_ITEM_LUMP, resType, 1);
 				
@@ -1870,6 +1869,8 @@ end
 function ResizeStacks()
     Controls.UsPocketLumpStack:CalculateSize();
     Controls.ThemPocketLumpStack:CalculateSize();
+    Controls.UsTableLumpStack:CalculateSize();
+    Controls.ThemTableLumpStack:CalculateSize();
 
     Controls.UsPocketStrategicStack:CalculateSize();
     Controls.ThemPocketStrategicStack:CalculateSize();
@@ -2213,7 +2214,7 @@ function DisplayDeal()
 				Controls.ThemTableDoF:SetHide( false );
 			end
         elseif( TradeableItems.TRADE_ITEM_VOTE_COMMITMENT == itemType ) then
-			print("==debug== VOTE_COMMITMENT found in DisplayDeal");
+			--print("==debug== VOTE_COMMITMENT found in DisplayDeal");
 			local iVoteIndex = GetLeagueVoteIndexFromData(data1, data2, flag1);
 			
 			if (Game.GetNumActiveLeagues() > 0) then
@@ -2519,7 +2520,7 @@ Controls.ThemGoldPerTurnAmount:SetVoid1( 0 );
 -- Allow Embassy Handlers
 -----------------------------------------------------------------------------------------------------------------------
 function PocketAllowEmbassyHandler( isUs )
-	print("PocketAllowEmbassyHandler");
+	--print("PocketAllowEmbassyHandler");
 	if( isUs == 1 ) then
 		g_Deal:AddAllowEmbassy(g_iUs);
 	else
@@ -2534,12 +2535,12 @@ Controls.UsPocketAllowEmbassy:SetVoid1( 1 );
 Controls.ThemPocketAllowEmbassy:SetVoid1( 0 );
 
 function TableAllowEmbassyHandler( isUs )
-	print("TableAllowEmbassyHandler");
+	--print("TableAllowEmbassyHandler");
 	if( isUs == 1 ) then
-		print( "remove: us " .. g_iUs );
+		--print( "remove: us " .. g_iUs );
 		g_Deal:RemoveByType( TradeableItems.TRADE_ITEM_ALLOW_EMBASSY, g_iUs );
 	else
-		print( "remove: them " .. g_iThem );
+		--print( "remove: them " .. g_iThem );
 		g_Deal:RemoveByType( TradeableItems.TRADE_ITEM_ALLOW_EMBASSY, g_iThem );
 	end
 	
@@ -2556,7 +2557,7 @@ Controls.ThemTableAllowEmbassy:SetVoid1( 0 );
 -- Declaration of Friendship Handlers
 -----------------------------------------------------------------------------------------------------------------------
 function PocketDoFHandler( isUs )
-	print("PocketDoFHandler");
+	--print("PocketDoFHandler");
 	-- The Declaration of Friendship must be on both sides of the deal
 	g_Deal:AddDeclarationOfFriendship(g_iUs);
 	g_Deal:AddDeclarationOfFriendship(g_iThem);
@@ -2567,7 +2568,7 @@ end
 
 ----------------------------------------------------
 function TableDoFHandler( isUs )
-	print("TableDoFHandler");
+	--print("TableDoFHandler");
 	-- If removing the Declaration of Friendship, it must be removed from both sides
 	g_Deal:RemoveByType( TradeableItems.TRADE_ITEM_DECLARATION_OF_FRIENDSHIP, g_iUs );
 	g_Deal:RemoveByType( TradeableItems.TRADE_ITEM_DECLARATION_OF_FRIENDSHIP, g_iThem );
@@ -2598,10 +2599,10 @@ Controls.ThemPocketOpenBorders:SetVoid1( 0 );
 function TableOpenBordersHandler( isUs )
 
     if( isUs == 1 ) then
-        print( "remove: us " .. g_iUs );
+        --print( "remove: us " .. g_iUs );
         g_Deal:RemoveByType( TradeableItems.TRADE_ITEM_OPEN_BORDERS, g_iUs );
     else
-        print( "remove: them " .. g_iThem );
+        --print( "remove: them " .. g_iThem );
         g_Deal:RemoveByType( TradeableItems.TRADE_ITEM_OPEN_BORDERS, g_iThem );
     end
        
@@ -2753,42 +2754,53 @@ function PocketResourceHandler( isUs, resourceId )
     DisplayDeal();
     DoUIDealChangedByHuman();
 end
-
-function LumpAdd( isUs, resourceId )
-	
-	local iAmount = 5;
-
-	if ( GameInfo.Resources[ resourceId ].ResourceUsage == 2 ) then -- is a luxury resource
-		iAmount = 1;
-	end
-	
-    if( isUs == 1 ) then
-        g_Deal:AddLumpTrade( g_iUs, resourceId, iAmount );
-    else
-        g_Deal:AddLumpTrade( g_iThem, resourceId, iAmount );
-    end
-    
-    DisplayDeal();
-    DoUIDealChangedByHuman();
-end
-function LumpChangeAmount( editText, control )	
-	print(editText);
-end
-function LumpRemove( isUs, resourceId )
-	-- TODO
-	--g_Deal:RemoveResourceTrade( resourceId );
-    DoClearTable();
-    DisplayDeal();
-    DoUIDealChangedByHuman();
-end
-
-
 function TableResourceHandler( isUs, resourceId )
 	g_Deal:RemoveResourceTrade( resourceId );
     DoClearTable();
     DisplayDeal();
     DoUIDealChangedByHuman();
 end
+
+
+
+function LumpAdd( isUs, resourceId )
+	local iAmount = 5;
+	local iPlayer = g_iThem;
+	if (isUs == 1) then iPlayer = g_iUs; end
+	local pPlayer = Players[iPlayer];
+	local maxAmount = pPlayer:GetResourceCumulative(resourceId);
+	iAmount = math.min(iAmount, maxAmount);
+
+    g_Deal:AddLumpTrade( iPlayer, resourceId, iAmount );
+    DisplayDeal();
+    DoUIDealChangedByHuman();
+end
+function LumpChangeAmount( editText, control )	
+	local isUs = control:GetVoid1() == 1;
+	local iResourceID = control:GetVoid2();
+	local iAmount = 0;
+	if( editText ~= nil and editText ~= "" ) then
+        iAmount = tonumber(editText);
+    else
+        control:SetText( 0 );
+    end
+
+	local iPlayer = g_iThem;
+	if (isUs == 1) then iPlayer = g_iUs; end
+	local pPlayer = Players[iPlayer];
+	local maxAmount = pPlayer:GetResourceCumulative(resourceId);
+	iAmount = math.min(iAmount, maxAmount);
+	
+    control:SetText(iAmount);
+    g_Deal:ChangeResourceTrade( iPlayer, iResourceID, iNumResource, 0 );
+end
+function LumpRemove( isUs, resourceId )
+	g_Deal:RemoveLumpTrade( resourceId );
+    DoClearTable();
+    DisplayDeal();
+    DoUIDealChangedByHuman();
+end
+
 
 -- adds to the selectable deal modifier
 function AddPocketLump( row, isUs, stack )
@@ -2832,7 +2844,7 @@ function AddTableLump( row, isUs, stack )
     local strString = row.IconString .. " " .. Locale.ConvertTextKey(row.Description);
     controlTable.Button:SetText( strString );
     controlTable.Button:SetVoids( isUs, row.ID );
-    controlTable.Button:RegisterCallback( Mouse.eLClick, TableResourceHandler );
+    controlTable.Button:RegisterCallback( Mouse.eLClick, LumpRemove );
     controlTable.AmountEdit:RegisterCallback( LumpChangeAmount );
     
     if( isUs == 1 ) then
@@ -3013,7 +3025,7 @@ function OnChoosePocketVote(iFromPlayer, iVoteIndex)
 		local iVoteChoice = g_LeagueVoteList[iVoteIndex].VoteChoice;
 		local iNumVotes = pLeague:GetCoreVotesForMember(iFromPlayer);
 		local bRepeal = g_LeagueVoteList[iVoteIndex].Repeal;
-		print("==debug== Vote added to deal, ID=" .. iResolutionID .. ", VoteChoice=" .. iVoteChoice .. ", NumVotes=" .. iNumVotes);
+		--print("==debug== Vote added to deal, ID=" .. iResolutionID .. ", VoteChoice=" .. iVoteChoice .. ", NumVotes=" .. iNumVotes);
 		g_Deal:AddVoteCommitment(iFromPlayer, iResolutionID, iVoteChoice, iNumVotes, bRepeal);
 	    
 		DisplayDeal();
@@ -3082,7 +3094,7 @@ function OnChooseTableVote(iFromPlayer, iVoteIndex)
 		local iVoteChoice = g_LeagueVoteList[iVoteIndex].VoteChoice;
 		local iNumVotes = pLeague:GetCoreVotesForMember(iFromPlayer);
 		local bRepeal = g_LeagueVoteList[iVoteIndex].Repeal;
-		print("==debug== Vote removed from deal, ID=" .. iResolutionID .. ", VoteChoice=" .. iVoteChoice .. ", NumVotes=" .. iNumVotes);
+		--print("==debug== Vote removed from deal, ID=" .. iResolutionID .. ", VoteChoice=" .. iVoteChoice .. ", NumVotes=" .. iNumVotes);
 		g_Deal:RemoveVoteCommitment(iFromPlayer, iResolutionID, iVoteChoice, iNumVotes, bRepeal);
 	    
 	    DoClearTable();

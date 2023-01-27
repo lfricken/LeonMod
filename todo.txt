@@ -7,44 +7,24 @@ trading
 		remove turns from table	
 		Stored resource table name
 		table strategic text shown even when none
-
-	todo
 		cancel button not working
 		stored resource trade edit works and clamps
 
-
-	function TableResourceHandler( isUs, resourceId )
-	g_Deal:RemoveResourceTrade( resourceId );
-    DoClearTable();
-
-
-	exported goods simply get subtrracted from gross, not negative
-	TRADE_ITEM_RESOURCES
-	TableStrategic
-
-UsPocketLump
-	<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_STRATEGIC_RESOURCES" ID="UsPocketStrategic"/>
-	<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="0" Hidden="0" ID="UsPocketStrategicStack"/>
-
-	Controls.UsPocketStrategic:SetText( "[ICON_PLUS]" .. Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_STRATEGIC_RESOURCES" ) );
-	TXT_KEY_TRADE_ITEM_LUMP_RESOURCES
-
+		fix ai trade value estimate
 
 strat resource trading
-	ADD randomly
-	subtract non randomly
-	verify units are penalized
-	<Resources> random per turn based on XML globals
 
+	show import, export, gross
+	verify units are penalized
 	punish buildings
 	allow lump trade
 	allow trading duplicate luxuries
 
 
 Trading Cards
-	HiddenFromPolicyCount should prevent from counting toward ideology
-	mouseover button in trading 
-	have tabs be All, Active Only, Passive Only, previous applied effects
+
+	mouseover button in trading should sohw description not just text label
+	add tabs previous applied effects, other players cards
 
 
 

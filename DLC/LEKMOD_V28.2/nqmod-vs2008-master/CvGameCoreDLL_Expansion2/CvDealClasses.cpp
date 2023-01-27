@@ -1796,14 +1796,21 @@ bool CvDeal::ChangeResourceTrade(PlayerTypes eFrom, ResourceTypes eResource, int
 	CvAssertMsg(iDuration < GC.getGame().getEstimateEndTurn() * 2, "DEAL: Trade item has a crazy long duration (probably invalid).  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Changing deal item for a player that's not actually in this deal!  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
+	TradeableItems toCheck = TRADE_ITEM_RESOURCES;
+	if (iDuration <= 0)
+	{
+		toCheck = TRADE_ITEM_LUMP;
+	}
+
+
 	TradedItemList::iterator it;
 	for(it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
 	{
-		if(it->m_eItemType == TRADE_ITEM_RESOURCES &&
+		if(it->m_eItemType == toCheck &&
 		        it->m_eFromPlayer == eFrom &&
 		        (ResourceTypes)it->m_iData1 == eResource)
 		{
-			if(IsPossibleToTradeItem(eFrom, GetOtherPlayer(eFrom), TRADE_ITEM_RESOURCES, eResource, iAmount))
+			if(IsPossibleToTradeItem(eFrom, GetOtherPlayer(eFrom), toCheck, eResource, iAmount))
 			{
 				it->m_iData2 = iAmount;
 				it->m_iDuration = iDuration;
