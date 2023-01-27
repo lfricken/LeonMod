@@ -9,7 +9,7 @@ trading
 	<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="0" Hidden="0" ID="UsPocketStrategicStack"/>
 
 	Controls.UsPocketStrategic:SetText( "[ICON_PLUS]" .. Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_STRATEGIC_RESOURCES" ) );
-
+	TXT_KEY_TRADE_ITEM_LUMP_RESOURCES
 
 
 strat resource trading
@@ -24,6 +24,8 @@ strat resource trading
 
 
 Trading Cards
+	HiddenFromPolicyCount should prevent from counting toward ideology
+	mouseover button in trading 
 	have tabs be All, Active Only, Passive Only, previous applied effects
 
 

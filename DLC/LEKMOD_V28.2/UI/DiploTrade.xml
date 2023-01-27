@@ -84,7 +84,7 @@
 					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_GOLD_PER_TURN" ID="UsPocketGoldPerTurn"/>
 					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_LUXURY_RESOURCES" ID="UsPocketLuxury"/>
 					<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="0" Hidden="0" ID="UsPocketLuxuryStack"/>
-					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_STRATEGIC_RESOURCES" ID="UsPocketLump"/>
+					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_ITEMS_LUMP_RESOURCES" ID="UsPocketLump"/>
 					<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="0" Hidden="1" ID="UsPocketLumpStack"/>
 					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_STRATEGIC_RESOURCES" ID="UsPocketStrategic"/>
 					<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="0" Hidden="0" ID="UsPocketStrategicStack"/>
@@ -137,7 +137,7 @@
 					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_LUXURY_RESOURCES" ID="ThemPocketLuxury"/>
 					<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="0" Hidden="0" ID="ThemPocketLuxuryStack">
                     </Stack>
-					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_STRATEGIC_RESOURCES" ID="ThemPocketLump"/>
+					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_ITEMS_LUMP_RESOURCES" ID="ThemPocketLump"/>
 					<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="0" Hidden="1" ID="ThemPocketLumpStack">
                     </Stack>
 					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_STRATEGIC_RESOURCES" ID="ThemPocketStrategic"/>
