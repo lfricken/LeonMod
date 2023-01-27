@@ -4706,15 +4706,15 @@ void CvPlayer::doTurn()
 void CvPlayer::DoTurnResources()
 {
 	// accumulate resources
-	const int resourceVariation = max(1, GC.getRESOURCE_VARIATION()) - 1;
+	const int resourceVariation = max(1, GC.getRESOURCE_VARIATION());
 	const uint randSeed = (uint)GC.getGame().getGameTurn() * (uint)GetScienceTimes100(true) * (uint)m_pCulture->GetCultureFromCitiesT100();
 	for (int i = 0; i < GC.getNumResourceInfos(); ++i)
 	{
 		const CvResourceInfo* info = GC.getResourceInfo((ResourceTypes)i);
 		if (info != NULL)
 		{
-			int gross = getNumResourceGross((ResourceTypes)i);
-			const int roll = GC.rand(resourceVariation, "rand resource gen", NULL, (i * 23509) + randSeed);
+			int gross = resourceVariation * getNumResourceGross((ResourceTypes)i);
+			const int roll = GC.rand(max(0, resourceVariation - 1), "rand resource gen", NULL, (i * 23509) + randSeed);
 			if (roll == 0)
 			{
 				changeResourceCumulative((ResourceTypes)i, +gross);

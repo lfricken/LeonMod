@@ -47,8 +47,13 @@ local g_iUsTeam = -1;
 local g_iThemTeam = -1;
 local g_pUsTeam = -1;
 local g_pThemTeam = -1;
-local g_UsPocketResources   = {};
-local g_ThemPocketResources = {};
+local g_usTableInstances = {};
+local g_themTableInstances = {};
+local g_usPocketLumpStackInstanceTable   = {};
+local g_themPocketLumpStackInstanceTable = {};
+local g_usPocketResourceStackInstanceTable   = {};
+local g_themPocketResourceStackInstanceTable = {};
+
 local g_UsTableResources    = {};
 local g_ThemTableResources  = {};
 local g_LuxuryList          = {};
@@ -1559,152 +1564,141 @@ function ResetDisplay()
 		Controls.ThemPocketOtherPlayer:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_OTHER_PLAYERS_OPEN" ));
 		Controls.ThemPocketOtherPlayer:SetText( "[ICON_PLUS]" .. Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_OTHER_PLAYERS" ) );
     end
-    	    
-    
-		
-    ---------------------------------------------------------------------------------- 
-    -- pocket resources for us
-    ---------------------------------------------------------------------------------- 
-    local bFoundLux = false;
-    local bFoundStrat = false;
-    local count;
-    
-    local iResourceCount;
-    --local iOurResourceCount;
-    --local iTheirResourceCount;
-    local pResource;
-    local strString;
-    
-    -- loop over resources
-    if( g_iUs == -1 ) then
-        for resType, instance in pairs( g_UsPocketResources ) do
-            instance.Button:SetHide( false );
-        end
-        bFoundLux = true;
-        bFoundStrat = true;
-    else
-		
-		local bCanTradeResource;
-		
-        for resType, instance in pairs( g_UsPocketResources ) do
-			
-			bCanTradeResource = g_Deal:IsPossibleToTradeItem(g_iUs, g_iThem, TradeableItems.TRADE_ITEM_RESOURCES, resType, 1);	-- 1 here is 1 quanity of the Resource, which is the minimum possible
-			
-            if (bCanTradeResource) then
-                if( g_LuxuryList[ resType ] == true ) then
-                    bFoundLux = true;
-                else
-                    bFoundStrat = true;
-                end
-                instance.Button:SetHide( false );
-                
-                pResource = GameInfo.Resources[resType];
-				iResourceCount = g_Deal:GetNumResource(g_iUs, resType);
-			    strString = pResource.IconString .. " " .. Locale.ConvertTextKey(pResource.Description) .. " (" .. iResourceCount .. ")";
-                instance.Button:SetText( strString );
-            else
-                instance.Button:SetHide( true );
-            end
-        end
-    end
-    Controls.UsPocketLuxury:SetDisabled( not bFoundLux );
-    if (bFoundLux) then
-		Controls.UsPocketLuxury:GetTextControl():SetColorByName("Beige_Black");
-		Controls.UsPocketLuxury:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_LUX_RESCR_TRADE_YES" ));
-		if( Controls.UsPocketLuxuryStack:IsHidden() ) then
-    		Controls.UsPocketLuxury:SetText( "[ICON_PLUS]" .. Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_LUXURY_RESOURCES" ) );
+    	  
+   	-- true  
+    -- g_usPocketResourceStackInstanceTable
+    -- g_iUs
+    -- g_iThem
+
+    -- Controls.UsPocketStrategic
+    -- Controls.UsPocketStrategicStack
+    -- Controls.UsPocketLuxury
+	-- Controls.UsPocketLuxuryStack
+    function updateResourcePocket(isThem, pocketResources, iPlayerFrom, iPlayerTo, 
+    	fromPocketStrat, fromPocketStratStack, fromPocketLux, fromPocketLuxStack,
+    	fromPocketLump, fromPocketLumpStack, g_fromPocketLump)
+	    local hasAnyLux = false;
+	    local hasAnyStrat = false;
+	    local hasAnyLump = false;
+	    local TXT_SUFFIX = "";
+	    if (isThem) then TXT_SUFFIX = "_THEM"; end
+	    
+	    -- avoid crash???
+	    if( g_iUs == -1 ) then
+	        for resType, instance in pairs( pocketResources ) do
+	            instance.Button:SetHide( false );
+	        end
+	        hasAnyLux = true;
+	        hasAnyStrat = true;
+	        hasAnyLump = true;
+	    else
+	    	-- show/hide resource buttons
+	    	for resType, instance in pairs( pocketResources ) do
+				
+				-- 1 here is the minimum quantity of tradeable resource
+				local bCanTradeResource = g_Deal:IsPossibleToTradeItem(iPlayerFrom, iPlayerTo, TradeableItems.TRADE_ITEM_RESOURCES, resType, 1);
+				
+	            if (bCanTradeResource) then
+	                if( g_LuxuryList[ resType ] == true ) then
+	                    hasAnyLux = true;
+	                else
+	                    hasAnyStrat = true;
+	                end
+	                instance.Button:SetHide( false );
+	                
+	                local pResource = GameInfo.Resources[resType];
+					local iResourceCount = g_Deal:GetNumResource(iPlayerFrom, resType);
+				    local strString = pResource.IconString .. " " .. Locale.ConvertTextKey(pResource.Description) .. " (" .. iResourceCount .. ")";
+	                instance.Button:SetText( strString );
+	            else
+	                instance.Button:SetHide( true );
+	            end
+	        end
+
+	        -- resource buttons for lump
+	    	for resType, instance in pairs( g_fromPocketLump ) do
+				print(resType);
+				-- 1 here is the minimum quantity of tradeable resource
+				local bCanTradeResource = g_Deal:IsPossibleToTradeItem(iPlayerFrom, iPlayerTo, TradeableItems.TRADE_ITEM_LUMP, resType, 1);
+				
+	            if (bCanTradeResource) then
+	    			hasAnyLump = true;
+	                instance.Button:SetHide( false );
+	                
+	                local pResource = GameInfo.Resources[resType];
+					local pFrom = Players[iPlayerFrom];
+					local iNumCumulative = pFrom:GetResourceCumulative(resType);
+				    local strString = pResource.IconString .. " " .. Locale.ConvertTextKey(pResource.Description) .. " (" .. iNumCumulative .. ")";
+	                instance.Button:SetText( strString );
+	            else
+	                instance.Button:SetHide( true );
+	            end
+	        end
+	    end
+
+	    -- LUMP
+	    fromPocketLump:SetDisabled( not hasAnyLump );
+	    if (hasAnyLump) then
+			fromPocketLump:GetTextControl():SetColorByName("Beige_Black");
+			fromPocketLump:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_LUX_RESCR_TRADE_YES" .. TXT_SUFFIX ) );
+			if( fromPocketLumpStack:IsHidden() ) then
+	    		fromPocketLump:SetText( "[ICON_PLUS]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_ITEMS_LUMP_RESOURCES" ) );
+			else
+	    		fromPocketLump:SetText( "[ICON_MINUS]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_ITEMS_LUMP_RESOURCES" ) );
+			end
 		else
-    		Controls.UsPocketLuxury:SetText( "[ICON_MINUS]" .. Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_LUXURY_RESOURCES" ) );
-		end
-	else
-		Controls.UsPocketLuxury:GetTextControl():SetColorByName("Gray_Black");
-		Controls.UsPocketLuxury:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_LUX_RESCR_TRADE_NO" ));
-		Controls.UsPocketLuxury:SetText( Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_LUXURY_RESOURCES" ) );
-    end
-    
-    Controls.UsPocketStrategic:SetDisabled( not bFoundStrat );
-    if (bFoundStrat) then
-		Controls.UsPocketStrategic:GetTextControl():SetColorByName("Beige_Black");
-		Controls.UsPocketStrategic:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_STRAT_RESCR_TRADE_YES") );
-		if( Controls.UsPocketStrategicStack:IsHidden() ) then
-    		Controls.UsPocketStrategic:SetText( "[ICON_PLUS]" .. Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_STRATEGIC_RESOURCES" ) );
+			fromPocketLump:GetTextControl():SetColorByName("Gray_Black");
+			fromPocketLump:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_LUX_RESCR_TRADE_NO" .. TXT_SUFFIX ));
+			fromPocketLump:SetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_ITEMS_LUMP_RESOURCES" ) );
+	    end
+
+	    -- luxuries
+	    fromPocketLux:SetDisabled( not hasAnyLux );
+	    if (hasAnyLux) then
+			fromPocketLux:GetTextControl():SetColorByName("Beige_Black");
+			fromPocketLux:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_LUX_RESCR_TRADE_YES" .. TXT_SUFFIX ) );
+			if( fromPocketLuxStack:IsHidden() ) then
+	    		fromPocketLux:SetText( "[ICON_PLUS]" .. Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_LUXURY_RESOURCES" ) );
+			else
+	    		fromPocketLux:SetText( "[ICON_MINUS]" .. Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_LUXURY_RESOURCES" ) );
+			end
 		else
-    		Controls.UsPocketStrategic:SetText( "[ICON_MINUS]" .. Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_STRATEGIC_RESOURCES" ) );
-		end
-	else
-		Controls.UsPocketStrategic:GetTextControl():SetColorByName("Gray_Black");
-		Controls.UsPocketStrategic:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_STRAT_RESCR_TRADE_NO") );
-		Controls.UsPocketStrategic:SetText( Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_STRATEGIC_RESOURCES" ) );
+			fromPocketLux:GetTextControl():SetColorByName("Gray_Black");
+			fromPocketLux:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_LUX_RESCR_TRADE_NO" .. TXT_SUFFIX ));
+			fromPocketLux:SetText( Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_LUXURY_RESOURCES" ) );
+	    end
+	    
+	    -- Strategics
+	    fromPocketStrat:SetDisabled( not hasAnyStrat );
+	    if (hasAnyStrat) then
+			fromPocketStrat:GetTextControl():SetColorByName("Beige_Black");
+			fromPocketStrat:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_STRAT_RESCR_TRADE_YES" .. TXT_SUFFIX) );
+			if( fromPocketStratStack:IsHidden() ) then
+	    		fromPocketStrat:SetText( "[ICON_PLUS]" .. Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_STRATEGIC_RESOURCES" ) );
+			else
+	    		fromPocketStrat:SetText( "[ICON_MINUS]" .. Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_STRATEGIC_RESOURCES" ) );
+			end
+		else
+			fromPocketStrat:GetTextControl():SetColorByName("Gray_Black");
+			fromPocketStrat:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_STRAT_RESCR_TRADE_NO" .. TXT_SUFFIX) );
+			fromPocketStrat:SetText( Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_STRATEGIC_RESOURCES" ) );
+	    end
     end
-   
-   
-    ---------------------------------------------------------------------------------- 
-    -- pocket resources for them
-    ---------------------------------------------------------------------------------- 
-    bFoundLux = false;
-    bFoundStrat = false;
-    if( g_iThem == -1 ) then
-        for resType, instance in pairs( g_ThemPocketResources ) do
-            instance.Button:SetHide( false );
-        end
-        bFoundLux = true;
-        bFoundStrat = true;
-    else
 		
-		local bCanTradeResource;
-		
-        for resType, instance in pairs( g_ThemPocketResources ) do
-			
-			bCanTradeResource = g_Deal:IsPossibleToTradeItem(g_iThem, g_iUs, TradeableItems.TRADE_ITEM_RESOURCES, resType, 1);	-- 1 here is 1 quanity of the Resource, which is the minimum possible
-			
-            if (bCanTradeResource) then
-                if( g_LuxuryList[ resType ] == true ) then
-                    bFoundLux = true;
-                else
-                    bFoundStrat = true;
-                end
-                instance.Button:SetHide( false );
-                
-                pResource = GameInfo.Resources[resType];
-                iResourceCount = g_Deal:GetNumResource(g_iThem, resType);
-			    strString = pResource.IconString .. " " .. Locale.ConvertTextKey(pResource.Description) .. " (" .. iResourceCount .. ")";
-                instance.Button:SetText( strString );
-            else
-                instance.Button:SetHide( true );
-            end
-        end
-    end
-    Controls.ThemPocketLuxury:SetDisabled( not bFoundLux );
-    if (bFoundLux) then
-		Controls.ThemPocketLuxury:GetTextControl():SetColorByName("Beige_Black");
-		Controls.ThemPocketLuxury:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_LUX_RESCR_TRADE_YES_THEM" ));
-		if( Controls.ThemPocketLuxuryStack:IsHidden() ) then
-    		Controls.ThemPocketLuxury:SetText( "[ICON_PLUS]" .. Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_LUXURY_RESOURCES" ) );
-		else
-    		Controls.ThemPocketLuxury:SetText( "[ICON_MINUS]" .. Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_LUXURY_RESOURCES" ) );
-		end
-	else
-		Controls.ThemPocketLuxury:GetTextControl():SetColorByName("Gray_Black");
-		Controls.ThemPocketLuxury:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_LUX_RESCR_TRADE_NO_THEM" ));
-		Controls.ThemPocketLuxury:SetText( Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_LUXURY_RESOURCES" ) );
-    end
-    
-    Controls.ThemPocketStrategic:SetDisabled( not bFoundStrat );
-    if (bFoundStrat) then
-		Controls.ThemPocketStrategic:GetTextControl():SetColorByName("Beige_Black");
-		Controls.ThemPocketStrategic:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_STRAT_RESCR_TRADE_YES_THEM" ));
-		if( Controls.ThemPocketStrategicStack:IsHidden() ) then
-    		Controls.ThemPocketStrategic:SetText( "[ICON_PLUS]" .. Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_STRATEGIC_RESOURCES" ) );
-		else
-    		Controls.ThemPocketStrategic:SetText( "[ICON_MINUS]" .. Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_STRATEGIC_RESOURCES" ) );
-		end
-	else
-		Controls.ThemPocketStrategic:GetTextControl():SetColorByName("Gray_Black");
-		Controls.ThemPocketStrategic:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_STRAT_RESCR_TRADE_NO_THEM" ));
-		Controls.ThemPocketStrategic:SetText( Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_STRATEGIC_RESOURCES" ) );
-    end
-   
-   
+	---------------------------------------------------------------------------------- 
+	-- pocket resources for us
+	----------------------------------------------------------------------------------
+	updateResourcePocket(false, g_usPocketResourceStackInstanceTable, g_iUs, g_iThem, 
+		Controls.UsPocketStrategic, Controls.UsPocketStrategicStack, Controls.UsPocketLuxury, Controls.UsPocketLuxuryStack, 
+		Controls.UsPocketLump, Controls.UsPocketLumpStack, g_usPocketLumpStackInstanceTable);   
+
+	---------------------------------------------------------------------------------- 
+	-- pocket resources for them
+	---------------------------------------------------------------------------------- 
+	updateResourcePocket(true, g_themPocketResourceStackInstanceTable, g_iThem, g_iUs, 
+		Controls.ThemPocketStrategic, Controls.ThemPocketStrategicStack, Controls.ThemPocketLuxury, Controls.ThemPocketLuxuryStack, 
+		Controls.ThemPocketLump, Controls.ThemPocketLumpStack, g_themPocketLumpStackInstanceTable);
+
     ---------------------------------------------------------------------------------- 
     -- Votes
     ----------------------------------------------------------------------------------
@@ -1819,6 +1813,9 @@ function DoClearTable()
     Controls.UsTableCardsStack:SetHide( true );
     Controls.ThemTableCardsStack:SetHide( true );
 
+	Controls.UsTableLumpStack:SetHide( true );
+	Controls.ThemTableLumpStack:SetHide( true );
+
 	Controls.UsTableStrategicStack:SetHide( true );
 	Controls.ThemTableStrategicStack:SetHide( true );
 	Controls.UsTableLuxuryStack:SetHide( true );
@@ -1838,7 +1835,13 @@ function DoClearTable()
 	    table.ThemTablePeace.Button:SetHide( true );
     end
 	
-	-- loop over resources
+	-- loop over resources	
+	for n, instance in pairs( g_usTableInstances ) do
+		instance.Container:SetHide( true );
+	end
+	for n, instance in pairs( g_themTableInstances ) do
+		instance.Container:SetHide( true );
+	end
 	for n, instance in pairs( g_UsTableResources ) do
 		instance.Container:SetHide( true );
 	end
@@ -2173,8 +2176,28 @@ function DisplayDeal()
                 end
             end
             
-            g_UsPocketResources[ data1 ].Button:SetHide( true );
-            g_ThemPocketResources[ data1 ].Button:SetHide( true );
+            g_usPocketResourceStackInstanceTable[ data1 ].Button:SetHide( true );
+            g_themPocketResourceStackInstanceTable[ data1 ].Button:SetHide( true );
+        
+        elseif( TradeableItems.TRADE_ITEM_LUMP == itemType ) then
+        
+            if( bFromUs ) then				
+                g_usTableInstances[ data1 ].Container:SetHide( false );
+				g_usTableInstances[ data1 ].DurationEdit:SetHide( false );
+				
+                Controls.UsTableLumpStack:SetHide( false );
+                g_usTableInstances[ data1 ].AmountEdit:SetText( data2 );
+
+            else				
+                g_themTableInstances[ data1 ].Container:SetHide( false );
+				g_themTableInstances[ data1 ].DurationEdit:SetHide( false );
+                
+                Controls.ThemTableLumpStack:SetHide( false );
+                g_themTableInstances[ data1 ].AmountEdit:SetText( data2 );
+            end
+            
+            g_usPocketLumpStackInstanceTable[ data1 ].Button:SetHide( true );
+            g_themPocketLumpStackInstanceTable[ data1 ].Button:SetHide( true );
         elseif( TradeableItems.TRADE_ITEM_DECLARATION_OF_FRIENDSHIP == itemType ) then
 			-- Declaration of Friendship must be mutual
 			if (Controls.UsPocketDoF ~= nil) then 
@@ -2731,12 +2754,56 @@ function PocketResourceHandler( isUs, resourceId )
     DoUIDealChangedByHuman();
 end
 
+function LumpAdd( isUs, resourceId )
+	
+	local iAmount = 5;
+
+	if ( GameInfo.Resources[ resourceId ].ResourceUsage == 2 ) then -- is a luxury resource
+		iAmount = 1;
+	end
+	
+    if( isUs == 1 ) then
+        g_Deal:AddLumpTrade( g_iUs, resourceId, iAmount );
+    else
+        g_Deal:AddLumpTrade( g_iThem, resourceId, iAmount );
+    end
+    
+    DisplayDeal();
+    DoUIDealChangedByHuman();
+end
+function LumpChangeAmount( editText, control )	
+	print(editText);
+end
+function LumpRemove( isUs, resourceId )
+	-- TODO
+	--g_Deal:RemoveResourceTrade( resourceId );
+    DoClearTable();
+    DisplayDeal();
+    DoUIDealChangedByHuman();
+end
+
 
 function TableResourceHandler( isUs, resourceId )
 	g_Deal:RemoveResourceTrade( resourceId );
     DoClearTable();
     DisplayDeal();
     DoUIDealChangedByHuman();
+end
+
+-- adds to the selectable deal modifier
+function AddPocketLump( row, isUs, stack )
+    local controlTable = {};
+    ContextPtr:BuildInstanceForControl( "PocketResource", controlTable, stack );
+        
+    controlTable.Button:SetText( "" );		-- Text and quantity will be set for the specific player when the UI comes up
+    controlTable.Button:SetVoids( isUs, row.ID );
+    controlTable.Button:RegisterCallback( Mouse.eLClick, LumpAdd );
+    
+    if( isUs == 1 ) then
+        g_usPocketLumpStackInstanceTable[ row.ID ] = controlTable;
+    else
+        g_themPocketLumpStackInstanceTable[ row.ID ] = controlTable;
+    end
 end
 
 -- adds to the selectable deal modifier
@@ -2749,10 +2816,34 @@ function AddPocketResource( row, isUs, stack )
     controlTable.Button:RegisterCallback( Mouse.eLClick, PocketResourceHandler );
     
     if( isUs == 1 ) then
-        g_UsPocketResources[ row.ID ] = controlTable;
+        g_usPocketResourceStackInstanceTable[ row.ID ] = controlTable;
     else
-        g_ThemPocketResources[ row.ID ] = controlTable;
+        g_themPocketResourceStackInstanceTable[ row.ID ] = controlTable;
     end
+end
+
+
+
+-- Adds the strategic to the in progress deal
+function AddTableLump( row, isUs, stack )
+    local controlTable = {};
+    ContextPtr:BuildInstanceForControl( "TableStrategic", controlTable, stack );
+    
+    local strString = row.IconString .. " " .. Locale.ConvertTextKey(row.Description);
+    controlTable.Button:SetText( strString );
+    controlTable.Button:SetVoids( isUs, row.ID );
+    controlTable.Button:RegisterCallback( Mouse.eLClick, TableResourceHandler );
+    controlTable.AmountEdit:RegisterCallback( LumpChangeAmount );
+    
+    if( isUs == 1 ) then
+        controlTable.AmountEdit:SetVoid1( 1 );
+        g_usTableInstances[ row.ID ] = controlTable;
+    else
+        controlTable.AmountEdit:SetVoid1( 0 );
+        g_themTableInstances[ row.ID ] = controlTable;
+    end
+    
+    controlTable.AmountEdit:SetVoid2( row.ID );
 end
 
 -- Adds the strategic to the in progress deal
@@ -2842,10 +2933,10 @@ end
 for row in GameInfo.Resources( "ResourceUsage = 1" ) 
 do 
 	-- lump strategics
-    AddPocketResource( row, 1, Controls.UsPocketLumpStack   );
-    AddPocketResource( row, 0, Controls.ThemPocketLumpStack );
-    AddTableStrategic( row, 1, Controls.UsTableLumpStack    );
-    AddTableStrategic( row, 0, Controls.ThemTableLumpStack  );
+    AddPocketLump( row, 1, Controls.UsPocketLumpStack   );
+    AddPocketLump( row, 0, Controls.ThemPocketLumpStack );
+    AddTableLump( row, 1, Controls.UsTableLumpStack    );
+    AddTableLump( row, 0, Controls.ThemTableLumpStack  );
 
     -- strategics
     AddPocketResource( row, 1, Controls.UsPocketStrategicStack   );

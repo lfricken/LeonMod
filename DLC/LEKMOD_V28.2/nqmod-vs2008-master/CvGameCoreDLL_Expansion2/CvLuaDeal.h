@@ -124,6 +124,10 @@ protected:
 	{
 		return BasicLuaMethod(L, &CvDeal::AddCardTrade);
 	};
+	static int lAddLumpTrade(lua_State* L)
+	{
+		return BasicLuaMethod(L, &CvDeal::AddLumpTrade);
+	};
 	static int lAddCityTrade(lua_State* L)
 	{
 		return BasicLuaMethod(L, &CvDeal::AddCityTrade);
@@ -221,6 +225,10 @@ protected:
 	static int lRemoveCardTrade(lua_State* L)
 	{
 		return BasicLuaMethod(L, &CvDeal::RemoveCardTrade);
+	};
+	static int lRemoveLumpTrade(lua_State* L)
+	{
+		return BasicLuaMethod(L, &CvDeal::RemoveLumpTrade);
 	};
 	static int lRemoveCityTrade(lua_State* L)
 	{

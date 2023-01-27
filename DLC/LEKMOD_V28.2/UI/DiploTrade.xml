@@ -201,7 +201,7 @@
 						<Label Anchor="L,C" Offset="5,0" String="TXT_KEY_DIPLO_LUXURY_RESOURCES" Font="TwCenMT14"/>
 					</Stack>
 					<Stack Anchor="L,T" Offset="0,4" Size="128,0" StackGrowth="Bottom" Padding="5" Hidden="0" ID="UsTableLumpStack">
-						<Label Anchor="L,C" Offset="5,0" String="TXT_KEY_DIPLO_STRATEGIC_RESOURCES" Font="TwCenMT14"/>
+						<Label Anchor="L,C" Offset="5,0" String="TXT_KEY_DIPLO_ITEMS_LUMP_RESOURCES" Font="TwCenMT14"/>
 					</Stack>
 					<Stack Anchor="L,T" Offset="0,4" Size="128,0" StackGrowth="Bottom" Padding="5" Hidden="0" ID="UsTableStrategicStack">
 						<Label Anchor="L,C" Offset="5,0" String="TXT_KEY_DIPLO_STRATEGIC_RESOURCES" Font="TwCenMT14"/>
@@ -260,7 +260,7 @@
 						<Label Anchor="L,C" Offset="5,0" String="TXT_KEY_DIPLO_LUXURY_RESOURCES" Font="TwCenMT14"/>
 					</Stack>
 					<Stack Anchor="L,T" Offset="0,4" Size="128,0" StackGrowth="Bottom" Padding="5" Hidden="0" ID="ThemTableLumpStack">
-						<Label Anchor="L,C" Offset="5,0" String="TXT_KEY_DIPLO_STRATEGIC_RESOURCES" Font="TwCenMT14"/>
+						<Label Anchor="L,C" Offset="5,0" String="TXT_KEY_DIPLO_ITEMS_LUMP_RESOURCES" Font="TwCenMT14"/>
 					</Stack>
 					<Stack Anchor="L,T" Offset="0,4" Size="128,0" StackGrowth="Bottom" Padding="5" Hidden="0" ID="ThemTableStrategicStack">
 						<Label Anchor="L,C" Offset="5,0" String="TXT_KEY_DIPLO_STRATEGIC_RESOURCES" Font="TwCenMT14"/>

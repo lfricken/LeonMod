@@ -2,9 +2,27 @@
 
 
 trading
-	
+	done
+		stored resources displayed
+		remove turns from table	
+		Stored resource table name
+		table strategic text shown even when none
+
+	todo
+		cancel button not working
+		stored resource trade edit works and clamps
+
+
+	function TableResourceHandler( isUs, resourceId )
+	g_Deal:RemoveResourceTrade( resourceId );
+    DoClearTable();
+
+
+	exported goods simply get subtrracted from gross, not negative
+	TRADE_ITEM_RESOURCES
 	TableStrategic
 
+UsPocketLump
 	<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_STRATEGIC_RESOURCES" ID="UsPocketStrategic"/>
 	<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="0" Hidden="0" ID="UsPocketStrategicStack"/>
 

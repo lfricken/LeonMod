@@ -867,6 +867,8 @@ int CvDealAI::GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes 
 		iItemValue = GetResourceValue(/*ResourceType*/ (ResourceTypes)iData1, /*Quantity*/ iData2, iDuration, bFromMe, eOtherPlayer);
 	else if (eItem == TRADE_ITEM_CARD)
 		iItemValue = TradingCard::GetEstimatedValue((TradingCardTypes)iData2);
+	else if (eItem == TRADE_ITEM_LUMP)
+		iItemValue = 1;
 	else if(eItem == TRADE_ITEM_CITIES)
 		iItemValue = GetCityValue(/*iX*/ iData1, /*iY*/ iData2, bFromMe, eOtherPlayer, bUseEvenValue);
 	else if(eItem == TRADE_ITEM_ALLOW_EMBASSY)
