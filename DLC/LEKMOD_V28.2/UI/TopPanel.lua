@@ -200,6 +200,7 @@ function UpdateData()
 					local iExport = pPlayer:GetResourceExport(iResourceLoop);
 					local iGross = pPlayer:GetNumResourceTotal(iResourceLoop, true, true);
 					local iExpended = pPlayer:GetNumResourceUsed(iResourceLoop);
+					local bWasShortage = pPlayer:GetWasShortage(iResource);
 					local iNet = iGross - iExpended;
 					local variation = math.max(1, GameDefines.RESOURCE_VARIATION);
 					local expected = variation * iGross;
@@ -235,9 +236,17 @@ function UpdateData()
 						local text = Locale.ConvertTextKey("TXT_KEY_TP_RESOURCE_SHORT", iStored, netText, pResource.IconString);
 
 						-- tooltip
-						local tooltipKey = "TXT_KEY_TP_RESOURCE_INFO";
-						local tooltip = Locale.ConvertTextKey(tooltipKey, icon, resourceName, iStored, iGross, iExpended, netText, iImport, iExport, iDomestic);
+						local tooltip = "";
+						local infoKey = "TXT_KEY_TP_RESOURCE_INFO";
+						local info = Locale.ConvertTextKey(infoKey, icon, resourceName, iStored, iGross, iExpended, netText, iImport, iExport, iDomestic);
+						tooltip = tooltip .. info;
 						
+						-- shortage?
+						if (bWasShortage) then
+							local shortageStr = Locale.ConvertTextKey("TXT_KEY_TP_RESOURCE_SHORTAGE");
+							tooltip = tooltip .. shortageStr;
+						end
+
 						-- going negative, display turns left
 						if (iExpended > 0 and iStored > 0) then
 							local turnsRemaining = math.ceil(iStored / math.abs(iExpended));
@@ -248,11 +257,12 @@ function UpdateData()
 						-- explain how the mechanics work
 						local explainStr = "TXT_KEY_TP_RESOURCE_EXPLAIN";
 						local explain = Locale.ConvertTextKey(explainStr, variation, expected, resourceName);
+						tooltip = tooltip .. explain;
 
 						-- populate instance
                     	instance = g_resourceIM:GetInstance();
                     	instance.ResourceEntry:SetText(text);
-                    	instance.ResourceEntry:SetToolTipString(tooltip .. explain);
+                    	instance.ResourceEntry:SetToolTipString(tooltip);
 					end
 				end
 			end

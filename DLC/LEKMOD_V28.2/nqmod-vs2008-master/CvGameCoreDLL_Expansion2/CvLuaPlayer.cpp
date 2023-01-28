@@ -724,6 +724,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetNumResourceTotal);
 	Method(ChangeNumResourceTotal);
 	Method(GetNumResourceAvailable);
+	Method(GetWasShortage);
 
 	Method(GetResourceExport);
 	Method(GetResourceImport);
@@ -7417,6 +7418,10 @@ int CvLuaPlayer::lChangeNumResourceTotal(lua_State* L)
 int CvLuaPlayer::lGetNumResourceAvailable(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::getNumResourceAvailable);
+}
+int CvLuaPlayer::lGetWasShortage(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::wasShortage);
 }
 
 //------------------------------------------------------------------------------

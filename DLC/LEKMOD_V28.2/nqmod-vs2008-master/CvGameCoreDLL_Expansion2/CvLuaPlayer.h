@@ -709,6 +709,7 @@ protected:
 	static int lGetNumResourceTotal(lua_State* L);
 	static int lChangeNumResourceTotal(lua_State* L);
 	static int lGetNumResourceAvailable(lua_State* L);
+	static int lGetWasShortage(lua_State* L);
 
 	static int lGetResourceExport(lua_State* L);
 	static int lGetResourceImport(lua_State* L);
