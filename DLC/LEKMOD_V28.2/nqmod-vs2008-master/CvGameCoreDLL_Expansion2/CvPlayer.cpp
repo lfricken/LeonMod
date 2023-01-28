@@ -4702,39 +4702,50 @@ void CvPlayer::doTurn()
 	s << "Player:doTurn " << GetID() << " " << eCurrentTech << " " << GetNonLeaderBoostT100() << " " << m_iOverflowResearch << " " << GetScienceTimes100(true);
 	GC.debugState(s); // Player::doTurn
 }
-
+void notifyResourceGain(const CvPlayer* player, const int amount, const CvResourceInfo* resourceInfo)
+{
+	CvString strBuffer = GetLocalizedText("TXT_KEY_RESOURCE_GAIN", amount, 
+		resourceInfo->GetDescriptionKey(), resourceInfo->GetIconString());
+	GC.messagePlayer(0, player->GetID(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer);
+}
 void CvPlayer::DoTurnResources()
 {
 	// accumulate resources
 	const int resourceVariation = max(1, GC.getRESOURCE_VARIATION());
+	const bool hasAnyVariation = resourceVariation > 1;
 	const uint randSeed = (uint)GC.getGame().getGameTurn() * (uint)GetScienceTimes100(true) * (uint)m_pCulture->GetCultureFromCitiesT100();
 	for (int i = 0; i < GC.getNumResourceInfos(); ++i)
 	{
-		const CvResourceInfo* info = GC.getResourceInfo((ResourceTypes)i);
-		if (info != NULL)
+		const ResourceTypes e = (ResourceTypes)i;
+		const CvResourceInfo* resourceInfo = GC.getResourceInfo(e);
+		if (resourceInfo != NULL)
 		{
-			int gross = resourceVariation * getNumResourceGross((ResourceTypes)i);
+			const int multipliedGross = resourceVariation * getNumResourceGross(e);
 			const int roll = GC.rand(max(0, resourceVariation - 1), "rand resource gen", NULL, (i * 23509) + randSeed);
 			if (roll == 0)
 			{
-				changeResourceCumulative((ResourceTypes)i, +gross);
+				const bool consideredCumulative = resourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC;
+				const bool gainedAny = multipliedGross != 0;
+				// strategic, gained any, was chance we wouldn't gain?
+				// notify?
+				if (consideredCumulative && gainedAny && hasAnyVariation)
+				{
+					notifyResourceGain(this, multipliedGross, resourceInfo);
+				}
+				changeResourceCumulative(e, +multipliedGross);
 			}
 		}
 
-		const int expenses = getNumResourceExpense((ResourceTypes)i);
-		if (getResourceCumulative((ResourceTypes)i) > 0) // if we have any left from last time
+		const int expenses = getNumResourceExpense(e);
+		const bool canExpend = getResourceCumulative(e) >= expenses;
+		if (canExpend) // if we have any left from last time
 		{
 			// it's ok to go negative
-			changeResourceCumulative((ResourceTypes)i, -expenses);
-			m_paiWasShortage.setAt(i, false);
+			changeResourceCumulative(e, -expenses);
 		}
-		else
-		{
-			// there was none left, we are now in a shortage
-			GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
-			return m_paiWasShortage.setAt(i, true);
-		}
+		SetShortage(e, !canExpend);
 	}
+	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 }
 void CvPlayer::DoTurnCities()
 {
@@ -4801,10 +4812,12 @@ void CvPlayer::doTurnPostDiplomacy()
 
 	// Golden Age
 	DoProcessGoldenAge();
+	DoUpdateCardBenefits();
 
 	// Great People gifts from Allied City States (if we have that policy)
 	DoGreatPeopleSpawnTurn();
 
+	DoUpdateCardBenefits();
 	DoTurnResources();
 	DoTurnCities();
 	GetTreasury()->DoGold();
@@ -5322,7 +5335,23 @@ void CvPlayer::RespositionInvalidUnits()
 		}
 	}
 }
-
+// true if this building does not have all its resources satisfied
+bool isResourceShortageFor(const CvPlayer& player, const CvBuildingEntry* pBuildingInfo)
+{
+	const int iNumResources = GC.getNumResourceInfos();
+	for (int resource = 0; resource < iNumResources; resource++)
+	{
+		if (pBuildingInfo->GetResourceQuantityRequirement(resource) > 0)
+		{
+			const bool hasEnoughResourcesToSustainBuilding = !player.wasShortage((ResourceTypes)resource);
+			if (!hasEnoughResourcesToSustainBuilding)
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
 int CvPlayer::GetTotalYieldForBuilding(const CvCity* pCity, const BuildingTypes eBuilding, const YieldTypes eYieldType, const bool isPercentMod, const bool inRecursiveCall) const
 {
 	int iYield = 0;
@@ -5330,9 +5359,20 @@ int CvPlayer::GetTotalYieldForBuilding(const CvCity* pCity, const BuildingTypes 
 	if (pBuildingInfo == NULL)
 		return 0;
 	const BuildingClassTypes eBuildingClass = (BuildingClassTypes)pBuildingInfo->GetBuildingClassType();
+	
+	// is this building in a shortage? if we don't have a city, we are in 
+	// another menu, and should show yields assuming no shortage
+	bool isShortage = false;
+	if (pCity != NULL)
+		isShortage = isResourceShortageFor(*this, pBuildingInfo);
 
+	// negative yield types are handled at the bottom
 	if (eYieldType >= 0)
 	{
+		// no good yields if we are in a shortage
+		if (isShortage)
+			return 0;
+
 		{ // defaults
 			if (isPercentMod)
 				iYield += GC.getBuildingInfo(eBuilding)->GetYieldModifier(eYieldType);
@@ -5410,22 +5450,25 @@ int CvPlayer::GetTotalYieldForBuilding(const CvCity* pCity, const BuildingTypes 
 		}
 
 		// adjust gold from maintenance
-		if (iYield > 0 && eYieldType == YIELD_GOLD && !isPercentMod && !inRecursiveCall)
+		if (iYield > 0 && eYieldType == YIELD_GOLD && !isPercentMod && !inRecursiveCall) // inRecursiveCall lets us check gold/maintenace from within this function
 		{
 			iYield -= GetTotalYieldForBuilding(pCity, eBuilding, YIELD_MAINTENANCE, isPercentMod, true);
 			if (iYield < 0)
 				iYield = 0;
 		}
 	}
-	else if (eYieldType == YIELD_MAINTENANCE) // maintenace checks
+	else if (eYieldType == YIELD_MAINTENANCE && !isPercentMod) // maintenace checks, maintenance percentage doesn't exist
 	{
 		iYield += pBuildingInfo->GetGoldMaintenance(*this);
 		iYield += GetExtraYieldForBuilding(pCity, eBuilding, eBuildingClass, pBuildingInfo, eYieldType, isPercentMod);
 
 		// adjust maintenance from gold
-		if (iYield > 0 && eYieldType == YIELD_MAINTENANCE && !isPercentMod && !inRecursiveCall)
-		{ 
-			iYield -= GetTotalYieldForBuilding(pCity, eBuilding, YIELD_GOLD, isPercentMod, true);
+		if (iYield > 0 && eYieldType == YIELD_MAINTENANCE && !inRecursiveCall) // inRecursiveCall lets us check gold/maintenace from within this function
+		{
+			if (!isShortage) // we can offset maintenance with gold IFF we are not shortage
+			{
+				iYield -= GetTotalYieldForBuilding(pCity, eBuilding, YIELD_GOLD, isPercentMod, true);
+			}
 			if (iYield < 0)
 				iYield = 0;
 		}
@@ -7943,15 +7986,16 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
 
 				if(iNumResource > 0)
 				{
+					const bool hasEnoughResourceForTrain = !wasShortage(eResource);
 					// Starting project, need enough Resources plus some to start
-					if(!bContinue && getNumResourceAvailable(eResource) < iNumResource)
+					if(!bContinue && !hasEnoughResourceForTrain)
 					{
 						GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_UNIT_LACKS_RESOURCES", pkResourceInfo->GetIconString(), pkResourceInfo->GetTextKey(), iNumResource);
 						if(toolTipSink == NULL)
 							return false;
 					}
 					// Continuing project, need enough Resources
-					else if(bContinue && (getNumResourceAvailable(eResource) < 0))
+					else if(bContinue && !hasEnoughResourceForTrain)
 					{
 						GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_UNIT_LACKS_RESOURCES", pkResourceInfo->GetIconString(), pkResourceInfo->GetTextKey(), iNumResource);
 						if(toolTipSink == NULL)
@@ -8265,8 +8309,9 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestV
 				{
 					if(bContinue)
 						iNumResource = 0;
+					const bool hasEnoughResourcesToConstruct = !wasShortage(eResource);
 
-					if(getNumResourceAvailable(eResource) < iNumResource)
+					if (!hasEnoughResourcesToConstruct)
 					{
 						GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_BUILDING_LACKS_RESOURCES", pkResource->GetIconString(), pkResource->GetTextKey(), iNumResource);
 						if(toolTipSink == NULL)
@@ -14114,16 +14159,19 @@ bool CvPlayer::IsCiv(const string name) const
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlayer::setHasPolicy(PolicyTypes eIndex, bool bNewValue)
+int CvPlayer::setHasPolicy(PolicyTypes eIndex, bool bNewValue)
 {
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < GC.getNumPolicyInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
+	int delta = 0;
 	if(m_pPlayerPolicies->HasPolicy(eIndex) != bNewValue)
 	{
 		m_pPlayerPolicies->SetPolicy(eIndex, bNewValue);
-		processPolicies(eIndex, bNewValue ? 1 : -1);
+		delta = bNewValue ? 1 : -1;
+		processPolicies(eIndex, delta);
 	}
+	return delta;
 }
 
 //	--------------------------------------------------------------------------------
@@ -20333,6 +20381,14 @@ void CvPlayer::setPlayable(bool bNewValue)
 }
 
 
+void CvPlayer::SetShortage(ResourceTypes type, bool shortage)
+{
+	if (shortage != (bool)m_paiWasShortage[type])
+	{
+		m_paiWasShortage.setAt(type, shortage);
+		FlagAllCitiesForUpdate();
+	}
+}
 int CvPlayer::changeResourceCumulative(ResourceTypes eIndex, int delta)
 {
 	int newTotal = getResourceCumulative(eIndex) + delta;
@@ -21854,6 +21910,14 @@ CLLNode<TechTypes>* CvPlayer::tailResearchQueueNode()
 }
 
 
+void CvPlayer::FlagAllCitiesForUpdate()
+{
+	int i = 0;
+	for (CvCity* pLoopCity = firstCity(&i); pLoopCity != NULL; pLoopCity = nextCity(&i))
+	{
+		pLoopCity->flagNeedsUpdate();
+	}
+}
 //	--------------------------------------------------------------------------------
 void CvPlayer::addCityName(const CvString& szName)
 {
@@ -28122,15 +28186,31 @@ bool CvPlayer::HasBuildingClass(BuildingClassTypes iBuildingClassType)
 	return false;
 }
 */
+// correctly does not update policy count if we already did(n't) have it
+int UpdateHasPolicy(CvPlayer* player, string policyName, bool newVal)
+{
+	int delta = 0;
+	if (policyName.size() > 0)
+	{
+		const CvPolicyXMLEntries* pAllPolicies = GC.GetGamePolicies();
+		const PolicyTypes ePolicy = pAllPolicies->Policy(policyName);
+		delta = player->setHasPolicy(ePolicy, newVal); // correctly does not change if newVal did not change
+	}
+	return delta;
+}
 void CvPlayer::CardsActivate(int cardIdx)
 {
 	if (cardIdx >= 0 && cardIdx < (int)m_cards.size())
 	{
 		const TradingCardTypes cardType = m_cards[cardIdx].type;
-		const bool didActivate = TradingCard::TryActivate(cardType, this);
-		if (didActivate)
+		// we don't satisfy the condition yet!
+		const bool satisfiesActive = TradingCard::IsConditionSatisfied(cardType, this, true);
+		if (satisfiesActive)
 		{
+			const string activePolicyName = TradingCard::GetActivePolicy(cardType);
+			UpdateHasPolicy(this, activePolicyName, true);
 			CardsDestroy(cardIdx);
+			TradingCard::ApplyActiveEffects(cardType, this);
 		}
 	}
 }
@@ -28210,6 +28290,26 @@ int CvPlayer::CardsCount(TradingCardTypes cardType) const
 bool CvPlayer::CardsHasAny(TradingCardTypes cardType) const
 {
 	return CardsCount(cardType) >= 1;
+}
+// called at the end of each turn, correctly updates passive benefits
+void CvPlayer::DoUpdateCardBenefits()
+{
+	// check EVERY card type since we may have lost a passive card whos policy now needs to get removed
+	for (int i = 0; i < (int)CARD_NUM; ++i)
+	{
+		const TradingCardTypes cardType = (TradingCardTypes)i;
+
+		const bool hasCard = CardsHasAny(cardType);
+
+		// check passive benefits
+		const string passivePolicyName = TradingCard::GetPassivePolicy(cardType);
+		const bool passiveSatisfied = hasCard && TradingCard::IsConditionSatisfied(cardType, this, false);
+		int delta = UpdateHasPolicy(this, passivePolicyName, passiveSatisfied);
+		if (delta != 0)
+		{
+			TradingCard::ApplyPassiveEffects(cardType, this, delta);
+		}
+	}
 }
 const InterfaceDirtyBits CardsDirtyBit = GreatWorksScreen_DIRTY_BIT;
 void CvPlayer::CardsOnChanged()

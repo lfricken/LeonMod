@@ -712,8 +712,8 @@ public:
 	bool IsAlwaysSeeBarbCamps() const;
 	void SetAlwaysSeeBarbCampsCount(int iValue);
 	void ChangeAlwaysSeeBarbCampsCount(int iChange);
-
-	void setHasPolicy(PolicyTypes eIndex, bool bNewValue);
+	// returns the delta (-1 removed, 0 no change, +1 added)
+	int setHasPolicy(PolicyTypes eIndex, bool bNewValue);
 	int getNextPolicyCost() const;
 	T100 getNextPolicyCostT100() const;
 	void DoUpdateNextPolicyCost();
@@ -883,7 +883,6 @@ public:
 
 	int getFakeRand(const int iMax, string log, const CvPlot* plot, const int other) const;
 	void DoSpawnGreatPerson(PlayerTypes eMinor);
-	void DoTurnResources();
 	void DoTurnCities();
 	void DoGreatPeopleSpawnTurn();
 	CvCity* GetGreatPersonSpawnCity(UnitTypes eUnit);
@@ -1381,7 +1380,10 @@ public:
 	bool isPlayable() const;
 	void setPlayable(bool bNewValue);
 
+	// updates how many resources we have, and whether or not we are in a shortage
+	void DoTurnResources();
 	int changeResourceCumulative(ResourceTypes eIndex, int delta);
+	void SetShortage(ResourceTypes type, bool shortage);
 	// true if there is a shortage
 	bool wasShortage(ResourceTypes eIndex) const;
 	int getResourceCumulative(ResourceTypes eIndex) const;
@@ -1496,6 +1498,7 @@ public:
 	const CLLNode<TechTypes>* headResearchQueueNode() const;
 	CLLNode<TechTypes>* tailResearchQueueNode();
 
+	void FlagAllCitiesForUpdate();
 	void addCityName(const CvString& szName);
 	int getNumCityNames() const;
 	CvString getCityName(int iIndex) const;
@@ -1851,6 +1854,7 @@ public:
 	void CardsAdd(TradingCardTypes cardType);
 	void CardsRemove(TradingCardTypes cardType);
 	void CardsDestroy(int cardIdx);
+	void DoUpdateCardBenefits();
 	TradingCardTypes CardsType(int cardIdx) const;
 	bool CardsIsVisible(int cardIdx) const;
 	// total number of cards this player has

@@ -18,7 +18,7 @@
 
 /// Constructor
 CvTreasury::CvTreasury():
-	m_iGold(0),
+	m_iGoldT100(0),
 	m_iGoldPerTurnFromDiplomacy(0),
 	m_iExpensePerTurnUnitMaintenance(0),
 	m_iExpensePerTurnUnitSupply(0),
@@ -47,7 +47,7 @@ void CvTreasury::Init(CvPlayer* pPlayer)
 {
 	m_pPlayer = pPlayer;
 
-	m_iGold = 0;
+	m_iGoldT100 = 0;
 	m_iGoldPerTurnFromDiplomacy = 0;
 	m_iExpensePerTurnUnitMaintenance = 0;
 	m_iExpensePerTurnUnitSupply = 0;
@@ -152,7 +152,7 @@ void CvTreasury::DoGold()
 /// Returns current balance in treasury
 int CvTreasury::GetGold() const
 {
-	return m_iGold / 100;
+	return m_iGoldT100 / 100;
 }
 
 /// Sets current balance in treasury
@@ -170,7 +170,7 @@ void CvTreasury::ChangeGold(int iChange)
 /// Returns current balance in treasury (in hundredths)
 int CvTreasury::GetGoldTimes100() const
 {
-	return m_iGold;
+	return m_iGoldT100;
 }
 
 /// Sets current balance in treasury (in hundredths)
@@ -184,7 +184,7 @@ void CvTreasury::SetGoldTimes100(int iNewValue)
 			CvAssertMsg(false, "GAMEPLAY: Player is being set to a negative Gold value. Please send Jon this with your last 5 autosaves.");
 		}
 
-		m_iGold = iNewValue;
+		m_iGoldT100 = iNewValue;
 
 		if(m_pPlayer->GetID() == GC.getGame().getActivePlayer())
 		{
@@ -1056,7 +1056,7 @@ void CvTreasury::Read(FDataStream& kStream)
 
 	kStream >> uiVersion;
 
-	kStream >> m_iGold;
+	kStream >> m_iGoldT100;
 	kStream >> m_iGoldPerTurnFromDiplomacy;
 	kStream >> m_iExpensePerTurnUnitMaintenance;
 	kStream >> m_iExpensePerTurnUnitSupply;
@@ -1077,7 +1077,7 @@ void CvTreasury::Write(FDataStream& kStream)
 	uint uiVersion = 1;
 	kStream << uiVersion;
 
-	kStream << m_iGold;
+	kStream << m_iGoldT100;
 	kStream << m_iGoldPerTurnFromDiplomacy;
 	kStream << m_iExpensePerTurnUnitMaintenance;
 	kStream << m_iExpensePerTurnUnitSupply;

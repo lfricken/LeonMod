@@ -4286,7 +4286,7 @@ int CvMinorCivAI::GetBaseFriendshipWithMajorTimes100(PlayerTypes ePlayer) const
 
 	return m_aiFriendshipWithMajorTimes100[ePlayer];
 }
-void CvMinorCivAI::SetFriendshipWithMajorTimes100(PlayerTypes ePlayer, int iNum, bool bFromQuest)
+void CvMinorCivAI::SetFriendshipWithMajorTimes100(PlayerTypes ePlayer, int iNum, bool)
 {
 	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
@@ -8178,7 +8178,7 @@ void CvMinorCivAI::DoNowAtWarWithTeam(TeamTypes eTeam)
 }
 
 /// Now at peace with eTeam
-void CvMinorCivAI::DoNowPeaceWithTeam(TeamTypes eTeam)
+void CvMinorCivAI::DoNowPeaceWithTeam(TeamTypes)
 {
 	//int iWarFriendship = /*-60*/ GC.getMINOR_FRIENDSHIP_AT_WAR();
 

@@ -4,6 +4,10 @@
 #include "CvGameCoreUtils.h"
 
 
+void PlaceRandomSpy(CvPlayer* pPlayer)
+{
+
+}
 string TradingCard::GetActivePolicy(TradingCardTypes type)
 {
 	switch (type)
@@ -32,17 +36,32 @@ int TradingCard::GetEstimatedValue(TradingCardTypes type)
 		return 1;
 	}
 }
-void TradingCard::TryApplyPassiveEffects(TradingCardTypes type, CvPlayer* player, int delta)
+bool TradingCard::IsConditionSatisfied(TradingCardTypes type, const CvPlayer* player, bool isActive)
 {
+	bool satisfied = true;
+	// make sure to consider whether you're looking at the isActive vs !isActive (aka passive)
+
+	if (player->GetTreasury()->GetGold() < 100)
+		return false;
+
+
+	return satisfied;
+}
+void TradingCard::ApplyPassiveEffects(TradingCardTypes type, CvPlayer* player, 
+	// (-1 remove the benefit, +1 apply a copy of the benefit)
+	int delta)
+{
+	if (delta == 0)
+	{
+		return;
+	}
+
 	// apply additional non policy effects
 
 }
-void PlaceRandomSpy(CvPlayer* pPlayer)
+bool TradingCard::ApplyActiveEffects(TradingCardTypes type, CvPlayer* player)
 {
-
-}
-bool TradingCard::TryActivate(TradingCardTypes type, CvPlayer* player)
-{
+	// apply active non policy effects
 	switch (type)
 	{
 	case CARD_RANDOM_SPY: PlaceRandomSpy(player); return true;

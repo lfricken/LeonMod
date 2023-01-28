@@ -10,5 +10,7 @@ enum TradingCardTypes
 	CARD_NAVAL_MOVES,
 	CARD_FISH_GOLD,
 	CARD_RANDOM_SPY,
+
+	CARD_NUM,
 };
 

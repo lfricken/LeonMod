@@ -378,8 +378,6 @@ BuildingAddType CvPlayer::ShouldHaveBuilding(const CvPlayer& rPlayer, const CvCi
 
 	{// CIVILIZATION_RUSSIA gets free Jarliq in Capital upon discovery of Philosophy
 		const bool isJarliq = eBuildingClass == BuildingClass("BUILDINGCLASS_COURTHOUSE");
-		const bool isFrance = rPlayer.IsCiv("CIVILIZATION_FRANCE");
-		const bool hasPhilosophy = rPlayer.HasTech("TECH_PHILOSOPHY");
 		if (isJarliq)
 		{
 			const bool isFrance = rPlayer.IsCiv("CIVILIZATION_FRANCE");

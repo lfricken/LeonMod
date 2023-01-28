@@ -71,23 +71,9 @@ string TradingCard::GetDesc(TradingCardTypes type, CvPlayer* player)
 	}
 	return passive + joiner + active;
 }
-void TrySetHasPolicy(CvPlayer* player, string policyName, bool newVal)
-{
-	if (policyName.size() > 0)
-	{
-		const CvPolicyXMLEntries* pAllPolicies = GC.GetGamePolicies();
-		const PolicyTypes ePolicy = pAllPolicies->Policy(policyName);
-		player->setHasPolicy(ePolicy, newVal);
-	}
-}
 void TradingCard::OnCountChanged(TradingCardTypes cardType, CvPlayer* player, int delta)
 {
-	const string policyName = TradingCard::GetPassivePolicy(cardType);
-	const bool hasType = player->CardsHasAny(cardType);
-	TrySetHasPolicy(player, policyName, hasType);
-
 	player->CardsOnChanged();
-	TryApplyPassiveEffects(cardType, player, delta);
 }
 string TradingCard::GetActivePolicyDesc(TradingCardTypes type)
 {

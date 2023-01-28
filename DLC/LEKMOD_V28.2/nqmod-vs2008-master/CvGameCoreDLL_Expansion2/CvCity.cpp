@@ -230,6 +230,7 @@ CvCity::CvCity() :
 	, m_iTradeRouteRecipientBonus(0)
 	, m_iTradeRouteTargetBonus(0)
 	, m_unitBeingBuiltForOperation()
+	, m_bNeedsYieldUpdate("CvCity::m_bNeedsYieldUpdate", m_syncArchive)
 	, m_bNeverLost("CvCity::m_bNeverLost", m_syncArchive)
 	, m_bDrafted("CvCity::m_bDrafted", m_syncArchive)
 	, m_bAirliftTargeted("CvCity::m_bAirliftTargeted", m_syncArchive)   // unused
@@ -964,6 +965,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iCheapestPlotInfluence = 0;
 	m_unitBeingBuiltForOperation.Invalidate();
 
+	m_bNeedsYieldUpdate = false;
 	m_bNeverLost = true;
 	m_bDrafted = false;
 	m_bAirliftTargeted = false;   // unused
@@ -2082,6 +2084,12 @@ void CvCity::doTurn()
 		}
 #endif
 		// XXX
+	}
+
+	if (m_bNeedsYieldUpdate)
+	{
+		m_bNeedsYieldUpdate = false;
+		UpdateBuildingYields();
 	}
 
 	stringstream s;
@@ -10412,8 +10420,10 @@ void CvCity::setCitySizeBoost(int iBoost)
 		setLayoutDirty(true);
 	}
 }
-
-
+void CvCity::flagNeedsUpdate()
+{
+	m_bNeedsYieldUpdate = true;
+}
 //	--------------------------------------------------------------------------------
 bool CvCity::isNeverLost() const
 {
@@ -15926,6 +15936,7 @@ void CvCity::read(FDataStream& kStream)
 	kStream >> m_unitBeingBuiltForOperation.m_iArmyID;
 	kStream >> m_unitBeingBuiltForOperation.m_iSlotID;
 
+	kStream >> m_bNeedsYieldUpdate;
 	kStream >> m_bNeverLost;
 	kStream >> m_bDrafted;
 	kStream >> m_bAirliftTargeted;  // unused
@@ -16265,6 +16276,7 @@ void CvCity::write(FDataStream& kStream) const
 	kStream << m_unitBeingBuiltForOperation.m_iArmyID;
 	kStream << m_unitBeingBuiltForOperation.m_iSlotID;
 
+	kStream << m_bNeedsYieldUpdate;
 	kStream << m_bNeverLost;
 	kStream << m_bDrafted;
 	kStream << m_bAirliftTargeted;  // unused

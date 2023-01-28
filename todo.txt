@@ -2,11 +2,12 @@
 
 
 trading
-
+	verify punish buildings
 	verify units are penalized
-	punish buildings
-	fix ai trade value estimate
+	verify building/unit build permission should check the shortage variable
+	verify log resource gainz
 
+	fix ai trade value estimate
 
 Trading Cards
 

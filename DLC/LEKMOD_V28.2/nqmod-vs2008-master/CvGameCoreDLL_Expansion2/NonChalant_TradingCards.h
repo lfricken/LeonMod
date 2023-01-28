@@ -27,12 +27,12 @@ public:
 	// what does this card do?
 	static string GetDesc(TradingCardTypes type, CvPlayer* pOwner);
 	// Applies the active benefit of this card. returns true if this card did activate.
-	// you need to destroy this card now.
-	static bool TryActivate(TradingCardTypes type, CvPlayer* player);
+	// you need to destroy this card if it activated. Checks condition.
+	static bool ApplyActiveEffects(TradingCardTypes type, CvPlayer* player);
 	// called when the players card count changes
 	static void OnCountChanged(TradingCardTypes type, CvPlayer* player, int delta);
 	// Called after the card and passive policy has been removed, lets us do custom passive logic
-	static void TryApplyPassiveEffects(TradingCardTypes type, CvPlayer* player, int delta);
+	static void ApplyPassiveEffects(TradingCardTypes type, CvPlayer* player, int delta);
 	// Maps a card type with a policy that gets granted when the card activates
 	static string GetActivePolicy(TradingCardTypes type);
 	// Maps a card type with a policy that gets granted when a player has the card
@@ -41,6 +41,7 @@ public:
 	static string GetPassivePolicyDesc(TradingCardTypes type);
 	// Used by the AI to estimate how much value a card type has
 	static int GetEstimatedValue(TradingCardTypes type);
+	static bool IsConditionSatisfied(TradingCardTypes type, const CvPlayer* player, bool isActive);
 private:
 };
 FDataStream& operator <<(FDataStream& kStream, const TradingCardTypes& data);

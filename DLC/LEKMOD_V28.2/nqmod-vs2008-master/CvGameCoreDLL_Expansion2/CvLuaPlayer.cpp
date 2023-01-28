@@ -8302,7 +8302,7 @@ int CvLuaPlayer::lCardDesc(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lCardPassiveDesc(lua_State* L)
 {
-	CvPlayerAI* pkPlayer = GetInstance(L);
+	//CvPlayerAI* pkPlayer = GetInstance(L);
 	const TradingCardTypes type = (TradingCardTypes)lua_tointeger(L, 2);
 	if (type == CARD_INVALID)
 	{
@@ -8318,7 +8318,7 @@ int CvLuaPlayer::lCardPassiveDesc(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lCardActiveDesc(lua_State* L)
 {
-	CvPlayerAI* pkPlayer = GetInstance(L);
+	//CvPlayerAI* pkPlayer = GetInstance(L);
 	const TradingCardTypes type = (TradingCardTypes)lua_tointeger(L, 2);
 	if (type == CARD_INVALID)
 	{

@@ -11715,7 +11715,8 @@ int CvUnit::GetStrategicResourceCombatPenalty() const
 	for(int i = 0; i < iNumResourceInfos; i++)
 	{
 		// Over resource limit?
-		if (kPlayer.wasShortage((ResourceTypes)i))
+		const bool hasEnoughResourcesToSustainUnit = !kPlayer.wasShortage((ResourceTypes)i);
+		if (!hasEnoughResourcesToSustainUnit)
 		{
 			iPenalty = GC.getSTRATEGIC_RESOURCE_EXHAUSTED_PENALTY();
 			//if(m_pUnitInfo->GetResourceQuantityRequirement(eResource) > 0)
