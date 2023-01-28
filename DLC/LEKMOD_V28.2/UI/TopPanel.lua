@@ -193,10 +193,18 @@ function UpdateData()
 				
 				-- is strategic?
 				if (Game.GetResourceUsageType(iResourceLoop) == ResourceUsageTypes.RESOURCEUSAGE_STRATEGIC) then
-					local iNet = pPlayer:GetNumResourceAvailable(iResourceLoop, true);
-					local iNumUsed = pPlayer:GetNumResourceUsed(iResourceLoop);
-					local iNumTotal = pPlayer:GetNumResourceTotal(iResourceLoop, true);
-					local iNumCumulative = pPlayer:GetResourceCumulative(iResourceLoop);
+					local iStored = pPlayer:GetResourceCumulative(iResourceLoop);
+					local iDomestic = pPlayer:GetNumResourceTotal(iResourceLoop, false, false);
+					local iTemp = pPlayer:GetNumResourceTotal(iResourceLoop, true, false);
+					local iImport = iTemp - iDomestic;
+					local iExport = pPlayer:GetResourceExport(iResourceLoop);
+					local iGross = pPlayer:GetNumResourceTotal(iResourceLoop, true, true);
+					local iExpended = pPlayer:GetNumResourceUsed(iResourceLoop);
+					local iNet = iGross - iExpended;
+					local variation = math.max(1, GameDefines.RESOURCE_VARIATION);
+					local expected = variation * iGross;
+					local icon = pResource.IconString;
+					local resourceName = pResource.Description;
 
 					-- has tech?
 					local bShowResource = false;
@@ -206,7 +214,7 @@ function UpdateData()
 						end
 					end
 					-- or has some?
-					if (iNumCumulative > 0 or iNumTotal > 0 or iNumUsed > 0) then
+					if (iStored > 0 or iGross > 0 or iExpended > 0) then
 						bShowResource = true;
 					end
 					
@@ -217,27 +225,34 @@ function UpdateData()
 						local netText = "";
 						if (iNet > 0) then
 							netText = Locale.ConvertTextKey("TXT_KEY_POSITIVE_NUM", math.abs(iNet));
-						elseif (iNet <= 0) then
+						elseif (iNet < 0) then
 							netText = Locale.ConvertTextKey("TXT_KEY_NEGATIVE_NUM", math.abs(iNet));
+						else
+							netText = "+" .. math.abs(iNet);
 						end
 
 						-- panel display
-						local text = Locale.ConvertTextKey("TXT_KEY_TP_RESOURCE_SHORT", iNumCumulative, netText, pResource.IconString);
+						local text = Locale.ConvertTextKey("TXT_KEY_TP_RESOURCE_SHORT", iStored, netText, pResource.IconString);
 
 						-- tooltip
-						local tooltip = Locale.ConvertTextKey("TXT_KEY_TP_RESOURCE_INFO", pResource.IconString, pResource.Description, iNumCumulative, iNumTotal, iNumTotal-iNet, netText);
+						local tooltipKey = "TXT_KEY_TP_RESOURCE_INFO";
+						local tooltip = Locale.ConvertTextKey(tooltipKey, icon, resourceName, iStored, iGross, iExpended, netText, iImport, iExport, iDomestic);
 						
 						-- going negative, display turns left
-						if (iNet < 0 and iNumCumulative > 0) then
-							local turnsRemaining = math.ceil(iNumCumulative / math.abs(iNet));
+						if (iExpended > 0 and iStored > 0) then
+							local turnsRemaining = math.ceil(iStored / math.abs(iExpended));
 							local remaining = Locale.ConvertTextKey("TXT_KEY_TP_RESOURCE_TURNS", turnsRemaining);
 							tooltip = tooltip .. remaining;
 						end
 
+						-- explain how the mechanics work
+						local explainStr = "TXT_KEY_TP_RESOURCE_EXPLAIN";
+						local explain = Locale.ConvertTextKey(explainStr, variation, expected, resourceName);
+
 						-- populate instance
                     	instance = g_resourceIM:GetInstance();
                     	instance.ResourceEntry:SetText(text);
-                    	instance.ResourceEntry:SetToolTipString(tooltip);
+                    	instance.ResourceEntry:SetToolTipString(tooltip .. explain);
 					end
 				end
 			end

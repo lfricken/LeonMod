@@ -2,29 +2,16 @@
 
 
 trading
-	done
-		stored resources displayed
-		remove turns from table	
-		Stored resource table name
-		table strategic text shown even when none
-		cancel button not working
-		stored resource trade edit works and clamps
 
-		fix ai trade value estimate
-
-strat resource trading
-
-	show import, export, gross
 	verify units are penalized
 	punish buildings
-	allow lump trade
-	allow trading duplicate luxuries
+	fix ai trade value estimate
 
 
 Trading Cards
 
-	mouseover button in trading should sohw description not just text label
 	add tabs previous applied effects, other players cards
+	fix ai trade value estimate
 
 
 

@@ -20,7 +20,7 @@
 	</Instance>
 	<Instance Name="CardInstance">
 		<Button Style="TradeItemButton" ID="Button">
-			<Label Offset="5,0" Anchor="L,C" ID="CardName" ToolTip="Card TOOLTIPS"/>
+			<Label Offset="5,0" Anchor="L,C" ID="CardName"/>
 		</Button>
 	</Instance>
 	<Instance Name="PocketResource">

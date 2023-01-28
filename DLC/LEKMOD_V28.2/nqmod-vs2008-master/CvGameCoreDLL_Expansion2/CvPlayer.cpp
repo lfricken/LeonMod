@@ -20358,13 +20358,12 @@ int CvPlayer::getNumResourceUsed(ResourceTypes eIndex) const
 }
 int CvPlayer::getNumResourceGross(ResourceTypes eIndex) const
 {
-	return getNumResourceTotal(eIndex, true, false);
+	return getNumResourceTotal(eIndex, true, true);
 }
 int CvPlayer::getNumResourceExpense(ResourceTypes eIndex) const
 {
 	const int used = getNumResourceUsed(eIndex);
-	const int export = getResourceExport(eIndex);
-	return used + export;
+	return used;
 }
 
 //	--------------------------------------------------------------------------------

@@ -1639,7 +1639,7 @@ function ResetDisplay()
 	    fromPocketLump:SetDisabled( not hasAnyLump );
 	    if (hasAnyLump) then
 			fromPocketLump:GetTextControl():SetColorByName("Beige_Black");
-			fromPocketLump:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_LUX_RESCR_TRADE_YES" .. TXT_SUFFIX ) );
+			fromPocketLump:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_STRAT_RESCR_TRADE_YES" .. TXT_SUFFIX ) );
 			if( fromPocketLumpStack:IsHidden() ) then
 	    		fromPocketLump:SetText( "[ICON_PLUS]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_ITEMS_LUMP_RESOURCES" ) );
 			else
@@ -1647,8 +1647,8 @@ function ResetDisplay()
 			end
 		else
 			fromPocketLump:GetTextControl():SetColorByName("Gray_Black");
-			fromPocketLump:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_LUX_RESCR_TRADE_NO" .. TXT_SUFFIX ));
-			fromPocketLump:SetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_ITEMS_LUMP_RESOURCES" ) );
+			fromPocketLump:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_STRAT_RESCR_TRADE_NO" .. TXT_SUFFIX ));
+			fromPocketLump:SetText( Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_STRATEGIC_RESOURCES" ) );
 	    end
 
 	    -- luxuries
@@ -2092,7 +2092,7 @@ function DisplayDeal()
 				cardDesc = g_pThem:CardDesc(data2);
 			end
 			instance.CardName:SetText(cardName);
-			instance.CardName:SetToolTipString(cardDesc);
+			instance.Button:SetToolTipString(cardDesc);
 
 
 
@@ -2776,23 +2776,29 @@ function LumpAdd( isUs, resourceId )
     DoUIDealChangedByHuman();
 end
 function LumpChangeAmount( editText, control )	
-	local isUs = control:GetVoid1() == 1;
+	local isUs = control:GetVoid1();
 	local iResourceID = control:GetVoid2();
 	local iAmount = 0;
+
+	-- get amount from control
 	if( editText ~= nil and editText ~= "" ) then
         iAmount = tonumber(editText);
     else
         control:SetText( 0 );
+        return;
     end
 
 	local iPlayer = g_iThem;
 	if (isUs == 1) then iPlayer = g_iUs; end
 	local pPlayer = Players[iPlayer];
 	local maxAmount = pPlayer:GetResourceCumulative(resourceId);
-	iAmount = math.min(iAmount, maxAmount);
-	
-    control:SetText(iAmount);
-    g_Deal:ChangeResourceTrade( iPlayer, iResourceID, iNumResource, 0 );
+    if (iAmount > maxAmount) then
+		iAmount = math.min(iAmount, maxAmount);
+    	control:SetText(iAmount);
+    	return; -- dont call set deal!
+    end
+
+    g_Deal:ChangeResourceTrade( iPlayer, iResourceID, iAmount, 0 );
 end
 function LumpRemove( isUs, resourceId )
 	g_Deal:RemoveLumpTrade( resourceId );
@@ -3341,7 +3347,7 @@ function ShowCardChooser( isUs )
 			-- text
 			local instance = m_pIM:GetInstance();
 			instance.CardName:SetText(cardName);
-			instance.CardName:SetToolTipString(cardDesc);
+			instance.Button:SetToolTipString(cardDesc);
 
 			-- button logic
 			instance.Button:SetVoids(m_iFrom, cardIdx);
