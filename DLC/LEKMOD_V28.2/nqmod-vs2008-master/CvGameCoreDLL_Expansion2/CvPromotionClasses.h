@@ -49,6 +49,7 @@ public:
 	void	SetPrereqOrPromotion8(int i);
 	int	GetPrereqOrPromotion9() const;
 	void	SetPrereqOrPromotion9(int i);
+	UnitClassTypes GetClassRestriction() const;
 
 	int  GetTechPrereq() const;
 	int  GetInvisibleType() const;
@@ -251,6 +252,7 @@ protected:
 	int m_iPrereqOrPromotion7;
 	int m_iPrereqOrPromotion8;
 	int m_iPrereqOrPromotion9;
+	int m_iClassRestriction;
 
 	int m_iTechPrereq;
 	int m_iInvisibleType;

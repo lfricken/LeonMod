@@ -239,6 +239,18 @@ bool IsPromotionValidForUnitCombatType(PromotionTypes ePromotion, UnitTypes eUni
 		return false;
 	}
 
+	// unit class valid?
+	const UnitClassTypes restriction = promotionInfo->GetClassRestriction();
+	const bool hasRestriction = restriction != NO_UNITCLASS;
+	if (hasRestriction)
+	{
+		const bool thisUnitMatches = unitInfo->GetUnitClassType() == restriction;
+		if (!thisUnitMatches)
+		{
+			return false;
+		}
+	}
+
 	return true;
 }
 

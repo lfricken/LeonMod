@@ -19736,7 +19736,18 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 
 	if(isHasPromotion(eIndex) != bNewValue)
 	{
-		CvPromotionEntry& thisPromotion = *GC.getPromotionInfo(eIndex);
+		const CvPromotionEntry& thisPromotion = *GC.getPromotionInfo(eIndex);
+
+		const UnitClassTypes restriction = thisPromotion.GetClassRestriction();
+		const bool hasRestriction = restriction != NO_UNITCLASS;
+		if (hasRestriction)
+		{
+			const bool thisUnitMatches = getUnitClassType() == restriction;
+			if (!thisUnitMatches)
+			{
+				return; // don't add the promotion
+			}
+		}
 
 		m_Promotions.SetPromotion(eIndex, bNewValue);
 		iChange = ((isHasPromotion(eIndex)) ? 1 : -1);
