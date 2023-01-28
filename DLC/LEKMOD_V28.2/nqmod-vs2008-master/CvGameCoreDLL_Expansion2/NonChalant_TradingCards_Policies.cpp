@@ -36,18 +36,28 @@ int TradingCard::GetEstimatedValue(TradingCardTypes type)
 		return 1;
 	}
 }
-bool TradingCard::IsConditionSatisfied(TradingCardTypes type, const CvPlayer* player, bool isActive)
+bool TradingCard::IsConditionSatisfied(TradingCardTypes type, const CvPlayer* pPlayer, bool isActive)
 {
-	bool satisfied = true;
-	// make sure to consider whether you're looking at the isActive vs !isActive (aka passive)
+	const CvPlayer& player = *pPlayer;
+	switch (type)
+	{
+	case CARD_NAVAL_MOVES:
+	{
+		const bool satisfied = true;
+		if (!satisfied)
+		{
+			return false;
+		}
+	}
+	case CARD_FISH_GOLD:
+	{
 
-	if (player->GetTreasury()->GetGold() < 100)
-		return false;
-
-
-	return satisfied;
+	}
+	default: return true;
+	};
+	return true;
 }
-void TradingCard::ApplyPassiveEffects(TradingCardTypes type, CvPlayer* player, 
+void TradingCard::ApplyPassiveEffects(TradingCardTypes type, CvPlayer* player,
 	// (-1 remove the benefit, +1 apply a copy of the benefit)
 	int delta)
 {
