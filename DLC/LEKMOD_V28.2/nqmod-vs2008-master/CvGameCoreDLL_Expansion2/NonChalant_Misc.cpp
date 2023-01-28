@@ -162,7 +162,7 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 			if (eYieldType == YIELD_PRODUCTION && hasTextileMill)
 				yieldChange += 1;
 			if (eYieldType == YIELD_FOOD && hasGrocer)
-				yieldChange += 2;
+				yieldChange += 1;
 			if (eYieldType == YIELD_CULTURE && hasCenserMaker)
 				yieldChange += 1;
 			if (eYieldType == YIELD_CULTURE && hasGemcutter)
