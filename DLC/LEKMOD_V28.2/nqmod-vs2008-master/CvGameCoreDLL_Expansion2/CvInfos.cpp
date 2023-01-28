@@ -1720,6 +1720,7 @@ CvBuildingClassInfo::CvBuildingClassInfo() :
 	m_iMaxGlobalInstances(0),
 	m_iMaxTeamInstances(0),
 	m_iMaxPlayerInstances(0),
+	m_iMaxPlayerInstancesPercent(0),
 	m_iExtraPlayerInstances(0),
 	m_iDefaultBuildingIndex(NO_BUILDING),
 	m_bNoLimit(false),
@@ -1746,6 +1747,10 @@ int CvBuildingClassInfo::getMaxTeamInstances() const
 int CvBuildingClassInfo::getMaxPlayerInstances() const
 {
 	return m_iMaxPlayerInstances;
+}
+int CvBuildingClassInfo::getMaxPlayerInstancesPercent() const
+{
+	return m_iMaxPlayerInstancesPercent;
 }
 //------------------------------------------------------------------------------
 int CvBuildingClassInfo::getExtraPlayerInstances() const
@@ -1789,6 +1794,7 @@ bool CvBuildingClassInfo::CacheResults(Database::Results& kResults, CvDatabaseUt
 	m_iMaxGlobalInstances = kResults.GetInt("MaxGlobalInstances");
 	m_iMaxTeamInstances = kResults.GetInt("MaxTeamInstances");
 	m_iMaxPlayerInstances = kResults.GetInt("MaxPlayerInstances");
+	m_iMaxPlayerInstancesPercent = kResults.GetInt("MaxPlayerInstancesPercent");
 	m_iExtraPlayerInstances = kResults.GetInt("ExtraPlayerInstances");
 
 	m_bNoLimit = kResults.GetBool("NoLimit");

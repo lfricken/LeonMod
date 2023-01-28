@@ -1452,7 +1452,7 @@ public:
 	int getUnitClassCountPlusMaking(UnitClassTypes eIndex) const;
 
 	int getBuildingClassCount(BuildingClassTypes eIndex) const;
-	bool isBuildingClassMaxedOut(BuildingClassTypes eIndex, int iExtra = 0) const;
+	bool isBuildingClassMaxedOut(BuildingClassTypes eIndex, int iExtra = 0, bool checkAbsolute = true, bool checkPercent = true) const;
 	void changeBuildingClassCount(BuildingClassTypes eIndex, int iChange);
 	int getBuildingClassMaking(BuildingClassTypes eIndex) const;
 	void changeBuildingClassMaking(BuildingClassTypes eIndex, int iChange);

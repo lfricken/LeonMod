@@ -16,20 +16,7 @@ Trading Cards
 
 
 promotions
-	POLICY_DISCIPLINE
-	PROMOTION_ADJACENT_BONUS
-
-	unit <Class>UNITCLASS_BOMBER
-	<UnitClasses>
-
-		<Row> 
-			<PolicyType>POLICY_DISCIPLINE</PolicyType> 
-			<PromotionType>PROMOTION_ADJACENT_BONUS</PromotionType> 
-		</Row>
-
-	"PromotionPrereqOr3"
-
-	ChangeFreePromotionCount
+	on upgrade, remove promotion?
 
 
 

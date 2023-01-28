@@ -8335,10 +8335,17 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestV
 				return false;
 		}
 
-		if(isBuildingClassMaxedOut(eBuildingClass, (getBuildingClassMaking(eBuildingClass) + ((bContinue) ? -1 : 0))))
+		if (isBuildingClassMaxedOut(eBuildingClass, (getBuildingClassMaking(eBuildingClass) + ((bContinue) ? -1 : 0)), true, false))
 		{
 			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_PLAYER_COUNT_MAX", "", "", kBuildingClass.getMaxPlayerInstances());
-			if(toolTipSink == NULL)
+			if (toolTipSink == NULL)
+				return false;
+		}
+
+		if (isBuildingClassMaxedOut(eBuildingClass, (getBuildingClassMaking(eBuildingClass) + ((bContinue) ? -1 : 0)), false, true))
+		{
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_PLAYER_COUNT_MAX_PERCENT", "", "", kBuildingClass.getMaxPlayerInstancesPercent());
+			if (toolTipSink == NULL)
 				return false;
 		}
 
@@ -21176,7 +21183,7 @@ int CvPlayer::getBuildingClassCount(BuildingClassTypes eIndex) const
 
 
 //	--------------------------------------------------------------------------------
-bool CvPlayer::isBuildingClassMaxedOut(BuildingClassTypes eIndex, int iExtra) const
+bool CvPlayer::isBuildingClassMaxedOut(BuildingClassTypes eIndex, int iExtra, bool checkAbsolute, bool checkPercent) const
 {
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < GC.getNumBuildingClassInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
@@ -21184,18 +21191,34 @@ bool CvPlayer::isBuildingClassMaxedOut(BuildingClassTypes eIndex, int iExtra) co
 	CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eIndex);
 	if(pkBuildingClassInfo == NULL)
 	{
-		CvAssertMsg(false, "This should never happen...");
+		CvAssertMsg(false, "isBuildingClassMaxedOut This should never happen...");
 		return false;
 	}
 
-	if(!isNationalWonderClass(*pkBuildingClassInfo))
+	if (checkAbsolute && isNationalWonderClass(*pkBuildingClassInfo))
 	{
-		return false;
+		CvAssertMsg(getBuildingClassCount(eIndex) <= (pkBuildingClassInfo->getMaxPlayerInstances() + pkBuildingClassInfo->getExtraPlayerInstances()), "BuildingClassCount is expected to be less than or match the number of max player instances plus extra player instances");
+
+		int allowed = pkBuildingClassInfo->getMaxPlayerInstances() + pkBuildingClassInfo->getExtraPlayerInstances();
+		int have = getBuildingClassCount(eIndex) + iExtra;
+		if (have >= allowed)
+		{
+			return true;
+		}
+	}
+	const int allowedPercent = pkBuildingClassInfo->getMaxPlayerInstancesPercent();
+	if (checkPercent && allowedPercent != -1)
+	{
+		// +99 round up
+		int allowed = (((getNumCities() * allowedPercent) + 99) / 100) + pkBuildingClassInfo->getExtraPlayerInstances();
+		int have = getBuildingClassCount(eIndex) + iExtra;
+		if (have >= allowed)
+		{
+			return true;
+		}
 	}
 
-	CvAssertMsg(getBuildingClassCount(eIndex) <= (pkBuildingClassInfo->getMaxPlayerInstances() + pkBuildingClassInfo->getExtraPlayerInstances()), "BuildingClassCount is expected to be less than or match the number of max player instances plus extra player instances");
-
-	return ((getBuildingClassCount(eIndex) + iExtra) >= (pkBuildingClassInfo->getMaxPlayerInstances() + pkBuildingClassInfo->getExtraPlayerInstances()));
+	return false;
 }
 
 
@@ -28216,7 +28239,7 @@ void CvPlayer::CardsActivate(int cardIdx)
 }
 void CvPlayer::CardsAdd(TradingCardTypes cardType)
 {
-	TradingCardState card;
+	TradingCardState card = TradingCardState();
 	card.type = cardType;
 	card.isVisible = !isHuman(); // cards will be default invisible if you're a human
 	m_cards.push_back(card);
