@@ -28247,7 +28247,8 @@ void CvPlayer::CardsActivate(int cardIdx)
 	{
 		const TradingCardTypes cardType = m_cards[cardIdx].type;
 		// we don't satisfy the condition yet!
-		const bool satisfiesActive = TradingCard::IsConditionSatisfied(cardType, this, true);
+		stringstream ss;
+		const bool satisfiesActive = TradingCard::CanActivate(cardType, this, &ss);
 		if (satisfiesActive)
 		{
 			const string activePolicyName = TradingCard::GetActivePolicy(cardType);

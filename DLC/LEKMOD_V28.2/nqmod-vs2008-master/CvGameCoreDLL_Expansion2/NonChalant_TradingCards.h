@@ -42,6 +42,7 @@ public:
 	// Used by the AI to estimate how much value a card type has
 	static int GetEstimatedValue(TradingCardTypes type);
 	static bool IsConditionSatisfied(TradingCardTypes type, const CvPlayer* player, bool isActive);
+	static bool CanActivate(TradingCardTypes type, const CvPlayer* pPlayer, stringstream* noActiveReason);
 private:
 };
 FDataStream& operator <<(FDataStream& kStream, const TradingCardTypes& data);
