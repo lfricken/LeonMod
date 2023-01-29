@@ -156,7 +156,7 @@ int CvPlayer::GetExtraYieldForBuilding
 			yieldChange += 10;
 	}
 
-	{// POLICY_TRADE_UNIONS - renamed Mercenary Army - gives + 15% gold to merchant's guilds
+	{// POLICY_TRADE_UNIONS - renamed Mercenary Army - gives + 15% gold to Caravansarys
 		const bool hasMercenaryArmy = player.HasPolicy("POLICY_TRADE_UNIONS");
 		const bool isMerchantsGuild = eBuildingClass == BuildingClass("BUILDINGCLASS_GUILD_GOLD");
 		if (eYieldType == YIELD_GOLD && isPercentMod && hasMercenaryArmy && isMerchantsGuild)
