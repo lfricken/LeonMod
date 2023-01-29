@@ -1855,6 +1855,7 @@ public:
 	void CardsAdd(TradingCardTypes cardType);
 	void CardsRemove(TradingCardTypes cardType);
 	void CardsDestroy(int cardIdx);
+	// called at the end of each turn, correctly updates passive benefits
 	void DoUpdateCardBenefits();
 	TradingCardTypes CardsType(int cardIdx) const;
 	bool CardsIsVisible(int cardIdx) const;

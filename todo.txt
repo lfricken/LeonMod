@@ -1,8 +1,5 @@
 
-gen cards each era
 
-try to get excited about other project
-(caffeiene?)
 
 trading
 	verify building limit
@@ -15,12 +12,9 @@ trading
 
 Trading Cards
 
-	other players cards
+	gen cards each era
 	fix ai trade value estimate
 
-
-promotions
-	on upgrade, remove promotion?
 
 
 

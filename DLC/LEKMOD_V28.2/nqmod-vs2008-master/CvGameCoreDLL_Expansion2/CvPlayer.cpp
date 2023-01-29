@@ -4812,12 +4812,10 @@ void CvPlayer::doTurnPostDiplomacy()
 
 	// Golden Age
 	DoProcessGoldenAge();
-	DoUpdateCardBenefits();
 
 	// Great People gifts from Allied City States (if we have that policy)
 	DoGreatPeopleSpawnTurn();
 
-	DoUpdateCardBenefits();
 	DoTurnResources();
 	DoTurnCities();
 	GetTreasury()->DoGold();
@@ -18552,7 +18550,8 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 			CvAssertFmt(GetEndTurnBlockingType() == NO_ENDTURN_BLOCKING_TYPE, "Expecting the end-turn blocking to be NO_ENDTURN_BLOCKING_TYPE, got %d", GetEndTurnBlockingType());
 			SetEndTurnBlocking(NO_ENDTURN_BLOCKING_TYPE, -1);	// Make sure this is clear so the UI doesn't block when it is not our turn.
 
-			DoUnitReset();
+			DoUpdateCardBenefits(); // card benefits
+			DoUnitReset(); // restore moves
 
 			if(!isHuman())
 			{
@@ -28336,7 +28335,6 @@ bool CvPlayer::CardsHasAny(TradingCardTypes cardType) const
 {
 	return CardsCount(cardType) >= 1;
 }
-// called at the end of each turn, correctly updates passive benefits
 void CvPlayer::DoUpdateCardBenefits()
 {
 	// check EVERY card type since we may have lost a passive card whos policy now needs to get removed
