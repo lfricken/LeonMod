@@ -65,7 +65,7 @@
 			<Image Anchor="C,T" Offset="0.0" Texture="HorizontalTrim.dds" Size="500,5">
 				<Image Anchor="C,T" AnchorSide="i,o" Offset="0.-1" Texture="VerticalTrim.dds" Size="5,59"/>
 			</Image>
-			<!--   UsPocket    -->
+			<!--   UsPocket	-->
 			<Container ID="Pockets" Size="480,229" Anchor="C,C" Offset="0,5">
 				<Grid Size="225,220" Anchor="R,T" Offset="0,0" Style="GridBlackIndent8" ID="UsPocketWhole">
 					<ScrollPanel Anchor="R,T" Offset="25,2" Size="200,218" Vertical="1" ID="UsPocketPanel">
@@ -89,6 +89,8 @@
 							<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_GOLD_PER_TURN" ID="UsPocketGoldPerTurn"/>
 							<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_LUXURY_RESOURCES" ID="UsPocketLuxury"/>
 							<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="0" Hidden="0" ID="UsPocketLuxuryStack"/>
+							<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_ITEMS_LUMP_RESOURCES" ID="UsPocketLump"/>
+							<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="0" Hidden="1" ID="UsPocketLumpStack"/>
 							<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_STRATEGIC_RESOURCES" ID="UsPocketStrategic"/>
 							<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="0" Hidden="0" ID="UsPocketStrategicStack"/>
 							<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_TRADE_ITEM_VOTES" ID="UsPocketVote"/>
@@ -135,10 +137,13 @@
 							<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_GOLD_PER_TURN" ID="ThemPocketGoldPerTurn"/>
 							<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_LUXURY_RESOURCES" ID="ThemPocketLuxury"/>
 							<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="0" Hidden="0" ID="ThemPocketLuxuryStack">
-                            </Stack>
+							</Stack>
+							<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_ITEMS_LUMP_RESOURCES" ID="ThemPocketLump"/>
+							<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="0" Hidden="1" ID="ThemPocketLumpStack">
+							</Stack>
 							<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_STRATEGIC_RESOURCES" ID="ThemPocketStrategic"/>
 							<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="0" Hidden="0" ID="ThemPocketStrategicStack">
-                            </Stack>
+							</Stack>
 							<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_TRADE_ITEM_VOTES" ID="ThemPocketVote"/>
 							<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="0" Hidden="0" ID="ThemPocketVoteStack"/>
 							<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_CARD_TRADE" ID="ThemPocketCards"/>
@@ -165,7 +170,7 @@
 				</Image>
 			</Container>
 			<Container ID="Tables" Size="480,120" Offset="0,5" Anchor="C,C">
-				<!--   UsTable       -->
+				<!--   UsTable	   -->
 				<Grid Size="225,120" Anchor="R,T" Offset="0,0" Style="GridBlackIndent8">
 					<ScrollPanel Anchor="L,T" Offset="0,2" Size="200,117" Vertical="1" ID="UsTablePanel">
 						<Stack Anchor="L,T" Offset="0,0" Size="128,128" StackGrowth="Bottom" Padding="0" ID="UsTableStack">
@@ -188,6 +193,9 @@
 							</Container>
 							<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="5" Hidden="0" ID="UsTableLuxuryStack">
 								<Label Anchor="L,C" Offset="5,0" String="TXT_KEY_DIPLO_LUXURY_RESOURCES" Font="TwCenMT14"/>
+							</Stack>
+							<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="5" Hidden="0" ID="UsTableLumpStack">
+								<Label Anchor="L,C" Offset="5,0" String="TXT_KEY_DIPLO_ITEMS_LUMP_RESOURCES" Font="TwCenMT14"/>
 							</Stack>
 							<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="5" Hidden="0" ID="UsTableStrategicStack">
 								<Label Anchor="L,C" Offset="5,0" String="TXT_KEY_DIPLO_STRATEGIC_RESOURCES" Font="TwCenMT14"/>
@@ -245,6 +253,9 @@
 							<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="5" Hidden="0" ID="ThemTableLuxuryStack">
 								<Label Anchor="L,C" Offset="5,0" String="TXT_KEY_DIPLO_LUXURY_RESOURCES" Font="TwCenMT14"/>
 							</Stack>
+							<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="5" Hidden="0" ID="ThemTableLumpStack">
+								<Label Anchor="L,C" Offset="5,0" String="TXT_KEY_DIPLO_ITEMS_LUMP_RESOURCES" Font="TwCenMT14"/>
+							</Stack>
 							<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="5" Hidden="0" ID="ThemTableStrategicStack">
 								<Label Anchor="L,C" Offset="5,0" String="TXT_KEY_DIPLO_STRATEGIC_RESOURCES" Font="TwCenMT14"/>
 							</Stack>
@@ -283,24 +294,24 @@
 				</Image>
 			</Container>
 			<Container Size="1,4"/>
-            <Button ID="ModifyButton" Anchor="C,B" Size="478,33" String="TXT_KEY_DIPLO_MODIFY" Font="TwCenMT18" >
-                <Grid   Size="478,30" Offset="0,0" Padding="0,0" Style="Grid9FrameTurns" />
+			<Button ID="ModifyButton" Anchor="C,B" Size="478,33" String="TXT_KEY_DIPLO_MODIFY" Font="TwCenMT18" >
+				<Grid   Size="478,30" Offset="0,0" Padding="0,0" Style="Grid9FrameTurns" />
 				<ShowOnMouseOver>
 					<AlphaAnim Anchor="C,C" Size="478,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
 						<Grid Anchor="C,C" Size="478,30" Offset="0,2" Padding="0,0" Style="Grid9FrameTurnsHL"/>
 					</AlphaAnim>
 				</ShowOnMouseOver>
 			</Button>
-            <Button ID="ProposeButton" Anchor="C,B" Size="478,33" String="TXT_KEY_DIPLO_PROPOSE" Font="TwCenMT18" >
-                <Grid   Size="478,30" Offset="0,2" Padding="0,0" Style="Grid9FrameTurns" />
+			<Button ID="ProposeButton" Anchor="C,B" Size="478,33" String="TXT_KEY_DIPLO_PROPOSE" Font="TwCenMT18" >
+				<Grid   Size="478,30" Offset="0,2" Padding="0,0" Style="Grid9FrameTurns" />
 				<ShowOnMouseOver>
 					<AlphaAnim Anchor="C,C" Size="478,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
 						<Grid Anchor="C,C" Size="478,30" Offset="0,2" Padding="0,0" Style="Grid9FrameTurnsHL"/>
 					</AlphaAnim>
 				</ShowOnMouseOver>
 			</Button>
-            <Button ID="CancelButton" Anchor="C,B" Size="478,33" String="TXT_KEY_DIPLO_REFUSE" Font="TwCenMT18" >
-                <Grid   Size="478,30" Offset="0,4" Padding="0,0" Style="Grid9FrameTurns" />
+			<Button ID="CancelButton" Anchor="C,B" Size="478,33" String="TXT_KEY_DIPLO_REFUSE" Font="TwCenMT18" >
+				<Grid   Size="478,30" Offset="0,4" Padding="0,0" Style="Grid9FrameTurns" />
 				<ShowOnMouseOver>
 					<AlphaAnim Anchor="C,C" Size="478,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
 						<Grid Anchor="C,C" Size="478,30" Offset="0,2" Padding="0,0" Style="Grid9FrameTurnsHL"/>
@@ -321,6 +332,6 @@
 			<Label Anchor="R,B" Offset="0,28" AnchorSide="O.I" String="(Team Name)'s Items" Font="TwCenMT18" FontStyle="Shadow" ID="ThemName"/>
 			<Label Anchor="R,B" Offset="0,13" AnchorSide="O.I" String="CivName" Font="TwCenMT14" FontStyle="Shadow" ID="ThemCiv"/>
 		</Image>
-        <TextButton Offset="0,22" Anchor="C,B" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" String="TXT_KEY_CLOSE" ToolTip="TXT_KEY_CLOSE" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="CloseButton" Hidden="0" />
+		<TextButton Offset="0,22" Anchor="C,B" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" String="TXT_KEY_CLOSE" ToolTip="TXT_KEY_CLOSE" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="CloseButton" Hidden="0" />
 	</Grid>
 </Context>
