@@ -515,6 +515,7 @@ public:
 	int getMaxGlobalInstances() const;
 	int getMaxTeamInstances() const;
 	int getMaxPlayerInstances() const;
+	int getMaxPlayerInstancesPercent() const;
 	int getExtraPlayerInstances() const;
 	int getDefaultBuildingIndex() const;
 	void setDefaultBuildingIndex(int i);
@@ -531,6 +532,7 @@ protected:
 	int m_iMaxGlobalInstances;
 	int m_iMaxTeamInstances;
 	int m_iMaxPlayerInstances;
+	int m_iMaxPlayerInstancesPercent;
 	int m_iExtraPlayerInstances;
 	int m_iDefaultBuildingIndex;
 
