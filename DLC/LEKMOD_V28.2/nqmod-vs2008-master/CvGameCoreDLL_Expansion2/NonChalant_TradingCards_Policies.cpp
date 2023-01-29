@@ -8,6 +8,13 @@ void PlaceRandomSpy(CvPlayer* pPlayer)
 {
 
 }
+int DeerPlots(const CvPlot& p)
+{
+	if (p.HasResource("RESOURCE_DEER"))
+		return 1;
+	else
+		return 0;
+}
 string TradingCard::GetActivePolicy(TradingCardTypes type)
 {
 	switch (type)
@@ -43,6 +50,7 @@ bool TradingCard::IsConditionSatisfied(TradingCardTypes type, const CvPlayer* pP
 	{
 	case CARD_NAVAL_MOVES:
 	{
+		int numDeerPlotsOwned = player.CountOwnedPlots(DeerPlots);
 		const bool satisfied = true;
 		if (!satisfied)
 		{
