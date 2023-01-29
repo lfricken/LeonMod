@@ -1603,6 +1603,7 @@ public:
 	void AddAPlot(CvPlot* pPlot); // adds a plot at the end of the list
 	CvPlotsVector& GetPlots();  // gets the list of plots the player owns
 	const CvPlotsVector& GetPlots() const;
+	int CountOwnedPlots(int (*check)(const CvPlot&)) const;
 	int GetNumPlots() const;
 
 	int GetNumPlotsBought() const;

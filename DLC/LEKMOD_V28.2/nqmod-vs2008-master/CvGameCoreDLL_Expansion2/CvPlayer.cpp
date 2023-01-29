@@ -26530,7 +26530,17 @@ const CvPlotsVector& CvPlayer::GetPlots() const
 {
 	return m_aiPlots;
 }
-
+int CvPlayer::CountOwnedPlots(int (*check)(const CvPlot&)) const
+{
+	const int max = GetPlots().size();
+	int num = 0;
+	for (int i = 0; i < max; ++i)
+	{
+		const CvPlot& plot = *GC.getMap().plotByIndex(m_aiPlots[i]);
+		num += check(plot);
+	}
+	return num;
+};
 //	--------------------------------------------------------------------------------
 /// How many plots does this player own?
 int CvPlayer::GetNumPlots() const
