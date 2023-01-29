@@ -3016,26 +3016,9 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVis
 		return false;
 
 	// Does this city have prereq buildings?
-	for(iI = 0; iI < iNumBuildingClassInfos; iI++)
+	if (!m_pCityBuildings->HasPrereqBuildings(eBuilding))
 	{
-		CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo((BuildingClassTypes)iI);
-		if(!pkBuildingClassInfo)
-		{
-			continue;
-		}
-
-		if(pkBuildingInfo->IsBuildingClassNeededInCity(iI))
-		{
-			ePrereqBuilding = ((BuildingTypes)(thisCivInfo.getCivilizationBuildings(iI)));
-
-			if(ePrereqBuilding != NO_BUILDING)
-			{
-				if(0 == m_pCityBuildings->GetNumBuilding(ePrereqBuilding) /* && (bContinue || (getFirstBuildingOrder(ePrereqBuilding) == -1))*/)
-				{
-					return false;
-				}
-			}
-		}
+		return false;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////
@@ -14770,29 +14753,9 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 				}
 
 				// Does this city have prereq buildings?
-				int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
-				BuildingTypes ePrereqBuilding;
-				for(int iI = 0; iI < iNumBuildingClassInfos; iI++)
+				if (!m_pCityBuildings->HasPrereqBuildings(eBuildingType))
 				{
-					CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo((BuildingClassTypes)iI);
-					if(!pkBuildingClassInfo)
-					{
-						continue;
-					}
-
-					if(pkBuildingInfo->IsBuildingClassNeededInCity(iI))
-					{
-						CvCivilizationInfo& thisCivInfo = getCivilizationInfo();
-						ePrereqBuilding = ((BuildingTypes)(thisCivInfo.getCivilizationBuildings(iI)));
-
-						if(ePrereqBuilding != NO_BUILDING)
-						{
-							if(0 == m_pCityBuildings->GetNumBuilding(ePrereqBuilding))
-							{
-								return false;
-							}
-						}
-					}
+					return false;
 				}
 			}
 

@@ -59,7 +59,7 @@
 		</Container>
 	</Instance>
 	<Grid Size="500,237" Anchor="C,B" Offset="0,100" Style="Grid9Detail48">
-		<!--   UsPocket    -->
+		<!--   UsPocket	-->
 		<Grid Size="220,300" Anchor="R,B" AnchorSide="O.I" Offset="2,-58" Style="GridGlass16" ID="UsGlass"/>
 		<Grid Size="250,380" Anchor="R,B" AnchorSide="O.I" Offset="-14,-100" Style="Grid9DetailThree140" ID="UsPanel">
 			<Label Anchor="C,T" Offset="0,18" String="TXT_KEY_DIPLO_YOUR_ITEMS_LABEL" Font="TwCenMT18" FontStyle="Shadow" ID="PlayerNameItems"/>
@@ -136,13 +136,13 @@
 					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_GOLD_PER_TURN" ID="ThemPocketGoldPerTurn"/>
 					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_LUXURY_RESOURCES" ID="ThemPocketLuxury"/>
 					<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="0" Hidden="0" ID="ThemPocketLuxuryStack">
-                    </Stack>
+					</Stack>
 					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_ITEMS_LUMP_RESOURCES" ID="ThemPocketLump"/>
 					<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="0" Hidden="1" ID="ThemPocketLumpStack">
-                    </Stack>
+					</Stack>
 					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_STRATEGIC_RESOURCES" ID="ThemPocketStrategic"/>
 					<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="0" Hidden="0" ID="ThemPocketStrategicStack">
-                    </Stack>
+					</Stack>
 					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_TRADE_ITEM_VOTES" ID="ThemPocketVote"/>
 					<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="0" Hidden="0" ID="ThemPocketVoteStack"/>
 					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_CARD_TRADE" ID="ThemPocketCards"/>
@@ -176,7 +176,7 @@
 				<Image ID="ThemSymbolShadow" Size="48,48" Offset="-1,-1" Anchor="C,C" Texture="CivSymbolsColor512.dds"/>
 			</Image>
 		</Grid>
-		<!--   UsTable       -->
+		<!--   UsTable	   -->
 		<Grid Size="225,220" Anchor="R,T" Offset="14,4" Style="GridBlackIndent8">
 			<ScrollPanel Anchor="L,T" Offset="0,4" Size="200,220" Vertical="1" ID="UsTablePanel">
 				<Stack Anchor="L,T" Offset="0,0" Size="128,128" StackGrowth="Bottom" Padding="0" ID="UsTableStack">
