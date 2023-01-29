@@ -15922,6 +15922,9 @@ int CvUnit::setDamage(int iNewValue, PlayerTypes ePlayer, decimal fAdditionalTex
 	int iOldValue;
 
 	iOldValue = getDamage();
+	stringstream s;
+	s << "CvUnit:setDamage " << m_eOwner << " " << ePlayer << " " << iOldValue << " " << iNewValue << " ";
+	GC.debugState(s); // CvUnit::setDamage
 
 	if(GetCurrHitPoints() == GetMaxHitPoints() && iNewValue < GetMaxHitPoints()) 
 	{

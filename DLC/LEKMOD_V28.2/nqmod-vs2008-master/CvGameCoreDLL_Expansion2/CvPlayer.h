@@ -164,9 +164,6 @@ public:
 	int getCachedExcessHappinessForThisTurn() const;
 	int getCachedSpyStartingRank() const;
 #endif
-
-	void doTurn();
-	void doTurnPostDiplomacy();
 #ifdef AUI_YIELDS_APPLIED_AFTER_TURN_NOT_BEFORE
 	void cacheYields();
 #endif
@@ -1216,6 +1213,13 @@ public:
 
 	bool isTurnActive() const;
 	void setTurnActive(bool bNewValue, bool bDoTurn = true);
+
+	void DoTurnBegin(const bool bDoTurn);
+	void DoTurnEnd();
+	// called at the beginning of a players turn
+	void DoTurn();
+	void doTurnPostDiplomacy();
+
 	bool isSimultaneousTurns() const;
 #ifdef AUI_GAME_BETTER_HYBRID_MODE
 	int getTurnOrder() const;

@@ -12210,6 +12210,10 @@ void CvCity::setDamage(int iValue, bool noMessage)
 {
 	VALIDATE_OBJECT
 
+	stringstream s;
+	s << "CvCity:setDamage " << m_eOwner << " " << iValue << " " << GetMaxHitPoints();
+	GC.debugState(s); // CvCity::setDamage
+
 	if(iValue < 0)
 		iValue = 0;
 	else if(iValue > GetMaxHitPoints())
