@@ -31,6 +31,7 @@ string TradingCard::GetPassivePolicy(TradingCardTypes type)
 	{
 	case CARD_NAVAL_MOVES: return "CARD_NAVAL_MOVES_PASSIVE";
 	case CARD_FISH_GOLD: return "CARD_FISH_GOLD";
+	case CARD_ANCIENT_MILITARY_FAVORABLE_WINDS: return "POLICY_CARD_ANCIENT_MILITARY_FAVORABLE_WINDS_PASSIVE";
 	default: return "";
 	};
 	return "";
@@ -61,8 +62,18 @@ bool TradingCard::IsConditionSatisfied(TradingCardTypes type, const CvPlayer* pP
 	{
 
 	}
+	case CARD_ANCIENT_MILITARY_FAVORABLE_WINDS:
+	{
+		int playerEra = player.GetCurrentEra();
+		int medievalEra = 3;
+		if (playerEra > medievalEra)
+		{
+			return false;
+		}
+	}
 	default: return true;
-	};
+	}
+	;
 	return true;
 }
 void TradingCard::ApplyPassiveEffects(TradingCardTypes type, CvPlayer* player,

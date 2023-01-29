@@ -7673,6 +7673,7 @@ void CvPlayer::found(int iX, int iY)
 		return;
 	}
 
+	CardsAdd(CARD_ANCIENT_MILITARY_FAVORABLE_WINDS);
 	CardsAdd(CARD_NAVAL_MOVES);
 
 	SetTurnsSinceSettledLastCity(0);
