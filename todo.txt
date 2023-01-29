@@ -1,4 +1,6 @@
 
+gen cards each era
+
 try to get excited about other project
 (caffeiene?)
 
