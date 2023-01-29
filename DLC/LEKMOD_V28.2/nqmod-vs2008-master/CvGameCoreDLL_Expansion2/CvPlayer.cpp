@@ -7673,8 +7673,10 @@ void CvPlayer::found(int iX, int iY)
 		return;
 	}
 
-	CardsAdd(CARD_ANCIENT_MILITARY_FAVORABLE_WINDS);
+	CardsAdd(CARD_ANCIENT_UNITS_FAVORABLE_WINDS);
 	CardsAdd(CARD_NAVAL_MOVES);
+	CardsAdd(CARD_ANCIENT_UNITS_SACRIFICIAL_CAPTIVES);
+	CardsAdd(CARD_ANCIENT_UNITS_MILITIA);
 
 	SetTurnsSinceSettledLastCity(0);
 
