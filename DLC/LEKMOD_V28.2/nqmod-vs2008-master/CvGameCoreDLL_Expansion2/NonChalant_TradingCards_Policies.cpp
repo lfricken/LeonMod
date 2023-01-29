@@ -21,6 +21,7 @@ string TradingCard::GetActivePolicy(TradingCardTypes type)
 	{
 	case CARD_NAVAL_MOVES: return "CARD_NAVAL_MOVES_ACTIVE";
 	case CARD_RANDOM_SPY: return "CARD_RANDOM_SPY";
+	case CARD_ANCIENT_UNITS_MILITIA: return "POLICY_CARD_ANCIENT_UNITS_MILITIA_ACTIVE";
 	default: return "";
 	};
 	return "";
@@ -32,6 +33,9 @@ string TradingCard::GetPassivePolicy(TradingCardTypes type)
 	case CARD_NAVAL_MOVES: return "CARD_NAVAL_MOVES_PASSIVE";
 	case CARD_FISH_GOLD: return "CARD_FISH_GOLD";
 	case CARD_ANCIENT_UNITS_FAVORABLE_WINDS: return "POLICY_CARD_ANCIENT_UNITS_FAVORABLE_WINDS_PASSIVE";
+	case CARD_ANCIENT_UNITS_SACRIFICIAL_CAPTIVES: return "POLICY_CARD_ANCIENT_UNITS_SACRIFICIAL_CAPTIVES_PASSIVE";
+	case CARD_ANCIENT_UNITS_OBSIDIAN_ARROWS: return "POLICY_CARD_ANCIENT_UNITS_OBSIDIAN_ARROWS_PASSIVE";
+	
 	default: return "";
 	};
 	return "";
@@ -47,6 +51,17 @@ int TradingCard::GetEstimatedValue(TradingCardTypes type)
 bool TradingCard::IsConditionSatisfied(TradingCardTypes type, const CvPlayer* pPlayer, bool isActive)
 {
 	const CvPlayer& player = *pPlayer;
+	
+	int playerEra = player.GetCurrentEra();
+	int ancientEra = 1;
+	int classicalEra = 2;
+	int medievalEra = 3;
+	int renaissanceEra = 4;
+	int industrialEra = 5;
+	int modernEra = 6;
+	int atomicEra = 7;
+	int informationEra = 8;
+	int futureEra = 9;
 	switch (type)
 	{
 	case CARD_NAVAL_MOVES:
@@ -64,9 +79,14 @@ bool TradingCard::IsConditionSatisfied(TradingCardTypes type, const CvPlayer* pP
 	}
 	case CARD_ANCIENT_UNITS_FAVORABLE_WINDS:
 	{
-		int playerEra = player.GetCurrentEra();
-		int medievalEra = 3;
-		if (playerEra > medievalEra)
+		if (playerEra > classicalEra)
+		{
+			return false;
+		}
+	}
+	case CARD_ANCIENT_UNITS_SACRIFICIAL_CAPTIVES:
+	{
+		if (playerEra > classicalEra)
 		{
 			return false;
 		}
