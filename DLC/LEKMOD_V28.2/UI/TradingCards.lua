@@ -140,7 +140,7 @@ function DisplayData(includePassive, includeActive)
 
 	local count = pPlayer:CardCount();
 	for cardIdx = 0, count-1, 1 do
-		local cardType = pPlayer:CardName(cardIdx);
+		local cardType = pPlayer:CardType(cardIdx);
 
 		local cardName = pPlayer:CardName(cardType);
 		local cardDesc = pPlayer:CardDesc(cardType);

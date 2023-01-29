@@ -1,14 +1,9 @@
 
-
-int DeerPlots(const CvPlot& p)
-{
-	if (p.HasResource("RESOURCE_DEER"))
-		return 1;
-	else
-		return 0;
-}
+try to get excited about other project
+(caffeiene?)
 
 trading
+	verify building limit
 	verify punish buildings
 	verify units are penalized
 	verify building/unit build permission should check the shortage variable
@@ -18,12 +13,13 @@ trading
 
 Trading Cards
 
-	add tabs previous applied effects, other players cards
+	other players cards
 	fix ai trade value estimate
 
 
 promotions
 	on upgrade, remove promotion?
+
 
 
 
@@ -33,7 +29,16 @@ C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization V\Assets\
 
 
 
-
+end turn
+increase score
+end turn
+increase score
+end turn
+increase score
+end turn
+increase score
+end turn
+increase score
 
 
 

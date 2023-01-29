@@ -8347,7 +8347,7 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestV
 
 		if (isBuildingClassMaxedOut(eBuildingClass, (getBuildingClassMaking(eBuildingClass) + ((bContinue) ? -1 : 0)), false, true))
 		{
-			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_PLAYER_COUNT_MAX_PERCENT", "", "", kBuildingClass.getMaxPlayerInstancesPercent());
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_PLAYER_COUNT_MAX_PERCENT_REACHED", "", "");
 			if (toolTipSink == NULL)
 				return false;
 		}
@@ -26441,6 +26441,8 @@ int CvPlayer::getGrowthThreshold(int iPopulation) const
 	return std::max(1, iThreshold);
 }
 
+// marks the end of the owned plots list
+const int LastPlotId = -1;
 //	--------------------------------------------------------------------------------
 /// This sets up the m_aiPlots array that is used to contain which plots the player contains
 void CvPlayer::InitPlots(void)
@@ -26454,7 +26456,7 @@ void CvPlayer::InitPlots(void)
 	if(iNumPlots != m_aiPlots.size())
 	{
 		m_aiPlots.clear();
-		m_aiPlots.push_back_copy(-1, iNumPlots);
+		m_aiPlots.push_back_copy(LastPlotId, iNumPlots);
 	}
 }
 
@@ -26469,9 +26471,9 @@ void CvPlayer::UpdatePlots(void)
 
 	int iPlotIndex = 0;
 	int iMaxNumPlots = (int) m_aiPlots.size();
-	while(iPlotIndex < iMaxNumPlots && m_aiPlots[iPlotIndex] != -1)
+	while(iPlotIndex < iMaxNumPlots && m_aiPlots[iPlotIndex] != LastPlotId)
 	{
-		m_aiPlots[iPlotIndex] = -1;
+		m_aiPlots[iPlotIndex] = LastPlotId;
 		iPlotIndex++;
 	}
 
@@ -26491,7 +26493,6 @@ void CvPlayer::UpdatePlots(void)
 		iPlotIndex++;
 	}
 }
-
 //	--------------------------------------------------------------------------------
 /// Adds a plot at the end of the list
 void CvPlayer::AddAPlot(CvPlot* pPlot)
@@ -26513,7 +26514,7 @@ void CvPlayer::AddAPlot(CvPlot* pPlot)
 
 	int iPlotIndex = 0;
 	int iMaxNumPlots = (int)m_aiPlots.size();
-	while(iPlotIndex < iMaxNumPlots && m_aiPlots[iPlotIndex] != -1)
+	while(iPlotIndex < iMaxNumPlots && m_aiPlots[iPlotIndex] != LastPlotId)
 	{
 		iPlotIndex++;
 	}
@@ -26535,12 +26536,23 @@ const CvPlotsVector& CvPlayer::GetPlots() const
 }
 int CvPlayer::CountOwnedPlots(int (*check)(const CvPlot&)) const
 {
-	const int max = GetPlots().size();
+	const int iNumPlotsInEntireWorld = GC.getMap().numPlots();
 	int num = 0;
-	for (int i = 0; i < max; ++i)
+	for (int i = 0; i < iNumPlotsInEntireWorld; ++i)
 	{
-		const CvPlot& plot = *GC.getMap().plotByIndex(m_aiPlots[i]);
-		num += check(plot);
+		const int plotId = m_aiPlots[i];
+		if (plotId == LastPlotId) // reached end of list
+		{
+			break;
+		}
+		else
+		{
+			const CvPlot& plot = *GC.getMap().plotByIndexUnchecked(plotId);
+			if (plot.getOwner() == m_eID)
+			{
+				num += check(plot);
+			}
+		}
 	}
 	return num;
 };
@@ -26952,7 +26964,7 @@ int CvPlayer::GetNumNaturalWondersInOwnedPlots() const
 	for(uint ui = 0; ui < aiPlots.size(); ui++)
 	{
 		// at the end of the plot list
-		if(aiPlots[ui] == -1)
+		if(aiPlots[ui] == LastPlotId)
 		{
 			break;
 		}
