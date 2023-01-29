@@ -282,7 +282,7 @@
           <!--Details Button-->
           <TextButton ID="SpaceRaceDetails" Offset="30,7" Anchor="L,B" Style="Font16or20" ColorSet="Beige_Black_Alpha" String="TXT_KEY_VP_DIPLO_DETAILS" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" Font="TwCenMT24"/>
           <!--Competitions-->
-          <ScrollPanel Anchor="L,T" Offset="0,20" Size="596,180" Vertical="1" ID="TechScrollPanel">
+          <ScrollPanel Anchor="L,T" Offset="0,48" Size="596,180" Vertical="1" ID="TechScrollPanel">
             <ScrollBar Offset="0.0" Style="VertSlider" Anchor="R,C" AnchorSide="O,I" Length="124"/>
             <UpButton Anchor="R,T" AnchorSide="O,I" Style="ScrollBarUp"/>
             <DownButton Anchor="R,B" AnchorSide="O,I" Style="ScrollBarDown"/>

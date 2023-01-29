@@ -15,13 +15,17 @@ struct CompetitionDelegates
 	virtual int Reward(const YieldTypes eType) const = 0;
 };
 
+float scoreToDisplay(int score)
+{
+	return (float)score / (float)10;
+}
 const int INVALID_SCORE = 0;
 string tryAddCurrentScore(const CvCompetition& rCompetition, const PlayerTypes ePlayer)
 {
 	stringstream ss;
 	if (ePlayer != NO_PLAYER)
 	{
-		ss << "[NEWLINE][NEWLINE]You currently have [COLOR_WARNING_TEXT]" << rCompetition.GetScoreOfPlayer(ePlayer) << "[ENDCOLOR]";
+		ss << "[NEWLINE][NEWLINE]You currently have [COLOR_WARNING_TEXT]" << scoreToDisplay(rCompetition.GetScoreOfPlayer(ePlayer)) << "[ENDCOLOR]";
 	}
 	return ss.str();
 }
@@ -33,7 +37,7 @@ struct TradeRoutes : CompetitionDelegates
 	virtual string DescShort(const int iWinningScore) const
 	{
 		stringstream ss;
-		ss << "Most International {TRADE_ROUTE}s: [COLOR_POSITIVE_TEXT]" << iWinningScore << "[ENDCOLOR]";
+		ss << "Most International {TRADE_ROUTE}s: [COLOR_POSITIVE_TEXT]" << scoreToDisplay(iWinningScore) << "[ENDCOLOR]";
 		return ss.str();
 	}
 	virtual string DescReward(const CvCompetition& rCompetition) const
@@ -67,7 +71,7 @@ struct Allies : CompetitionDelegates
 	virtual string DescShort(const int iWinningScore) const
 	{
 		stringstream ss;
-		ss << "Most Controlled {CITY_STATE}s: [COLOR_POSITIVE_TEXT]" << iWinningScore << "[ENDCOLOR]";
+		ss << "Most Controlled {CITY_STATE}s: [COLOR_POSITIVE_TEXT]" << scoreToDisplay(iWinningScore) << "[ENDCOLOR]";
 		return ss.str();
 	}
 	virtual string DescReward(const CvCompetition& rCompetition) const
@@ -102,7 +106,7 @@ struct GoldGifts : CompetitionDelegates
 	virtual string DescShort(const int iWinningScore) const
 	{
 		stringstream ss;
-		ss << "Most [ICON_INVEST] Gold Gifted: [COLOR_POSITIVE_TEXT]" << iWinningScore << "[ENDCOLOR]";
+		ss << "Most [ICON_INVEST] Gold Gifted: [COLOR_POSITIVE_TEXT]" << scoreToDisplay(iWinningScore) << "[ENDCOLOR]";
 		return ss.str();
 	}
 	virtual string DescReward(const CvCompetition& rCompetition) const
@@ -136,7 +140,7 @@ struct Nukes : CompetitionDelegates
 	virtual string DescShort(const int iWinningScore) const
 	{
 		stringstream ss;
-		ss << "Largest [ICON_RES_URANIUM] Nuclear Arsenal: [COLOR_POSITIVE_TEXT]" << iWinningScore << "[ENDCOLOR]";
+		ss << "Largest [ICON_RES_URANIUM] Nuclear Arsenal: [COLOR_POSITIVE_TEXT]" << scoreToDisplay(iWinningScore) << "[ENDCOLOR]";
 		return ss.str();
 	}
 	virtual string DescReward(const CvCompetition& rCompetition) const
@@ -170,7 +174,7 @@ struct ScienceSpecialists : CompetitionDelegates
 	virtual string DescShort(const int iWinningScore) const
 	{
 		stringstream ss;
-		ss << "Most [ICON_SPECIALIST_SCIENTIST] Scientist Specialists: [COLOR_POSITIVE_TEXT]" << iWinningScore << "[ENDCOLOR]";
+		ss << "Most [ICON_SPECIALIST_SCIENTIST] Scientist Specialists: [COLOR_POSITIVE_TEXT]" << scoreToDisplay(iWinningScore) << "[ENDCOLOR]";
 		return ss.str();
 	}
 	virtual string DescReward(const CvCompetition& rCompetition) const
@@ -204,7 +208,7 @@ struct ScienceHammerCompetition : CompetitionDelegates
 	virtual string DescShort(const int iWinningScore) const
 	{
 		stringstream ss;
-		ss << "Best {SCIENCE_FAIR}: [COLOR_POSITIVE_TEXT]" << iWinningScore << "[ENDCOLOR]";
+		ss << "Best {SCIENCE_FAIR}: [COLOR_POSITIVE_TEXT]" << scoreToDisplay(iWinningScore) << "[ENDCOLOR]";
 		return ss.str();
 	}
 	virtual string DescReward(const CvCompetition& rCompetition) const
@@ -238,7 +242,7 @@ struct ScienceImprovements : CompetitionDelegates
 	virtual string DescShort(const int iWinningScore) const
 	{
 		stringstream ss;
-		ss << "Most Academies: [COLOR_POSITIVE_TEXT]" << iWinningScore << "[ENDCOLOR]";
+		ss << "Most Academies: [COLOR_POSITIVE_TEXT]" << scoreToDisplay(iWinningScore) << "[ENDCOLOR]";
 		return ss.str();
 	}
 	virtual string DescReward(const CvCompetition& rCompetition) const
@@ -272,7 +276,7 @@ struct CulturalCompetition : CompetitionDelegates
 	virtual string DescShort(const int iWinningScore) const
 	{
 		stringstream ss;
-		ss << "Best {ARTS_FAIR}: [COLOR_POSITIVE_TEXT]" << iWinningScore << "[ENDCOLOR]";
+		ss << "Best {ARTS_FAIR}: [COLOR_POSITIVE_TEXT]" << scoreToDisplay(iWinningScore) << "[ENDCOLOR]";
 		return ss.str();
 	}
 	virtual string DescReward(const CvCompetition& rCompetition) const
@@ -339,6 +343,7 @@ FDataStream& operator <<(FDataStream& kStream, const CvCompetitionEntry& data)
 	kStream << data.eType;
 	kStream << data.ePlayer;
 	kStream << data.iScore;
+	kStream << data.iTempScore;
 	return kStream;
 }
 FDataStream& operator >>(FDataStream& kStream, CvCompetitionEntry& data)
@@ -346,6 +351,7 @@ FDataStream& operator >>(FDataStream& kStream, CvCompetitionEntry& data)
 	kStream >> data.eType;
 	kStream >> data.ePlayer;
 	kStream >> data.iScore;
+	kStream >> data.iTempScore;
 	return kStream;
 }
 FDataStream& operator <<(FDataStream& kStream, const CvCompetition& data)
@@ -460,7 +466,7 @@ int CvCompetition::GetReward(const YieldTypes eType, const PlayerTypes ePlayer) 
 		return 0;
 	}
 }
-void CvCompetition::UpdateAndSort()
+void CvCompetition::Update(bool shouldMoveToNextSession, int numTurnsPerSession)
 {
 	// update
 	for (int i = 0; i < (int)m_entries.size(); ++i)
@@ -470,10 +476,14 @@ void CvCompetition::UpdateAndSort()
 		if (player.isAlive() && player.isMajorCiv())
 			score = GC.GetDelegatesFor[(int)m_eCompetitionType]->EvalScore(player);
 
-		m_entries[i].iScore = score;
+		m_entries[i].iTempScore += score;
+		if (shouldMoveToNextSession)
+		{
+			m_entries[i].iScore = (m_entries[i].iTempScore * 10) / numTurnsPerSession;
+			m_entries[i].iTempScore = 0;
+			sort(m_entries.begin(), m_entries.end(), compareEntries);
+		}
 	}
-	// sort
-	sort(m_entries.begin(), m_entries.end(), compareEntries);
 }
 
 

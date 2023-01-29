@@ -274,7 +274,7 @@ void CvGame::init(HandicapTypes eHandicap)
 	for (int i = 0; i < NUM_COMPETITIONS; ++i)
 	{
 		m_competitions.push_back(CvCompetition(MAX_MAJOR_CIVS, (MiniCompetitionTypes)i));
-		m_competitions[i].UpdateAndSort();
+		m_competitions[i].Update(false, 5);
 	}
 
 	// set up pseudorandom barbarian spawn points
@@ -8274,8 +8274,11 @@ void CvGame::doTurn()
 	ChangeVpAdjustment(GetVpAcceleration());
 
 	updateScienceCatchup();
+
+	const int sessionLength = 5;
+	const bool sessionEndsThisTurn = GC.getGame().getGameTurn() % sessionLength == 0;
 	for (int i = 0; i < NUM_COMPETITIONS; ++i)
-		m_competitions[i].UpdateAndSort();
+		m_competitions[i].Update(sessionEndsThisTurn, sessionLength);
 
 	// Who's Winning
 	if(GET_PLAYER(getActivePlayer()).isAlive() && !IsStaticTutorialActive())

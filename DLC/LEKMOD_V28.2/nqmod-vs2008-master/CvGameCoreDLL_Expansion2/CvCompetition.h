@@ -20,8 +20,10 @@ public:
 	MiniCompetitionTypes eType;
 	// player this score is for
 	PlayerTypes ePlayer;
-	// score in the competition
+	// current accumulated score in the competition
 	int iScore;
+	// the score we got last time
+	int iTempScore;
 };
 FDataStream& operator <<(FDataStream& kStream, const CvCompetitionEntry& data);
 FDataStream& operator >>(FDataStream& kStream, CvCompetitionEntry& data);
@@ -50,8 +52,8 @@ public:
 	int GetReward(const YieldTypes eType, const PlayerTypes ePlayer) const;
 
 
-	// calculates values for the competition and sorts the values
-	void UpdateAndSort();
+	// calculates values for the competition and calculates a winner if 
+	void Update(bool shouldMoveToNextSession, int numTurnsPerSession);
 
 	// which type of competition is this?
 	MiniCompetitionTypes m_eCompetitionType;
