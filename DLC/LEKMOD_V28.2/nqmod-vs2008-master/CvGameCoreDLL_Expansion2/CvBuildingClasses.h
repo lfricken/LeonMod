@@ -624,6 +624,8 @@ public:
 	int GetNumBuildings() const;
 	void ChangeNumBuildings(int iChange);
 
+	// Does this city have prereq buildings for the given building?
+	bool HasPrereqBuildings(BuildingTypes eBuildingType) const;
 	int GetNumBuilding(BuildingTypes eIndex) const;
 
 	/// CMP

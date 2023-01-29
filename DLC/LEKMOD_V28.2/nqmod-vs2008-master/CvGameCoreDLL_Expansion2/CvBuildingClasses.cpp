@@ -2700,7 +2700,48 @@ void CvCityBuildings::ChangeNumBuildings(int iChange)
 
 //	GET_PLAYER(m_pCity->getOwner()).updateNumResourceUsed();
 }
+bool CvCityBuildings::HasPrereqBuildings(BuildingTypes eBuildingType) const
+{
+	const CvBuildingEntry* pkBuildingInfo = GC.GetGameBuildings()->GetEntry(eBuildingType);
+	int numUnsatisfied = 0;
+	int numSatisfied = 0;
+	const int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
+	for (int iI = 0; iI < iNumBuildingClassInfos; iI++)
+	{
+		const CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo((BuildingClassTypes)iI);
+		if (pkBuildingClassInfo == NULL)
+		{
+			continue;
+		}
 
+		if (pkBuildingInfo->IsBuildingClassNeededInCity(iI))
+		{
+			const CvCivilizationInfo& thisCivInfo = GET_PLAYER(m_pCity->getOwner()).getCivilizationInfo();
+			const BuildingTypes ePrereqBuilding = ((BuildingTypes)(thisCivInfo.getCivilizationBuildings(iI)));
+
+			if (ePrereqBuilding != NO_BUILDING)
+			{
+				const bool hasPrereq = GetNumBuilding(ePrereqBuilding) != 0;
+				if (hasPrereq)
+				{
+					numSatisfied++;
+				}
+				else
+				{
+					numUnsatisfied++;
+				}
+			}
+		}
+	}
+	// had prereq
+	const bool hadPrereq = numUnsatisfied > 0;
+	const bool satisfiedAtLeastOne = numSatisfied > 0;
+	if (hadPrereq && !satisfiedAtLeastOne)
+	{
+		return false;
+	}
+	return true;
+}
 /// Accessor: How many of these buildings in the city?
 int CvCityBuildings::GetNumBuilding(BuildingTypes eIndex) const
 {
