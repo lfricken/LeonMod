@@ -15,6 +15,20 @@ int DeerPlots(const CvPlot& p)
 	else
 		return 0;
 }
+int TundraTiles(const CvPlot& p)
+{
+	if (p.HasTerrain(TERRAIN_TUNDRA))
+		return 1;
+	else
+		return 0;
+}
+int DesertTiles(const CvPlot& p)
+{
+	if (p.HasTerrain(TERRAIN_DESERT))
+		return 1;
+	else
+		return 0;
+}
 string TradingCard::GetActivePolicy(TradingCardTypes type)
 {
 	switch (type)
@@ -42,7 +56,14 @@ string TradingCard::GetPassivePolicy(TradingCardTypes type)
 	case CARD_ANCIENT_UNITS_BRONZE_CLAD_HULL: return "POLICY_CARD_ANCIENT_UNITS_BRONZE_CLAD_HULL_PASSIVE";
 	case CARD_ANCIENT_UNITS_SPOKED_WHEELS: return "POLICY_CARD_ANCIENT_UNITS_SPOKED_WHEELS_PASSIVE";
 	case CARD_ANCIENT_UNITS_SHIELD_WALL: return "POLICY_CARD_ANCIENT_UNITS_SHIELD_WALL_PASSIVE";
-	case CARD_ANCIENT_UNITS_VALOUR: return "POLICY_CARD_ANCIENT_UNITS_VALOUR_PASSIVE";	
+	case CARD_ANCIENT_UNITS_VALOUR: return "POLICY_CARD_ANCIENT_UNITS_VALOUR_PASSIVE";
+	case CARD_ANCIENT_RESOURCES_INUITS: return "POLICY_CARD_ANCIENT_RESOURCES_INUITS_PASSIVE";
+	case CARD_ANCIENT_RESOURCES_BEDOUINS: return "POLICY_CARD_ANCIENT_RESOURCES_BEDOUINS_PASSIVE";
+	case CARD_ANCIENT_RESOURCES_ATLATL: return "POLICY_CARD_ANCIENT_RESOURCES_ATLATL_PASSIVE";
+	case CARD_ANCIENT_RESOURCES_FLINT_KNAPPING: return "POLICY_CARD_ANCIENT_RESOURCES_FLINT_KNAPPING_PASSIVE";
+	case CARD_ANCIENT_RESOURCES_SACRIFICIAL_LAMBS: return "POLICY_CARD_ANCIENT_RESOURCES_SACRIFICIAL_LAMBS_PASSIVE";
+	case CARD_ANCIENT_RESOURCES_SPEAR_FISHING: return "POLICY_CARD_ANCIENT_RESOURCES_SPEAR_FISHING_PASSIVE";
+	case CARD_ANCIENT_RESOURCES_DIVINE_CREATION: return "POLICY_CARD_ANCIENT_RESOURCES_DIVINE_CREATION_PASSIVE";
 	
 	default: return "";
 	};
@@ -72,18 +93,14 @@ bool TradingCard::IsConditionSatisfied(TradingCardTypes type, const CvPlayer* pP
 	int futureEra = 9;
 	switch (type)
 	{
-	case CARD_NAVAL_MOVES:
+	
+	case CARD_ANCIENT_RESOURCES_ATLATL:
 	{
 		int numDeerPlotsOwned = player.CountOwnedPlots(DeerPlots);
-		const bool satisfied = true;
-		if (!satisfied)
+		if (numDeerPlotsOwned < 6)		
 		{
 			return false;
 		}
-	}
-	case CARD_FISH_GOLD:
-	{
-
 	}
 	case CARD_ANCIENT_UNITS_FAVORABLE_WINDS:
 	{
@@ -100,6 +117,29 @@ bool TradingCard::IsConditionSatisfied(TradingCardTypes type, const CvPlayer* pP
 		}
 	}
 	case CARD_ANCIENT_UNITS_VALOUR:
+	{
+		if (playerEra > classicalEra)
+		{
+			return false;
+		}
+	}
+	case CARD_ANCIENT_RESOURCES_INUITS:
+	{
+		int numTundraPlotsOwned = player.CountOwnedPlots(TundraTiles);		
+		if (numTundraPlotsOwned < 10)
+		{
+			return false;
+		}
+	}
+	case CARD_ANCIENT_RESOURCES_BEDOUINS:
+	{
+		int numDesertPlotsOwned = player.CountOwnedPlots(DesertTiles);
+		if (numDesertPlotsOwned < 10)
+		{
+			return false;
+		}
+	}
+	case CARD_ANCIENT_RESOURCES_SPEAR_FISHING:
 	{
 		if (playerEra > classicalEra)
 		{

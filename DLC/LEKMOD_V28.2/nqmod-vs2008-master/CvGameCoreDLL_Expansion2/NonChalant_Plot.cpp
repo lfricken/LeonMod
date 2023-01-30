@@ -537,6 +537,59 @@ int CvPlot::getExtraYield
 					yieldChange += 2;
 			}
 
+			{// CARD_ANCIENT_RESOURCES_INUITS - 1C to Tundra
+				const bool hasInuits = player.HasPolicy("POLICY_CARD_ANCIENT_RESOURCES_INUITS_PASSIVE");
+				if (eYieldType == YIELD_CULTURE && hasInuits && isTundra && (hasLuxury || hasStrategic || hasBonus))
+					yieldChange += 1;				
+			}
+			
+			{// CARD_ANCIENT_RESOURCES_BEDOUINS - 1C to Desert
+				const bool hasBedouins = player.HasPolicy("POLICY_CARD_ANCIENT_RESOURCES_BEDOUINS_PASSIVE");
+				if (eYieldType == YIELD_CULTURE && hasBedouins && isDesert && (hasLuxury || hasStrategic || hasBonus))
+					yieldChange += 1;
+			}
+
+			{// CARD_ANCIENT_RESOURCES_ATLATL - 2F to Deer
+				const bool hasAtlatl = player.HasPolicy("POLICY_CARD_ANCIENT_RESOURCES_ATLATL_PASSIVE");
+				const bool isDeer = plot.HasResource("RESOURCE_DEER");
+				if (eYieldType == YIELD_FOOD && hasAtlatl && isDeer)
+					yieldChange += 2;
+			}
+
+			{// CARD_ANCIENT_RESOURCES_FLINT_KNAPPING - 2PD from Obsidian 1G from Quarries
+				const bool hasFlints = player.HasPolicy("POLICY_CARD_ANCIENT_RESOURCES_FLINT_KNAPPING_PASSIVE");
+				const bool isObsidian = plot.HasResource("RESOURCE_OBSIDIAN");
+				const bool isQuarry = plot.HasImprovement("IMPROVEMENT_QUARRY");
+				if (eYieldType == YIELD_PRODUCTION && hasFlints && isObsidian)
+					yieldChange += 2;
+				if (eYieldType == YIELD_PRODUCTION && hasFlints && isQuarry)
+					yieldChange += 1;
+			}			
+
+			{// CARD_ANCIENT_RESOURCES_SACRIFICIAL_LAMBS - -1FD +4FH to sheep
+				const bool hasSacrificialLambs = player.HasPolicy("POLICY_CARD_ANCIENT_RESOURCES_SACRIFICIAL_LAMBS_PASSIVE");
+				const bool isSheep = plot.HasResource("RESOURCE_SHEEP");				
+				if (eYieldType == YIELD_FOOD && hasSacrificialLambs && isSheep)
+					yieldChange -= 1;
+				if (eYieldType == YIELD_FAITH && hasSacrificialLambs && isSheep)
+					yieldChange += 4;
+			}
+
+			{// CARD_ANCIENT_RESOURCES_SACRIFICIAL_LAMBS - -1FD +4FH to sheep
+				const bool hasSpearfishing = player.HasPolicy("POLICY_CARD_ANCIENT_RESOURCES_SPEAR_FISHING_PASSIVE");
+				const bool isFish = plot.HasResource("RESOURCE_FISH");
+				if (eYieldType == YIELD_FOOD && hasSpearfishing && isFish)
+					yieldChange += 2;				
+			}
+
+			{// CARD_ANCIENT_RESOURCES_DIVINE_CREATION - +4C +4FH from Natural Wonders
+				const bool hasDivineCreation = player.HasPolicy("POLICY_CARD_ANCIENT_RESOURCES_DIVINE_CREATION_PASSIVE");
+				const bool isNaturalWonder = plot.HasAnyNaturalWonder();
+				if (eYieldType == YIELD_CULTURE && hasDivineCreation && isNaturalWonder)
+					yieldChange += 4;
+				if (eYieldType == YIELD_FAITH && hasDivineCreation && isNaturalWonder)
+					yieldChange += 4;
+			}
 
 		}
 	}
