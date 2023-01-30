@@ -389,6 +389,32 @@ BuildingAddType CvPlayer::ShouldHaveBuilding(const CvPlayer& rPlayer, const CvCi
 		}
 	}
 
+	{// BUILDING_CARD_SHIPS_OF_THE_DESERT goes in cities with Caravansary and POLICY_CARD_ANCIENT_BUILDINGS_SHIPS_OF_THE_DESERT_PASSIVE
+		const bool isShipsBuilding = eBuildingClass == BuildingClass("BUILDINGCLASS_CARD_SHIPS_OF_THE_DESERT");
+		if (isShipsBuilding)
+		{
+			const bool hasCaravansary = rCity.HasBuildingClass(BuildingClassTypes(129));
+			const bool hasShipsPolicy = rPlayer.HasPolicy("POLICY_CARD_ANCIENT_BUILDINGS_SHIPS_OF_THE_DESERT_PASSIVE");
+			if (hasCaravansary && hasShipsPolicy)
+				return ADD;
+			else
+				return REMOVE;
+		}
+	}
+
+	{// BUILDING_CARD_ANCIENT_BUILDINGS_FORCED_LEVY goes in cities with Caravansary and POLICY_CARD_ANCIENT_BUILDINGS_FORCED_LEVY_PASSIVE
+		const bool isForcedLevyBuilding = eBuildingClass == BuildingClass("BUILDINGCLASS_CARD_ANCIENT_BUILDINGS_FORCED_LEVY");
+		if (isForcedLevyBuilding)
+		{
+			const bool hasBarracks = rCity.HasBuildingClass(BuildingClassTypes(25));
+			const bool hasForcedLevyPolicy = rPlayer.HasPolicy("POLICY_CARD_ANCIENT_BUILDINGS_FORCED_LEVY_PASSIVE");
+			if (hasBarracks && hasForcedLevyPolicy)
+				return ADD;
+			else
+				return REMOVE;
+		}
+	}
+
 	return INDIFFERENT;
 }
 int CvPlayer::getSpecialistGpp(const CvCity* pCity, const SpecialistTypes eSpecialist, const SpecialistTypes eGppType, const bool) const
