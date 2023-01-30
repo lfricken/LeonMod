@@ -66,12 +66,12 @@ AssignStartingPlots = {};
 -- for scrambled AreaID data is theoretically possible, but I have not spent
 -- development resources and time on this, directing attention to other tasks.
 
-local horsesPer = 3;
-local ironPer = 6;
-local coalPer = 9;
-local oilPer = 12;
-local aluminumPer = 15;
-local uraniumPer = 18;
+local horsesPer = 4;
+local ironPer = 5;
+local coalPer = 6;
+local oilPer = 6;
+local aluminumPer = 7;
+local uraniumPer = 7;
 -- how frequent resources are relative to number of tiles. 16 means 16 tiles out of 1000 
 -- will have a particular type of resource. So 1000 size world would have 16 iron AND 16 horses, AND etc.
 function getStratFrequency(this)
