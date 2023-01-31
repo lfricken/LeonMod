@@ -443,6 +443,19 @@ BuildingAddType CvPlayer::ShouldHaveBuilding(const CvPlayer& rPlayer, const CvCi
 		}
 	}
 
+	{// BUILDING_CARD_CLASSICAL_BUILDINGS_BEACONS_OF_HOPE goes in cities with Lighthouse and POLICY_CARD_CLASSICAL_BUILDINGS_BEACONS_OF_HOPE
+		const bool isBeaconsOfHopeBuilding = eBuildingClass == BuildingClass("BUILDINGCLASS_CARD_CLASSICAL_BUILDINGS_BEACONS_OF_HOPE");
+		if (isBeaconsOfHopeBuilding)
+		{
+			const bool hasBeaconsOfHopeCard = rPlayer.HasPolicy("POLICY_CARD_CLASSICAL_BUILDINGS_BEACONS_OF_HOPE");
+			const bool hasLighthouse = rCity.HasBuildingClass(BuildingClassTypes(13));
+			if (hasBeaconsOfHopeCard && hasLighthouse)
+				return ADD;
+			else
+				return REMOVE;
+		}
+	}
+
 	return INDIFFERENT;
 }
 int CvPlayer::getSpecialistGpp(const CvCity* pCity, const SpecialistTypes eSpecialist, const SpecialistTypes eGppType, const bool) const
