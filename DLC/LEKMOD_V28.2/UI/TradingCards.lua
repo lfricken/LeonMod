@@ -155,15 +155,15 @@ function DisplayData(includePassive, includeActive)
 			local inst = {};
 			ContextPtr:BuildInstanceForControl("TradeCardInstance", inst, Controls.MainStack);
 
-			inst.Name:SetText(cardName);
-			inst.Name:SetToolTipString(cardName);
+			inst.Name:LocalizeAndSetText(cardName);
+			inst.Name:LocalizeAndSetToolTip(cardName);
 
-			inst.Desc:SetText(cardDesc);
-			inst.Desc:SetToolTipString(cardDesc);
+			inst.Desc:LocalizeAndSetText(cardDesc);
+			inst.Desc:LocalizeAndSetToolTip(cardDesc);
 
 			-- passive info
 			inst.Passive:SetHide(not hasPassive);
-			inst.Passive:SetToolTipString(passiveDesc);
+			inst.Passive:LocalizeAndSetToolTip(passiveDesc);
 
 			-- activate button
 			inst.Activate:SetHide(not hasActive);
