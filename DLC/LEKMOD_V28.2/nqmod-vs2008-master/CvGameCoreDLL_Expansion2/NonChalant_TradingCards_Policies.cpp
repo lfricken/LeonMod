@@ -66,6 +66,11 @@ string TradingCard::GetPassivePolicy(TradingCardTypes type)
 	case CARD_ANCIENT_RESOURCES_DIVINE_CREATION: return "POLICY_CARD_ANCIENT_RESOURCES_DIVINE_CREATION_PASSIVE";
 	case CARD_ANCIENT_BUILDINGS_SHIPS_OF_THE_DESERT: return "POLICY_CARD_ANCIENT_BUILDINGS_SHIPS_OF_THE_DESERT_PASSIVE";
 	case CARD_ANCIENT_BUILDINGS_FORCED_LEVY: return "POLICY_CARD_ANCIENT_BUILDINGS_FORCED_LEVY_PASSIVE";
+	case CARD_ANCIENT_POLITICAL_TRADITION: return "POLICY_CARD_ANCIENT_POLITICAL_TRADITION_PASSIVE";
+	case CARD_ANCIENT_POLITICAL_LIBERTY: return "POLICY_CARD_ANCIENT_POLITICAL_LIBERTY_PASSIVE";
+	case CARD_ANCIENT_POLITICAL_HONOR: return "POLICY_CARD_ANCIENT_POLITICAL_HONOR_PASSIVE";
+	case CARD_ANCIENT_POLITICAL_EXCLUSIVE: return "POLICY_CARD_ANCIENT_POLITICAL_EXCLUSIVE_PASSIVE";
+	case CARD_ANCIENT_POLITICAL_PROTECTIVE: return "POLICY_CARD_ANCIENT_POLITICAL_PROTECTIVE_PASSIVE";
 	
 	default: return "";
 	};
@@ -144,6 +149,47 @@ bool TradingCard::IsConditionSatisfied(TradingCardTypes type, const CvPlayer* pP
 	case CARD_ANCIENT_RESOURCES_SPEAR_FISHING:
 	{
 		if (playerEra > classicalEra)
+		{
+			return false;
+		}
+	}
+	case CARD_ANCIENT_POLITICAL_TRADITION:
+	{
+		int numTraditionPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(0));
+		if (numTraditionPolicies < 3)		
+		{
+			return false;
+		}
+	}
+	case CARD_ANCIENT_POLITICAL_LIBERTY:
+	{
+		int numLibertyPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(1));
+		if (numLibertyPolicies < 3)
+		{
+			return false;
+		}
+	}
+	case CARD_ANCIENT_POLITICAL_HONOR:
+	{
+		int numHonorPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(2));
+		if (numHonorPolicies < 3)
+		if (numHonorPolicies < 3)
+		{
+			return false;
+		}
+	}
+	case CARD_ANCIENT_POLITICAL_EXCLUSIVE:
+	{
+		int numLibertyPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(1));
+		if (numLibertyPolicies > 0)
+		{
+			return false;
+		}
+	}
+	case CARD_ANCIENT_POLITICAL_PROTECTIVE:
+	{
+		int numHonorPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(2));
+		if (numHonorPolicies > 0)
 		{
 			return false;
 		}

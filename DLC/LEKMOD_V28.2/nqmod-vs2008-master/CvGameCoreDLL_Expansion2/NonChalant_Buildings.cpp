@@ -415,6 +415,18 @@ BuildingAddType CvPlayer::ShouldHaveBuilding(const CvPlayer& rPlayer, const CvCi
 		}
 	}
 
+	{// BUILDING_CARD_ANCIENT_BUILDINGS_FORCED_LEVY goes in cities with Caravansary and POLICY_CARD_ANCIENT_BUILDINGS_FORCED_LEVY_PASSIVE
+		const bool iswalls = eBuildingClass == BuildingClass("BUILDINGCLASS_WALLS");
+		if (iswalls)
+		{
+			const bool hasProtectiveCard = rPlayer.HasPolicy("POLICY_CARD_ANCIENT_POLITICAL_PROTECTIVE_PASSIVE");			
+			if (hasProtectiveCard)
+				return ADD;
+			else
+				return REMOVE;
+		}
+	}
+
 	return INDIFFERENT;
 }
 int CvPlayer::getSpecialistGpp(const CvCity* pCity, const SpecialistTypes eSpecialist, const SpecialistTypes eGppType, const bool) const
