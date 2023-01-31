@@ -463,6 +463,19 @@ BuildingAddType CvPlayer::ShouldHaveBuilding(const CvPlayer& rPlayer, const CvCi
 		}
 	}
 
+	{// CARD_CLASSICAL_BUILDINGS_CHAMPION_OF_THE_PEOPLE free statue if barracks
+		const bool isStatue = eBuildingClass == BuildingClass("BUILDINGCLASS_STATUE_1");
+		if (isStatue)
+		{
+			const bool hasChampionCard = rPlayer.HasPolicy("POLICY_CARD_CLASSICAL_LEGENDARY_CHAMPION_PASSIVE");
+			const bool hasBarracks = rCity.HasBuildingClass(BuildingClassTypes(25));
+			if (hasChampionCard && hasBarracks)
+				return ADD;
+			else
+				return REMOVE;
+		}
+	}
+
 	return INDIFFERENT;
 }
 int CvPlayer::getSpecialistGpp(const CvCity* pCity, const SpecialistTypes eSpecialist, const SpecialistTypes eGppType, const bool) const
