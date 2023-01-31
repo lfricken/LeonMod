@@ -66,12 +66,14 @@ string TradingCard::GetPassivePolicy(TradingCardTypes type)
 	case CARD_ANCIENT_RESOURCES_DIVINE_CREATION: return "POLICY_CARD_ANCIENT_RESOURCES_DIVINE_CREATION_PASSIVE";
 	case CARD_ANCIENT_BUILDINGS_SHIPS_OF_THE_DESERT: return "POLICY_CARD_ANCIENT_BUILDINGS_SHIPS_OF_THE_DESERT_PASSIVE";
 	case CARD_ANCIENT_BUILDINGS_FORCED_LEVY: return "POLICY_CARD_ANCIENT_BUILDINGS_FORCED_LEVY_PASSIVE";
-	case CARD_ANCIENT_POLITICAL_TRADITION: return "POLICY_CARD_ANCIENT_POLITICAL_TRADITION_PASSIVE";
-	case CARD_ANCIENT_POLITICAL_LIBERTY: return "POLICY_CARD_ANCIENT_POLITICAL_LIBERTY_PASSIVE";
-	case CARD_ANCIENT_POLITICAL_HONOR: return "POLICY_CARD_ANCIENT_POLITICAL_HONOR_PASSIVE";
+	case CARD_ANCIENT_POLITICAL_ORTHODOXY: return "POLICY_CARD_ANCIENT_POLITICAL_ORTHODOXY_PASSIVE";
+	case CARD_ANCIENT_POLITICAL_PROGRESSIVE: return "POLICY_CARD_ANCIENT_POLITICAL_PROGRESSIVE_PASSIVE";
+	case CARD_ANCIENT_POLITICAL_AGGRESIVE: return "POLICY_CARD_ANCIENT_POLITICAL_AGGRESIVE_PASSIVE";
 	case CARD_ANCIENT_POLITICAL_EXCLUSIVE: return "POLICY_CARD_ANCIENT_POLITICAL_EXCLUSIVE_PASSIVE";
 	case CARD_ANCIENT_POLITICAL_PROTECTIVE: return "POLICY_CARD_ANCIENT_POLITICAL_PROTECTIVE_PASSIVE";
-	
+	case CARD_ANCIENT_BUILDINGS_DRUIDS: return "POLICY_CARD_ANCIENT_BUILDINGS_DRUIDS_PASSIVE";
+	case CARD_ANCIENT_BUILDINGS_HARBORMASTER: return "POLICY_CARD_ANCIENT_BUILDINGS_HARBORMASTER_PASSIVE";
+
 	default: return "";
 	};
 	return "";
@@ -153,7 +155,7 @@ bool TradingCard::IsConditionSatisfied(TradingCardTypes type, const CvPlayer* pP
 			return false;
 		}
 	}
-	case CARD_ANCIENT_POLITICAL_TRADITION:
+	case CARD_ANCIENT_POLITICAL_ORTHODOXY:
 	{
 		int numTraditionPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(0));
 		if (numTraditionPolicies < 3)		
@@ -161,7 +163,7 @@ bool TradingCard::IsConditionSatisfied(TradingCardTypes type, const CvPlayer* pP
 			return false;
 		}
 	}
-	case CARD_ANCIENT_POLITICAL_LIBERTY:
+	case CARD_ANCIENT_POLITICAL_PROGRESSIVE:
 	{
 		int numLibertyPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(1));
 		if (numLibertyPolicies < 3)
@@ -169,10 +171,9 @@ bool TradingCard::IsConditionSatisfied(TradingCardTypes type, const CvPlayer* pP
 			return false;
 		}
 	}
-	case CARD_ANCIENT_POLITICAL_HONOR:
+	case CARD_ANCIENT_POLITICAL_AGGRESIVE:
 	{
 		int numHonorPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(2));
-		if (numHonorPolicies < 3)
 		if (numHonorPolicies < 3)
 		{
 			return false;
@@ -181,7 +182,9 @@ bool TradingCard::IsConditionSatisfied(TradingCardTypes type, const CvPlayer* pP
 	case CARD_ANCIENT_POLITICAL_EXCLUSIVE:
 	{
 		int numLibertyPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(1));
-		if (numLibertyPolicies > 0)
+		int numPolicies = player.GetNumPolicies();
+		const bool satisfied = ((numLibertyPolicies == 0) && (numPolicies >= 5));
+		if (!satisfied)
 		{
 			return false;
 		}
@@ -189,7 +192,9 @@ bool TradingCard::IsConditionSatisfied(TradingCardTypes type, const CvPlayer* pP
 	case CARD_ANCIENT_POLITICAL_PROTECTIVE:
 	{
 		int numHonorPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(2));
-		if (numHonorPolicies > 0)
+		int numPolicies = player.GetNumPolicies();
+		const bool satisfied = ((numHonorPolicies == 0) && (numPolicies >= 5));
+		if (!satisfied)
 		{
 			return false;
 		}

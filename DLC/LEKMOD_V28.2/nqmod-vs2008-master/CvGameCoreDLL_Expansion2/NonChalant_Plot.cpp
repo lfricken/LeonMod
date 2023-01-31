@@ -591,21 +591,21 @@ int CvPlot::getExtraYield
 					yieldChange += 4;
 			}
 
-			{// CARD_ANCIENT_POLITICAL_TRADITION - +3 FD to City Center
-				const bool hasTraditionCard = player.HasPolicy("POLICY_CARD_ANCIENT_POLITICAL_TRADITION_PASSIVE");				
-				if (eYieldType == YIELD_FOOD && hasTraditionCard && isCityCenter)
+			{// CARD_ANCIENT_POLITICAL_ORTHODOXY - +3 FD to City Center
+				const bool hasOrthodoxyCard = player.HasPolicy("POLICY_CARD_ANCIENT_POLITICAL_ORTHODOXY_PASSIVE");				
+				if (eYieldType == YIELD_FOOD && hasOrthodoxyCard && isCityCenter)
 					yieldChange += 3;				
 			}
 
-			{// CARD_ANCIENT_POLITICAL_LIBERTY - +2 PD to City Center
-				const bool hasLibertyCard = player.HasPolicy("POLICY_CARD_ANCIENT_POLITICAL_LIBERTY_PASSIVE");
-				if (eYieldType == YIELD_PRODUCTION && hasLibertyCard && isCityCenter)
+			{// POLICY_CARD_ANCIENT_POLITICAL_PROGRESSIVE_PASSIVE - +2 PD to City Center
+				const bool hasProgressiveCard = player.HasPolicy("POLICY_CARD_ANCIENT_POLITICAL_PROGRESSIVE_PASSIVE");
+				if (eYieldType == YIELD_PRODUCTION && hasProgressiveCard && isCityCenter)
 					yieldChange += 2;
 			}
 
-			{// CARD_ANCIENT_POLITICAL_HONOR - +2 C to City Center
-				const bool hasHonorCard = player.HasPolicy("POLICY_CARD_ANCIENT_POLITICAL_HONOR_PASSIVE");
-				if (eYieldType == YIELD_CULTURE && hasHonorCard && isCityCenter)
+			{// CARD_ANCIENT_POLITICAL_AGGRESIVE - +2 C to City Center
+				const bool hasAgressiveCard = player.HasPolicy("POLICY_CARD_ANCIENT_POLITICAL_AGGRESIVE_PASSIVE");
+				if (eYieldType == YIELD_CULTURE && hasAgressiveCard && isCityCenter)
 					yieldChange += 2;
 			}
 

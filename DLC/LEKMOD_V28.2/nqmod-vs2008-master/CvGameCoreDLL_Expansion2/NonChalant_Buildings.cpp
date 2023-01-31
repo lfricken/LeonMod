@@ -306,6 +306,22 @@ int CvPlayer::GetExtraYieldForBuilding
 			yieldChange += 1;
 	}
 
+	{// POLICY_CARD_ANCIENT_BUILDINGS_DRUIDS_PASSIVE grants +1C +1PD to Walls, Castles, Arsenals, and Military Bases to Prussia
+		const bool hasDruidsCard = player.HasPolicy("POLICY_CARD_ANCIENT_BUILDINGS_DRUIDS_PASSIVE");
+		const bool isShrine = eBuildingClass == BuildingClass("BUILDINGCLASS_SHRINE");		
+		if (eYieldType == YIELD_FAITH && !isPercentMod && hasDruidsCard && isShrine)
+			yieldChange += 2;
+		if (eYieldType == YIELD_MAINTENANCE && !isPercentMod && hasDruidsCard && isShrine)
+			yieldChange -= 1;		
+	}
+
+	{// POLICY_CARD_ANCIENT_BUILDINGS_HARBORMASTER_PASSIVE grants -2 Maintenance to Harbors
+		const bool hasHarbormasterCard = player.HasPolicy("POLICY_CARD_ANCIENT_BUILDINGS_HARBORMASTER_PASSIVE");
+		const bool isHarbor = eBuildingClass == BuildingClass("BUILDINGCLASS_HARBOR");		
+		if (eYieldType == YIELD_MAINTENANCE && !isPercentMod && hasHarbormasterCard && isHarbor)
+			yieldChange -= 2;
+	}
+
 
 	return yieldChange;
 }
