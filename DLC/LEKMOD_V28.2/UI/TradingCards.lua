@@ -8,7 +8,7 @@ include( "TradeRouteHelpers" );
 local g_PopupInfo = nil; -- info we were launched with
 local g_isDebugMode = true; -- allows card manipulation
 
-g_CurrentTab = nil;		-- The currently selected Tab.
+g_CurrentTab = Game.GetActivePlayer();		-- The currently selected Tab.
 g_Tabs = {};
 
 function OnPopupMessage(popupInfo)
@@ -22,7 +22,6 @@ function OnPopupMessage(popupInfo)
 	
 	-- Data 2 parameter holds desired tab to open on
 	g_CurrentTab = Game.GetActivePlayer();
-	--g_CurrentTab = 0;
 	--[[
 	if (g_PopupInfo.Data2 == 1) then
 		g_CurrentTab = g_Tab1;
@@ -208,4 +207,4 @@ end
 -- Register Events
 Events.SerialEventGreatWorksScreenDirty.Add(OnDirtyBit);
 
-TabSelect(0); -- default to tab 0
+TabSelect(g_CurrentTab); -- default to this player
