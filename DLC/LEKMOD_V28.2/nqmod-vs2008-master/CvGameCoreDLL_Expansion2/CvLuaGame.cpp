@@ -1878,6 +1878,7 @@ int CvLuaGame::lGetNumResourceRequiredForBuilding(lua_State* L)
 {
 	const BuildingTypes eBuilding = (BuildingTypes) luaL_checkint(L, 1);
 	const ResourceTypes eResource = (ResourceTypes) luaL_checkint(L, 2);
+	const bool isLump = lua_toboolean(L, 3);
 
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 	CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
@@ -1885,7 +1886,14 @@ int CvLuaGame::lGetNumResourceRequiredForBuilding(lua_State* L)
 	int iNumNeeded = 0;
 	if(pkBuildingInfo && pkResourceInfo)
 	{
-		iNumNeeded = pkBuildingInfo->GetResourceQuantityRequirement(eResource);
+		if (isLump)
+		{
+			iNumNeeded = pkBuildingInfo->GetResourceCostLump(eResource);
+		}
+		else
+		{
+			iNumNeeded = pkBuildingInfo->GetResourceQuantityRequirement(eResource);
+		}
 	}
 
 	lua_pushinteger(L, iNumNeeded);

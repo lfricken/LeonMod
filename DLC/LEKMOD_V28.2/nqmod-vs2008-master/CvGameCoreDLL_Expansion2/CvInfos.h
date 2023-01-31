@@ -1195,6 +1195,7 @@ public:
 	bool isFaith() const;
 	bool isUnit() const;
 	bool isMap() const;
+	int isCard() const;
 
 	int getBarbarianUnitProb() const;
 	int getMinBarbarians() const;
@@ -1219,6 +1220,7 @@ protected:
 	bool m_bFaith;
 	bool m_bUnit;
 	bool m_bMap;
+	int m_iCard;
 
 	int m_iBarbarianUnitProb;
 	int m_iMinBarbarians;

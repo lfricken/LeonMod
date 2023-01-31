@@ -4742,19 +4742,19 @@ void CvPlayer::DoTurnResources()
 		const CvResourceInfo* resourceInfo = GC.getResourceInfo(e);
 		if (resourceInfo != NULL)
 		{
-			const int multipliedGross = resourceVariation * getNumResourceGross(e);
+			const int grossGain = resourceVariation * getNumResourceGross(e);
 			const int roll = GC.rand(max(0, resourceVariation - 1), "rand resource gen", NULL, (i * 23509) + randSeed);
 			if (roll == 0)
 			{
 				const bool consideredCumulative = resourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC;
-				const bool gainedAny = multipliedGross != 0;
+				const bool gainedAny = grossGain != 0;
 				// strategic, gained any, was chance we wouldn't gain?
 				// notify?
 				if (consideredCumulative && gainedAny && hasAnyVariation)
 				{
-					notifyResourceGain(this, multipliedGross, resourceInfo);
+					notifyResourceGain(this, grossGain, resourceInfo);
 				}
-				changeResourceCumulative(e, +multipliedGross);
+				changeResourceCumulative(e, +grossGain);
 			}
 		}
 
@@ -7310,7 +7310,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit*)
 	kGoodyInfo.CacheResult(kResult);
 	CvGoodyHuts::DoPlayerReceivedGoody(GetID(), eGoody);
 
-
+	stringstream ss;
 	int iRewardValue = 0; // amount of reward
 	int iNumYieldBonuses = 0; // count plot yield display lines
 
@@ -7412,10 +7412,26 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit*)
 	//////////
 	// Map
 	//////////
-	if(kGoodyInfo.isMap())
+	if (kGoodyInfo.isMap())
 	{
 		const int iRange = hutMapRadius(pPlot);
 		reveal(getTeam(), pPlot, iRange, hutMapHexProbabilityT100());
+	}
+	//////////
+	// Card
+	//////////
+	if (kGoodyInfo.isCard() > 0)
+	{
+		int numCards = kGoodyInfo.isCard();
+		for (int i = 0; i < numCards; ++i)
+		{
+			TradingCardTypes goodyHutCard = CardsGetRandomValid();
+			CardsAdd(goodyHutCard);
+
+			ss << TradingCard::GetName(goodyHutCard, this);
+			ss << ":  ";
+			ss << TradingCard::GetDesc(goodyHutCard, this);
+		}
 	}
 	//////////
 	// Units
@@ -7436,7 +7452,12 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit*)
 		pNewUnit->finishMoves();
 	}
 
-	CvString strBuffer = GetLocalizedText(kGoodyInfo.GetDescriptionKey(), iRewardValue);
+	if (iRewardValue != 0)
+	{
+		ss << iRewardValue;
+	}
+
+	CvString strBuffer = GetLocalizedText(kGoodyInfo.GetDescriptionKey(), ss.str().c_str());
 	// messages
 	if(!strBuffer.empty())
 	{
@@ -8324,20 +8345,46 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestV
 			CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
 			if(pkResource)
 			{
-				int iNumResource = pBuildingInfo.GetResourceQuantityRequirement(eResource);
-				if(iNumResource > 0)
-				{
-					if(bContinue)
-						iNumResource = 0;
-					const bool hasEnoughResourcesToConstruct = !wasShortage(eResource);
+				const ResourceTypes e = eResource;
+				const int needToConstruct = pBuildingInfo.GetResourceCostLump(e);
 
-					if (!hasEnoughResourcesToConstruct)
+				if (needToConstruct > 0)
+				{
+					bool canKeepBuilding = true;
+					if (bContinue) // need to keep building
 					{
-						GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_BUILDING_LACKS_RESOURCES", pkResource->GetIconString(), pkResource->GetTextKey(), iNumResource);
-						if(toolTipSink == NULL)
+						canKeepBuilding = !wasShortage(e); // if we go negative, stop production
+					}
+					else // need to start building
+					{
+						const int haveForConstruct = getResourceCumulative(e);
+						if (needToConstruct > haveForConstruct)
+						{
+							canKeepBuilding = false;
+						}
+					}
+					if (!canKeepBuilding)
+					{
+						GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_BUILDING_LACKS_RESOURCES", pkResource->GetIconString(), pkResource->GetTextKey(), needToConstruct);
+						if (toolTipSink == NULL)
 							return false;
 					}
 				}
+
+				// no longer check resources per turn
+				//if(iNumResource > 0)
+				//{
+				//	if(bContinue)
+				//		iNumResource = 0;
+				//	const bool hasEnoughResourcesToConstruct = !wasShortage(eResource);
+
+				//	if (!hasEnoughResourcesToConstruct)
+				//	{
+				//		GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_BUILDING_LACKS_RESOURCES", pkResource->GetIconString(), pkResource->GetTextKey(), iNumResource);
+				//		if(toolTipSink == NULL)
+				//			return false;
+				//	}
+				//}
 			}
 		}
 
@@ -21265,10 +21312,14 @@ void CvPlayer::changeBuildingClassMaking(BuildingClassTypes eIndex, int iChange)
 				CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 				if(pkResourceInfo)
 				{
-					if(pkBuildingInfo->GetResourceQuantityRequirement(iResourceLoop) > 0)
-					{
-						changeNumResourceUsed(eResource, iChange * pkBuildingInfo->GetResourceQuantityRequirement(iResourceLoop));
-					}
+					const int startOrStopConstruction = iChange * -pkBuildingInfo->GetResourceCostLump(eResource);
+					changeResourceCumulative(eResource, startOrStopConstruction);
+
+					// do not consume per turn resources while constructing!
+					//if(pkBuildingInfo->GetResourceQuantityRequirement(iResourceLoop) > 0)
+					//{
+					//	changeNumResourceUsed(eResource, iChange * pkBuildingInfo->GetResourceQuantityRequirement(iResourceLoop));
+					//}
 				}
 
 			}
@@ -28360,3 +28411,7 @@ void CvPlayer::CardsOnChanged()
 	DLLUI->setDirty(CardsDirtyBit, true);
 }
 
+TradingCardTypes CvPlayer::CardsGetRandomValid() const
+{
+	return (TradingCardTypes)0;
+}

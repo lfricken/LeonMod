@@ -2608,16 +2608,18 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 				// Cards
 				else if (it->m_eItemType == TRADE_ITEM_CARD)
 				{
-					GET_PLAYER(eAcceptedToPlayer).CardsAdd((TradingCardTypes)it->m_iData2);
-					GET_PLAYER(eAcceptedFromPlayer).CardsDestroy(it->m_iData1);
+					int tradedCardIdx = it->m_iData1;
+					TradingCardTypes tradedCardType = (TradingCardTypes)it->m_iData2;
+					GET_PLAYER(eAcceptedToPlayer).CardsAdd(tradedCardType);
+					GET_PLAYER(eAcceptedFromPlayer).CardsDestroy(tradedCardIdx);
 				}
 				// Lump resources
 				else if (it->m_eItemType == TRADE_ITEM_LUMP)
 				{
 					const ResourceTypes type = (ResourceTypes)it->m_iData1;
-					const int amount = it->m_iData2;
-					GET_PLAYER(eAcceptedToPlayer).changeResourceCumulative(type, +amount);
-					GET_PLAYER(eAcceptedFromPlayer).changeResourceCumulative(type, -amount);
+					const int tradeAmount = it->m_iData2;
+					GET_PLAYER(eAcceptedToPlayer).changeResourceCumulative(type, +tradeAmount);
+					GET_PLAYER(eAcceptedFromPlayer).changeResourceCumulative(type, -tradeAmount);
 				}
 				// City
 				else if(it->m_eItemType == TRADE_ITEM_CITIES)

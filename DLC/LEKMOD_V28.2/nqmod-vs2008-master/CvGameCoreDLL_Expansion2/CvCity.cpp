@@ -15279,6 +15279,7 @@ bool CvCity::doCheckProduction()
 
 						if(iProductionGold > 0)
 						{
+							// REFUND for wonder cost in gold
 							thisPlayer.GetTreasury()->ChangeGold(iProductionGold);
 
 							if(getOwner() == GC.getGame().getActivePlayer())

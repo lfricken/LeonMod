@@ -3995,6 +3995,7 @@ CvGoodyInfo::CvGoodyInfo() : CvBaseInfo()
 	, m_bFaith(0)
 	, m_bUnit(0)
 	, m_bMap(0)
+	, m_iCard(0)
 
 	, m_iBarbarianUnitProb(0)
 	, m_iMinBarbarians(0)
@@ -4010,7 +4011,8 @@ bool CvGoodyInfo::isCulture() const { return m_bCulture; }
 bool CvGoodyInfo::isProduction() const { return m_bProduction; }
 bool CvGoodyInfo::isFaith() const { return m_bFaith; }
 bool CvGoodyInfo::isUnit() const{ return m_bUnit;}
-bool CvGoodyInfo::isMap() const{	return m_bMap;}
+bool CvGoodyInfo::isMap() const { return m_bMap; }
+int CvGoodyInfo::isCard() const { return m_iCard; }
 
 int CvGoodyInfo::getBarbarianUnitProb() const{	return m_iBarbarianUnitProb;}
 int CvGoodyInfo::getMinBarbarians() const{	return m_iMinBarbarians;}
@@ -4045,6 +4047,7 @@ bool CvGoodyInfo::CacheResults(Database::Results& results, CvDatabaseUtility& kU
 	m_bFaith = results.GetBool("GivesFaith");
 	m_bUnit = results.GetBool("GivesUnit");
 	m_bMap = results.GetInt("GivesMap");
+	m_iCard = results.GetInt("GivesCard");
 
 	// what does this do?
 	m_iBarbarianUnitProb = results.GetInt("BarbarianUnitProb");

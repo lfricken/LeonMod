@@ -287,6 +287,7 @@ public:
 	int GetDomainProductionModifier(int i) const;
 	int GetLockedBuildingClasses(int i) const;
 	int GetPrereqAndTechs(int i) const;
+	int GetResourceCostLump(ResourceTypes e) const;
 	int GetResourceQuantityRequirement(int i) const;
 	int GetResourceQuantity(int i) const;
 	int GetResourceCultureChange(int i) const;
@@ -500,6 +501,7 @@ private:
 
 	int* m_piLockedBuildingClasses;
 	int* m_piPrereqAndTechs;
+	int* m_piResourceCostLump;
 	int* m_piResourceQuantityRequirements;
 	int* m_piResourceQuantity;
 	int* m_piResourceCultureChanges;

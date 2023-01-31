@@ -341,6 +341,7 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 	local iNumResourceNeeded;
 	local iResourceID;
 	local localizedText = "";
+	iNumResourcesNeededSoFar = 0;
 	for pResource in GameInfo.Resources() do
 		iResourceID = pResource.ID;
 		iNumResourceNeeded = Game.GetNumResourceRequiredForBuilding(iBuildingID, iResourceID);
@@ -354,9 +355,29 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 			end
 			
 			-- JON: Not using this for now, the formatting is better when everything is on the same line
-			--iNumResourcesNeededSoFar = iNumResourcesNeededSoFar + 1;
+			iNumResourcesNeededSoFar = iNumResourcesNeededSoFar + 1;
 		end
  	end
+
+	-- Lump Resource Requirements
+	iNumResourcesNeededSoFar = 0;
+	for pResource in GameInfo.Resources() do
+		iResourceID = pResource.ID;
+		iNumResourceNeeded = Game.GetNumResourceRequiredForBuilding(iBuildingID, iResourceID, true);
+		if (iNumResourceNeeded > 0) then
+			-- First resource required
+			if (iNumResourcesNeededSoFar == 0) then
+				localizedText = localizedText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_PRODUCTION_RESOURCES_REQUIRED_LUMP");
+				localizedText = localizedText .. " " .. iNumResourceNeeded .. " " .. pResource.IconString .. " " .. Locale.ConvertTextKey(pResource.Description);
+			else
+				localizedText = localizedText .. ", " .. iNumResourceNeeded .. " " .. pResource.IconString .. " " .. Locale.ConvertTextKey(pResource.Description);
+			end
+			
+			-- JON: Not using this for now, the formatting is better when everything is on the same line
+			iNumResourcesNeededSoFar = iNumResourcesNeededSoFar + 1;
+		end
+ 	end
+
 	if (localizedText ~= "") then
 		table.insert(lines, localizedText);
 	end

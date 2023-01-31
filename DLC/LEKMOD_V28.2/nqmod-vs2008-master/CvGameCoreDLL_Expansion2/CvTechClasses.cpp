@@ -2115,7 +2115,7 @@ void CvTeamTechs::SetResearchProgressTimes100(TechTypes eIndex, int iNewValue, P
 	{
 		const int oldValue = m_paiResearchProgress[eIndex];
 		stringstream s;
-		s << "CvTeamTechs:SetResearchProgressTimes100 " << " " << ePlayer << " " << iNewValue << " " << eIndex;
+		s << "CvTeamTechs:SetResearchProgressTimes100 " << " " << ePlayer << " " << oldValue << " " << iNewValue << " " << eIndex;
 		GC.debugState(s); // CvTeamTechs::SetResearchProgressTimes100
 
 		m_paiResearchProgress[eIndex] = iNewValue;

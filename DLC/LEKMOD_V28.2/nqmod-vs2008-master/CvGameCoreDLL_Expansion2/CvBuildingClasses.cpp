@@ -169,6 +169,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_bNullifyInfluenceModifier(false),
 	m_piLockedBuildingClasses(NULL),
 	m_piPrereqAndTechs(NULL),
+	m_piResourceCostLump(NULL),
 	m_piResourceQuantityRequirements(NULL),
 	m_piResourceQuantity(NULL),
 	m_piResourceCultureChanges(NULL),
@@ -239,6 +240,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 CvBuildingEntry::~CvBuildingEntry(void)
 {
 	SAFE_DELETE_ARRAY(m_piLockedBuildingClasses);
+	SAFE_DELETE_ARRAY(m_piResourceCostLump);
 	SAFE_DELETE_ARRAY(m_piPrereqAndTechs);
 	SAFE_DELETE_ARRAY(m_piResourceQuantityRequirements);
 	SAFE_DELETE_ARRAY(m_piResourceQuantity);
@@ -528,6 +530,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piGlobalYieldModifier, "Building_GlobalYieldModifiers", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piTechEnhancedYieldChange, "Building_TechEnhancedYieldChanges", "BuildingType", szBuildingType);
 
+	kUtility.PopulateArrayByValue(m_piResourceCostLump, "Resources", "Building_ResourceQuantityRequirements", "ResourceType", "BuildingType", szBuildingType, "CostLump");
 	kUtility.PopulateArrayByValue(m_piResourceQuantityRequirements, "Resources", "Building_ResourceQuantityRequirements", "ResourceType", "BuildingType", szBuildingType, "Cost");
 	kUtility.PopulateArrayByValue(m_piResourceQuantity, "Resources", "Building_ResourceQuantity", "ResourceType", "BuildingType", szBuildingType, "Quantity");
 	kUtility.PopulateArrayByValue(m_piResourceCultureChanges, "Resources", "Building_ResourceCultureChanges", "ResourceType", "BuildingType", szBuildingType, "CultureChange");
@@ -2068,6 +2071,12 @@ int CvBuildingEntry::GetPrereqAndTechs(int i) const
 	return m_piPrereqAndTechs ? m_piPrereqAndTechs[i] : -1;
 }
 
+int CvBuildingEntry::GetResourceCostLump(ResourceTypes e) const
+{
+	CvAssertMsg((int)e < GC.getNumResourceInfos(), "Index out of bounds");
+	CvAssertMsg((int)e > -1, "Index out of bounds");
+	return m_piResourceCostLump ? m_piResourceCostLump[(int)e] : -1;
+}
 /// Resources consumed to construct
 int CvBuildingEntry::GetResourceQuantityRequirement(int i) const
 {
@@ -3197,9 +3206,12 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 		int iNumResources = GC.getNumResourceInfos();
 		for(int iResourceLoop = 0; iResourceLoop < iNumResources; iResourceLoop++)
 		{
-			if(buildingEntry->GetResourceQuantityRequirement(iResourceLoop) > 0)
+			const ResourceTypes e = (ResourceTypes)iResourceLoop;
+			const int constructCost = iChangeNumRealBuilding * buildingEntry->GetResourceCostLump(e);
+			pPlayer->changeResourceCumulative(e, -constructCost);
+			if(buildingEntry->GetResourceQuantityRequirement(e) > 0)
 			{
-				pPlayer->changeNumResourceUsed((ResourceTypes) iResourceLoop, iChangeNumRealBuilding * buildingEntry->GetResourceQuantityRequirement(iResourceLoop));
+				pPlayer->changeNumResourceUsed(e, iChangeNumRealBuilding * buildingEntry->GetResourceQuantityRequirement(iResourceLoop));
 			}
 		}
 
