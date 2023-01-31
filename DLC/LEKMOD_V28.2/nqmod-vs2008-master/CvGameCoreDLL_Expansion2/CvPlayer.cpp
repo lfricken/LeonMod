@@ -8188,17 +8188,8 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestV
 		}
 	}
 
-	PolicyBranchTypes eBranch = (PolicyBranchTypes)pBuildingInfo.GetPolicyBranchType();
-	if (eBranch != NO_POLICY_BRANCH_TYPE)
-	{
-		if (!GetPlayerPolicies()->IsPolicyBranchUnlocked(eBranch))
-		{
-			return false;
-		}
-	}
-
-	// disable building based on policy
-	eBranch = (PolicyBranchTypes)pBuildingInfo.GetPolicyBranchTypeDisable();
+	// disable building based on policy branch
+	PolicyBranchTypes eBranch = (PolicyBranchTypes)pBuildingInfo.GetPolicyBranchTypeDisable();
 	if (eBranch != NO_POLICY_BRANCH_TYPE)
 	{
 		if (GetPlayerPolicies()->IsPolicyBranchUnlocked(eBranch))
@@ -8303,6 +8294,32 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestV
 #else
 		int numBuildingClassInfos = GC.getNumBuildingClassInfos();
 #endif
+
+		// building requires policy branch
+		PolicyBranchTypes eBranch = (PolicyBranchTypes)pBuildingInfo.GetPolicyBranchType();
+		if (eBranch != NO_POLICY_BRANCH_TYPE)
+		{
+			if (!GetPlayerPolicies()->IsPolicyBranchUnlocked(eBranch))
+			{
+				string name = GC.getPolicyBranchInfo(eBranch)->GetDescription();
+				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "This requires the {1_policyName} policy branch.", name.c_str());
+				if (toolTipSink == NULL)
+					return false;
+			}
+		}
+
+		// building requires policy
+		PolicyTypes ePolicy = (PolicyTypes)pBuildingInfo.GetPolicyType();
+		if (ePolicy != NO_POLICY)
+		{
+			if (!GetPlayerPolicies()->HasPolicy(ePolicy))
+			{
+				string name = GC.getPolicyInfo(ePolicy)->GetDescription();
+				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "This requires the {1_policyName} policy.", name.c_str());
+				if (toolTipSink == NULL)
+					return false;
+			}
+		}
 
 		for(iI = 0; iI < numBuildingClassInfos; iI++)
 		{
