@@ -1,5 +1,7 @@
 
-
+INTERCEPTION_DAMAGE_MULTIPLIER
+created new world:
+[210613.921] DBG: m_aiVisibilityCount[eTeam]>=0 CvPlot.cpp8851 Changing plot X:35, Y:35 to a negative visibility
 
 trading
 	verify building limit

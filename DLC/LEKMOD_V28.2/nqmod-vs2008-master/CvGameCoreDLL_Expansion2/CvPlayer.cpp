@@ -7296,12 +7296,12 @@ T100 hutMapHexProbabilityT100()
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit*)
+void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 {
 	//////////
 	// Load from database
 	//////////
-	CvAssertMsg(canReceiveGoody(pPlot, eGoody), "Instance is expected to be able to recieve goody");
+	CvAssertMsg(canReceiveGoody(pPlot, eGoody, pUnit), "Instance is expected to be able to recieve goody");
 	Database::SingleResult kResult;
 	CvGoodyInfo kGoodyInfo;
 	const bool bResult = DB.SelectAt(kResult, "GoodyHuts", eGoody);
@@ -10366,10 +10366,10 @@ int CvPlayer::getSpecialistYieldExtra(const CvCity* pCity, const SpecialistTypes
 
 int CvPlayer::getSpecialistYieldExtraFromPolicies(const SpecialistTypes eSpecialist, const YieldTypes eYield) const
 {
-	CvAssertMsg(eIndex1 >= 0, "eIndex1 expected to be >= 0");
-	CvAssertMsg(eIndex1 < GC.getNumSpecialistInfos(), "eIndex1 expected to be < GC.getNumSpecialistInfos()");
-	CvAssertMsg(eIndex2 >= 0, "eIndex2 expected to be >= 0");
-	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 expected to be < NUM_YIELD_TYPES");
+	CvAssertMsg(eSpecialist >= 0, "eIndex1 expected to be >= 0");
+	CvAssertMsg(eSpecialist < GC.getNumSpecialistInfos(), "eIndex1 expected to be < GC.getNumSpecialistInfos()");
+	CvAssertMsg(eYield >= 0, "eIndex2 expected to be >= 0");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eIndex2 expected to be < NUM_YIELD_TYPES");
 	int yield = 0;
 
 	yield += m_ppaaiSpecialistExtraYield[eSpecialist][eYield];
@@ -10388,7 +10388,6 @@ void CvPlayer::changeSpecialistYieldExtraFromPolicies(const SpecialistTypes eSpe
 		Firaxis::Array<int, NUM_YIELD_TYPES> yields = m_ppaaiSpecialistExtraYield[eSpecialist];
 		yields[eYield] = (m_ppaaiSpecialistExtraYield[eSpecialist][eYield] + iChange);
 		m_ppaaiSpecialistExtraYield.setAt(eSpecialist, yields);
-		CvAssert(getSpecialistExtraYield(eSpecialist, eYield) >= 0);
 
 		updateSpecialistYieldsAll();
 	}

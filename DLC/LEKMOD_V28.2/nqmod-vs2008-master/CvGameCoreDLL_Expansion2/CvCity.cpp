@@ -10728,8 +10728,8 @@ void CvCity::changeSeaPlotYield(YieldTypes eIndex, int iChange)
 int CvCity::getHillYieldChangesFromBuildings(YieldTypes eYield) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	CvAssertMsg(eYield >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_ppaiTerrainYieldChange[TERRAIN_HILL][eYield];
 }
 #endif

@@ -1273,10 +1273,7 @@ void CvDeal::AddCardTrade(PlayerTypes eFrom, int cardIdx)
 }
 void CvDeal::AddLumpTrade(PlayerTypes eFrom, ResourceTypes eResource, int amount)
 {
-	CvAssertMsg(iAmount >= 0, "DEAL: Trying to add a negative amount of a Resource to a deal.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(iDuration >= 0, "DEAL: Trying to add a negative duration to a TradeItem.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(iDuration < GC.getGame().getEstimateEndTurn() * 2, "DEAL: Trade item has a crazy long duration (probably invalid).  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Adding deal item for a player that's not actually in this deal!  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(amount >= 0, "DEAL: Trying to add a negative amount of a Resource to a deal.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
 	if (IsPossibleToTradeItem(eFrom, GetOtherPlayer(eFrom), TRADE_ITEM_LUMP, eResource, amount))
 	{
