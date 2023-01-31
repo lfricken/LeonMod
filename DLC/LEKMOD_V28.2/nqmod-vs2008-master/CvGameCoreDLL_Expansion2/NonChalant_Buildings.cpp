@@ -322,6 +322,13 @@ int CvPlayer::GetExtraYieldForBuilding
 			yieldChange -= 2;
 	}
 
+	{// POLICY_CARD_CLASSICAL_BUILDINGS_GLADITORIAL_GAMES_PASSIVE grants +2 Maintenance to Colloseums
+		const bool hasGladitorialGamesCard = player.HasPolicy("POLICY_CARD_CLASSICAL_BUILDINGS_GLADITORIAL_GAMES_PASSIVE");
+		const bool isColloseum = eBuildingClass == BuildingClass("BUILDINGCLASS_COLOSSEUM");
+		if (eYieldType == YIELD_MAINTENANCE && !isPercentMod && hasGladitorialGamesCard && isColloseum)
+			yieldChange += 2;
+	}
+
 
 	return yieldChange;
 }
@@ -437,6 +444,19 @@ BuildingAddType CvPlayer::ShouldHaveBuilding(const CvPlayer& rPlayer, const CvCi
 		{
 			const bool hasProtectiveCard = rPlayer.HasPolicy("POLICY_CARD_ANCIENT_POLITICAL_PROTECTIVE_PASSIVE");			
 			if (hasProtectiveCard)
+				return ADD;
+			else
+				return REMOVE;
+		}
+	}
+
+	{// BUILDING_CARD_CLASSICAL_BUILDINGS_BEACONS_OF_HOPE goes in cities with Lighthouse and POLICY_CARD_ANCIENT_BUILDINGS_FORCED_LEVY_PASSIVE
+		const bool isBeaconsOfHopeBuilding = eBuildingClass == BuildingClass("BUILDINGCLASS_CARD_CLASSICAL_BUILDINGS_BEACONS_OF_HOPE");
+		if (isBeaconsOfHopeBuilding)
+		{
+			const bool hasBeaconsOfHopeCard = rPlayer.HasPolicy("POLICY_CARD_CLASSICAL_BUILDINGS_BEACONS_OF_HOPE_PASSIVE");			
+			const bool hasLighthouse = rCity.HasBuildingClass(BuildingClassTypes(13));
+			if (hasBeaconsOfHopeCard && hasLighthouse)
 				return ADD;
 			else
 				return REMOVE;
