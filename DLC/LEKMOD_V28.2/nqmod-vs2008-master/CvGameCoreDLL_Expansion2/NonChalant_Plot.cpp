@@ -479,7 +479,8 @@ int CvPlot::getExtraYield
 				const bool isAztec = player.IsCiv("CIVILIZATION_AZTEC");
 				const bool hasCalendar = player.HasTech("TECH_CALENDAR");
 				const bool isJungleLuxury = (plot.HasResource("RESOURCE_DYE") || plot.HasResource("RESOURCE_GEMS") || plot.HasResource("RESOURCE_SPICES") 
-					|| plot.HasResource("RESOURCE_TRUFFLES") || plot.HasResource("RESOURCE_COCOA") || plot.HasResource("RESOURCE_COCONUT"));
+					|| plot.HasResource("RESOURCE_COCOA") || plot.HasResource("RESOURCE_COCONUT") || plot.HasResource("RESOURCE_SUGAR") 
+					|| plot.HasResource("RESOURCE_CITRUS") || plot.HasResource("RESOURCE_SILK"));
 				if (eYieldType == YIELD_PRODUCTION && isAztec && hasCalendar && hasBanana)
 					yieldChange += 1;
 				if (eYieldType == YIELD_CULTURE && isAztec && hasCalendar && isJungleLuxury)
@@ -613,6 +614,13 @@ int CvPlot::getExtraYield
 				const bool hasExclusiveCard = player.HasPolicy("POLICY_CARD_ANCIENT_POLITICAL_EXCLUSIVE_PASSIVE");
 				if (eYieldType == YIELD_FOOD && hasExclusiveCard && isCityCenter && isCapital)
 					yieldChange += 5;
+			}
+
+			{// CARD_CLASSICAL_RESOURCE_LIMESTONE - +3 PD to Stone
+				const bool hasLimtestoneCard = player.HasPolicy("POLICY_CARD_CLASSICAL_RESOURCE_LIMESTONE_PASSIVE");
+				const bool isStone = plot.HasResource("RESOURCE_STONE");
+				if (eYieldType == YIELD_PRODUCTION && hasLimtestoneCard && isStone)
+					yieldChange += 3;
 			}
 
 		}

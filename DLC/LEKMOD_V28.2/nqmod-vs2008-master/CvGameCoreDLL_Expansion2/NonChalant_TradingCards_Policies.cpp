@@ -29,6 +29,13 @@ int DesertTiles(const CvPlot& p)
 	else
 		return 0;
 }
+int StonePlots(const CvPlot& p)
+{
+	if (p.HasResource("RESOURCE_STONE"))
+		return 1;
+	else
+		return 0;
+}
 string TradingCard::GetActivePolicy(TradingCardTypes type)
 {
 	switch (type)
@@ -73,6 +80,12 @@ string TradingCard::GetPassivePolicy(TradingCardTypes type)
 	case CARD_ANCIENT_POLITICAL_PROTECTIVE: return "POLICY_CARD_ANCIENT_POLITICAL_PROTECTIVE_PASSIVE";
 	case CARD_ANCIENT_BUILDINGS_DRUIDS: return "POLICY_CARD_ANCIENT_BUILDINGS_DRUIDS_PASSIVE";
 	case CARD_ANCIENT_BUILDINGS_HARBORMASTER: return "POLICY_CARD_ANCIENT_BUILDINGS_HARBORMASTER_PASSIVE";
+	case CARD_CLASSICAL_RESOURCE_LIMESTONE: return "POLICY_CARD_CLASSICAL_RESOURCE_LIMESTONE_PASSIVE";
+	case CARD_CLASSICAL_UNITS_INDUSTRIOUS: return "POLICY_CARD_CLASSICAL_UNITS_INDUSTRIOUS_PASSIVE";
+	case CARD_CLASSICAL_UNITS_FORCED_MARCH: return "POLICY_CARD_CLASSICAL_UNITS_FORCED_MARCH_PASSIVE";
+	case CARD_CLASSICAL_UNITS_SIEGE_ENGINEERS: return "POLICY_CARD_CLASSICAL_UNITS_SIEGE_ENGINEERS_PASSIVE";
+	case CARD_CLASSICAL_UNITS_SUPPLIES: return "POLICY_CARD_CLASSICAL_UNITS_SUPPLIES_PASSIVE";
+	case CARD_CLASSICAL_UNITS_FLETCHING: return "POLICY_CARD_CLASSICAL_UNITS_FLETCHING_PASSIVE";
 
 	default: return "";
 	};
@@ -113,21 +126,21 @@ bool TradingCard::IsConditionSatisfied(TradingCardTypes type, const CvPlayer* pP
 	}
 	case CARD_ANCIENT_UNITS_FAVORABLE_WINDS:
 	{
-		if (playerEra > classicalEra)
+		if (playerEra >= medievalEra)
 		{
 			return false;
 		}
 	}
 	case CARD_ANCIENT_UNITS_SACRIFICIAL_CAPTIVES:
 	{
-		if (playerEra > classicalEra)
+		if (playerEra >= medievalEra)
 		{
 			return false;
 		}
 	}
 	case CARD_ANCIENT_UNITS_VALOUR:
 	{
-		if (playerEra > classicalEra)
+		if (playerEra >= medievalEra)
 		{
 			return false;
 		}
@@ -199,6 +212,36 @@ bool TradingCard::IsConditionSatisfied(TradingCardTypes type, const CvPlayer* pP
 			return false;
 		}
 	}
+	case CARD_CLASSICAL_RESOURCE_LIMESTONE:
+	{
+		int numStonePlotsOwned = player.CountOwnedPlots(StonePlots);
+		if (numStonePlotsOwned < 3)
+		{
+			return false;
+		}
+	}
+	case CARD_CLASSICAL_UNITS_INDUSTRIOUS:
+	{
+		if (playerEra >= industrialEra)
+		{
+			return false;
+		}
+	}
+	case CARD_CLASSICAL_UNITS_FORCED_MARCH:
+	{
+		if (playerEra >= industrialEra)
+		{
+			return false;
+		}
+	}
+	case CARD_CLASSICAL_UNITS_SIEGE_ENGINEERS:
+	{
+		if (playerEra >= industrialEra)
+		{
+			return false;
+		}
+	}
+
 	default: return true;
 	}
 	;
