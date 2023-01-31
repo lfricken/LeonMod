@@ -20545,6 +20545,14 @@ bool CvUnit::canEverRangeStrikeAt(int iX, int iY) const
 		}
 	}
 
+	// naval units cannot do range attacks after moving half their moves
+	if (getDomainType() == DOMAIN_SEA)
+	{
+		int halfMax = maxMoves() / 2;
+		if (m_iMoves < halfMax)
+			return false;
+	}
+
 	// In Range?
 	if(plotDistance(pSourcePlot->getX(), pSourcePlot->getY(), pTargetPlot->getX(), pTargetPlot->getY()) > GetRange())
 	{
