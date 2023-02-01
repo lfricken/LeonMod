@@ -165,12 +165,22 @@ int CvPlayer::GetExtraYieldForBuilding
 
 	{// POLICY_URBANIZATION - +3% Production and Science to Windmill, Workshop, Factory
 		const bool hasUrbanization = player.HasPolicy("POLICY_URBANIZATION");
-		const bool isWorkshopOrWindmillOrFactory = eBuildingClass == BuildingClass("BUILDINGCLASS_WORKSHOP") ||
+		const bool isProductionBuilding = 
+			eBuildingClass == BuildingClass("BUILDINGCLASS_WORKSHOP") ||
 			eBuildingClass == BuildingClass("BUILDINGCLASS_WINDMILL") ||
-			eBuildingClass == BuildingClass("BUILDINGCLASS_FACTORY");
-		if (eYieldType == YIELD_SCIENCE && isPercentMod && hasUrbanization && isWorkshopOrWindmillOrFactory)
+			eBuildingClass == BuildingClass("BUILDINGCLASS_FORGE") ||
+			eBuildingClass == BuildingClass("BUILDINGCLASS_SHIPYARD") ||
+			eBuildingClass == BuildingClass("BUILDINGCLASS_TEXTILE") ||
+			eBuildingClass == BuildingClass("BUILDINGCLASS_FACTORY") ||
+			eBuildingClass == BuildingClass("BUILDINGCLASS_STEEL_MILL") ||
+			eBuildingClass == BuildingClass("BUILDINGCLASS_REFINERY") ||
+			eBuildingClass == BuildingClass("BUILDINGCLASS_HYDRO_PLANT") || 
+			eBuildingClass == BuildingClass("BUILDINGCLASS_REFINERY") || 
+			eBuildingClass == BuildingClass("BUILDINGCLASS_SOLAR_PLANT") || 
+			eBuildingClass == BuildingClass("BUILDINGCLASS_NUCLEAR_PLANT") ;
+		if (eYieldType == YIELD_SCIENCE && isPercentMod && hasUrbanization && isProductionBuilding)
 			yieldChange += 3;
-		if (eYieldType == YIELD_PRODUCTION && isPercentMod && hasUrbanization && isWorkshopOrWindmillOrFactory)
+		if (eYieldType == YIELD_PRODUCTION && isPercentMod && hasUrbanization && isProductionBuilding)
 			yieldChange += 3;
 	}
 
@@ -179,24 +189,30 @@ int CvPlayer::GetExtraYieldForBuilding
 			player.HasPolicy("POLICY_UNIVERSAL_HEALTHCARE_F") ||
 			player.HasPolicy("POLICY_UNIVERSAL_HEALTHCARE_O") ||
 			player.HasPolicy("POLICY_UNIVERSAL_HEALTHCARE_A");
-		const bool isGranary = eBuildingClass == BuildingClass("BUILDINGCLASS_GRANARY");
-		const bool isAquaduct = eBuildingClass == BuildingClass("BUILDINGCLASS_AQUEDUCT");
-		const bool isHospital = eBuildingClass == BuildingClass("BUILDINGCLASS_HOSPITAL");
+		const bool isLevel1FoodBuilding = 
+			eBuildingClass == BuildingClass("BUILDINGCLASS_GRANARY") || eBuildingClass == BuildingClass("BUILDINGCLASS_COOKING_HEARTH") || 
+			eBuildingClass == BuildingClass("BUILDINGCLASS_FISHERY") || eBuildingClass == BuildingClass("BUILDINGCLASS_HUNTERS_HAVEN");
+		const bool isLevel2FoodBuilding = 
+			eBuildingClass == BuildingClass("BUILDINGCLASS_AQUEDUCT") || eBuildingClass == BuildingClass("BUILDINGCLASS_WATERMILL") ||
+			eBuildingClass == BuildingClass("BUILDINGCLASS_GROCER");
+		const bool isLevel3FoodBuilding = 
+			eBuildingClass == BuildingClass("BUILDINGCLASS_HOSPITAL") || eBuildingClass == BuildingClass("BUILDINGCLASS_STOCKYARDS") ||
+			eBuildingClass == BuildingClass("BUILDINGCLASS_GRAIN_SILO");
 		if (!isPercentMod)
 		{
-			if (eYieldType == YIELD_MAINTENANCE && hasUniversal && isGranary)
+			if (eYieldType == YIELD_MAINTENANCE && hasUniversal && isLevel1FoodBuilding)
 				yieldChange += 1;
 
-			if (eYieldType == YIELD_MAINTENANCE && hasUniversal && isAquaduct)
+			if (eYieldType == YIELD_MAINTENANCE && hasUniversal && isLevel2FoodBuilding)
 				yieldChange += 2;
-			if (eYieldType == YIELD_FOOD && hasUniversal && isAquaduct)
+			if (eYieldType == YIELD_FOOD && hasUniversal && isLevel2FoodBuilding)
 				yieldChange += 1;
 
-			if (eYieldType == YIELD_MAINTENANCE && hasUniversal && isHospital)
+			if (eYieldType == YIELD_MAINTENANCE && hasUniversal && isLevel3FoodBuilding)
 				yieldChange += 2;
-			if (eYieldType == YIELD_FOOD && hasUniversal && isHospital)
+			if (eYieldType == YIELD_FOOD && hasUniversal && isLevel3FoodBuilding)
 				yieldChange += 4;
-			if (eYieldType == YIELD_PRODUCTION && hasUniversal && isHospital)
+			if (eYieldType == YIELD_PRODUCTION && hasUniversal && isLevel3FoodBuilding)
 				yieldChange -= 2;
 		}
 	}
