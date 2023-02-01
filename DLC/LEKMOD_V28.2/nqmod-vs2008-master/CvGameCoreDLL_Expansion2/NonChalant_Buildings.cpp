@@ -476,6 +476,20 @@ BuildingAddType CvPlayer::ShouldHaveBuilding(const CvPlayer& rPlayer, const CvCi
 		}
 	}
 
+	{// CARD_CLASSICAL_BUILDINGS_FLUTE_AND_LYRE free Musicians Courtyard if Fuontain and Garden
+		const bool isMusiciansCourtyard = eBuildingClass == BuildingClass("BUILDINGCLASS_CARD_CLASSICAL_BUILDINGS_FLUTE_AND_LYRE");
+		if (isMusiciansCourtyard)
+		{
+			const bool hasFluteCard = rPlayer.HasPolicy("POLICY_CARD_CLASSICAL_BUILDINGS_FLUTE_AND_LYRE_PASSIVE");
+			const bool hasGarden = rCity.HasBuildingClass(BuildingClassTypes(12));
+			const bool hasFountain = rCity.HasBuildingClass(BuildingClassTypes(232));
+			if (hasFluteCard && hasGarden && hasFountain)
+				return ADD;
+			else
+				return REMOVE;
+		}
+	}
+
 	return INDIFFERENT;
 }
 int CvPlayer::getSpecialistGpp(const CvCity* pCity, const SpecialistTypes eSpecialist, const SpecialistTypes eGppType, const bool) const
