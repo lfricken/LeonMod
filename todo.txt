@@ -1,7 +1,12 @@
 
-INTERCEPTION_DAMAGE_MULTIPLIER
+
 created new world:
-[210613.921] DBG: m_aiVisibilityCount[eTeam]>=0 CvPlot.cpp8851 Changing plot X:35, Y:35 to a negative visibility
+
+
+randoms_to_place = self:PlaceSpecificNumberOfResources(
+random_res, 1, 1,
+ 1, -1, 0,
+  0, shuf_list);
 
 trading
 	verify building limit

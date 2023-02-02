@@ -522,14 +522,38 @@ function GeneratePlotTypes()
 		adjust_plates = 1.65, -- overlapping plates form mountains 0 forms giant mountain regions
 		-- 1.5 pushes them apart a lot
 		tectonic_islands = false -- should we form islands where plates overlap?
-		}
+	};
 
 	-- generate using primary continent algorithm
 	local plotTypes = fractal_world:GeneratePlotTypes(args);
 	--local x = fractal_world:Plots();
 
+	for x = 0, maxX - 1 do
+		for y = 0, maxY - 1 do
+			local i = GetI(x,y,maxX);
+			plotTypes[i] = RandomPlot(10,40,0,1);
+		end
+	end
 
-	-- add random islands
+	local points = GetIndexesOrderedRing(5,5,maxX,maxY);
+	for k,i in pairs(points) do
+		print("1 " .. i)
+		plotTypes[i] = RandomPlot(0,0,10,0);
+	end
+
+	local points = GetIndexesOrderedRing(10,10,maxX,maxY);
+	for k,i in pairs(points) do
+		print("2 " .. i)
+		plotTypes[i] = RandomPlot(0,0,10,0);
+	end
+
+	local points = GetIndexesOrderedRing(20,11,maxX,maxY);
+	for k,i in pairs(points) do
+		print("3 " .. i)
+		plotTypes[i] = RandomPlot(0,0,10,0);
+	end
+
+	--[[ add random islands
 	for x = 0, maxX - 1 do
 		for y = 0, maxY - 1 do
 			local i = GetI(x,y,maxX);
@@ -751,6 +775,7 @@ function GeneratePlotTypes()
 			end
 		end
 	end
+	]]
 
 
 	SetPlotTypes(plotTypes);
@@ -891,20 +916,27 @@ function GetIndexesOrderedRing(x,y,maxX,maxY)
 	return reorder;
 end
 
-
+local firstRingYIsEven = {{0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 0}, {-1, 1}};
+local firstRingYIsOdd = {{1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, 0}, {0, 1}};
+function dir(x,y,direction_index)
+	local plot_adjustments;
+	if y / 2 > math.floor(y / 2) then
+		plot_adjustments = firstRingYIsOdd[direction_index];
+	else
+		plot_adjustments = firstRingYIsEven[direction_index];
+	end
+	local nextX = x + plot_adjustments[1];
+	local nextY = y + plot_adjustments[2];
+	return {nextX, nextY}
+end
 
 -- radius 1 is 7 tiles
-function GetIndexesAround(x,y,maxX,maxY,radius)
+function GetXyAround(x,y,maxX,maxY,radius)
 	local xy = {};
 	local totalSideLength = radius * 2 + 1;
 
-	local ds = GetGridPoints(totalSideLength);
-
-	local oddR = 0; -- currently odd-r,  www.redblobgames.com/grids/hexagons/#coordinates
-	local evenR = 1;
-
 	-- works by using total y coordinate to skip 
-	for i = 1, totalSideLength * totalSideLength do
+	for i = 1, (totalSideLength - 1) do
 		local px = ds[i][1]; -- for totalSideLength=5 px would be in range [0,4]
 		local dx, dy = ds[i][1] - radius, ds[i][2] - radius;
 		local nx, ny = x + dx, y + dy;
@@ -922,10 +954,14 @@ function GetIndexesAround(x,y,maxX,maxY,radius)
 
 		if xSkipStart <= px and px < xSkipEnd then
 			local idx = GetI(nx,ny,maxX);
-			table.insert(xy, idx);
 		end
 	end
+
+	table.insert(xy, idx);
 	return xy;
+end
+function GetIndexesAroundRand(x,y,maxX,maxY,radius)
+
 end
 
 -- given radius=2 will return
