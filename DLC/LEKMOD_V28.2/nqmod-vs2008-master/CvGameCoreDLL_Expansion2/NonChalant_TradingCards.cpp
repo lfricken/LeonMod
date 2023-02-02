@@ -95,6 +95,29 @@ string TradingCard::GetPassivePolicyDesc(TradingCardTypes type)
 	const string desc = GetLocalizedText(pInfo->GetHelp());
 	return desc;
 }
+bool TradingCard::CanActivate(TradingCardTypes cardType, const CvPlayer* pPlayer, stringstream* noActiveReason)
+{
+	const string activePolicyName = TradingCard::GetActivePolicy(cardType);
+	// no active policy
+	if (activePolicyName.size() <= 0)
+	{
+		return false;
+	}
+	bool success = true;
+	// fails condition
+	if (!TradingCard::IsConditionSatisfied(cardType, pPlayer, true))
+	{
+		(*noActiveReason) << "You do not meet the conditions of the card.[NEWLINE]";
+		success = false;
+	}
+	// cannot activate if we have the policy
+	if (pPlayer->HasPolicy(activePolicyName))
+	{
+		(*noActiveReason) << "You already activated another copy of this card.[NEWLINE]";
+		success = false;
+	}
+	return success;
+}
 FDataStream& operator <<(FDataStream& kStream, const TradingCardTypes& data)
 {
 	kStream << (int)data;

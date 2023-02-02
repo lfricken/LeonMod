@@ -164,9 +164,6 @@ public:
 	int getCachedExcessHappinessForThisTurn() const;
 	int getCachedSpyStartingRank() const;
 #endif
-
-	void doTurn();
-	void doTurnPostDiplomacy();
 #ifdef AUI_YIELDS_APPLIED_AFTER_TURN_NOT_BEFORE
 	void cacheYields();
 #endif
@@ -1216,6 +1213,13 @@ public:
 
 	bool isTurnActive() const;
 	void setTurnActive(bool bNewValue, bool bDoTurn = true);
+
+	void DoTurnBegin(const bool bDoTurn);
+	void DoTurnEnd();
+	// called at the beginning of a players turn
+	void DoTurn();
+	void doTurnPostDiplomacy();
+
 	bool isSimultaneousTurns() const;
 #ifdef AUI_GAME_BETTER_HYBRID_MODE
 	int getTurnOrder() const;
@@ -1753,7 +1757,7 @@ public:
 	CvTacticalAI* GetTacticalAI() const;
 	CvHomelandAI* GetHomelandAI() const;
 
-	// total number of policies owned by this player BY ANY MEANS EXCEPT policies owned on turn 1
+	// total number of policies owned by this player BY ANY MEANS EXCEPT policies owned on turn 1, and HiddenFromPolicyCount
 	int CvPlayer::GetNumPoliciesTotal() const;
 	// true if this player has this policy
 	// includes ideology
@@ -1846,6 +1850,8 @@ public:
 
 	bool hasTurnTimerExpired();
 
+	// returns a card type that could be awarded to this player
+	TradingCardTypes CardsGetRandomValid() const;
 	// called when state information about a card changes (add, remove, visible, etc.)
 	virtual void CardsOnChanged();
 	// DO NOT CALL, should only be called from net handler
@@ -1855,6 +1861,7 @@ public:
 	void CardsAdd(TradingCardTypes cardType);
 	void CardsRemove(TradingCardTypes cardType);
 	void CardsDestroy(int cardIdx);
+	// called at the end of each turn, correctly updates passive benefits
 	void DoUpdateCardBenefits();
 	TradingCardTypes CardsType(int cardIdx) const;
 	bool CardsIsVisible(int cardIdx) const;

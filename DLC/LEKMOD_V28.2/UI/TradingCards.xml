@@ -20,7 +20,7 @@
 								<Grid Size="101,30" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
 							</AlphaAnim>
 						</ShowOnMouseOver>
-						<Label Anchor="C,C" Offset="0.-1" Font="TwCenMT18" String="TXT_KEY_CARD_BUTTON_ACTIVATE"/>
+						<Label ID="ActivateLabel" Anchor="C,C" Offset="0.-1" Font="TwCenMT18" String="TXT_KEY_CARD_BUTTON_ACTIVATE"/>
 					</Button>
 					<Button ID="VisibilityToggle" Anchor="L,C" Size="101,30" Style="BoxButton" String="TXT_KEY_CARD_VISIBILITY_BUTTON" ToolTip="TXT_KEY_CARD_VISIBILITY_BUTTON_TIP">
 						<ShowOnMouseOver>
@@ -43,6 +43,17 @@
       <Grid ID="Divider" Style="Grid9Bar" Padding="0,0" Anchor="L,B" Size="940,1" Offset="0,0"/>
 		</Box>
 	</Instance>
+	<Instance Name="PlayerCardTab">
+		<Button Anchor="L,T" Size="40,24" Offset="0,0" String="INST" ID="Button">
+			<ShowOnMouseOver>
+				<AlphaAnim Anchor="L,C" Size="40,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+					<Grid Size="40,27" Offset="0,2" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+				</AlphaAnim>
+			</ShowOnMouseOver>
+			<!-- Selected State  -->
+			<Grid Anchor="C,C" Offset="0,1" Size="40,26" Style="Grid9FrameTurns" Hidden="0" ID="Highlight"/>
+		</Button>
+	</Instance>
 	<Box Style="BGBlock_ClearTopBar"/>
 	<Grid Size="990,653" Anchor="C,C" Offset="0,6" Padding="0,0" Style="Grid9DetailFive140">
 		<Image Anchor="C,T" AnchorSide="I.O" Size="256,64" Offset="0,-14" Texture="assets\UI\Art\Icons\Top512IconTrim.dds">
@@ -58,34 +69,10 @@
 		<Label Style="MenuTitleCaption" String="TXT_KEY_CARD_SCREEN" />
 		<!-- Top Panel  -->
 		<Box Anchor="C,T" Size="955,32" Offset="0,44" Color="0.0.0.128">
-			<Stack Anchor="C,T" Size="971,32" Offset="0,0" Padding="0" StackGrowth="Right">
-				<Button Anchor="L,T" Size="300,24" Offset="0,0" String="TXT_KEY_CARD_TAB_ALL" ID="TabButtonYourTR">
-					<ShowOnMouseOver>
-						<AlphaAnim Anchor="L,C" Size="300,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
-							<Grid Size="300,27" Offset="0,2" Padding="0,0" Style="Grid9FrameTurnsHL"/>
-						</AlphaAnim>
-					</ShowOnMouseOver>
-					<!-- Selected State  -->
-					<Grid Anchor="C,C" Offset="0,1" Size="300,26" Style="Grid9FrameTurns" Hidden="0" ID="YourTRSelectHighlight"/>
-				</Button>
-				<Button Anchor="L,T" Size="300,24" Offset="0,0" String="TXT_KEY_CARD_TAB_PASSIVE" ID="TabButtonAvailableTR">
-					<ShowOnMouseOver>
-						<AlphaAnim Anchor="L,C" Size="300,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
-							<Grid Size="300,27" Offset="0,2" Padding="0,0" Style="Grid9FrameTurnsHL"/>
-						</AlphaAnim>
-					</ShowOnMouseOver>
-					<!-- Selected State  -->
-					<Grid Anchor="C,C" Offset="0,1" Size="300,26" Style="Grid9FrameTurns" Hidden="1" ID="AvailableTRSelectHighlight"/>
-				</Button>
-				<Button Anchor="L,T" Size="300,24" Offset="0,0" String="TXT_KEY_CARD_TAB_ACTIVE" ID="TabButtonTRWithYou">
-					<ShowOnMouseOver>
-						<AlphaAnim Anchor="L,C" Size="300,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
-							<Grid Size="300,27" Offset="0,2" Padding="0,0" Style="Grid9FrameTurnsHL"/>
-						</AlphaAnim>
-					</ShowOnMouseOver>
-					<!-- Selected State  -->
-					<Grid Anchor="C,C" Offset="0,1" Size="300,26" Style="Grid9FrameTurns" Hidden="1" ID="TRWithYouSelectHighlight"/>
-				</Button>
+			<Stack ID="Tabs" Anchor="L,T" Size="971,32" Offset="0,0" Padding="0" StackGrowth="Right">
+			<Button Anchor="L,T" Size="60,24" Offset="0,0" String="Player:" ID="ButtonA">
+			</Button>
+				<!-- Tabs -->
 			</Stack>
 			<Image Anchor="C,B" Offset="0,0" Texture="HorizontalTrim.dds" Size="971,5"/>
 		</Box>
@@ -144,7 +131,7 @@
 				<UpButton Offset="0,0" Style="ScrollBarUp" Anchor="R,T" ID="MainUpButton"/>
 				<DownButton Offset="0,395" Style="ScrollBarDown" Anchor="R,T" ID="MainDownButton"/>
 				<Stack Anchor="L,T" Size="784,440" StackGrowth="Bottom" Padding="0" ID="MainStack">
-          </Stack>
+				</Stack>
 			</ScrollPanel>
 		</Box>
 		<!-- Bottom Panel -->

@@ -1,6 +1,7 @@
 
-try to get excited about other project
-(caffeiene?)
+INTERCEPTION_DAMAGE_MULTIPLIER
+created new world:
+[210613.921] DBG: m_aiVisibilityCount[eTeam]>=0 CvPlot.cpp8851 Changing plot X:35, Y:35 to a negative visibility
 
 trading
 	verify building limit
@@ -12,14 +13,18 @@ trading
 	fix ai trade value estimate
 
 Trading Cards
-
-	other players cards
+	card from ancient ruin
+	gen cards each era
 	fix ai trade value estimate
 
 
-promotions
-	on upgrade, remove promotion?
 
+	const int numRes = GC.getNumResourceInfos();
+	for (int i = 0; i < numRes; ++i)
+	{
+		const ResourceTypes e = (ResourceTypes)i;
+		kPlayer.changeResourceCumulative(e, -pkBuildingInfo->GetResourceCostLump(e));
+	}
 
 
 

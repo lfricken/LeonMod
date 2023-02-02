@@ -30,30 +30,31 @@ bool CvAssertDlg(const char* expr, const char* szFile, unsigned int uiLine, bool
 #define		CVASSERT_ENABLE
 #endif	// FINAL_RELEASE
 
+void CvAssertFunc(const stringstream& msg);
 
-#ifdef CVASSERT_ENABLE 
+#ifndef CVASSERT_ENABLE 
 
-#define CvAssertMsg(expr, msg)																\
-{																							\
-	static bool bIgnoreAlways = false;														\
-	if( !bIgnoreAlways && !(expr) )								                							\
-	{																						\
-		if(CvAssertDlg(#expr, __FILE__, __LINE__, bIgnoreAlways, msg))						\
-			{ CVASSERT_BREAKPOINT; }														\
-	}																						\
+#define CvAssertMsg(expr, msg)\
+{\
+	static bool bIgnoreAlways = false;\
+	if( !bIgnoreAlways && !(expr) )\
+	{\
+		stringstream ss;\
+		ss << #expr << " " << __FILE__ << __LINE__ << " " << msg;\
+		CvAssertFunc(ss);\
+	}\
 }
-
-#define CvAssertFmt(expr, fmt, ...)															\
-{																							\
-	static bool bIgnoreAlways = false;														\
-	if( !bIgnoreAlways && !(expr) )															\
-	{																						\
-		CvString str;																		\
-		CvString::format(str, fmt, __VA_ARGS__);											\
-		if(CvAssertDlg(#expr, __FILE__, __LINE__,											\
-			bIgnoreAlways, str.c_str()))													\
-				{ CVASSERT_BREAKPOINT; }													\
-	}																						\
+#define CvAssertFmt(expr, fmt, ...)\
+{\
+	static bool bIgnoreAlways = false;\
+	if( !bIgnoreAlways && !(expr) )\
+	{\
+		CvString str;\
+		CvString::format(str, fmt, __VA_ARGS__);\
+		stringstream ss;\
+		ss << #expr << " " << __FILE__ << __LINE__ << " " << str.c_str();\
+		CvAssertFunc(ss);\
+	}\
 }
 
 #define CvAssert( expr ) CvAssertMsg(expr, "")

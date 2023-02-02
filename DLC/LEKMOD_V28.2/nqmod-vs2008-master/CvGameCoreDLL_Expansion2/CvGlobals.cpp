@@ -2703,7 +2703,10 @@ void CvGlobals::logSpecificMessage(PlayerTypes ePlayer, const char* strString)
 
 void CvGlobals::debugState(const stringstream& s)
 {
-	FILogFile* pLog = LOGFILEMGR.GetLog("state.log", 0);
+	const int localPid = GC.getGame().getActivePlayer();
+	stringstream ss;
+	ss << "state" << localPid << ".log";
+	FILogFile* pLog = LOGFILEMGR.GetLog(ss.str().c_str(), 0);
 	if (pLog)
 	{
 		stringstream b;

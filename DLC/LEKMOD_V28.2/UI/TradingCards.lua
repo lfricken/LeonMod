@@ -1,41 +1,16 @@
 -------------------------------------------------
--- Religion Overview Popup
+-- Trade Card Popup
 -------------------------------------------------
 include( "IconSupport" );
 include( "InstanceManager" );
 include( "TradeRouteHelpers" );
 
-local g_PopupInfo = nil;
+local g_PopupInfo = nil; -- info we were launched with
 local g_isDebugMode = true; -- allows card manipulation
 
--------------------------------------------------
--- Global Variables
--------------------------------------------------
-g_CurrentTab = nil;		-- The currently selected Tab.
-g_iSelectedPlayerID = Game.GetActivePlayer();
+g_CurrentTab = Game.GetActivePlayer();		-- The currently selected Tab.
+g_Tabs = {};
 
-g_Tab1 = "YourTR";
-g_Tab2 = "AvailableTR";
-g_Tab3 = "TRWithYou";
--------------------------------------------------
--- Global Constants
--------------------------------------------------
-g_Tabs = {
-	[g_Tab1] = {
-		SelectHighlight = Controls.YourTRSelectHighlight,
-	},
-	
-	[g_Tab2] = {
-		SelectHighlight = Controls.AvailableTRSelectHighlight,
-	},
-	
-	[g_Tab3] = {
-		SelectHighlight = Controls.TRWithYouSelectHighlight,
-	},
-}
-
--------------------------------------------------
--------------------------------------------------
 function OnPopupMessage(popupInfo)
 
 	local popupType = popupInfo.Type;
@@ -46,6 +21,8 @@ function OnPopupMessage(popupInfo)
 	g_PopupInfo = popupInfo;
 	
 	-- Data 2 parameter holds desired tab to open on
+	g_CurrentTab = Game.GetActivePlayer();
+	--[[
 	if (g_PopupInfo.Data2 == 1) then
 		g_CurrentTab = g_Tab1;
 	elseif (g_PopupInfo.Data2 == 2) then
@@ -53,7 +30,8 @@ function OnPopupMessage(popupInfo)
 	elseif (g_PopupInfo.Data2 == 3) then
 		g_CurrentTab = g_Tab3;
 	end
-	
+	--]]
+
 	if( g_PopupInfo.Data1 == 1 ) then
 		if( ContextPtr:IsHidden() == false ) then
 			OnClose();
@@ -66,77 +44,67 @@ function OnPopupMessage(popupInfo)
 end
 Events.SerialEventGameMessagePopup.Add( OnPopupMessage );
 
--------------------------------------------------------------------------------
--------------------------------------------------------------------------------
 function IgnoreLeftClick( Id )
 	-- just swallow it
 end
--------------------------------------------------------------------------------
--------------------------------------------------------------------------------
-function InputHandler( uiMsg, wParam, lParam )
-	----------------------------------------------------------------		
-	-- Key Down Processing
-	----------------------------------------------------------------		
+
+-- CLOSE BUTTON
+function InputHandler( uiMsg, wParam, lParam )	
 	if(uiMsg == KeyEvents.KeyDown) then
 		if (wParam == Keys.VK_ESCAPE) then
 			OnClose();
 			return true;
 		end
-		
-		-- Do Nothing.
 		if(wParam == Keys.VK_RETURN) then
 			return true;
 		end
 	end
 end
 ContextPtr:SetInputHandler( InputHandler );
--------------------------------------------------------------------------------
--------------------------------------------------------------------------------
 function OnClose()
 	UIManager:DequeuePopup(ContextPtr);
 end
 Controls.CloseButton:RegisterCallback(Mouse.eLClick, OnClose);
--------------------------------------------------------------------------------
--------------------------------------------------------------------------------
 
-
--------------------------------------------------------------------------------
--------------------------------------------------------------------------------
+-- TAB SELECT
 function TabSelect(tab)
 	for i,v in pairs(g_Tabs) do
 		local bHide = i ~= tab;
 		v.SelectHighlight:SetHide(bHide);
 	end
+	print("" .. tab);
 	g_CurrentTab = tab;
-	g_Tabs[tab].RefreshContent();	
+	g_Tabs[tab].RefreshContent();
 end
-Controls.TabButtonYourTR:RegisterCallback( Mouse.eLClick, function() TabSelect(g_Tab1); end);
-Controls.TabButtonAvailableTR:RegisterCallback( Mouse.eLClick, function() TabSelect(g_Tab2); end );
-Controls.TabButtonTRWithYou:RegisterCallback( Mouse.eLClick, function() TabSelect(g_Tab3); end );
 
-function RefreshTab1()
-	DisplayData(true, true);
+-- CREATE TABS
+local pid = Game.GetActivePlayer();
+local pLocal = Players[pid];
+for pid=0,16,1 do
+	local pPlayer = Players[pid];
+	if (pPlayer:IsAlive()) then
+		local instTab = {};
+		ContextPtr:BuildInstanceForControl("PlayerCardTab", instTab, Controls.Tabs);
+		tabObj = {};
+		tabObj.SelectHighlight = instTab.Highlight;
+		-- refresh
+		tabObj.RefreshContent = function() DisplayData(pid, true, true); end
+		-- click on tab
+		instTab.Button:SetText("" .. 1 + pid);
+		instTab.Button:RegisterCallback( Mouse.eLClick, function() TabSelect(pid); end);
+		instTab.Button:SetToolTipString(pLocal:GetCivNameSafe(pid));
+		table.insert(g_Tabs, pid, tabObj);
+	end
 end
-g_Tabs[g_Tab1].RefreshContent = RefreshTab1;
 
-function RefreshTab2()
-	DisplayData(true, false);
-end
-g_Tabs[g_Tab2].RefreshContent = RefreshTab2;
-
-function RefreshTab3()
-	DisplayData(false, true);
-end
-g_Tabs[g_Tab3].RefreshContent = RefreshTab3;
-
+-- DISPLAY CARDS
 local function isempty(s)
   return s == nil or s == ''
 end
-
-function DisplayData(includePassive, includeActive)
+function DisplayData(iPlayerId, includePassive, includeActive)
 	Controls.MainStack:DestroyAllChildren();
-	local iPlayerId = Game.GetActivePlayer();
-    local pPlayer = Players[iPlayerId];
+	local pPlayer = Players[iPlayerId];
+	local bLocal = iPlayerId == Game.GetActivePlayer();
 
 	local count = pPlayer:CardCount();
 	for cardIdx = 0, count-1, 1 do
@@ -150,8 +118,10 @@ function DisplayData(includePassive, includeActive)
 		local hasActive = not isempty(activeDesc);
 		local isVisible = pPlayer:CardIsVisible(cardIdx);
 
+		local shown = (hasPassive and includePassive) or (hasActive and includeActive);
+		local hide = not bLocal and not isVisible;
 		-- should we limit the display of the cards?
-		if ((hasPassive and includePassive) or (hasActive and includeActive)) then
+		if (not hide) then
 			local inst = {};
 			ContextPtr:BuildInstanceForControl("TradeCardInstance", inst, Controls.MainStack);
 
@@ -166,6 +136,10 @@ function DisplayData(includePassive, includeActive)
 			inst.Passive:LocalizeAndSetToolTip(passiveDesc);
 
 			-- activate button
+			inst.Activate:SetDisabled(not bLocal);
+			if (not bLocal) then
+				inst.ActivateLabel:SetColorByName("Gray_Black");
+			end
 			inst.Activate:SetHide(not hasActive);
 			inst.Activate:LocalizeAndSetToolTip(activeDesc .. ". {TXT_KEY_CARD_ACTIVATE_CONSUMED}");
 			inst.Activate:RegisterCallback(Mouse.eLClick, function() OnClickedActivate(iPlayerId, cardIdx); end);
@@ -176,6 +150,8 @@ function DisplayData(includePassive, includeActive)
 				inst.VisibilityToggle:LocalizeAndSetText("TXT_KEY_CARD_VISIBILITY_BUTTON_ON");
 				inst.VisibilityToggle:LocalizeAndSetToolTip("TXT_KEY_CARD_VISIBILITY_BUTTON_ON_TIP");
 			end
+			inst.VisibilityToggle:SetDisabled(not bLocal);
+			inst.VisibilityToggle:SetHide(not bLocal);
 
 			-- delete button (DEBUG ONLY)
 			inst.Delete:SetHide(not g_isDebugMode);
@@ -189,25 +165,21 @@ function DisplayData(includePassive, includeActive)
 	Controls.MainScroll:CalculateInternalSize();
 
 end
-
 function OnClickedActivate(iPlayerId, cardIdx)
-    local pPlayer = Players[iPlayerId];
-    pPlayer:CardActivate(cardIdx);
+	local pPlayer = Players[iPlayerId];
+	pPlayer:CardActivate(cardIdx);
 end
-
 function OnClickedVisibility(iPlayerId, cardIdx)
 	local pPlayer = Players[iPlayerId];
 	pPlayer:CardToggleVisibility(cardIdx);
 end
-
 -- DEBUG ONLY, NOT NETWORK SAFE
 function OnClickedDelete(iPlayerId, cardIdx)
-    local pPlayer = Players[iPlayerId];
-    pPlayer:CardDelete(cardIdx);
+	local pPlayer = Players[iPlayerId];
+	pPlayer:CardDelete(cardIdx);
 end
 
--------------------------------------------------------------------------------
--------------------------------------------------------------------------------
+-- REFRESH
 function ShowHideHandler( bIsHide, bInitState )
 
 	-- Set Civ Icon
@@ -229,13 +201,10 @@ function ShowHideHandler( bIsHide, bInitState )
 end
 ContextPtr:SetShowHideHandler( ShowHideHandler );
 
--------------------------------------------------------------------------------
--------------------------------------------------------------------------------
--- Update on dirty bits
-function OnDirtyBit()
+function OnDirtyBit() -- Update on dirty bits
 	g_Tabs[g_CurrentTab].RefreshContent();
 end
 -- Register Events
 Events.SerialEventGreatWorksScreenDirty.Add(OnDirtyBit);
 
-TabSelect(g_Tab1);
+TabSelect(g_CurrentTab); -- default to this player

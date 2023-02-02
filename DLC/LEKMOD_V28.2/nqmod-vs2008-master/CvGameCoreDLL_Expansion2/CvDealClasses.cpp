@@ -1273,10 +1273,7 @@ void CvDeal::AddCardTrade(PlayerTypes eFrom, int cardIdx)
 }
 void CvDeal::AddLumpTrade(PlayerTypes eFrom, ResourceTypes eResource, int amount)
 {
-	CvAssertMsg(iAmount >= 0, "DEAL: Trying to add a negative amount of a Resource to a deal.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(iDuration >= 0, "DEAL: Trying to add a negative duration to a TradeItem.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(iDuration < GC.getGame().getEstimateEndTurn() * 2, "DEAL: Trade item has a crazy long duration (probably invalid).  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	CvAssertMsg(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Adding deal item for a player that's not actually in this deal!  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(amount >= 0, "DEAL: Trying to add a negative amount of a Resource to a deal.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
 	if (IsPossibleToTradeItem(eFrom, GetOtherPlayer(eFrom), TRADE_ITEM_LUMP, eResource, amount))
 	{
@@ -2608,16 +2605,18 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 				// Cards
 				else if (it->m_eItemType == TRADE_ITEM_CARD)
 				{
-					GET_PLAYER(eAcceptedToPlayer).CardsAdd((TradingCardTypes)it->m_iData2);
-					GET_PLAYER(eAcceptedFromPlayer).CardsDestroy(it->m_iData1);
+					int tradedCardIdx = it->m_iData1;
+					TradingCardTypes tradedCardType = (TradingCardTypes)it->m_iData2;
+					GET_PLAYER(eAcceptedToPlayer).CardsAdd(tradedCardType);
+					GET_PLAYER(eAcceptedFromPlayer).CardsDestroy(tradedCardIdx);
 				}
 				// Lump resources
 				else if (it->m_eItemType == TRADE_ITEM_LUMP)
 				{
 					const ResourceTypes type = (ResourceTypes)it->m_iData1;
-					const int amount = it->m_iData2;
-					GET_PLAYER(eAcceptedToPlayer).changeResourceCumulative(type, +amount);
-					GET_PLAYER(eAcceptedFromPlayer).changeResourceCumulative(type, -amount);
+					const int tradeAmount = it->m_iData2;
+					GET_PLAYER(eAcceptedToPlayer).changeResourceCumulative(type, +tradeAmount);
+					GET_PLAYER(eAcceptedFromPlayer).changeResourceCumulative(type, -tradeAmount);
 				}
 				// City
 				else if(it->m_eItemType == TRADE_ITEM_CITIES)

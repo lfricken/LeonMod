@@ -15922,6 +15922,9 @@ int CvUnit::setDamage(int iNewValue, PlayerTypes ePlayer, decimal fAdditionalTex
 	int iOldValue;
 
 	iOldValue = getDamage();
+	stringstream s;
+	s << "CvUnit:setDamage " << m_eOwner << " " << ePlayer << " " << iOldValue << " " << iNewValue << " ";
+	GC.debugState(s); // CvUnit::setDamage
 
 	if(GetCurrHitPoints() == GetMaxHitPoints() && iNewValue < GetMaxHitPoints()) 
 	{
@@ -20540,6 +20543,14 @@ bool CvUnit::canEverRangeStrikeAt(int iX, int iY) const
 		{
 			return false;
 		}
+	}
+
+	// naval units cannot do range attacks after moving half their moves
+	if (getDomainType() == DOMAIN_SEA)
+	{
+		int halfMax = maxMoves() / 2;
+		if (m_iMoves < halfMax)
+			return false;
 	}
 
 	// In Range?

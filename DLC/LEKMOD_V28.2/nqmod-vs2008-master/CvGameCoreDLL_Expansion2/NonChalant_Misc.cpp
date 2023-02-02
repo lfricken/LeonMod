@@ -235,6 +235,16 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 
 
 
+void CvAssertFunc(const stringstream& msg)
+{
+	stringstream fileName;
+	fileName << "asserts2.log";
+	FILogFile* pLog = LOGFILEMGR.GetLog(fileName.str().c_str(), 0);
+	if (pLog)
+	{
+		pLog->DebugMsg(msg.str().c_str());
+	}
+}
 
 
 

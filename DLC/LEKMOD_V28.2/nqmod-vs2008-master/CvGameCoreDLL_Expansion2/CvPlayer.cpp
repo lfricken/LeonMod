@@ -4588,8 +4588,7 @@ int CvPlayer::getCachedSpyStartingRank() const
 }
 #endif
 
-//	---------------------------------------------------------------------------
-void CvPlayer::doTurn()
+void CvPlayer::DoTurn()
 {
 	// Time building of these maps
 #ifdef AUI_PERF_LOGGING_FORMATTING_TWEAKS
@@ -4688,14 +4687,37 @@ void CvPlayer::doTurn()
 	m_kPlayerAchievements.StartTurn();
 
 	// diplo influence
-	int diploThisTurn, numControlled;
+	int diploThisTurn = 0, numControlled = 0;
 	GetDiplomaticInfluencePerTurn(&diploThisTurn, &numControlled);
 	ChangeDiplomaticInfluence(diploThisTurn);
 
 	// scientific influence
-	int insightThisTurn;
+	int insightThisTurn = 0;
 	GetScientificInfluencePerTurn(&insightThisTurn);
 	ChangeScientificInfluence(insightThisTurn);
+
+	// add city recon vision
+	{
+		const EraTypes era = GetCurrentEra();
+		int visionRadius;
+		switch (era)
+		{
+		case 0:  visionRadius = 3; break; // ancient
+		case 1:  visionRadius = 4; break; // classical
+		default: visionRadius = 5; break; // remaining
+		}
+		if (!isHuman()) // ai vision boost
+			visionRadius += 5;
+
+		int iLoop = 0;
+		for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		{
+			CvPlot* plot = pLoopCity->plot();
+			if (plot->getReconCount() < 1)
+				plot->changeReconCount(+1);
+			plot->changeAdjacentSight(getTeam(), visionRadius, true, NO_INVISIBLE, NO_DIRECTION, true);
+		}
+	}
 
 	TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
 	stringstream s;
@@ -4720,19 +4742,19 @@ void CvPlayer::DoTurnResources()
 		const CvResourceInfo* resourceInfo = GC.getResourceInfo(e);
 		if (resourceInfo != NULL)
 		{
-			const int multipliedGross = resourceVariation * getNumResourceGross(e);
+			const int grossGain = resourceVariation * getNumResourceGross(e);
 			const int roll = GC.rand(max(0, resourceVariation - 1), "rand resource gen", NULL, (i * 23509) + randSeed);
 			if (roll == 0)
 			{
 				const bool consideredCumulative = resourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC;
-				const bool gainedAny = multipliedGross != 0;
+				const bool gainedAny = grossGain != 0;
 				// strategic, gained any, was chance we wouldn't gain?
 				// notify?
 				if (consideredCumulative && gainedAny && hasAnyVariation)
 				{
-					notifyResourceGain(this, multipliedGross, resourceInfo);
+					notifyResourceGain(this, grossGain, resourceInfo);
 				}
-				changeResourceCumulative(e, +multipliedGross);
+				changeResourceCumulative(e, +grossGain);
 			}
 		}
 
@@ -4812,12 +4834,10 @@ void CvPlayer::doTurnPostDiplomacy()
 
 	// Golden Age
 	DoProcessGoldenAge();
-	DoUpdateCardBenefits();
 
 	// Great People gifts from Allied City States (if we have that policy)
 	DoGreatPeopleSpawnTurn();
 
-	DoUpdateCardBenefits();
 	DoTurnResources();
 	DoTurnCities();
 	GetTreasury()->DoGold();
@@ -7276,12 +7296,12 @@ T100 hutMapHexProbabilityT100()
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit*)
+void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 {
 	//////////
 	// Load from database
 	//////////
-	CvAssertMsg(canReceiveGoody(pPlot, eGoody), "Instance is expected to be able to recieve goody");
+	CvAssertMsg(canReceiveGoody(pPlot, eGoody, pUnit), "Instance is expected to be able to recieve goody");
 	Database::SingleResult kResult;
 	CvGoodyInfo kGoodyInfo;
 	const bool bResult = DB.SelectAt(kResult, "GoodyHuts", eGoody);
@@ -7290,7 +7310,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit*)
 	kGoodyInfo.CacheResult(kResult);
 	CvGoodyHuts::DoPlayerReceivedGoody(GetID(), eGoody);
 
-
+	stringstream ss;
 	int iRewardValue = 0; // amount of reward
 	int iNumYieldBonuses = 0; // count plot yield display lines
 
@@ -7392,10 +7412,26 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit*)
 	//////////
 	// Map
 	//////////
-	if(kGoodyInfo.isMap())
+	if (kGoodyInfo.isMap())
 	{
 		const int iRange = hutMapRadius(pPlot);
 		reveal(getTeam(), pPlot, iRange, hutMapHexProbabilityT100());
+	}
+	//////////
+	// Card
+	//////////
+	if (kGoodyInfo.isCard() > 0)
+	{
+		int numCards = kGoodyInfo.isCard();
+		for (int i = 0; i < numCards; ++i)
+		{
+			TradingCardTypes goodyHutCard = CardsGetRandomValid();
+			CardsAdd(goodyHutCard);
+
+			ss << TradingCard::GetName(goodyHutCard, this);
+			ss << ":  ";
+			ss << TradingCard::GetDesc(goodyHutCard, this);
+		}
 	}
 	//////////
 	// Units
@@ -7416,7 +7452,12 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit*)
 		pNewUnit->finishMoves();
 	}
 
-	CvString strBuffer = GetLocalizedText(kGoodyInfo.GetDescriptionKey(), iRewardValue);
+	if (iRewardValue != 0)
+	{
+		ss << iRewardValue;
+	}
+
+	CvString strBuffer = GetLocalizedText(kGoodyInfo.GetDescriptionKey(), ss.str().c_str());
 	// messages
 	if(!strBuffer.empty())
 	{
@@ -8192,17 +8233,8 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestV
 		}
 	}
 
-	PolicyBranchTypes eBranch = (PolicyBranchTypes)pBuildingInfo.GetPolicyBranchType();
-	if (eBranch != NO_POLICY_BRANCH_TYPE)
-	{
-		if (!GetPlayerPolicies()->IsPolicyBranchUnlocked(eBranch))
-		{
-			return false;
-		}
-	}
-
-	// disable building based on policy
-	eBranch = (PolicyBranchTypes)pBuildingInfo.GetPolicyBranchTypeDisable();
+	// disable building based on policy branch
+	PolicyBranchTypes eBranch = (PolicyBranchTypes)pBuildingInfo.GetPolicyBranchTypeDisable();
 	if (eBranch != NO_POLICY_BRANCH_TYPE)
 	{
 		if (GetPlayerPolicies()->IsPolicyBranchUnlocked(eBranch))
@@ -8308,6 +8340,32 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestV
 		int numBuildingClassInfos = GC.getNumBuildingClassInfos();
 #endif
 
+		// building requires policy branch
+		PolicyBranchTypes eBranch = (PolicyBranchTypes)pBuildingInfo.GetPolicyBranchType();
+		if (eBranch != NO_POLICY_BRANCH_TYPE)
+		{
+			if (!GetPlayerPolicies()->IsPolicyBranchUnlocked(eBranch))
+			{
+				string name = GC.getPolicyBranchInfo(eBranch)->GetDescription();
+				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "This requires the {1_policyName} policy branch.", name.c_str());
+				if (toolTipSink == NULL)
+					return false;
+			}
+		}
+
+		// building requires policy
+		PolicyTypes ePolicy = (PolicyTypes)pBuildingInfo.GetPolicyType();
+		if (ePolicy != NO_POLICY)
+		{
+			if (!GetPlayerPolicies()->HasPolicy(ePolicy))
+			{
+				string name = GC.getPolicyInfo(ePolicy)->GetDescription();
+				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "This requires the {1_policyName} policy.", name.c_str());
+				if (toolTipSink == NULL)
+					return false;
+			}
+		}
+
 		for(iI = 0; iI < numBuildingClassInfos; iI++)
 		{
 			CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo((BuildingClassTypes)iI);
@@ -8349,20 +8407,46 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestV
 			CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
 			if(pkResource)
 			{
-				int iNumResource = pBuildingInfo.GetResourceQuantityRequirement(eResource);
-				if(iNumResource > 0)
-				{
-					if(bContinue)
-						iNumResource = 0;
-					const bool hasEnoughResourcesToConstruct = !wasShortage(eResource);
+				const ResourceTypes e = eResource;
+				const int needToConstruct = pBuildingInfo.GetResourceCostLump(e);
 
-					if (!hasEnoughResourcesToConstruct)
+				if (needToConstruct > 0)
+				{
+					bool canKeepBuilding = true;
+					if (bContinue) // need to keep building
 					{
-						GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_BUILDING_LACKS_RESOURCES", pkResource->GetIconString(), pkResource->GetTextKey(), iNumResource);
-						if(toolTipSink == NULL)
+						canKeepBuilding = !wasShortage(e); // if we go negative, stop production
+					}
+					else // need to start building
+					{
+						const int haveForConstruct = getResourceCumulative(e);
+						if (needToConstruct > haveForConstruct)
+						{
+							canKeepBuilding = false;
+						}
+					}
+					if (!canKeepBuilding)
+					{
+						GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_BUILDING_LACKS_RESOURCES", pkResource->GetIconString(), pkResource->GetTextKey(), needToConstruct);
+						if (toolTipSink == NULL)
 							return false;
 					}
 				}
+
+				// no longer check resources per turn
+				//if(iNumResource > 0)
+				//{
+				//	if(bContinue)
+				//		iNumResource = 0;
+				//	const bool hasEnoughResourcesToConstruct = !wasShortage(eResource);
+
+				//	if (!hasEnoughResourcesToConstruct)
+				//	{
+				//		GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_BUILDING_LACKS_RESOURCES", pkResource->GetIconString(), pkResource->GetTextKey(), iNumResource);
+				//		if(toolTipSink == NULL)
+				//			return false;
+				//	}
+				//}
 			}
 		}
 
@@ -10327,10 +10411,10 @@ int CvPlayer::getSpecialistYieldExtra(const CvCity* pCity, const SpecialistTypes
 
 int CvPlayer::getSpecialistYieldExtraFromPolicies(const SpecialistTypes eSpecialist, const YieldTypes eYield) const
 {
-	CvAssertMsg(eIndex1 >= 0, "eIndex1 expected to be >= 0");
-	CvAssertMsg(eIndex1 < GC.getNumSpecialistInfos(), "eIndex1 expected to be < GC.getNumSpecialistInfos()");
-	CvAssertMsg(eIndex2 >= 0, "eIndex2 expected to be >= 0");
-	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 expected to be < NUM_YIELD_TYPES");
+	CvAssertMsg(eSpecialist >= 0, "eIndex1 expected to be >= 0");
+	CvAssertMsg(eSpecialist < GC.getNumSpecialistInfos(), "eIndex1 expected to be < GC.getNumSpecialistInfos()");
+	CvAssertMsg(eYield >= 0, "eIndex2 expected to be >= 0");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eIndex2 expected to be < NUM_YIELD_TYPES");
 	int yield = 0;
 
 	yield += m_ppaaiSpecialistExtraYield[eSpecialist][eYield];
@@ -10349,7 +10433,6 @@ void CvPlayer::changeSpecialistYieldExtraFromPolicies(const SpecialistTypes eSpe
 		Firaxis::Array<int, NUM_YIELD_TYPES> yields = m_ppaaiSpecialistExtraYield[eSpecialist];
 		yields[eYield] = (m_ppaaiSpecialistExtraYield[eSpecialist][eYield] + iChange);
 		m_ppaaiSpecialistExtraYield.setAt(eSpecialist, yields);
-		CvAssert(getSpecialistExtraYield(eSpecialist, eYield) >= 0);
 
 		updateSpecialistYieldsAll();
 	}
@@ -11038,6 +11121,10 @@ int CvPlayer::getJONSCultureTimes100() const
 
 void CvPlayer::setJONSCultureTimes100(int iNewValue)
 {
+	stringstream s;
+	s << "CvPlayer:setJONSCultureTimes100 " << " " << GetID() << " " << iNewValue;
+	GC.debugState(s); // CvPlayer::setJONSCultureTimes100
+
 	if (getJONSCultureTimes100() != iNewValue)
 	{
 		// Add to the total we've ever had
@@ -18449,201 +18536,15 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 		GuiDllWrap->PublishEndTurnDirty(GetID());
 
 
-		/////////////////////////////////////////////
-		// TURN IS BEGINNING
-		/////////////////////////////////////////////
-
 		if(isTurnActive())
 		{
-			CvAssertMsg(isAlive(), "isAlive is expected to be true");
-
-			setEndTurn(false);
-
-			DoUnitAttrition();
-
-			if(kGame.getActivePlayer() == m_eID)
-			{
-				CvMap& theMap = GC.getMap();
-				theMap.updateDeferredFog();
-			}
-
-			if((kGame.isHotSeat() || kGame.isPbem()) && isHuman() && bDoTurn)
-			{
-				DLLUI->clearEventMessages();
-
-				kGame.setActivePlayer(GetID());
-			}
-
-			if(CvPreGame::isPitBoss() && kGame.getActivePlayer() != m_eID && isHuman() && gDLL->IsHost() && !isConnected())
-			{//send turn reminder if the player isn't actively connected to the game.
-				sendTurnReminder();
-			}
-
-			//std::ostringstream infoStream;
-			//infoStream << "setTurnActive() for player ";
-			//infoStream << (int)GetID();
-			//infoStream << " ";
-			//infoStream << getName();
-			//kGame.logNumGameTurnActive(1, infoStream.str());
-
-			GuiDllWrap->PublishPlayerTurnStatus(GetID(), DLLUIClass::TURN_START);
-
-			if(bDoTurn)
-			{
-				SetAllUnitsUnprocessed();
-
-				bool bCommonPathFinderMPCaching = GC.getPathFinder().SetMPCacheSafe(true);
-				bool bIgnoreUnitsPathFinderMPCaching = GC.getIgnoreUnitsPathFinder().SetMPCacheSafe(true);
-				bool bTacticalPathFinderMPCaching = GC.GetTacticalAnalysisMapFinder().SetMPCacheSafe(true);
-				bool bInfluencePathFinderMPCaching = GC.getInfluenceFinder().SetMPCacheSafe(true);
-				bool bRoutePathFinderMPCaching = GC.getRouteFinder().SetMPCacheSafe(true);
-				bool bWaterRoutePathFinderMPCaching = GC.GetWaterRouteFinder().SetMPCacheSafe(true);
-
-				{
-					AI_PERF_FORMAT("AI-perf.csv", ("Connections/Gold, Turn %03d, %s", kGame.getElapsedGameTurns(), getCivilizationShortDescription()) );
-
-					// This block all has things which might change based on city connections changing
-					m_pCityConnections->Update();
-					GetTreasury()->DoUpdateCityConnectionGold();
-					DoUpdateHappiness();
-				}
-
-				{
-					AI_PERF_FORMAT("AI-perf.csv", ("Builder Tasking, Turn %03d, %s", kGame.getElapsedGameTurns(), getCivilizationShortDescription()) );
-
-					m_pBuilderTaskingAI->Update();
-				}
-
-				if(kGame.isFinalInitialized())
-				{
-					if(isAlive())
-					{
-						if(GetDiplomacyRequests())
-						{
-							GetDiplomacyRequests()->BeginTurn();
-						}
-
-						doTurn();
-
-						doTurnUnits();
-					}
-				}
-
-				GC.getPathFinder().SetMPCacheSafe(bCommonPathFinderMPCaching);
-				GC.getIgnoreUnitsPathFinder().SetMPCacheSafe(bIgnoreUnitsPathFinderMPCaching);
-				GC.GetTacticalAnalysisMapFinder().SetMPCacheSafe(bTacticalPathFinderMPCaching);
-				GC.getInfluenceFinder().SetMPCacheSafe(bInfluencePathFinderMPCaching);
-				GC.getRouteFinder().SetMPCacheSafe(bRoutePathFinderMPCaching);
-				GC.GetWaterRouteFinder().SetMPCacheSafe(bWaterRoutePathFinderMPCaching);
-
-				if((GetID() == kGame.getActivePlayer()) && (kGame.getElapsedGameTurns() > 0))
-				{
-					if(kGame.isNetworkMultiPlayer())
-					{
-						// remove turn begin notification
-						//GC.messagePlayer(0, GetID(), true, GC.getEVENT_MESSAGE_TIME(), GetLocalizedText("TXT_KEY_MISC_TURN_BEGINS").GetCString(), "AS2D_NEWTURN", MESSAGE_TYPE_DISPLAY_ONLY);
-					}
-				}
-
-				doWarnings();
-			}
-
-			if(GetID() == kGame.getActivePlayer())
-			{
-				GetUnitCycler().Rebuild();
-
-				{ // add city recon vision
-					const EraTypes era = GetCurrentEra();
-					int visionRadius;
-					switch (era)
-					{
-					case 0:  visionRadius = 3; break; // ancient
-					case 1:  visionRadius = 4; break; // classical
-					default: visionRadius = 5; break; // remaining
-					}
-					if (!isHuman()) // ai vision boost
-						visionRadius += 5;
-
-					int iLoop = 0;
-					for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-					{
-						CvPlot* plot = pLoopCity->plot();
-						if (plot->getReconCount() < 1)
-							plot->changeReconCount(+1);
-						plot->changeAdjacentSight(getTeam(), visionRadius, true, NO_INVISIBLE, NO_DIRECTION, true);
-					}
-				}
-
-				if(DLLUI->GetLengthSelectionList() == 0)
-				{
-					DLLUI->setCycleSelectionCounter(1);
-				}
-
-				DLLUI->setDirty(SelectionCamera_DIRTY_BIT, true);
-
-				// slewis - added this so the tutorial knows when a turn begins
-				GuiDllWrap->PublishActivePlayerTurnStart(GetID());
-			}
-			else if(isHuman() && kGame.isGameMultiPlayer())
-			{
-				GuiDllWrap->PublishRemotePlayerTurnStart(GetID());
-			}
+			// TURN IS BEGINNING
+			DoTurnBegin(bDoTurn);
 		}
-		/////////////////////////////////////////////
-		// TURN IS ENDING
-		/////////////////////////////////////////////
 		else // turn not active
 		{
-			CvAssertFmt(GetEndTurnBlockingType() == NO_ENDTURN_BLOCKING_TYPE, "Expecting the end-turn blocking to be NO_ENDTURN_BLOCKING_TYPE, got %d", GetEndTurnBlockingType());
-			SetEndTurnBlocking(NO_ENDTURN_BLOCKING_TYPE, -1);	// Make sure this is clear so the UI doesn't block when it is not our turn.
-
-			DoUnitReset();
-
-			if(!isHuman())
-			{
-				RespositionInvalidUnits();
-			}
-
-			if(GetNotifications())
-			{
-				GetNotifications()->EndOfTurnCleanup();
-			}
-
-			if(GetDiplomacyRequests())
-			{
-				GetDiplomacyRequests()->EndTurn();
-			}
-
-#if defined(NQM_UNIT_FIX_FORTIFY_BONUS_RECEIVED_END_OF_TURN_NOT_INSTANTLY) || defined(NQM_UNIT_NO_AA_INTERCEPT_AFTER_MOVE_BEFORE_TURN_END) || defined(NQM_UNIT_FIGHTER_NO_INTERCEPT_UNTIL_AFTER_TURN_END)
-			int iLoop;
-			for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
-			{
-#ifdef NQM_UNIT_FIX_FORTIFY_BONUS_RECEIVED_END_OF_TURN_NOT_INSTANTLY
-				// Only increase our Fortification level if we've actually been told to Fortify
-				if (pLoopUnit->IsFortifiedThisTurn())
-				{
-					pLoopUnit->changeFortifyTurns(1);
-				}
-#endif
-#if defined(NQM_UNIT_NO_AA_INTERCEPT_AFTER_MOVE_BEFORE_TURN_END) || defined(NQM_UNIT_FIGHTER_NO_INTERCEPT_UNTIL_AFTER_TURN_END)
-				pLoopUnit->setIsInterceptBlockedUntilEndTurn(false);
-#endif
-			}
-#endif
-
-			if(GetID() == kGame.getActivePlayer())
-			{
-				GuiDllWrap->PublishActivePlayerTurnEnd(GetID());
-			}
-
-			// should this player not have their turn active?
-			//const bool isAiControlled = !isHuman() || kGame.getAIAutoPlay();
-			//const bool shouldSkip = isHuman() && !isAlive();
-			//const bool playerIsDoneWithTurn = isHuman() && gDLL->HasReceivedTurnAllComplete(GetID());
-			//if (isAiControlled || shouldSkip || playerIsDoneWithTurn)
-			//	kGame.logNumGameTurnActive(-1, std::string("setTurnActive() for player ") + getName());
-
-			GuiDllWrap->PublishPlayerTurnStatus(GetID(), DLLUIClass::TURN_END);
+			// TURN IS ENDING
+			DoTurnEnd();
 		}
 	}
 	else
@@ -18652,6 +18553,166 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 		logOutput.Format("SetTurnActive() called without changing the end turn status. Player(%i) OldTurnActive(%i) NewTurnActive(%i)", GetID(), isTurnActive(), bNewValue);
 		gDLL->netMessageDebugLog(logOutput);
 	}
+}
+void CvPlayer::DoTurnBegin(const bool bDoTurn)
+{
+	CvGame& kGame = GC.getGame();
+	CvAssertMsg(isAlive(), "isAlive is expected to be true");
+
+	setEndTurn(false);
+
+	if (kGame.getActivePlayer() == m_eID)
+	{
+		CvMap& theMap = GC.getMap();
+		theMap.updateDeferredFog();
+	}
+
+	if ((kGame.isHotSeat() || kGame.isPbem()) && isHuman() && bDoTurn)
+	{
+		DLLUI->clearEventMessages();
+
+		kGame.setActivePlayer(GetID());
+	}
+
+	if (CvPreGame::isPitBoss() && kGame.getActivePlayer() != m_eID && isHuman() && gDLL->IsHost() && !isConnected())
+	{//send turn reminder if the player isn't actively connected to the game.
+		sendTurnReminder();
+	}
+
+	//std::ostringstream infoStream;
+	//infoStream << "setTurnActive() for player ";
+	//infoStream << (int)GetID();
+	//infoStream << " ";
+	//infoStream << getName();
+	//kGame.logNumGameTurnActive(1, infoStream.str());
+
+	GuiDllWrap->PublishPlayerTurnStatus(GetID(), DLLUIClass::TURN_START);
+
+	if (bDoTurn)
+	{
+		DoUnitAttrition();
+		SetAllUnitsUnprocessed();
+
+		bool bCommonPathFinderMPCaching = GC.getPathFinder().SetMPCacheSafe(true);
+		bool bIgnoreUnitsPathFinderMPCaching = GC.getIgnoreUnitsPathFinder().SetMPCacheSafe(true);
+		bool bTacticalPathFinderMPCaching = GC.GetTacticalAnalysisMapFinder().SetMPCacheSafe(true);
+		bool bInfluencePathFinderMPCaching = GC.getInfluenceFinder().SetMPCacheSafe(true);
+		bool bRoutePathFinderMPCaching = GC.getRouteFinder().SetMPCacheSafe(true);
+		bool bWaterRoutePathFinderMPCaching = GC.GetWaterRouteFinder().SetMPCacheSafe(true);
+
+		{
+			AI_PERF_FORMAT("AI-perf.csv", ("Connections/Gold, Turn %03d, %s", kGame.getElapsedGameTurns(), getCivilizationShortDescription()));
+
+			// This block all has things which might change based on city connections changing
+			m_pCityConnections->Update();
+			GetTreasury()->DoUpdateCityConnectionGold();
+			DoUpdateHappiness();
+		}
+
+		{
+			AI_PERF_FORMAT("AI-perf.csv", ("Builder Tasking, Turn %03d, %s", kGame.getElapsedGameTurns(), getCivilizationShortDescription()));
+
+			m_pBuilderTaskingAI->Update();
+		}
+
+		if (kGame.isFinalInitialized())
+		{
+			if (isAlive())
+			{
+				if (GetDiplomacyRequests())
+				{
+					GetDiplomacyRequests()->BeginTurn();
+				}
+
+				DoTurn();
+
+				doTurnUnits();
+			}
+		}
+
+		GC.getPathFinder().SetMPCacheSafe(bCommonPathFinderMPCaching);
+		GC.getIgnoreUnitsPathFinder().SetMPCacheSafe(bIgnoreUnitsPathFinderMPCaching);
+		GC.GetTacticalAnalysisMapFinder().SetMPCacheSafe(bTacticalPathFinderMPCaching);
+		GC.getInfluenceFinder().SetMPCacheSafe(bInfluencePathFinderMPCaching);
+		GC.getRouteFinder().SetMPCacheSafe(bRoutePathFinderMPCaching);
+		GC.GetWaterRouteFinder().SetMPCacheSafe(bWaterRoutePathFinderMPCaching);
+		doWarnings();
+
+		TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
+		stringstream s;
+		s << "Player:DoTurnBegin " << GetID() << " " << eCurrentTech << " " << GetNonLeaderBoostT100() << " " << m_iOverflowResearch << " " << GetScienceTimes100(true);
+		GC.debugState(s); // Player::DoTurnBegin
+	}
+
+	if (GetID() == kGame.getActivePlayer())
+	{
+		GetUnitCycler().Rebuild();
+
+		if (DLLUI->GetLengthSelectionList() == 0)
+		{
+			DLLUI->setCycleSelectionCounter(1);
+		}
+
+		DLLUI->setDirty(SelectionCamera_DIRTY_BIT, true);
+
+		// slewis - added this so the tutorial knows when a turn begins
+		GuiDllWrap->PublishActivePlayerTurnStart(GetID());
+	}
+	else if (isHuman() && kGame.isGameMultiPlayer())
+	{
+		GuiDllWrap->PublishRemotePlayerTurnStart(GetID());
+	}
+}
+void CvPlayer::DoTurnEnd()
+{
+	CvGame& kGame = GC.getGame();
+	CvAssertFmt(GetEndTurnBlockingType() == NO_ENDTURN_BLOCKING_TYPE, "Expecting the end-turn blocking to be NO_ENDTURN_BLOCKING_TYPE, got %d", GetEndTurnBlockingType());
+	SetEndTurnBlocking(NO_ENDTURN_BLOCKING_TYPE, -1);	// Make sure this is clear so the UI doesn't block when it is not our turn.
+
+	// primary turn end logic
+	{
+		DoUpdateCardBenefits(); // card benefits
+		DoUnitReset(); // restore moves and heal
+		if (!isHuman()) { RespositionInvalidUnits(); } // reposition invalidly placed units
+		if (GetNotifications()) { GetNotifications()->EndOfTurnCleanup(); } // dismiss notifications
+		if (GetDiplomacyRequests()) { GetDiplomacyRequests()->EndTurn(); } // unknown
+
+		TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
+		stringstream s;
+		s << "Player:DoTurnEnd " << GetID() << " " << eCurrentTech << " " << GetNonLeaderBoostT100() << " " << m_iOverflowResearch << " " << GetScienceTimes100(true);
+		GC.debugState(s); // Player::DoTurnEnd
+	}
+
+#if defined(NQM_UNIT_FIX_FORTIFY_BONUS_RECEIVED_END_OF_TURN_NOT_INSTANTLY) || defined(NQM_UNIT_NO_AA_INTERCEPT_AFTER_MOVE_BEFORE_TURN_END) || defined(NQM_UNIT_FIGHTER_NO_INTERCEPT_UNTIL_AFTER_TURN_END)
+	int iLoop;
+	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+	{
+#ifdef NQM_UNIT_FIX_FORTIFY_BONUS_RECEIVED_END_OF_TURN_NOT_INSTANTLY
+		// Only increase our Fortification level if we've actually been told to Fortify
+		if (pLoopUnit->IsFortifiedThisTurn())
+		{
+			pLoopUnit->changeFortifyTurns(1);
+		}
+#endif
+#if defined(NQM_UNIT_NO_AA_INTERCEPT_AFTER_MOVE_BEFORE_TURN_END) || defined(NQM_UNIT_FIGHTER_NO_INTERCEPT_UNTIL_AFTER_TURN_END)
+		pLoopUnit->setIsInterceptBlockedUntilEndTurn(false);
+#endif
+	}
+#endif
+
+	if (GetID() == kGame.getActivePlayer())
+	{
+		GuiDllWrap->PublishActivePlayerTurnEnd(GetID());
+	}
+
+	// should this player not have their turn active?
+	//const bool isAiControlled = !isHuman() || kGame.getAIAutoPlay();
+	//const bool shouldSkip = isHuman() && !isAlive();
+	//const bool playerIsDoneWithTurn = isHuman() && gDLL->HasReceivedTurnAllComplete(GetID());
+	//if (isAiControlled || shouldSkip || playerIsDoneWithTurn)
+	//	kGame.logNumGameTurnActive(-1, std::string("setTurnActive() for player ") + getName());
+
+	GuiDllWrap->PublishPlayerTurnStatus(GetID(), DLLUIClass::TURN_END);
 }
 
 //	----------------------------------------------------------------------------
@@ -21312,10 +21373,14 @@ void CvPlayer::changeBuildingClassMaking(BuildingClassTypes eIndex, int iChange)
 				CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 				if(pkResourceInfo)
 				{
-					if(pkBuildingInfo->GetResourceQuantityRequirement(iResourceLoop) > 0)
-					{
-						changeNumResourceUsed(eResource, iChange * pkBuildingInfo->GetResourceQuantityRequirement(iResourceLoop));
-					}
+					const int startOrStopConstruction = iChange * -pkBuildingInfo->GetResourceCostLump(eResource);
+					changeResourceCumulative(eResource, startOrStopConstruction);
+
+					// do not consume per turn resources while constructing!
+					//if(pkBuildingInfo->GetResourceQuantityRequirement(iResourceLoop) > 0)
+					//{
+					//	changeNumResourceUsed(eResource, iChange * pkBuildingInfo->GetResourceQuantityRequirement(iResourceLoop));
+					//}
 				}
 
 			}
@@ -28294,7 +28359,8 @@ void CvPlayer::CardsActivate(int cardIdx)
 	{
 		const TradingCardTypes cardType = m_cards[cardIdx].type;
 		// we don't satisfy the condition yet!
-		const bool satisfiesActive = TradingCard::IsConditionSatisfied(cardType, this, true);
+		stringstream ss;
+		const bool satisfiesActive = TradingCard::CanActivate(cardType, this, &ss);
 		if (satisfiesActive)
 		{
 			const string activePolicyName = TradingCard::GetActivePolicy(cardType);
@@ -28381,7 +28447,6 @@ bool CvPlayer::CardsHasAny(TradingCardTypes cardType) const
 {
 	return CardsCount(cardType) >= 1;
 }
-// called at the end of each turn, correctly updates passive benefits
 void CvPlayer::DoUpdateCardBenefits()
 {
 	// check EVERY card type since we may have lost a passive card whos policy now needs to get removed
@@ -28407,3 +28472,7 @@ void CvPlayer::CardsOnChanged()
 	DLLUI->setDirty(CardsDirtyBit, true);
 }
 
+TradingCardTypes CvPlayer::CardsGetRandomValid() const
+{
+	return (TradingCardTypes)0;
+}

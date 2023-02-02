@@ -998,6 +998,7 @@ enum ButtonPopupTypes
 
 	NUM_FIXED_BUTTONPOPUP_TYPES,		// Do not add any more sequential enums!  Use hash values!
 };
+const ButtonPopupTypes BUTTONPOPUP_TRADING_CARDS = (ButtonPopupTypes)7091; // 7091 was arbitrarily chosen, but must match the value elsewhere
 
 //////////////////////////////////////////
 //    /\   | |    |  ____|  __ \__   __| |

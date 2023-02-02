@@ -101,6 +101,7 @@ public:
 	int GetPrereqAndTech() const;
 	int GetEra() const;
 	int GetPolicyBranchType() const;
+	int GetPolicyType() const;
 	int GetPolicyBranchTypeDisable() const;
 	int GetScientificInfluencePerTurn() const;
 	int GetSpecialistType() const;
@@ -287,6 +288,7 @@ public:
 	int GetDomainProductionModifier(int i) const;
 	int GetLockedBuildingClasses(int i) const;
 	int GetPrereqAndTechs(int i) const;
+	int GetResourceCostLump(ResourceTypes e) const;
 	int GetResourceQuantityRequirement(int i) const;
 	int GetResourceQuantity(int i) const;
 	int GetResourceCultureChange(int i) const;
@@ -343,6 +345,7 @@ private:
 	int m_iReplacementBuildingClass;
 	int m_iPrereqAndTech;
 	int m_iPolicyBranchType;
+	int m_iPolicyType;
 	int m_iPolicyBranchTypeDisable;
 	int m_iScientificInfluence;
 	int m_iSpecialistType;
@@ -500,6 +503,7 @@ private:
 
 	int* m_piLockedBuildingClasses;
 	int* m_piPrereqAndTechs;
+	int* m_piResourceCostLump;
 	int* m_piResourceQuantityRequirements;
 	int* m_piResourceQuantity;
 	int* m_piResourceCultureChanges;
