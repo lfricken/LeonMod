@@ -623,6 +623,62 @@ int CvPlot::getExtraYield
 					yieldChange += 3;
 			}
 
+			{// CARD_MEDIEVAL_RESOURCE_GILLNETS - +2 PD to Fish
+				const bool hasGillnetsCard = player.HasPolicy("POLICY_CARD_MEDIEVAL_RESOURCE_GILLNETS_PASSIVE");
+				const bool isFish = plot.HasResource("RESOURCE_FISH");
+				if (eYieldType == YIELD_PRODUCTION && hasGillnetsCard && isFish)
+					yieldChange += 2;
+			}
+
+			{// CARD_MEDIEVAL_RESOURCE_PRECIOUS_METALS - +2C +2G to Metals
+				const bool hasPreciousCard = player.HasPolicy("POLICY_CARD_MEDIEVAL_RESOURCE_PRECIOUS_METALS_PASSIVE");
+				const bool isPreciousMetal = plot.HasResource("RESOURCE_GOLD") || 
+					plot.HasResource("RESOURCE_SILVER") ||
+					plot.HasResource("RESOURCE_GEMS");
+				if (eYieldType == YIELD_CULTURE && hasPreciousCard && isPreciousMetal)
+					yieldChange += 2;
+				if (eYieldType == YIELD_GOLD && hasPreciousCard && isPreciousMetal)
+					yieldChange += 2;
+			}
+
+			{// CARD_MEDIEVAL_RESOURCE_SILK_ROAD - +2C +2G to Silk Road
+				const bool hasSilkRoadCard = player.HasPolicy("POLICY_CARD_MEDIEVAL_RESOURCE_SILK_ROAD_PASSIVE");
+				const bool isSilkyResource = plot.HasResource("RESOURCE_SILK") ||
+					plot.HasResource("RESOURCE_JADE") ||
+					plot.HasResource("RESOURCE_DYE") ||
+					plot.HasResource("RESOURCE_PERFUME");
+				if (eYieldType == YIELD_CULTURE && hasSilkRoadCard && isSilkyResource)
+					yieldChange += 2;
+				if (eYieldType == YIELD_GOLD && hasSilkRoadCard && isSilkyResource)
+					yieldChange += 2;
+			}
+
+			{// CARD_MEDIEVAL_RESOURCE_SPICE_TRADE - +2C +1FD to Spice Trade
+				const bool hasSpiceTradeCard = player.HasPolicy("POLICY_CARD_MEDIEVAL_RESOURCE_SPICE_TRADE_PASSIVE");
+				const bool isSpiceyResource = plot.HasResource("RESOURCE_SPICES") ||
+					plot.HasResource("RESOURCE_INCENSE") ||
+					plot.HasResource("RESOURCE_COCONUT") ||
+					plot.HasResource("RESOURCE_BANANA");
+				if (eYieldType == YIELD_CULTURE && hasSpiceTradeCard && isSpiceyResource)
+					yieldChange += 2;
+				if (eYieldType == YIELD_FOOD && hasSpiceTradeCard && isSpiceyResource)
+					yieldChange += 1;
+			}
+
+			{// CARD_MEDIEVAL_RESOURCE_VITICULTURE - +2C +2FD to Wine. +1G Farms.
+				const bool hasViticultureCard = player.HasPolicy("POLICY_CARD_MEDIEVAL_RESOURCE_VITICULTURE_PASSIVE");
+				const bool isWine = plot.HasResource("RESOURCE_WINE");
+				const bool hasFarm = plot.HasImprovement("IMPROVEMENT_FARM");
+				if (eYieldType == YIELD_GOLD && hasViticultureCard && hasFarm)
+					yieldChange += 1;
+				if (eYieldType == YIELD_CULTURE && hasViticultureCard && isWine)
+					yieldChange += 2;
+				if (eYieldType == YIELD_FOOD && hasViticultureCard && isWine)
+					yieldChange += 2;
+				
+			}
+			
+
 		}
 	}
 
