@@ -1757,7 +1757,7 @@ public:
 	CvTacticalAI* GetTacticalAI() const;
 	CvHomelandAI* GetHomelandAI() const;
 
-	// total number of policies owned by this player BY ANY MEANS EXCEPT policies owned on turn 1
+	// total number of policies owned by this player BY ANY MEANS EXCEPT policies owned on turn 1, and HiddenFromPolicyCount
 	int CvPlayer::GetNumPoliciesTotal() const;
 	// true if this player has this policy
 	// includes ideology
