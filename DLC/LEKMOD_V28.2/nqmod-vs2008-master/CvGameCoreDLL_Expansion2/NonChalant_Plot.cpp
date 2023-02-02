@@ -674,8 +674,21 @@ int CvPlot::getExtraYield
 				if (eYieldType == YIELD_CULTURE && hasViticultureCard && isWine)
 					yieldChange += 2;
 				if (eYieldType == YIELD_FOOD && hasViticultureCard && isWine)
-					yieldChange += 2;
-				
+					yieldChange += 2;				
+			}
+
+			{// CARD_ANCIENT_RESOURCES_INUITS - +2PD to Whales.
+				const bool hasInuitsCard = player.HasPolicy("POLICY_CARD_ANCIENT_RESOURCES_INUITS_PASSIVE");
+				const bool isWhale = plot.HasResource("RESOURCE_WHALE");				
+				if (eYieldType == YIELD_PRODUCTION && hasInuitsCard && isWhale)
+					yieldChange += 1;
+			}
+
+			{// CARD_ANCIENT_RESOURCES_INUITS - +2PD to Whales.
+				const bool hasBedouinsCard = player.HasPolicy("POLICY_CARD_ANCIENT_RESOURCES_BEDOUINS_PASSIVE");
+				const bool isOases = plot.HasFeature("FEATURE_OASIS");
+				if (eYieldType == YIELD_FOOD && hasBedouinsCard && isOases)
+					yieldChange += 1;
 			}
 			
 
