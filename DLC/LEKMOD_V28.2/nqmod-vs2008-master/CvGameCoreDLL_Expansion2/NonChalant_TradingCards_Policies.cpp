@@ -51,6 +51,8 @@ string TradingCard::GetActivePolicy(TradingCardTypes type)
 	case CARD_CLASSICAL_WONDERS_PARTHENON: return "POLICY_CARD_CLASSICAL_WONDERS_PARTHENON_ACTIVE";
 	case CARD_ANCIENT_WONDERS_STATUE_OF_ZEUS: return "POLICY_CARD_ANCIENT_WONDERS_STATUE_OF_ZEUS_ACTIVE";
 	case CARD_ANCIENT_WONDERS_TEMPLE_OF_ARTEMIS: return "POLICY_CARD_ANCIENT_WONDERS_TEMPLE_OF_ARTEMIS_ACTIVE";
+	case CARD_MEDIEVAL_BUILDINGS_FEALTY: return "POLICY_CARD_MEDIEVAL_BUILDINGS_FEALTY_ACTIVE";
+	
 	
 	default: return "";
 	};
@@ -111,6 +113,9 @@ string TradingCard::GetPassivePolicy(TradingCardTypes type)
 	case CARD_MEDIEVAL_UNITS_REPEATING_CROSSBOWS: return "POLICY_CARD_MEDIEVAL_UNITS_REPEATING_CROSSBOWS_PASSIVE";
 	case CARD_MEDIEVAL_UNITS_FEUDALISM: return "POLICY_CARD_MEDIEVAL_UNITS_FEUDALISM_PASSIVE";
 	case CARD_ANCIENT_WONDERS_HIPPODAMUS_OF_MILETUS: return "POLICY_CARD_ANCIENT_WONDERS_HIPPODAMUS_OF_MILETUS_PASSIVE";
+	case CARD_CLASSICAL_BUILDINGS_CANNON_OF_TEN: return "POLICY_CARD_CLASSICAL_BUILDINGS_CANNON_OF_TEN_PASSIVE";
+	case CARD_MEDIEVAL_BUILDINGS_CAMBRIDGE_UNIVERSITY: return "POLICY_CARD_MEDIEVAL_BUILDINGS_CAMBRIDGE_UNIVERSITY_PASSIVE";
+	
 	
 	
 
@@ -289,6 +294,24 @@ bool TradingCard::IsConditionSatisfied(TradingCardTypes type, const CvPlayer* pP
 			return false;
 		}
 	}
+	case CARD_CLASSICAL_BUILDINGS_CANNON_OF_TEN:
+	{
+		
+		int numAmphitheaters = player.countNumBuildingClasses(BuildingClassTypes(19)); 
+		if (numAmphitheaters < 10)
+		{
+			return false;
+		}
+	}
+	case CARD_MEDIEVAL_BUILDINGS_FEALTY:
+	{
+		int numCastles = player.countNumBuildingClasses(BuildingClassTypes(19));	
+		if (numCastles < 6)
+		{
+			return false;
+		}
+	}
+
 
 	default: return true;
 	}

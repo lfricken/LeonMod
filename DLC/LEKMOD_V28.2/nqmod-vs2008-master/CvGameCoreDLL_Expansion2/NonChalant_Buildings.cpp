@@ -506,6 +506,33 @@ BuildingAddType CvPlayer::ShouldHaveBuilding(const CvPlayer& rPlayer, const CvCi
 		}
 	}
 
+	{// CARD_MEDIEVAL_BUILDINGS_CAMBRIDGE_UNIVERSITY free Cambridge University if Oxford University + Wings
+		const bool isCambridgeUniversity = eBuildingClass == BuildingClass("BUILDINGCLASS_CARD_MEDIEVAL_BUILDINGS_CAMBRIDGE_UNIVERSITY");
+		if (isCambridgeUniversity)
+		{
+			const bool hasCambrigeCard = rPlayer.HasPolicy("POLICY_CARD_MEDIEVAL_BUILDINGS_CAMBRIDGE_UNIVERSITY_PASSIVE");
+			const bool hasOxford1 = rCity.HasBuildingClass(BuildingClassTypes(53));
+			const bool hasOxford2 = rCity.HasBuildingClass(BuildingClassTypes(229));
+			const bool hasOxford3 = rCity.HasBuildingClass(BuildingClassTypes(230));
+			if (hasCambrigeCard && hasOxford1 && hasOxford2 && hasOxford3)
+				return ADD;
+			else
+				return REMOVE;
+		}
+	}
+
+	{// CARD_MEDIEVAL_BUILDINGS_FEALTY free Fealty Building in Capital
+		const bool isFealtyBuilding = eBuildingClass == BuildingClass("BUILDINGCLASS_CARD_MEDIEVAL_BUILDINGS_FEALTY");
+		if (isFealtyBuilding)
+		{
+			const bool hasFealtyCard = rPlayer.HasPolicy("POLICY_CARD_MEDIEVAL_BUILDINGS_FEALTY_ACTIVE");			
+			if (hasFealtyCard && isYourCapital)
+				return ADD;
+			else
+				return REMOVE;
+		}
+	}
+
 	return INDIFFERENT;
 }
 int CvPlayer::getSpecialistGpp(const CvCity* pCity, const SpecialistTypes eSpecialist, const SpecialistTypes eGppType, const bool) const
@@ -664,6 +691,12 @@ int CvPlayer::getSpecialistYieldHardcoded(const CvCity* pCity, const SpecialistT
 			change += 1;
 		if (eYield == YIELD_SCIENCE && hasPorcelainTower && isScientist)
 			change += 1;
+	}
+
+	{// CARD_CLASSICAL_BUILDINGS_CANNON_OF_TEN gives +1T to Writer, Artist and Musician Specialists
+		const bool hasCannonCard = player.HasPolicy("POLICY_CARD_CLASSICAL_BUILDINGS_CANNON_OF_TEN_PASSIVE");
+		if (eYield == YIELD_TOURISM && hasCannonCard && (isMusician || isWriter || isArtist))
+			change += 1;		
 	}
 
 	return change;
