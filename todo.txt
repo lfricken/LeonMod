@@ -1,5 +1,22 @@
 
 
+get rid of grid point logic
+extract things to functions
+map gen would join function
+map gen script fill variable
+map gen script snake variable
+
+
+
+
+
+
+
+
+
+
+
+
 created new world:
 
 

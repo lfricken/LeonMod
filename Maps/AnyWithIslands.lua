@@ -2,7 +2,7 @@
 --	FILE:	 Lekmapv2.2.lua (Modified Pangaea_Plus.lua)
 --	AUTHOR:  Original Bob Thomas, Changes HellBlazer, lek10, EnormousApplePie, Cirra, Meota
 --	PURPOSE: Global map script - Simulates a Pan-Earth Supercontinent, with
---           numerous tectonic island chains.
+--		   numerous tectonic island chains.
 ------------------------------------------------------------------------------
 --	Copyright (c) 2011 Firaxis Games, Inc. All rights reserved.
 ------------------------------------------------------------------------------
@@ -528,32 +528,8 @@ function GeneratePlotTypes()
 	local plotTypes = fractal_world:GeneratePlotTypes(args);
 	--local x = fractal_world:Plots();
 
-	for x = 0, maxX - 1 do
-		for y = 0, maxY - 1 do
-			local i = GetI(x,y,maxX);
-			plotTypes[i] = RandomPlot(10,40,0,1);
-		end
-	end
 
-	local points = GetIndexesOrderedRing(5,5,maxX,maxY);
-	for k,i in pairs(points) do
-		print("1 " .. i)
-		plotTypes[i] = RandomPlot(0,0,10,0);
-	end
-
-	local points = GetIndexesOrderedRing(10,10,maxX,maxY);
-	for k,i in pairs(points) do
-		print("2 " .. i)
-		plotTypes[i] = RandomPlot(0,0,10,0);
-	end
-
-	local points = GetIndexesOrderedRing(20,11,maxX,maxY);
-	for k,i in pairs(points) do
-		print("3 " .. i)
-		plotTypes[i] = RandomPlot(0,0,10,0);
-	end
-
-	--[[ add random islands
+	-- add random islands
 	for x = 0, maxX - 1 do
 		for y = 0, maxY - 1 do
 			local i = GetI(x,y,maxX);
@@ -602,11 +578,22 @@ function GeneratePlotTypes()
 
 	local numGrowths = 0;
 
+	-- remove single islands
+	for x = 0, maxX - 1 do
+		for y = 0, maxY - 1 do
+			if (IsSingleIsland(plotTypes, x, y, maxX, maxY)) then
+				local i = GetI(x,y,maxX);
+				plotTypes[i] = PlotTypes.PLOT_OCEAN;
+				print("Removed Single Island");
+			end
+		end
+	end
+
 
 	-- grow land
-	numGrowths = 2;
+	numGrowths = 1;
 	for iter = 1, numGrowths do
-		print ("Growing Land");
+		--print("Growing Land");
 		local toMakeLandIdx = {}; -- avoid growing an island multiple times in the same direction
 		for x = 0, maxX - 1 do
 			for y = 0, maxY - 1 do
@@ -616,7 +603,7 @@ function GeneratePlotTypes()
 
 					local radius = 1;
 					local countAdjacentLand = 0;
-					local points = GetIndexesAround(x,y,maxX,maxY,radius);
+					local points = GetIndexesAround(x,y,maxX,maxY,1);
 					for k,index in pairs(points) do
 						if plotTypes[index] ~= PlotTypes.PLOT_OCEAN then -- if adjacent land
 							countAdjacentLand = countAdjacentLand + 1;
@@ -651,7 +638,7 @@ function GeneratePlotTypes()
 	-- fill land
 	numGrowths = 3;
 	for _ = 1, numGrowths do
-		print ("Filling Land");
+		--print("Filling Land");
 		for x = 0, maxX - 1 do
 			for y = 0, maxY - 1 do
 
@@ -662,7 +649,7 @@ function GeneratePlotTypes()
 					local countSwitches = 0;
 					local wasLastLand = false;
 					local bHasAnyAdjacentLand = false;
-					local points = GetIndexesOrderedRing(x,y,maxX,maxY,radius);
+					local points = GetIndexesAround(x,y,maxX,maxY,1);
 					local countAdjacentLand = 0;
 					for k,index in pairs(points) do
 						local bIsLand = (plotTypes[index] ~= PlotTypes.PLOT_OCEAN); -- if adjacent land
@@ -691,7 +678,7 @@ function GeneratePlotTypes()
 					if bMakeLand then -- make changes immediately to avoid running over eachother
 						--table.insert(toMakeLandIdx, iCenter);
 						plotTypes[iCenter] = RandomPlot(20,30,10,0); -- make this one land too
-						--print ("filled_");
+						--print("filled_");
 						--print("made land");
 					end
 				end
@@ -705,9 +692,9 @@ function GeneratePlotTypes()
 
 
 	-- grow land
-	numGrowths = 2;
+	numGrowths = 1;
 	for iter = 1, numGrowths do
-		print ("Growing Land");
+		--print("Growing Land");
 		local toMakeLandIdx = {}; -- avoid growing an island multiple times in the same direction
 		for x = 0, maxX - 1 do
 			for y = 0, maxY - 1 do
@@ -717,7 +704,7 @@ function GeneratePlotTypes()
 
 					local radius = 1;
 					local countAdjacentLand = 0;
-					local points = GetIndexesAround(x,y,maxX,maxY,radius);
+					local points = GetIndexesAround(x,y,maxX,maxY,1);
 					for k,index in pairs(points) do
 						if plotTypes[index] ~= PlotTypes.PLOT_OCEAN then -- if adjacent land
 							countAdjacentLand = countAdjacentLand + 1;
@@ -735,7 +722,6 @@ function GeneratePlotTypes()
 
 					if makeLand then
 						addToSet(toMakeLandIdx, iCenter);
-						--print("made land");
 					end
 				end
 			end
@@ -747,19 +733,20 @@ function GeneratePlotTypes()
 	end
 
 
+	--printMapToLua(plotTypes, maxX, maxY);
+
 	-- remove single islands
 	for x = 0, maxX - 1 do
 		for y = 0, maxY - 1 do
-			local i = GetI(x,y,maxX);
-			local islandSize = GenIslandSize(islandSizeMin,islandSizeMax,geometricReduction);
-			if plotTypes[i] ~= PlotTypes.PLOT_OCEAN then
-				if (IsSingleIsland(plotTypes,x,y,maxX)) then
-					RandomIsland(plotTypes,x,y,maxX,islandPoleMinSize+Map.Rand(4, "Pole Size")+math.floor(islandSizeMax/3), 0);
-				end
+			if (IsSingleIsland(plotTypes, x, y, maxX, maxY)) then
+				local i = GetI(x,y,maxX);
+				plotTypes[i] = PlotTypes.PLOT_OCEAN;
+				print("Removed Single Island");
 			end
 		end
 	end
 
+	--printMapToLua(plotTypes, maxX, maxY);
 
 	-- redo mountains
 	for x = 0, maxX - 1 do
@@ -775,39 +762,80 @@ function GeneratePlotTypes()
 			end
 		end
 	end
-	]]
+
+	-- creates a circle of mountains
+	--local points = GetIndexesAround(31,17,maxX,maxY,1);
+	--for k,i in pairs(points) do
+	--	plotTypes[i] = RandomPlot(0,0,10,0);
+	--end
+	--plotTypes[GetI(31,17,maxX)] = RandomPlot(0,10,0,0);
 
 
 	SetPlotTypes(plotTypes);
 
 	local args = {expansion_diceroll_table = {10, 4, 4}};
 	GenerateCoasts(args);
+
+	--printMapToLua(plotTypes, maxX, maxY);
 end
 
 function addToSet(set, key)
-    set[key] = true
+	set[key] = true
 end
 
 function removeFromSet(set, key)
-    set[key] = nil
+	set[key] = nil
 end
 
 function setContains(set, key)
-    return set[key] ~= nil
+	return set[key] ~= nil
 end
 
+function wouldConnectLandmasses(set, key)
 
-function IsSingleIsland(plotTypes,x,y,maxX,numLandTiles)
+end
 
-	local points = GetIndexesOrderedRing(x,y,maxX,maxY,1);
+function length(T)
+	local count = 0
+	for _ in pairs(T) do count = count + 1 end
+	return count
+end
 
+------------------------------------------------------------------------------
+-- Outputs the maps land/water in a lua readable format.
+------------------------------------------------------------------------------
+function printMapToLua(plotTypes, maxX, maxY)
+	-- debug print map result
+	for y = 0, maxY - 1 do
+		local str = "";
+		if (y % 2 == 0) then str = " "; end -- odd r
+		for x = 0, maxX - 1 do
+			local i = GetI(x, maxY - y - 1, maxX);
+			if plotTypes[i] ~= PlotTypes.PLOT_OCEAN then
+				str = str .. "OO";
+			else
+				str = str .. "  ";
+			end
+		end
+		print(str);
+	end
+end
+------------------------------------------------------------------------------
+-- true if the given tile is a single land tile in the ocean
+------------------------------------------------------------------------------
+function IsSingleIsland(plotTypes, x, y, maxX, maxY)
+	local i = GetI(x,y,maxX);
+	if (plotTypes[i] == PlotTypes.PLOT_OCEAN) then -- not land
+		return false;
+	end
+
+	local points = GetIndexesAround(x,y,maxX,maxY,1);
 	for k,idx in pairs(points) do
-		if plotTypes[idx] ~= PlotTypes.PLOT_OCEAN then
+		if (plotTypes[idx] ~= PlotTypes.PLOT_OCEAN) then
 			return false; -- adjacent tile was land, so skip
 		end
 	end
 
-	print ("Single Island found at" .. x .. "," .. y);
 	return true; -- we checked them all
 end
 
@@ -823,7 +851,7 @@ function IsNearLand(plotTypes,x,y,maxX,numLandTiles)
 
 	for i=1,radius*radius do
 		local p = points[i];
-    	local xOffA,yOffA = p[1]-1, p[2]-1;
+		local xOffA,yOffA = p[1]-1, p[2]-1;
 		local index = GetI(x+xOffA,y+yOffA,maxX);
 
 		-- don't replace an existing non ocean tile
@@ -882,8 +910,8 @@ function RandomIsland(plotTypes,x,y,maxX,numLandTiles,oceanChance)
 	-- we still need to place tiles!
 	if (remaining > 0) then
 		for i=1,radius*radius do -- recheck the points
-	    	p = points[i];
-	    	local xOffA, yOffA = p[1], p[2];
+			p = points[i];
+			local xOffA, yOffA = p[1], p[2];
 			local index = GetI(x+xOffA,y+yOffA,maxX);
 
 			-- replace an existing ocean tile
@@ -901,95 +929,111 @@ function RandomIsland(plotTypes,x,y,maxX,numLandTiles,oceanChance)
 
 end
 
--- starts with Northeast and goes clockwise
-function GetIndexesOrderedRing(x,y,maxX,maxY)
-	local pts = GetIndexesAround(x,y,maxX,maxY,1); 
-
-	local reorder = {};
-	table.insert(reorder, pts[1]);
-	table.insert(reorder, pts[4]);
-	table.insert(reorder, pts[7]);
-	-- skip middle
-	table.insert(reorder, pts[6]);
-	table.insert(reorder, pts[5]);
-	table.insert(reorder, pts[2]);
-	return reorder;
+------------------------------------------------------------------------------
+-- converts an x,y coordinate into an linear index
+------------------------------------------------------------------------------
+function GetI(x,y,maxX)
+	return y * maxX + x + 1;
 end
 
-local firstRingYIsEven = {{0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 0}, {-1, 1}};
-local firstRingYIsOdd = {{1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, 0}, {0, 1}};
-function dir(x,y,direction_index)
+local firstRingYIsEvenTABLE = {{0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 0}, {-1, 1}};
+local firstRingYIsOddTABLE = {{1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, 0}, {0, 1}};
+------------------------------------------------------------------------------
+-- Given an x,y and direction, returns the {x,y} of the next tile
+------------------------------------------------------------------------------
+function dir(x, y, dir0Idx)
+	dir0Idx = dir0Idx % 6; -- only 6 directions!
 	local plot_adjustments;
 	if y / 2 > math.floor(y / 2) then
-		plot_adjustments = firstRingYIsOdd[direction_index];
+		plot_adjustments = firstRingYIsOddTABLE[dir0Idx + 1]; -- +1 because lua tables are 1 indexed
 	else
-		plot_adjustments = firstRingYIsEven[direction_index];
+		plot_adjustments = firstRingYIsEvenTABLE[dir0Idx + 1];
 	end
 	local nextX = x + plot_adjustments[1];
 	local nextY = y + plot_adjustments[2];
 	return {nextX, nextY}
 end
+------------------------------------------------------------------------------
+-- HEAVILY TESTED. radius 1 is 6 tiles surrounding x,y, radius 2 is the 12 tiles outside that
+------------------------------------------------------------------------------
+function GetXyAround(xStart, yStart, radius)
+	local xys = {};
+	local edgeLen = radius;
+	local perimeterLen = 6 * radius;
+	if (perimeterLen == 0) then perimeterLen = 1; end
 
--- radius 1 is 7 tiles
-function GetXyAround(x,y,maxX,maxY,radius)
-	local xy = {};
-	local totalSideLength = radius * 2 + 1;
+	local pos = {xStart, yStart};
 
-	-- works by using total y coordinate to skip 
-	for i = 1, (totalSideLength - 1) do
-		local px = ds[i][1]; -- for totalSideLength=5 px would be in range [0,4]
-		local dx, dy = ds[i][1] - radius, ds[i][2] - radius;
-		local nx, ny = x + dx, y + dy;
+	-- move to edge of ring
+	local direction = 1
+	for i = 1, radius do
+		pos = dir(pos[1], pos[2], direction);
+	end
+	direction = direction + 1; -- 1/6rd turn, but we will start the loop at an edge!
+	-- loop around the ring
+	for i = 0, (perimeterLen - 1) do -- start at 0 so we start at an edge turn
+		table.insert(xys, pos);
 
-		
-		local xSkipStart = 0;
-		local xSkipEnd = 0;
-		if y % 2 == oddR then
-			xSkipStart = math.floor(math.abs(dy) / 2.0); -- ceiling and floor control the row shift
-			xSkipEnd = totalSideLength - math.ceil(math.abs(dy) / 2.0);
-		else
-			xSkipStart = math.ceil(math.abs(dy) / 2.0); -- ceiling and floor control the row shift
-			xSkipEnd = totalSideLength - math.floor(math.abs(dy) / 2.0);
+		-- need to change direction, as we have reached end of this edge
+		if (i % edgeLen == 0) then
+			direction = direction + 1; -- 1/6 turn
 		end
-
-		if xSkipStart <= px and px < xSkipEnd then
-			local idx = GetI(nx,ny,maxX);
-		end
+		pos = dir(pos[1], pos[2], direction);
 	end
 
-	table.insert(xy, idx);
-	return xy;
+	return xys;
 end
+------------------------------------------------------------------------------
+-- converts the output of getxyaround to indexes, does not include values outside maxY bounds, auto wraps maxX coordinates
+------------------------------------------------------------------------------
+function GetIndexesAround(xCenter, yCenter, maxX, maxY, radius)
+	local xys = GetXyAround(xCenter, yCenter, radius);
+	local indexes = {};
+	for k, xy in pairs(xys) do
+		if (xy[2] >= 0 and xy[2] < maxY) then
+			local x = xy[1] % maxX;
+			local y = xy[2];
+			table.insert(indexes, GetI(x, y, maxX));
+		end
+	end
+	return indexes;
+end
+------------------------------------------------------------------------------
+-- randomly shuffles output of GetIndexesAround
+------------------------------------------------------------------------------
 function GetIndexesAroundRand(x,y,maxX,maxY,radius)
-
+	return GetShuffledCopyOfTable(GetIndexesAround(x,y,maxX,maxY,radius));
 end
-
+------------------------------------------------------------------------------
 -- given radius=2 will return
 -- 0 0
 -- 0 1
 -- 1 1
 -- 1 0
+------------------------------------------------------------------------------
 function GetGridPoints(radius)
 	local points = {};
 	offX, offY = 0, 0;
 	for layer=0,radius-1 do
-	    offX = 0;
-	    offY = layer;
-	    
-	    repeat 
-	        table.insert(points, {offX, offY});
-	        
-	        if (offX==layer) then
-	            offY = offY - 1;
-	        else
-	            offX = offX + 1;
-	        end
-	            
-	    until (offX > layer or offY < 0)
+		offX = 0;
+		offY = layer;
+		
+		repeat 
+			table.insert(points, {offX, offY});
+			
+			if (offX==layer) then
+				offY = offY - 1;
+			else
+				offX = offX + 1;
+			end
+				
+		until (offX > layer or offY < 0)
 	end
 	return points;
 end
-
+------------------------------------------------------------------------------
+-- Randomly decides how big an island should be in land tiles
+------------------------------------------------------------------------------
 function GenIslandSize(min,max,c)
 	return GeometricRand(min, max, c);
 end
@@ -1018,7 +1062,7 @@ end
 function Switch(offset)
 	if (offset % 2 == 0) then -- is even number
 		return offset/2;
-	else                      -- is odd number
+	else					  -- is odd number
 		return (1+offset)/-2
 	end
 end
@@ -1027,21 +1071,15 @@ end
 ------------------------------------------------------------------------------
 function RandomPlot(l,h,m,o)
 	local rand = Map.Rand(l+h+m+o, "Random Plot");
-	if rand < l then                -- first part of probability distribution
+	if rand < l then				-- first part of probability distribution
 		return PlotTypes.PLOT_LAND
-	elseif rand < l+h then          -- second part
+	elseif rand < l+h then		  -- second part
 		return PlotTypes.PLOT_HILLS
 	elseif rand < l+h+m then
 		return PlotTypes.PLOT_MOUNTAIN
 	else
 		return PlotTypes.PLOT_OCEAN
 	end
-end
-------------------------------------------------------------------------------
--- converts an x,y coordinate into an linear index
-------------------------------------------------------------------------------
-function GetI(x,y,maxX)
-	return y * maxX + x + 1;
 end
 ------------------------------------------------------------------------------
 function GenerateTerrain()
@@ -1083,8 +1121,8 @@ function AddFeatures()
 	local args = {rainfall = rain}
 	local featuregen = FeatureGenerator.Create(args);
 
-	-- passing false removes mountains from coastlines
-	featuregen:AddFeatures(false);
+	-- passing false removes mountains from coast lines adjacent to water
+	featuregen:AddFeatures(true);
 end
 ------------------------------------------------------------------------------
 
