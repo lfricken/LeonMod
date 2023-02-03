@@ -591,7 +591,7 @@ function GeneratePlotTypes()
 
 
 	-- grow land
-	numGrowths = 1;
+	numGrowths = 2;
 	for iter = 1, numGrowths do
 		--print("Growing Land");
 		local toMakeLandIdx = {}; -- avoid growing an island multiple times in the same direction
@@ -616,7 +616,7 @@ function GeneratePlotTypes()
 
 					local makeLand = false;
 					if countAdjacentLand == 1 then
-						makeLand = (Map.Rand(1000, "Grow Land Chance") < 400);
+						makeLand = (Map.Rand(1000, "Grow Land Chance") < 600);
 					end
 					--if iter == 1 and countAdjacentLand == 2 then makeLand = (Map.Rand(1000, "Grow Land Chance") < 100); end
 					--if countAdjacentLand == 5 then makeLand = (Map.Rand(1000, "Grow Land Chance") < 900); end
@@ -756,7 +756,7 @@ function GeneratePlotTypes()
 				if plotTypes[i] == PlotTypes.PLOT_MOUNTAIN then -- remove existing mountain
 					plotTypes[i] = PlotTypes.PLOT_HILLS;
 				end
-				if Map.Rand(1000, "Mountain Chance") < 80 then -- mountain chance
+				if Map.Rand(1000, "Mountain Chance") < 75 then -- mountain chance
 					plotTypes[i] = PlotTypes.PLOT_MOUNTAIN;
 				end
 			end
