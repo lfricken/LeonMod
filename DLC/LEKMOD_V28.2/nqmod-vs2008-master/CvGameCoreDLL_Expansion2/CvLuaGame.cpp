@@ -191,6 +191,7 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(IsPaused);
 	Method(GetBestLandUnit);
 	Method(GetBestLandUnitCombat);
+	Method(IsHasMet);
 
 	Method(GetFaithCost);
 	Method(GetVpAdjustment);
@@ -1226,6 +1227,15 @@ int CvLuaGame::lGetBestLandUnit(lua_State* L)
 int CvLuaGame::lGetBestLandUnitCombat(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvGame::getBestLandUnitCombat);
+}
+int CvLuaGame::lIsHasMet(lua_State* L)
+{
+	PlayerTypes a = (PlayerTypes)lua_tointeger(L, 2);
+	PlayerTypes b = (PlayerTypes)lua_tointeger(L, 3);
+
+	const bool luaDidMeet = GET_PLAYER(a).isHasMet(b);
+	lua_pushboolean(L, luaDidMeet);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int GetFaithCost();

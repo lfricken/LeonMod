@@ -8,9 +8,13 @@ include( "TradeRouteHelpers" );
 local g_PopupInfo = nil; -- info we were launched with
 local g_isDebugMode = true; -- allows card manipulation
 
-g_CurrentTab = Game.GetActivePlayer();		-- The currently selected Tab.
+g_localPlayer = Game.GetActivePlayer();
+g_CurrentTab = g_localPlayer;		-- The currently selected Tab.
 g_Tabs = {};
 
+local function isempty(s)
+  return s == nil or s == ''
+end
 function OnPopupMessage(popupInfo)
 
 	local popupType = popupInfo.Type;
@@ -21,7 +25,7 @@ function OnPopupMessage(popupInfo)
 	g_PopupInfo = popupInfo;
 	
 	-- Data 2 parameter holds desired tab to open on
-	g_CurrentTab = Game.GetActivePlayer();
+	g_CurrentTab = g_localPlayer;
 	--[[
 	if (g_PopupInfo.Data2 == 1) then
 		g_CurrentTab = g_Tab1;
@@ -78,7 +82,7 @@ function TabSelect(tab)
 end
 
 -- CREATE TABS
-local pid = Game.GetActivePlayer();
+local pid = g_localPlayer;
 local pLocal = Players[pid];
 for pid=0,16,1 do
 	local pPlayer = Players[pid];
@@ -93,18 +97,18 @@ for pid=0,16,1 do
 		instTab.Button:SetText("" .. 1 + pid);
 		instTab.Button:RegisterCallback( Mouse.eLClick, function() TabSelect(pid); end);
 		instTab.Button:SetToolTipString(pLocal:GetCivNameSafe(pid));
+
+		local isTabDisabled = not Game:IsHasMet(g_localPlayer, pid);
+		instTab.Button:SetDisabled(isTabDisabled); -- disable tab if we haven't met
 		table.insert(g_Tabs, pid, tabObj);
 	end
 end
 
 -- DISPLAY CARDS
-local function isempty(s)
-  return s == nil or s == ''
-end
 function DisplayData(iPlayerId, includePassive, includeActive)
 	Controls.MainStack:DestroyAllChildren();
 	local pPlayer = Players[iPlayerId];
-	local bLocal = iPlayerId == Game.GetActivePlayer();
+	local bLocal = iPlayerId == g_localPlayer;
 
 	local count = pPlayer:CardCount();
 	for cardIdx = 0, count-1, 1 do
@@ -183,7 +187,7 @@ end
 function ShowHideHandler( bIsHide, bInitState )
 
 	-- Set Civ Icon
-	CivIconHookup( Game.GetActivePlayer(), 64, Controls.CivIcon, Controls.CivIconBG, Controls.CivIconShadow, false, true );
+	CivIconHookup( g_localPlayer, 64, Controls.CivIcon, Controls.CivIconBG, Controls.CivIconShadow, false, true );
 
 	if( not bInitState ) then
 		if( not bIsHide ) then

@@ -5507,12 +5507,12 @@ void CvPlayer::updateYield()
 	// a visual discrepancy.
 	CvMap& kMap = GC.getMap();
 	int iNumPlots = kMap.numPlots();
-	PlayerTypes ePlayer = GetID();
+	//PlayerTypes ePlayer = GetID();
 	for (int iI = 0; iI < iNumPlots; iI++)
 	{
 		CvPlot* pkPlot = kMap.plotByIndexUnchecked(iI);
-		if (pkPlot->getOwner() == ePlayer)
-			pkPlot->updateYield();
+		//if (pkPlot->getOwner() == ePlayer) // removing because this is liable to cause cache issues
+		pkPlot->updateYield();
 	}
 }
 
@@ -14352,81 +14352,87 @@ bool CvPlayer::canAdoptPolicy(PolicyTypes eIndex) const
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlayer::doAdoptPolicy(PolicyTypes ePolicy)
+int CvPlayer::doAdoptPolicy(PolicyTypes ePolicy, const bool setHavePolicy, const bool payForPolicy)
 {
 	CvPolicyEntry* pkPolicyInfo = GC.getPolicyInfo(ePolicy);
 	CvAssert(pkPolicyInfo != NULL);
 	if(pkPolicyInfo == NULL)
-		return;
+		return 0;
 
-	// Can we actually adopt this?
-	if(!canAdoptPolicy(ePolicy))
-		return;
-
-	bool bTenet = pkPolicyInfo->GetLevel() > 0;
-	bool wasFree = false;
-
-	// Pay Culture cost - if applicable
-	if (bTenet && GetNumFreeTenets() > 0)
+	if (payForPolicy)
 	{
-		ChangeNumFreeTenets(-1, false);
-		wasFree = true;
-	}
-	else if (GetNumFreePolicies() > 0)
-	{
-		ChangeNumFreePolicies(-1);
-		wasFree = true;
-	}
-	else
-	{
-		changeJONSCulture(-getNextPolicyCost());
-		wasFree = false;
-	}
+		// Can we actually adopt this?
+		if (!canAdoptPolicy(ePolicy))
+			return 0;
 
-	// needs to happen after DoUpdateNextPolicyCost so we rebate the NEXT policy cost
-	if (!wasFree)
-	{
-		const int rebate = GetPolicyRebate(ePolicy, false);
-		changeJONSCulture(rebate);
-	}
+		bool bTenet = pkPolicyInfo->GetLevel() > 0;
+		bool wasFree = false;
 
-	setHasPolicy(ePolicy, true);
+		// Pay Culture cost - if applicable
+		if (bTenet && GetNumFreeTenets() > 0)
+		{
+			ChangeNumFreeTenets(-1, false);
+			wasFree = true;
+		}
+		else if (GetNumFreePolicies() > 0)
+		{
+			ChangeNumFreePolicies(-1);
+			wasFree = true;
+		}
+		else
+		{
+			changeJONSCulture(-getNextPolicyCost());
+			wasFree = false;
+		}
 
-	// Update cost if trying to buy another policy this turn
-	DoUpdateNextPolicyCost();
-
-	// Branch unlocked
-	// PolicyBranchTypes ePolicyBranch = (PolicyBranchTypes) pkPolicyInfo->GetPolicyBranchType();
-	// do not "unlock" a branch just because you got a policy from it!
-	// GetPlayerPolicies()->SetPolicyBranchUnlocked(ePolicyBranch, true, false);
-
-	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
-
-	// This Dirty bit must only be set when changing something for the active player
-	if(GC.getGame().getActivePlayer() == GetID())
-	{
-		GC.GetEngineUserInterface()->setDirty(Policies_DIRTY_BIT, true);
+		// needs to happen after DoUpdateNextPolicyCost so we rebate the NEXT policy cost
+		if (!wasFree)
+		{
+			const int rebate = GetPolicyRebate(ePolicy, false);
+			changeJONSCulture(rebate);
+		}
 	}
 
+	int delta = setHasPolicy(ePolicy, setHavePolicy);
 
-	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-	if(pkScriptSystem)
+	if (delta != 0)
 	{
-		CvLuaArgsHandle args;
-		args->Push(GetID());
-		args->Push(ePolicy);
+		if (payForPolicy)
+		{
+			// Update cost if trying to buy another policy this turn
+			DoUpdateNextPolicyCost();
+		}
 
-		// Attempt to execute the game events.
-		// Will return false if there are no registered listeners.
-		bool bResult = false;
-		LuaSupport::CallHook(pkScriptSystem, "PlayerAdoptPolicy", args.get(), bResult);
+		// regardless of whether we paid, update UI
+		{
+			// Branch unlocked
+			// PolicyBranchTypes ePolicyBranch = (PolicyBranchTypes) pkPolicyInfo->GetPolicyBranchType();
+			// do not "unlock" a branch just because you got a policy from it!
+			// GetPlayerPolicies()->SetPolicyBranchUnlocked(ePolicyBranch, true, false);
+			GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
+
+			// This Dirty bit must only be set when changing something for the active player
+			if (GC.getGame().getActivePlayer() == GetID())
+			{
+				GC.GetEngineUserInterface()->setDirty(Policies_DIRTY_BIT, true);
+			}
+			ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+			if (pkScriptSystem)
+			{
+				CvLuaArgsHandle args;
+				args->Push(GetID());
+				args->Push(ePolicy);
+
+				// Attempt to execute the game events.
+				// Will return false if there are no registered listeners.
+				bool bResult = false;
+				LuaSupport::CallHook(pkScriptSystem, "PlayerAdoptPolicy", args.get(), bResult);
+			}
+			updateYield();
+		}
 	}
-
-	updateYield();		// Policies can change the yield
+	return delta;
 }
-
-//	--------------------------------------------------------------------------------
-/// Empire in Anarchy?
 bool CvPlayer::IsAnarchy() const
 {
 	return GetAnarchyNumTurns() > 0;
@@ -26340,7 +26346,11 @@ PlayerTypes CvPlayer::pickConqueredCityOwner(const CvCity& kCity) const
 
 	return GetID();
 }
-
+bool CvPlayer::isHasMet(PlayerTypes other) const
+{
+	TeamTypes otherTeam = GET_PLAYER(other).getTeam();
+	return GET_TEAM(getTeam()).isHasMet(otherTeam);
+}
 //	--------------------------------------------------------------------------------
 bool CvPlayer::canStealTech(PlayerTypes eTarget, TechTypes eTech) const
 {
@@ -28364,7 +28374,7 @@ int UpdateHasPolicy(CvPlayer* player, string policyName, bool newVal)
 	{
 		const CvPolicyXMLEntries* pAllPolicies = GC.GetGamePolicies();
 		const PolicyTypes ePolicy = pAllPolicies->Policy(policyName);
-		delta = player->setHasPolicy(ePolicy, newVal); // correctly does not change if newVal did not change
+		delta = player->doAdoptPolicy(ePolicy, newVal, false); // correctly does not change if newVal did not change
 	}
 	return delta;
 }
