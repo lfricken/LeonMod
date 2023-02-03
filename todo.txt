@@ -1,10 +1,5 @@
 
 
-get rid of grid point logic
-extract things to functions
-map gen would join function
-map gen script fill variable
-map gen script snake variable
 
 
 
@@ -13,40 +8,40 @@ map gen script snake variable
 
 
 
-
-
-
-
-created new world:
-
-
-randoms_to_place = self:PlaceSpecificNumberOfResources(
-random_res, 1, 1,
- 1, -1, 0,
-  0, shuf_list);
 
 trading
+	TEST
 	verify building limit
 	verify punish buildings
 	verify units are penalized
 	verify building/unit build permission should check the shortage variable
 	verify log resource gainz
 
+	DO
+	XML only cards
 	fix ai trade value estimate
 
 Trading Cards
+	TEST
 	card from ancient ruin
 	gen cards each era
 	fix ai trade value estimate
 
 
 
-	const int numRes = GC.getNumResourceInfos();
-	for (int i = 0; i < numRes; ++i)
-	{
-		const ResourceTypes e = (ResourceTypes)i;
-		kPlayer.changeResourceCumulative(e, -pkBuildingInfo->GetResourceCostLump(e));
-	}
+Map
+	DO
+	get rid of grid point logic
+	extract things to functions
+	map gen would join function
+	map gen script fill variable
+	map gen script snake variable
+	carefully control start position and map gen
+		make sure there are variety of sea benefits
+
+
+
+
 
 
 

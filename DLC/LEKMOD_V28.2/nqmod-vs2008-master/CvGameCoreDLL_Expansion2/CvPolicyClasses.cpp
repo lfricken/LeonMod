@@ -248,7 +248,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_bHiddenFromPolicyCount(false),
 	m_bCardIsActive(false),
 	m_iCardEra(0),
-	m_iCardType(-1),
+	m_iCardGenre(-1),
 	m_bIncludesOneShotFreeUnits(false),
 	m_piPrereqOrPolicies(NULL),
 	m_piPrereqAndPolicies(NULL),
@@ -579,7 +579,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bHiddenFromPolicyCount = kResults.GetBool("HiddenFromPolicyCount");
 	m_bCardIsActive = kResults.GetBool("CardIsActive");
 	m_iCardEra = kResults.GetInt("CardEra");
-	m_iCardType = kResults.GetInt("CardType");
+	m_iCardGenre = kResults.GetInt("CardGenre");
 
 	m_bIncludesOneShotFreeUnits = kResults.GetBool("IncludesOneShotFreeUnits");
 
@@ -1980,9 +1980,9 @@ int CvPolicyEntry::CardEra() const
 {
 	return m_iCardEra;
 }
-int CvPolicyEntry::CardType() const
+int CvPolicyEntry::CardGenre() const
 {
-	return m_iCardType;
+	return m_iCardGenre;
 }
 
 /// Are there one shot free units that come with this policy?

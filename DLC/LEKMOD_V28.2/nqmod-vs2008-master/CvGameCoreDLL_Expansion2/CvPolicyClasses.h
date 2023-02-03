@@ -312,7 +312,7 @@ public:
 	bool IsHiddenFromPolicyCount() const;
 	bool CardIsActive() const;
 	int CardEra() const;
-	int CardType() const;
+	int CardGenre() const;
 
 	bool IncludesOneShotFreeUnits() const;
 
@@ -551,7 +551,7 @@ private:
 	bool m_bHiddenFromPolicyCount;
 	bool m_bCardIsActive;
 	int m_iCardEra;
-	int m_iCardType;
+	int m_iCardGenre;
 	bool m_bIncludesOneShotFreeUnits;
 
 	CvString m_strWeLoveTheKingKey;

@@ -38,89 +38,34 @@ int StonePlots(const CvPlot& p)
 }
 string TradingCard::GetActivePolicy(TradingCardTypes type)
 {
-	switch (type)
+	const CvPolicyEntry* pInfo = GC.getPolicyInfo((PolicyTypes)type);
+	if (pInfo != NULL)
 	{
-	case CARD_NAVAL_MOVES: return "CARD_NAVAL_MOVES_ACTIVE";
-	case CARD_RANDOM_SPY: return "CARD_RANDOM_SPY";
-	case CARD_ANCIENT_UNITS_MILITIA: return "POLICY_CARD_ANCIENT_UNITS_MILITIA_ACTIVE";
-	case CARD_ANCIENT_UNITS_SLAVES: return "POLICY_CARD_ANCIENT_UNITS_SLAVES_ACTIVE";
-	case CARD_MEDIEVAL_UNITS_SERFS: return "POLICY_CARD_MEDIEVAL_UNITS_SERFS_ACTIVE";
-	case CARD_MEDIEVAL_WONDERS_CHICHEN_ITZA: return "POLICY_CARD_MEDIEVAL_WONDERS_CHICHEN_ITZA_ACTIVE";
-	case CARD_MEDIEVAL_WONDERS_BOROBUDUR: return "POLICY_CARD_MEDIEVAL_WONDERS_BOROBUDUR_ACTIVE";
-	case CARD_CLASSICAL_WONDERS_MAUSOLEUM_OF_HALICARNASSUS: return "POLICY_CARD_CLASSICAL_WONDERS_MAUSOLEUM_OF_HALICARNASSUS_ACTIVE";
-	case CARD_CLASSICAL_WONDERS_PARTHENON: return "POLICY_CARD_CLASSICAL_WONDERS_PARTHENON_ACTIVE";
-	case CARD_ANCIENT_WONDERS_STATUE_OF_ZEUS: return "POLICY_CARD_ANCIENT_WONDERS_STATUE_OF_ZEUS_ACTIVE";
-	case CARD_ANCIENT_WONDERS_TEMPLE_OF_ARTEMIS: return "POLICY_CARD_ANCIENT_WONDERS_TEMPLE_OF_ARTEMIS_ACTIVE";
-	case CARD_MEDIEVAL_BUILDINGS_FEALTY: return "POLICY_CARD_MEDIEVAL_BUILDINGS_FEALTY_ACTIVE";
-	
-	
-	default: return "";
-	};
+		if (pInfo->CardIsActive())
+		{
+			return pInfo->GetType();
+		}
+		else
+		{
+			return "";
+		}
+	}
 	return "";
 }
 string TradingCard::GetPassivePolicy(TradingCardTypes type)
 {
-	switch (type)
+	const CvPolicyEntry* pInfo = GC.getPolicyInfo((PolicyTypes)type);
+	if (pInfo != NULL)
 	{
-	case CARD_NAVAL_MOVES: return "CARD_NAVAL_MOVES_PASSIVE";
-	case CARD_FISH_GOLD: return "CARD_FISH_GOLD";
-	case CARD_ANCIENT_UNITS_FAVORABLE_WINDS: return "POLICY_CARD_ANCIENT_UNITS_FAVORABLE_WINDS_PASSIVE";
-	case CARD_ANCIENT_UNITS_SACRIFICIAL_CAPTIVES: return "POLICY_CARD_ANCIENT_UNITS_SACRIFICIAL_CAPTIVES_PASSIVE";
-	case CARD_ANCIENT_UNITS_OBSIDIAN_ARROWS: return "POLICY_CARD_ANCIENT_UNITS_OBSIDIAN_ARROWS_PASSIVE";
-	case CARD_ANCIENT_UNITS_WAY_OF_THE_WARRIOR: return "POLICY_CARD_ANCIENT_UNITS_WAY_OF_THE_WARRIOR_PASSIVE";
-	case CARD_ANCIENT_UNITS_SCOUTING: return "POLICY_CARD_ANCIENT_UNITS_SCOUTING_PASSIVE";
-	case CARD_ANCIENT_UNITS_GREEK_FIRE: return "POLICY_CARD_ANCIENT_UNITS_GREEK_FIRE_PASSIVE";
-	case CARD_ANCIENT_UNITS_BRONZE_CLAD_HULL: return "POLICY_CARD_ANCIENT_UNITS_BRONZE_CLAD_HULL_PASSIVE";
-	case CARD_ANCIENT_UNITS_SPOKED_WHEELS: return "POLICY_CARD_ANCIENT_UNITS_SPOKED_WHEELS_PASSIVE";
-	case CARD_ANCIENT_UNITS_SHIELD_WALL: return "POLICY_CARD_ANCIENT_UNITS_SHIELD_WALL_PASSIVE";
-	case CARD_ANCIENT_UNITS_VALOUR: return "POLICY_CARD_ANCIENT_UNITS_VALOUR_PASSIVE";
-	case CARD_ANCIENT_RESOURCES_INUITS: return "POLICY_CARD_ANCIENT_RESOURCES_INUITS_PASSIVE";
-	case CARD_ANCIENT_RESOURCES_BEDOUINS: return "POLICY_CARD_ANCIENT_RESOURCES_BEDOUINS_PASSIVE";
-	case CARD_ANCIENT_RESOURCES_ATLATL: return "POLICY_CARD_ANCIENT_RESOURCES_ATLATL_PASSIVE";
-	case CARD_ANCIENT_RESOURCES_FLINT_KNAPPING: return "POLICY_CARD_ANCIENT_RESOURCES_FLINT_KNAPPING_PASSIVE";
-	case CARD_ANCIENT_RESOURCES_SACRIFICIAL_LAMBS: return "POLICY_CARD_ANCIENT_RESOURCES_SACRIFICIAL_LAMBS_PASSIVE";
-	case CARD_ANCIENT_RESOURCES_SPEAR_FISHING: return "POLICY_CARD_ANCIENT_RESOURCES_SPEAR_FISHING_PASSIVE";
-	case CARD_ANCIENT_RESOURCES_DIVINE_CREATION: return "POLICY_CARD_ANCIENT_RESOURCES_DIVINE_CREATION_PASSIVE";
-	case CARD_ANCIENT_BUILDINGS_SHIPS_OF_THE_DESERT: return "POLICY_CARD_ANCIENT_BUILDINGS_SHIPS_OF_THE_DESERT_PASSIVE";
-	case CARD_ANCIENT_BUILDINGS_FORCED_LEVY: return "POLICY_CARD_ANCIENT_BUILDINGS_FORCED_LEVY_PASSIVE";
-	case CARD_ANCIENT_POLITICAL_ORTHODOXY: return "POLICY_CARD_ANCIENT_POLITICAL_ORTHODOXY_PASSIVE";
-	case CARD_ANCIENT_POLITICAL_PROGRESSIVE: return "POLICY_CARD_ANCIENT_POLITICAL_PROGRESSIVE_PASSIVE";
-	case CARD_ANCIENT_POLITICAL_AGGRESIVE: return "POLICY_CARD_ANCIENT_POLITICAL_AGGRESIVE_PASSIVE";
-	case CARD_ANCIENT_POLITICAL_EXCLUSIVE: return "POLICY_CARD_ANCIENT_POLITICAL_EXCLUSIVE_PASSIVE";
-	case CARD_ANCIENT_POLITICAL_PROTECTIVE: return "POLICY_CARD_ANCIENT_POLITICAL_PROTECTIVE_PASSIVE";
-	case CARD_ANCIENT_BUILDINGS_DRUIDS: return "POLICY_CARD_ANCIENT_BUILDINGS_DRUIDS_PASSIVE";
-	case CARD_ANCIENT_BUILDINGS_HARBORMASTER: return "POLICY_CARD_ANCIENT_BUILDINGS_HARBORMASTER_PASSIVE";
-	case CARD_CLASSICAL_RESOURCE_LIMESTONE: return "POLICY_CARD_CLASSICAL_RESOURCE_LIMESTONE_PASSIVE";
-	case CARD_CLASSICAL_UNITS_INDUSTRIOUS: return "POLICY_CARD_CLASSICAL_UNITS_INDUSTRIOUS_PASSIVE";
-	case CARD_CLASSICAL_UNITS_FORCED_MARCH: return "POLICY_CARD_CLASSICAL_UNITS_FORCED_MARCH_PASSIVE";
-	case CARD_CLASSICAL_UNITS_SIEGE_ENGINEERS: return "POLICY_CARD_CLASSICAL_UNITS_SIEGE_ENGINEERS_PASSIVE";
-	case CARD_CLASSICAL_UNITS_SUPPLIES: return "POLICY_CARD_CLASSICAL_UNITS_SUPPLIES_PASSIVE";
-	case CARD_CLASSICAL_UNITS_FLETCHING: return "POLICY_CARD_CLASSICAL_UNITS_FLETCHING_PASSIVE";
-	case CARD_CLASSICAL_WONDERS_PHEIDIAS: return "POLICY_CARD_CLASSICAL_WONDERS_PHEIDIAS_PASSIVE";
-	case CARD_CLASSICAL_BUILDINGS_BEACONS_OF_HOPE: return "POLICY_CARD_CLASSICAL_BUILDINGS_BEACONS_OF_HOPE_PASSIVE";
-	case CARD_CLASSICAL_BUILDINGS_GLADIATOR_GAMES: return "POLICY_CARD_CLASSICAL_BUILDINGS_GLADIATOR_GAMES_PASSIVE";
-	case CARD_CLASSICAL_BUILDINGS_CORINTHIAN_ORDER: return "POLICY_CARD_CLASSICAL_BUILDINGS_CORINTHIAN_ORDER_PASSIVE";
-	case CARD_CLASSICAL_LEGENDARY_CHAMPION: return "POLICY_CARD_CLASSICAL_LEGENDARY_CHAMPION_PASSIVE";
-	case CARD_CLASSICAL_BUILDINGS_FLUTE_AND_LYRE: return "POLICY_CARD_CLASSICAL_BUILDINGS_FLUTE_AND_LYRE_PASSIVE";
-	case CARD_MEDIEVAL_RESOURCE_GILLNETS: return "POLICY_CARD_MEDIEVAL_RESOURCE_GILLNETS_PASSIVE";
-	case CARD_MEDIEVAL_RESOURCE_PRECIOUS_METALS: return "POLICY_CARD_MEDIEVAL_RESOURCE_PRECIOUS_METALS_PASSIVE";
-	case CARD_MEDIEVAL_RESOURCE_SILK_ROAD: return "POLICY_CARD_MEDIEVAL_RESOURCE_SILK_ROAD_PASSIVE";
-	case CARD_MEDIEVAL_RESOURCE_SPICE_TRADE: return "POLICY_CARD_MEDIEVAL_RESOURCE_SPICE_TRADE_PASSIVE";
-	case CARD_MEDIEVAL_RESOURCE_EXTRAVAGANCE: return "POLICY_CARD_MEDIEVAL_RESOURCE_EXTRAVAGANCE_PASSIVE";
-	case CARD_MEDIEVAL_RESOURCE_VITICULTURE: return "POLICY_CARD_MEDIEVAL_RESOURCE_VITICULTURE_PASSIVE";
-	case CARD_MEDIEVAL_UNITS_CHAINMAIL_ARMOR: return "POLICY_CARD_MEDIEVAL_UNITS_CHAINMAIL_ARMOR_PASSIVE";
-	case CARD_MEDIEVAL_UNITS_LANTEEN_SAILS: return "POLICY_CARD_MEDIEVAL_UNITS_LANTEEN_SAILS_PASSIVE";
-	case CARD_MEDIEVAL_UNITS_REPEATING_CROSSBOWS: return "POLICY_CARD_MEDIEVAL_UNITS_REPEATING_CROSSBOWS_PASSIVE";
-	case CARD_MEDIEVAL_UNITS_FEUDALISM: return "POLICY_CARD_MEDIEVAL_UNITS_FEUDALISM_PASSIVE";
-	case CARD_ANCIENT_WONDERS_HIPPODAMUS_OF_MILETUS: return "POLICY_CARD_ANCIENT_WONDERS_HIPPODAMUS_OF_MILETUS_PASSIVE";
-	case CARD_CLASSICAL_BUILDINGS_CANNON_OF_TEN: return "POLICY_CARD_CLASSICAL_BUILDINGS_CANNON_OF_TEN_PASSIVE";
-	case CARD_MEDIEVAL_BUILDINGS_CAMBRIDGE_UNIVERSITY: return "POLICY_CARD_MEDIEVAL_BUILDINGS_CAMBRIDGE_UNIVERSITY_PASSIVE";
-	
-	
-	
-
-	default: return "";
-	};
+		if (pInfo->CardIsActive())
+		{
+			return "";
+		}
+		else
+		{
+			return pInfo->GetType();
+		}
+	}
 	return "";
 }
 int TradingCard::GetEstimatedValue(TradingCardTypes type)
@@ -134,7 +79,6 @@ int TradingCard::GetEstimatedValue(TradingCardTypes type)
 bool TradingCard::IsConditionSatisfied(TradingCardTypes type, const CvPlayer* pPlayer, bool isActive)
 {
 	const CvPlayer& player = *pPlayer;
-	
 	int playerEra = player.GetCurrentEra();
 	int ancientEra = 1;
 	int classicalEra = 2;
@@ -147,45 +91,45 @@ bool TradingCard::IsConditionSatisfied(TradingCardTypes type, const CvPlayer* pP
 	int futureEra = 9;
 	switch (type)
 	{
-	
-	case CARD_ANCIENT_RESOURCES_ATLATL:
+
+	case 142: // POLICY_CARD_ANCIENT_RESOURCES_ATLATL_PASSIVE
 	{
 		int numDeerPlotsOwned = player.CountOwnedPlots(DeerPlots);
-		if (numDeerPlotsOwned < 6)		
+		if (numDeerPlotsOwned < 6)
 		{
 			return false;
 		}
 	}
-	case CARD_ANCIENT_UNITS_FAVORABLE_WINDS:
+	case 128: // POLICY_CARD_ANCIENT_UNITS_FAVORABLE_WINDS_PASSIVE
 	{
 		if (playerEra >= medievalEra)
 		{
 			return false;
 		}
 	}
-	case CARD_ANCIENT_UNITS_SACRIFICIAL_CAPTIVES:
+	case 129: // POLICY_CARD_ANCIENT_UNITS_SACRIFICIAL_CAPTIVES_PASSIVE
 	{
 		if (playerEra >= medievalEra)
 		{
 			return false;
 		}
 	}
-	case CARD_ANCIENT_UNITS_VALOUR:
+	case 139: // POLICY_CARD_ANCIENT_UNITS_VALOUR_PASSIVE
 	{
 		if (playerEra >= medievalEra)
 		{
 			return false;
 		}
 	}
-	case CARD_ANCIENT_RESOURCES_INUITS:
+	case 140: // POLICY_CARD_ANCIENT_RESOURCES_INUITS_PASSIVE
 	{
-		int numTundraPlotsOwned = player.CountOwnedPlots(TundraTiles);		
+		int numTundraPlotsOwned = player.CountOwnedPlots(TundraTiles);
 		if (numTundraPlotsOwned < 10)
 		{
 			return false;
 		}
 	}
-	case CARD_ANCIENT_RESOURCES_BEDOUINS:
+	case 141: // POLICY_CARD_ANCIENT_RESOURCES_BEDOUINS_PASSIVE
 	{
 		int numDesertPlotsOwned = player.CountOwnedPlots(DesertTiles);
 		if (numDesertPlotsOwned < 10)
@@ -193,22 +137,22 @@ bool TradingCard::IsConditionSatisfied(TradingCardTypes type, const CvPlayer* pP
 			return false;
 		}
 	}
-	case CARD_ANCIENT_RESOURCES_SPEAR_FISHING:
+	case 145: // POLICY_CARD_ANCIENT_RESOURCES_SPEAR_FISHING_PASSIVE
 	{
 		if (playerEra > classicalEra)
 		{
 			return false;
 		}
 	}
-	case CARD_ANCIENT_POLITICAL_ORTHODOXY:
+	case 149: // POLICY_CARD_ANCIENT_POLITICAL_ORTHODOXY_PASSIVE
 	{
 		int numTraditionPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(0));
-		if (numTraditionPolicies < 3)		
+		if (numTraditionPolicies < 3)
 		{
 			return false;
 		}
 	}
-	case CARD_ANCIENT_POLITICAL_PROGRESSIVE:
+	case 150: // POLICY_CARD_ANCIENT_POLITICAL_PROGRESSIVE_PASSIVE
 	{
 		int numLibertyPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(1));
 		if (numLibertyPolicies < 3)
@@ -216,7 +160,7 @@ bool TradingCard::IsConditionSatisfied(TradingCardTypes type, const CvPlayer* pP
 			return false;
 		}
 	}
-	case CARD_ANCIENT_POLITICAL_AGGRESIVE:
+	case 151: // POLICY_CARD_ANCIENT_POLITICAL_AGGRESIVE_PASSIVE
 	{
 		int numHonorPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(2));
 		if (numHonorPolicies < 3)
@@ -224,7 +168,7 @@ bool TradingCard::IsConditionSatisfied(TradingCardTypes type, const CvPlayer* pP
 			return false;
 		}
 	}
-	case CARD_ANCIENT_POLITICAL_EXCLUSIVE:
+	case 152: // POLICY_CARD_ANCIENT_POLITICAL_EXCLUSIVE_PASSIVE
 	{
 		int numLibertyPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(1));
 		int numPolicies = player.GetNumPolicies();
@@ -234,7 +178,7 @@ bool TradingCard::IsConditionSatisfied(TradingCardTypes type, const CvPlayer* pP
 			return false;
 		}
 	}
-	case CARD_ANCIENT_POLITICAL_PROTECTIVE:
+	case 155: // POLICY_CARD_ANCIENT_POLITICAL_PROTECTIVE_PASSIVE
 	{
 		int numHonorPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(2));
 		int numPolicies = player.GetNumPolicies();
@@ -244,7 +188,7 @@ bool TradingCard::IsConditionSatisfied(TradingCardTypes type, const CvPlayer* pP
 			return false;
 		}
 	}
-	case CARD_CLASSICAL_RESOURCE_LIMESTONE:
+	case 156: // POLICY_CARD_CLASSICAL_RESOURCE_LIMESTONE_PASSIVE
 	{
 		int numStonePlotsOwned = player.CountOwnedPlots(StonePlots);
 		if (numStonePlotsOwned < 3)
@@ -252,60 +196,60 @@ bool TradingCard::IsConditionSatisfied(TradingCardTypes type, const CvPlayer* pP
 			return false;
 		}
 	}
-	case CARD_CLASSICAL_UNITS_INDUSTRIOUS:
+	case 157: // POLICY_CARD_CLASSICAL_UNITS_INDUSTRIOUS_PASSIVE
 	{
 		if (playerEra >= industrialEra)
 		{
 			return false;
 		}
 	}
-	case CARD_CLASSICAL_UNITS_FORCED_MARCH:
+	case 158: // POLICY_CARD_CLASSICAL_UNITS_FORCED_MARCH_PASSIVE
 	{
 		if (playerEra >= industrialEra)
 		{
 			return false;
 		}
 	}
-	case CARD_CLASSICAL_UNITS_SIEGE_ENGINEERS:
+	case 159: // POLICY_CARD_CLASSICAL_UNITS_SIEGE_ENGINEERS_PASSIVE
 	{
 		if (playerEra >= industrialEra)
 		{
 			return false;
 		}
 	}
-	case CARD_MEDIEVAL_RESOURCE_GILLNETS:
+	case 168: // POLICY_CARD_MEDIEVAL_RESOURCE_GILLNETS_PASSIVE
 	{
 		if (playerEra >= industrialEra)
 		{
 			return false;
 		}
 	}
-	case CARD_MEDIEVAL_UNITS_LANTEEN_SAILS:
+	case 175: // POLICY_CARD_MEDIEVAL_UNITS_LANTEEN_SAILS_PASSIVE
 	{
 		if (playerEra >= industrialEra)
 		{
 			return false;
 		}
 	}
-	case CARD_ANCIENT_WONDERS_HIPPODAMUS_OF_MILETUS:
+	case 184: // POLICY_CARD_ANCIENT_WONDERS_HIPPODAMUS_OF_MILETUS_PASSIVE
 	{
 		if (playerEra >= medievalEra)
 		{
 			return false;
 		}
 	}
-	case CARD_CLASSICAL_BUILDINGS_CANNON_OF_TEN:
+	case 186: // POLICY_CARD_CLASSICAL_BUILDINGS_CANNON_OF_TEN_PASSIVE
 	{
-		
-		int numAmphitheaters = player.countNumBuildingClasses(BuildingClassTypes(19)); 
+
+		int numAmphitheaters = player.countNumBuildingClasses(BuildingClassTypes(19));
 		if (numAmphitheaters < 10)
 		{
 			return false;
 		}
 	}
-	case CARD_MEDIEVAL_BUILDINGS_FEALTY:
+	case 188: // POLICY_CARD_MEDIEVAL_BUILDINGS_FEALTY_ACTIVE
 	{
-		int numCastles = player.countNumBuildingClasses(BuildingClassTypes(19));	
+		int numCastles = player.countNumBuildingClasses(BuildingClassTypes(19));
 		if (numCastles < 6)
 		{
 			return false;
@@ -335,7 +279,7 @@ bool TradingCard::ApplyActiveEffects(TradingCardTypes type, CvPlayer* player)
 	// apply active non policy effects
 	switch (type)
 	{
-	case CARD_RANDOM_SPY: PlaceRandomSpy(player); return true;
+	case 1: PlaceRandomSpy(player); return true;
 	default: return true;
 	};
 

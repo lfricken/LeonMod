@@ -24,6 +24,10 @@ class TradingCard
 public:
 	// is this policy id a card?
 	static bool IsCard(int type);
+	// what era should this card be showing up for?
+	static int Era(int type);
+	// units, buildings, vps, etc.
+	static int Genre(int type);
 	// what is this card called?
 	static string GetName(TradingCardTypes type, CvPlayer* pOwner);
 	// what does this card do?

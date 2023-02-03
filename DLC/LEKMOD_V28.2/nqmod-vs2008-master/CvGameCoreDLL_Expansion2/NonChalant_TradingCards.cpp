@@ -45,7 +45,6 @@ const CvPolicyEntry* GetPolicyInfo(const string policyName)
 	const CvPolicyEntry* pInfo = GC.getPolicyInfo(ePolicy);
 	return pInfo;
 }
-// is this policy id a card?
 bool TradingCard::IsCard(int type)
 {
 	bool isPolicyCard = false;
@@ -54,11 +53,36 @@ bool TradingCard::IsCard(int type)
 		const CvPolicyEntry* pInfo = GC.getPolicyInfo((PolicyTypes)type);
 		if (pInfo != NULL)
 		{
-			isPolicyCard = pInfo->CardType() != -1;
-			return isPolicyCard;
+			isPolicyCard = pInfo->CardGenre() != -1;
 		}
 	}
 	return isPolicyCard;
+}
+int TradingCard::Era(int type)
+{
+	int genre = 0;
+	if (type > 0 && type < GC.getNumPolicyInfos())
+	{
+		const CvPolicyEntry* pInfo = GC.getPolicyInfo((PolicyTypes)type);
+		if (pInfo != NULL)
+		{
+			genre = pInfo->CardEra();
+		}
+	}
+	return genre;
+}
+int TradingCard::Genre(int type)
+{
+	int genre = -1;
+	if (type > 0 && type < GC.getNumPolicyInfos())
+	{
+		const CvPolicyEntry* pInfo = GC.getPolicyInfo((PolicyTypes)type);
+		if (pInfo != NULL)
+		{
+			genre = pInfo->CardGenre();
+		}
+	}
+	return genre;
 }
 string TradingCard::GetName(TradingCardTypes type, CvPlayer* player)
 {
