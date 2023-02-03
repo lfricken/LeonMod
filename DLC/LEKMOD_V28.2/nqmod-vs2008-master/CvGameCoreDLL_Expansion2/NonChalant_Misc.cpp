@@ -148,6 +148,7 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 	const bool hasCenserMaker = cityOrigin->GetCityBuildings()->HasBuildingClass(BuildingClass("BUILDINGCLASS_CENSER"));
 	const bool hasGemcutter = cityOrigin->GetCityBuildings()->HasBuildingClass(BuildingClass("BUILDINGCLASS_GEMCUTTER"));
 	const bool hasOilRefinery = cityOrigin->GetCityBuildings()->HasBuildingClass(BuildingClass("BUILDINGCLASS_REFINERY"));
+	const bool hasShipyard = cityOrigin->GetCityBuildings()->HasBuildingClass(BuildingClass("BUILDINGCLASS_SHIPYARD"));
 
 	if (isInternal) // true if this is an internal trade route
 	{
@@ -176,6 +177,8 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 				if (eYieldType == YIELD_SCIENCE && hasFreeThought)
 					yieldChange += 6;
 			}
+			if (eYieldType == YIELD_PRODUCTION && hasShipyard)
+				yieldChange += 2;
 		}
 	}
 	else
@@ -218,7 +221,7 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 			}
 
 			{ // diplomatic support from trade route buildings
-				const int numDiploSupportBoosters = hasMerchantsGuild + hasMarket + hasBank + hasStockExchange + hasMint + hasBrewery + hasStoneWorks
+				const int numDiploSupportBoosters = hasMerchantsGuild + hasMarket + hasBank + hasShipyard + hasStockExchange + hasMint + hasBrewery + hasStoneWorks
 					+ hasTextileMill + hasGrocer + hasCenserMaker + hasGemcutter + (hasOilRefinery * 2);
 				if (eYieldType == YIELD_DIPLOMATIC_SUPPORT)
 					yieldChange += numDiploSupportBoosters;
