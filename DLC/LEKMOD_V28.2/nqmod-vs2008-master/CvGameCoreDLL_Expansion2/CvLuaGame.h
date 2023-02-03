@@ -179,6 +179,7 @@ protected:
 	static int lIsPaused(lua_State* L);
 	static int lGetBestLandUnit(lua_State* L);
 	static int lGetBestLandUnitCombat(lua_State* L);
+	static int lIsHasMet(lua_State* L);
 
 	static int lGetFaithCost(lua_State* L);
 

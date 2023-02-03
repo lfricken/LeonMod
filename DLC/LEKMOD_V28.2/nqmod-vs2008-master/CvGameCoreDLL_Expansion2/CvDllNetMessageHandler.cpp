@@ -1259,8 +1259,7 @@ void CvDllNetMessageHandler::ResponseUpdatePolicies(PlayerTypes ePlayer, bool bN
 		}
 		else
 		{
-			kPlayer.setHasPolicy(ePolicy, bValue);
-			kPlayer.DoUpdateHappiness();
+			kPlayer.doAdoptPolicy(ePolicy, false, false);
 #ifdef AUI_CITIZENS_MID_TURN_ASSIGN_RUNS_SELF_CONSISTENCY
 			kPlayer.doSelfConsistencyCheckAllCities();
 #endif

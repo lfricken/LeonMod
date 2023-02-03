@@ -715,9 +715,10 @@ public:
 	T100 getNextPolicyCostT100() const;
 	void DoUpdateNextPolicyCost();
 	bool canAdoptPolicy(PolicyTypes ePolicy) const;
-	void doAdoptPolicy(PolicyTypes ePolicy);
+	int doAdoptPolicy(PolicyTypes ePolicy, const bool setHavePolicy = true, const bool payForPolicy = true);
 	void DoBuyNewBranch(PolicyBranchTypes eBranch);
 
+	/// Empire in Anarchy?
 	bool IsAnarchy() const;
 	int GetAnarchyNumTurns() const;
 	void SetAnarchyNumTurns(int iValue);
@@ -726,7 +727,8 @@ public:
 	int getAdvancedStartPoints() const;
 	void setAdvancedStartPoints(int iNewValue);
 	void changeAdvancedStartPoints(int iChange);
-
+	
+	bool isHasMet(PlayerTypes other) const;
 	bool canStealTech(PlayerTypes eTarget, TechTypes eTech) const;
 	bool canSpyDestroyUnit(PlayerTypes eTarget, CvUnit& kUnit) const;
 	bool canSpyBribeUnit(PlayerTypes eTarget, CvUnit& kUnit) const;
