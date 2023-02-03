@@ -2594,9 +2594,6 @@ void CvPlayerCulture::SetLastTurnVictoryCultureT100(int iValue)
 /// What is our cultural influence now?
 int CvPlayerCulture::GetInfluenceOn(PlayerTypes ePlayer) const
 {
-	CvAssertMsg (ePlayer >= 0, "Invalid player index");
-	CvAssertMsg (ePlayer < MAX_MAJOR_CIVS, "Invalid player index");
-
 	int iIndex = (int)ePlayer;
 	if (iIndex < 0 || iIndex >= MAX_MAJOR_CIVS) return 0;
 	return m_aiCulturalInfluence[iIndex];
