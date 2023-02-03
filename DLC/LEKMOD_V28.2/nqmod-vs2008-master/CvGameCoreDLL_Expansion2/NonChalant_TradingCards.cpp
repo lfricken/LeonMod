@@ -45,6 +45,21 @@ const CvPolicyEntry* GetPolicyInfo(const string policyName)
 	const CvPolicyEntry* pInfo = GC.getPolicyInfo(ePolicy);
 	return pInfo;
 }
+// is this policy id a card?
+bool TradingCard::IsCard(int type)
+{
+	bool isPolicyCard = false;
+	if (type > 0 && type < GC.getNumPolicyInfos())
+	{
+		const CvPolicyEntry* pInfo = GC.getPolicyInfo((PolicyTypes)type);
+		if (pInfo != NULL)
+		{
+			isPolicyCard = pInfo->CardType() != -1;
+			return isPolicyCard;
+		}
+	}
+	return isPolicyCard;
+}
 string TradingCard::GetName(TradingCardTypes type, CvPlayer* player)
 {
 	const CvPolicyEntry* activeInfo = GetPolicyInfo(TradingCard::GetActivePolicy(type));

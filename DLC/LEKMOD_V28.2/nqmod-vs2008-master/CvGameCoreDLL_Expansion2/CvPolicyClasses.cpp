@@ -246,6 +246,9 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_bAbleToAnnexCityStates(false),
 	m_bOneShot(false),
 	m_bHiddenFromPolicyCount(false),
+	m_bCardIsActive(false),
+	m_iCardEra(0),
+	m_iCardType(-1),
 	m_bIncludesOneShotFreeUnits(false),
 	m_piPrereqOrPolicies(NULL),
 	m_piPrereqAndPolicies(NULL),
@@ -574,6 +577,10 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bAbleToAnnexCityStates = kResults.GetBool("AbleToAnnexCityStates");
 	m_bOneShot = kResults.GetBool("OneShot");
 	m_bHiddenFromPolicyCount = kResults.GetBool("HiddenFromPolicyCount");
+	m_bCardIsActive = kResults.GetBool("CardIsActive");
+	m_iCardEra = kResults.GetInt("CardEra");
+	m_iCardType = kResults.GetInt("CardType");
+
 	m_bIncludesOneShotFreeUnits = kResults.GetBool("IncludesOneShotFreeUnits");
 
 	m_strWeLoveTheKingKey = kResults.GetText("WeLoveTheKing");
@@ -1964,6 +1971,18 @@ bool CvPolicyEntry::IsOneShot() const
 bool CvPolicyEntry::IsHiddenFromPolicyCount() const
 {
 	return m_bHiddenFromPolicyCount;
+}
+bool CvPolicyEntry::CardIsActive() const
+{
+	return m_bCardIsActive;
+}
+int CvPolicyEntry::CardEra() const
+{
+	return m_iCardEra;
+}
+int CvPolicyEntry::CardType() const
+{
+	return m_iCardType;
 }
 
 /// Are there one shot free units that come with this policy?

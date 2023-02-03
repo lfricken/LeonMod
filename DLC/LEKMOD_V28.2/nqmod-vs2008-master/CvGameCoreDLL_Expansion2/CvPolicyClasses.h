@@ -310,6 +310,10 @@ public:
 	// If true, we should not consider this policy to be a policy for any counting purposes
 	// it is likely being used as a hack to grant a player benefits, rather than as a "policy"
 	bool IsHiddenFromPolicyCount() const;
+	bool CardIsActive() const;
+	int CardEra() const;
+	int CardType() const;
+
 	bool IncludesOneShotFreeUnits() const;
 
 	BuildingTypes GetFreeBuildingOnConquest() const;
@@ -545,6 +549,9 @@ private:
 
 	bool m_bOneShot;
 	bool m_bHiddenFromPolicyCount;
+	bool m_bCardIsActive;
+	int m_iCardEra;
+	int m_iCardType;
 	bool m_bIncludesOneShotFreeUnits;
 
 	CvString m_strWeLoveTheKingKey;

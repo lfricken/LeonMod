@@ -22,6 +22,8 @@ FDataStream& operator >>(FDataStream& kStream, TradingCardState& data);
 class TradingCard
 {
 public:
+	// is this policy id a card?
+	static bool IsCard(int type);
 	// what is this card called?
 	static string GetName(TradingCardTypes type, CvPlayer* pOwner);
 	// what does this card do?
