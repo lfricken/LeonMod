@@ -40,7 +40,7 @@ void CvAssertFunc(const stringstream& msg);
 	if( !bIgnoreAlways && !(expr) )\
 	{\
 		stringstream ss;\
-		ss << #expr << " " << __FILE__ << __LINE__ << " " << msg;\
+		ss << #expr << " " << __FILE__ << ":" << __LINE__ << " " << msg;\
 		CvAssertFunc(ss);\
 	}\
 }
@@ -52,7 +52,7 @@ void CvAssertFunc(const stringstream& msg);
 		CvString str;\
 		CvString::format(str, fmt, __VA_ARGS__);\
 		stringstream ss;\
-		ss << #expr << " " << __FILE__ << __LINE__ << " " << str.c_str();\
+		ss << #expr << " " << __FILE__ << ":" << __LINE__ << " " << str.c_str();\
 		CvAssertFunc(ss);\
 	}\
 }
