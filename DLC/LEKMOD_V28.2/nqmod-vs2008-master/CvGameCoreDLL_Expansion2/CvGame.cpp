@@ -5063,7 +5063,7 @@ int CvGame::getMaxTurnLen()
 		ret = baseTurnTime;
 	}
 
-	return ret * 2;
+	return ret;
 }
 #endif
 
