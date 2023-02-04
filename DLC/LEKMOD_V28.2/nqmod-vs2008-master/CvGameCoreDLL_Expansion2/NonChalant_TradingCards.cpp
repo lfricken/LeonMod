@@ -91,7 +91,7 @@ string TradingCard::GetName(TradingCardTypes type, CvPlayer* player)
 	const CvPolicyEntry* passiveInfo = GetPolicyInfo(TradingCard::GetPassivePolicy(type));
 	string passive = passiveInfo == NULL ? "" : passiveInfo->GetDescription();
 	string joiner = "";
-	if (active.size() != 0 && active.size() != 0)
+	if (passive.size() != 0 && active.size() != 0)
 	{
 		joiner = " ";
 	}
@@ -104,7 +104,7 @@ string TradingCard::GetDesc(TradingCardTypes type, CvPlayer* player)
 	const CvPolicyEntry* passiveInfo = GetPolicyInfo(TradingCard::GetPassivePolicy(type));
 	string passive = passiveInfo == NULL ? "" : passiveInfo->GetHelp();
 	string joiner = "";
-	if (active.size() != 0 && active.size() != 0)
+	if (passive.size() != 0 && active.size() != 0)
 	{
 		joiner = " ";
 	}
