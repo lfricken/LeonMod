@@ -699,6 +699,31 @@ int CvPlayer::getSpecialistYieldHardcoded(const CvCity* pCity, const SpecialistT
 			change += 1;		
 	}
 
+	{// CARD_RENAISSANCE_BUILDINGS_WILLIAM_SHAKSPEARE gives +1C, +1T to Writer if you have Globe Theater
+		const bool hasWilliamShakespeareCard = player.HasPolicy("POLICY_CARD_RENAISSANCE_BUILDINGS_WILLIAM_SHAKSPEARE_PASSIVE");
+		const bool hasGlobeTheater = player.HasWonder(BuildingClass("BUILDINGCLASS_GLOBE_THEATER"));
+		if (eYield == YIELD_TOURISM && hasWilliamShakespeareCard && hasGlobeTheater && isWriter)
+			change += 1;
+		if (eYield == YIELD_CULTURE && hasWilliamShakespeareCard && hasGlobeTheater && isWriter)
+			change += 1;
+	}
+	{// CARD_RENAISSANCE_BUILDINGS_MICHAEL_ANGELO gives +1C, +1T to Artist if you have Sistine Chapel
+		const bool hasMichaelAngeloCard = player.HasPolicy("POLICY_CARD_RENAISSANCE_BUILDINGS_MICHAEL_ANGELO_PASSIVE");
+		const bool hasSistineChapel = player.HasWonder(BuildingClass("BUILDINGCLASS_SISTINE_CHAPEL"));
+		if (eYield == YIELD_TOURISM && hasMichaelAngeloCard && hasSistineChapel && isArtist)
+			change += 1;
+		if (eYield == YIELD_CULTURE && hasMichaelAngeloCard && hasSistineChapel && isArtist)
+			change += 1;
+	}
+	{// CARD_RENAISSANCE_BUILDINGS_J_S_BACH gives +1C, +1T to Musician if you have Teatro Alla Scala
+		const bool hasBachCard = player.HasPolicy("POLICY_CARD_RENAISSANCE_BUILDINGS_J_S_BACH_PASSIVE");
+		const bool hasTeatroAllaScala = player.HasWonder(BuildingClass("BUILDINGCLASS_UFFIZI"));
+		if (eYield == YIELD_TOURISM && hasBachCard && hasTeatroAllaScala && isMusician)
+			change += 1;
+		if (eYield == YIELD_CULTURE && hasBachCard && hasTeatroAllaScala && isMusician)
+			change += 1;
+	}
+
 	return change;
 }
 int CvPlayer::getGreatWorkYieldTotal(const CvCity* pCity, const CvGreatWork* pWork, const YieldTypes eYield) const
