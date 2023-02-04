@@ -356,6 +356,39 @@ int CvPlayer::GetExtraYieldForBuilding
 			yieldChange += numUnits / 2;
 	}
 
+	{// CARD_RENAISSANCE_BUILDINGS_EXPRESSIONALISM gives +2C +2Diplo to palace for every GW
+		const bool hasExpressionalismCard = player.HasPolicy("POLICY_CARD_RENAISSANCE_BUILDINGS_EXPRESSIONALISM_PASSIVE");
+		const bool isPalace = eBuildingClass == BuildingClass("BUILDINGCLASS_PALACE");
+		int numGreatWorks = player.GetNumSpecialistGreatWorks();
+
+		if (eYieldType == YIELD_CULTURE && !isPercentMod && hasExpressionalismCard && isPalace)
+			yieldChange += numGreatWorks * 2;
+		if (eYieldType == YIELD_DIPLOMATIC_SUPPORT && !isPercentMod && hasExpressionalismCard && isPalace)
+			yieldChange += numGreatWorks * 2;
+	}
+
+	{// CARD_RENAISSANCE_BUILDINGS_GRANDEUR gives +1C +1 Diplo to palace for every Wonder
+		const bool hasGrandeurCard = player.HasPolicy("POLICY_CARD_RENAISSANCE_BUILDINGS_EXPRESSIONALISM_PASSIVE");
+		const bool isPalace = eBuildingClass == BuildingClass("BUILDINGCLASS_PALACE");		
+		int numWonders = player.GetNumWonders(); 
+
+		if (eYieldType == YIELD_CULTURE && !isPercentMod && hasGrandeurCard && isPalace)
+			yieldChange += numWonders;
+		if (eYieldType == YIELD_DIPLOMATIC_SUPPORT && !isPercentMod && hasGrandeurCard && isPalace)
+			yieldChange += numWonders; 
+	}
+
+	{// CARD_RENAISSANCE_BUILDINGS_GRANDEUR gives +1C +1 Diplo to palace for every Wonder
+		const bool hasMediciCard = player.HasPolicy("POLICY_CARD_RENAISSANCE_BUILDINGS_MEDICI_BANK_PASSIVE");
+		const bool isPalace = eBuildingClass == BuildingClass("BUILDINGCLASS_PALACE");		
+		int numBanks = player.countNumBuildingClasses(BuildingClassTypes(40));
+
+		if (eYieldType == YIELD_GOLD && isPercentMod && hasMediciCard && isPalace)
+			yieldChange += numBanks * 5;
+		if (eYieldType == YIELD_CULTURE && !isPercentMod && hasMediciCard && isPalace)
+			yieldChange += numBanks;
+	}
+
 
 	return yieldChange;
 }
@@ -732,6 +765,16 @@ int CvPlayer::getSpecialistYieldHardcoded(const CvCity* pCity, const SpecialistT
 		if (eYield == YIELD_TOURISM && hasBachCard && hasTeatroAllaScala && isMusician)
 			change += 1;
 		if (eYield == YIELD_CULTURE && hasBachCard && hasTeatroAllaScala && isMusician)
+			change += 1;
+	}
+	{// CARD_RENAISSANCE_BUILDINGS_DOUBLE_ENTRY_ACCOUNTING gives +2G Merchant. +1PD +1Diplo if Big Ben
+		const bool hasDoubleEntrCard = player.HasPolicy("POLICY_CARD_RENAISSANCE_BUILDINGS_DOUBLE_ENTRY_ACCOUNTING_PASSIVE");
+		const bool hasBigBen = player.HasWonder(BuildingClass("BUILDINGCLASS_BIG_BEN"));
+		if (eYield == YIELD_GOLD && hasDoubleEntrCard && isMerchant)
+			change += 2;
+		if (eYield == YIELD_PRODUCTION && hasDoubleEntrCard && hasBigBen && isMerchant)
+			change += 1;
+		if (eYield == YIELD_DIPLOMATIC_SUPPORT && hasDoubleEntrCard && hasBigBen && isMerchant)
 			change += 1;
 	}
 
