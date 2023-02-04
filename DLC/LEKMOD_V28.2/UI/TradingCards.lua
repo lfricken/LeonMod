@@ -6,7 +6,7 @@ include( "InstanceManager" );
 include( "TradeRouteHelpers" );
 
 local g_PopupInfo = nil; -- info we were launched with
-local g_isDebugMode = true; -- allows card manipulation
+local g_isDebugMode = false; -- allows card manipulation
 
 g_localPlayer = Game.GetActivePlayer();
 g_CurrentTab = g_localPlayer;		-- The currently selected Tab.
@@ -76,34 +76,9 @@ function TabSelect(tab)
 		local bHide = i ~= tab;
 		v.SelectHighlight:SetHide(bHide);
 	end
-	print("" .. tab);
 	g_CurrentTab = tab;
 	g_Tabs[tab].RefreshContent();
 end
-
--- CREATE TABS
-local pid = g_localPlayer;
-local pLocal = Players[pid];
-for pid=0,16,1 do
-	local pPlayer = Players[pid];
-	if (pPlayer:IsAlive()) then
-		local instTab = {};
-		ContextPtr:BuildInstanceForControl("PlayerCardTab", instTab, Controls.Tabs);
-		tabObj = {};
-		tabObj.SelectHighlight = instTab.Highlight;
-		-- refresh
-		tabObj.RefreshContent = function() DisplayData(pid, true, true); end
-		-- click on tab
-		instTab.Button:SetText("" .. 1 + pid);
-		instTab.Button:RegisterCallback( Mouse.eLClick, function() TabSelect(pid); end);
-		instTab.Button:SetToolTipString(pLocal:GetCivNameSafe(pid));
-
-		local isTabDisabled = not Game:IsHasMet(g_localPlayer, pid);
-		instTab.Button:SetDisabled(isTabDisabled); -- disable tab if we haven't met
-		table.insert(g_Tabs, pid, tabObj);
-	end
-end
-
 -- DISPLAY CARDS
 function DisplayData(iPlayerId, includePassive, includeActive)
 	Controls.MainStack:DestroyAllChildren();
@@ -169,6 +144,33 @@ function DisplayData(iPlayerId, includePassive, includeActive)
 	Controls.MainScroll:CalculateInternalSize();
 
 end
+-- CREATE TABS
+function RedoTabs()
+	Controls.Tabs:DestroyAllChildren();
+	g_Tabs = {};
+	local pid = g_localPlayer;
+	local pLocal = Players[pid];
+	for pid=0,16,1 do
+		local pPlayer = Players[pid];
+		if (pPlayer:IsAlive()) then
+			local instTab = {};
+			ContextPtr:BuildInstanceForControl("PlayerCardTab", instTab, Controls.Tabs);
+			tabObj = {};
+			tabObj.SelectHighlight = instTab.Highlight;
+			-- refresh
+			tabObj.RefreshContent = function() DisplayData(pid, true, true); end
+			-- click on tab
+			instTab.Button:SetText("" .. 1 + pid);
+			instTab.Button:RegisterCallback( Mouse.eLClick, function() TabSelect(pid); end);
+			instTab.Button:SetToolTipString(pLocal:GetCivNameSafe(pid));
+
+			local isTabDisabled = not Game:IsHasMet(g_localPlayer, pid);
+			instTab.Button:SetDisabled(isTabDisabled); -- disable tab if we haven't met
+			table.insert(g_Tabs, pid, tabObj);
+		end
+	end
+	TabSelect(g_CurrentTab);
+end
 function OnClickedActivate(iPlayerId, cardIdx)
 	local pPlayer = Players[iPlayerId];
 	pPlayer:CardActivate(cardIdx);
@@ -206,9 +208,9 @@ end
 ContextPtr:SetShowHideHandler( ShowHideHandler );
 
 function OnDirtyBit() -- Update on dirty bits
-	g_Tabs[g_CurrentTab].RefreshContent();
+	RedoTabs();
 end
 -- Register Events
 Events.SerialEventGreatWorksScreenDirty.Add(OnDirtyBit);
 
-TabSelect(g_CurrentTab); -- default to this player
+RedoTabs();

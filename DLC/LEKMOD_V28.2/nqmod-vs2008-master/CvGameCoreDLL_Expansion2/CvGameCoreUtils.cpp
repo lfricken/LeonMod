@@ -899,6 +899,20 @@ bool isPickableName(const char* szName)
 
 void shuffleArray(int* piShuffle, int iNum, const CvRandom& rand, unsigned short extraSeed)
 {
+	for (int i = 0; i < iNum; i++)
+	{
+		int swapIdx = (rand.getSafe(iNum - i, GC.getFakeSeed(iNum) + i + extraSeed) + i);
+
+		if (i != swapIdx)
+		{
+			int iTemp = piShuffle[i];
+			piShuffle[i] = piShuffle[swapIdx];
+			piShuffle[swapIdx] = iTemp;
+		}
+	}
+}
+void fillWithRandomIndexes(int* piShuffle, int iNum, const CvRandom& rand, unsigned short extraSeed)
+{
 	int iI, iJ;
 
 	for(iI = 0; iI < iNum; iI++)

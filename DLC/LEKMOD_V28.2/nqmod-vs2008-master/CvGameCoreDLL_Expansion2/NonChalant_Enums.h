@@ -8,4 +8,9 @@ enum TradingCardTypes
 {
 	CARD_INVALID = -1,
 };
+enum TradingCardGenres
+{
+	CARD_GENRE_INVALID = -1,
+	CARD_GENRE_VP = 0,
+};
 

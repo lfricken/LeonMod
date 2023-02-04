@@ -667,44 +667,6 @@ GameEvents.PlayerDoTurn.Add(EAP_Embark_Fix)
 
 local iCiv = GameInfoTypes["CIVILIZATION_MC_NEW_ZEALAND"]
 local bIsActive = JFD_IsCivilisationActive(iCiv)
-     
-function JFD_Tonga(playerMetID, playerID)
-			local player = Players[playerID]
-            local playerMet = Players[playerMetID]
-            local majorsMet = Teams[playerMet:GetTeam()]:GetHasMetCivCount(true)
-            local rewardCulture = 8
-            local rewardScience = 12
-            local rewardGold = 40
-            local rewardFaith = 14
-            if player:GetCivilizationType() == GameInfoTypes["CIVILIZATION_MC_NEW_ZEALAND"] then
-                    local random = GetRandom(1, 4)
-                    if random == 1 then
-                            player:ChangeFaith(rewardFaith)
-							if player:IsHuman() and player:GetCivilizationType() == GameInfoTypes["CIVILIZATION_MC_NEW_ZEALAND"] and Game.GetActivePlayer() == playerID then
-								Events.GameplayAlertMessage(Locale.ConvertTextKey("You receive [COLOR_POSITIVE_TEXT]{1_Num} [ICON_PEACE] Faith[ENDCOLOR] from meeting [COLOR_POSITIVE_TEXT]{2_CivName}[ENDCOLOR]", rewardFaith, playerMet:GetName()))
-							end
-                    elseif random == 2 then
-                            player:ChangeJONSCulture(rewardCulture)
-							if player:IsHuman() and player:GetCivilizationType() == GameInfoTypes["CIVILIZATION_MC_NEW_ZEALAND"] and Game.GetActivePlayer() == playerID then
-								Events.GameplayAlertMessage(Locale.ConvertTextKey("You receive [COLOR_POSITIVE_TEXT]{1_Num} [ICON_CULTURE] Culture[ENDCOLOR] from meeting [COLOR_POSITIVE_TEXT]{2_CivName}[ENDCOLOR]", rewardCulture, playerMet:GetName()))
-							end
-                    elseif random == 3 then
-                            Teams[player:GetTeam()]:GetTeamTechs():ChangeResearchProgress(player:GetCurrentResearch(), rewardScience, playerID)
-							if player:IsHuman() and player:GetCivilizationType() == GameInfoTypes["CIVILIZATION_MC_NEW_ZEALAND"] and Game.GetActivePlayer() == playerID then
-								Events.GameplayAlertMessage(Locale.ConvertTextKey("You receive [COLOR_POSITIVE_TEXT]{1_Num} [ICON_RESEARCH] Science[ENDCOLOR] from meeting [COLOR_POSITIVE_TEXT]{2_CivName}[ENDCOLOR]", rewardScience, playerMet:GetName()))
-							end
-                    else
-                            player:ChangeGold(rewardGold)
-							if player:IsHuman() and player:GetCivilizationType() == GameInfoTypes["CIVILIZATION_MC_NEW_ZEALAND"] and Game.GetActivePlayer() == playerID then
-								 Events.GameplayAlertMessage(Locale.ConvertTextKey("You receive [COLOR_POSITIVE_TEXT]{1_Num} [ICON_GOLD] Gold[ENDCOLOR] from meeting [COLOR_POSITIVE_TEXT]{2_CivName}[ENDCOLOR]", rewardGold, playerMet:GetName()))
-							end
-                          
-                    end
-            end
-end
-
--- New Zealand UU infantry Influence
--- Code by MC and JFD
 
 include("FLuaVector.lua")
 -- JFD_IsInCityStateBorders
@@ -785,7 +747,6 @@ function JFD_NewZealand_Defender_PlayerDoTurn(playerID)
 end
 
 if bIsActive then
-	GameEvents.TeamMeet.Add(JFD_Tonga)
 	GameEvents.PlayerDoTurn.Add(MC_MaoriBattalion)
 	GameEvents.PlayerDoTurn.Add(JFD_NewZealand_Defender_PlayerDoTurn)
 end

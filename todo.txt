@@ -1,11 +1,12 @@
 
 
 
+fix ai card trade estimate
+fix ai resource estimate
+fix random resource gen number RESOURCE_VARIATION
 
 
-
-
-
+policy start % odds
 
 
 
@@ -18,8 +19,6 @@ trading
 	verify log resource gainz
 
 	DO
-	XML only cards
-	fix ai trade value estimate
 
 Trading Cards
 	TEST

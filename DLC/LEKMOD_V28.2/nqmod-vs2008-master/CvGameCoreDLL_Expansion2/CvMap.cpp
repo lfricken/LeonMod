@@ -2222,7 +2222,7 @@ void CvMap::DefaultContinentStamper()
 	}
 
 	// for each of these large continents give them unique art style (randomly)
-	shuffleArray(iLargeContinentsArtStyle, 4, GC.getGame().getMapRand());
+	fillWithRandomIndexes(iLargeContinentsArtStyle, 4, GC.getGame().getMapRand());
 	for(int i=0; i < iNumContinentTypes; i++)
 	{
 		iLargeContinentsArtStyle[i]++;

@@ -227,7 +227,7 @@ public:
 	void RemoveByType(TradeableItems eType, PlayerTypes eFrom = NO_PLAYER);
 	void RemoveLumpTrade(ResourceTypes eResource);
 	void RemoveResourceTrade(ResourceTypes eResource);
-	void RemoveCardTrade(PlayerTypes eFrom, int cardIdx);
+	void RemoveCardTrade(PlayerTypes eFrom, int cardType);
 	void RemoveCityTrade(PlayerTypes eFrom, int iCityID);
 	void RemoveUnitTrade(int iUnitID);
 	void RemoveThirdPartyPeace(PlayerTypes eFrom, TeamTypes eThirdPartyTeam);
