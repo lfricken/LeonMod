@@ -1517,6 +1517,8 @@ public:
 	CvCity* nextCity(int* pIterIdx, bool bRev=false);
 	// number of cities this player owns, including puppets
 	int getNumCities() const;
+	// pass a function that takes a city and returns an int, loops over owned cities
+	int CountNumCities(int (*check)(const CvCity&)) const;
 	CvCity* getCity(int iID);
 	const CvCity* getCity(int iID) const;
 	CvCity* addCity();

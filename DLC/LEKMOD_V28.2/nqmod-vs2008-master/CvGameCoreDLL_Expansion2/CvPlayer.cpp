@@ -8344,16 +8344,25 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestV
 				CvBuildingEntry* pkPrereqBuilding = GC.getBuildingInfo(ePrereqBuilding);
 				if(pkPrereqBuilding)
 				{
-					int iNumHave = getBuildingClassCount((BuildingClassTypes)iI);
-
 					int iNumNeeded = getBuildingClassPrereqBuilding(eBuilding, (BuildingClassTypes)iI, 0);
+					int iNumHave = 0;
+					int iLoop = 0;
+					for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+					{
+						if (pLoopCity && !pLoopCity->IsPuppet())
+						{
+							if (pLoopCity->satisfiesAtLeastOneRequiredClass(eBuilding))
+								iNumHave += 1;
+						}
+					}
 
 					if(iNumHave < iNumNeeded)
 					{
-						GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_BUILDING_COUNT_NEEDED", pkPrereqBuilding->GetTextKey(), "", iNumNeeded - iNumHave);
+						GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_BUILDING_COUNT_NEEDED", "Required building", "", iNumNeeded - iNumHave);
 
 						if(toolTipSink == NULL)
 							return false;
+						break; // break because we already check this buildings requirements
 					}
 				}
 			}
@@ -8457,6 +8466,8 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestV
 		for(iI = 0; iI < numBuildingClassInfos; iI++)
 		{
 			iNumNeeded = getBuildingClassPrereqBuilding(eBuilding, ((BuildingClassTypes)iI), bContinue);
+			if (iNumNeeded == 0)
+				continue;
 			//int iNumHave = getBuildingClassCount((BuildingClassTypes)iI);
 			ePrereqBuilding = (BuildingTypes) civilizationInfo.getCivilizationBuildings(iI);
 			if(NO_BUILDING != ePrereqBuilding)
@@ -8469,7 +8480,7 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestV
 					int iLoop;
 					for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 					{
-						if(pLoopCity && !pLoopCity->IsPuppet() && pLoopCity->GetCityBuildings()->GetNumBuilding(ePrereqBuilding) > 0)
+						if(pLoopCity && !pLoopCity->IsPuppet() && pLoopCity->satisfiesAtLeastOneRequiredClass(eBuilding))
 						{
 							iNumHave++;
 						}
@@ -8479,7 +8490,7 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestV
 					{
 						ePrereqBuilding = (BuildingTypes) civilizationInfo.getCivilizationBuildings(iI);
 
-						GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_BUILDING_COUNT_NEEDED", pkPrereqBuilding->GetTextKey(), "", iNumNeeded - iNumHave);
+						GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_BUILDING_COUNT_NEEDED", "Required building", "", iNumNeeded - iNumHave);
 
 						if(toolTipSink == NULL)
 							return false;
@@ -8492,13 +8503,15 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestV
 
 							for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 							{
-								if(pLoopCity && !pLoopCity->IsPuppet() && pLoopCity->GetCityBuildings()->GetNumBuilding(ePrereqBuilding) == 0)
+								if(pLoopCity && !pLoopCity->IsPuppet() && !pLoopCity->satisfiesAtLeastOneRequiredClass(eBuilding))
 								{
 									(*toolTipSink) += pLoopCity->getName();
 									(*toolTipSink) += " ";
 								}
 							}
 						}
+
+						break; // already added a requirement line
 					}
 				}
 			}
@@ -22106,6 +22119,20 @@ const CvCity* CvPlayer::nextCity(int* pIterIdx, bool bRev) const
 int CvPlayer::getNumCities() const
 {
 	return m_cities.GetCount();
+}
+int CvPlayer::CountNumCities(int (*check)(const CvCity&)) const
+{
+	int sum = 0;
+	const CvPlayer& player = *this;
+	int iLoop = 0;
+	for (const CvCity* pLoopCity = player.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = player.nextCity(&iLoop))
+	{
+		if (pLoopCity)
+		{
+			sum += check(*pLoopCity);
+		}
+	}
+	return sum;
 }
 
 
