@@ -368,7 +368,7 @@ int CvPlayer::GetExtraYieldForBuilding
 	}
 
 	{// CARD_RENAISSANCE_BUILDINGS_GRANDEUR gives +1C +1 Diplo to palace for every Wonder
-		const bool hasGrandeurCard = player.HasPolicy("POLICY_CARD_RENAISSANCE_BUILDINGS_EXPRESSIONALISM_PASSIVE");
+		const bool hasGrandeurCard = player.HasPolicy("POLICY_CARD_RENAISSANCE_BUILDINGS_GRANDEUR_PASSIVE");
 		const bool isPalace = eBuildingClass == BuildingClass("BUILDINGCLASS_PALACE");		
 		int numWonders = player.GetNumWonders(); 
 
@@ -378,7 +378,7 @@ int CvPlayer::GetExtraYieldForBuilding
 			yieldChange += numWonders; 
 	}
 
-	{// CARD_RENAISSANCE_BUILDINGS_GRANDEUR gives +1C +1 Diplo to palace for every Wonder
+	{// CARD_RENAISSANCE_BUILDINGS_MEDICI_BANK gives +5%GD +1C  for each Bank
 		const bool hasMediciCard = player.HasPolicy("POLICY_CARD_RENAISSANCE_BUILDINGS_MEDICI_BANK_PASSIVE");
 		const bool isPalace = eBuildingClass == BuildingClass("BUILDINGCLASS_PALACE");		
 		int numBanks = player.countNumBuildingClasses(BuildingClassTypes(40));
@@ -387,6 +387,15 @@ int CvPlayer::GetExtraYieldForBuilding
 			yieldChange += numBanks * 5;
 		if (eYieldType == YIELD_CULTURE && !isPercentMod && hasMediciCard && isPalace)
 			yieldChange += numBanks;
+	}
+	
+
+	{// CARD_RENAISSANCE_BUILDINGS_COPERNICUS_OBSERVERATORY If 5 Observeratories, +1 Insight
+		const bool hasCopernicusCard = player.HasPolicy("POLICY_CARD_RENAISSANCE_BUILDINGS_COPERNICUS_OBSERVERATORY_PASSIVE");
+		const bool isObserveratory = eBuildingClass == BuildingClass("BUILDINGCLASS_OBSERVATORY");
+		const bool numObserveratories = player.countNumBuildingClasses(BuildingClassTypes(10));
+		if (eYieldType == YIELD_SCIENTIFIC_INSIGHT && (numObserveratories >= 5) && hasCopernicusCard && isObserveratory)
+			yieldChange += 1;
 	}
 
 
@@ -776,6 +785,12 @@ int CvPlayer::getSpecialistYieldHardcoded(const CvCity* pCity, const SpecialistT
 			change += 1;
 		if (eYield == YIELD_DIPLOMATIC_SUPPORT && hasDoubleEntrCard && hasBigBen && isMerchant)
 			change += 1;
+	}
+
+	{// CARD_RENAISSANCE_BUILDINGS_COPERNICUS_OBSERVERATORY gives +2SC to Scientist.
+		const bool hasCopernicusCard = player.HasPolicy("POLICY_CARD_RENAISSANCE_BUILDINGS_COPERNICUS_OBSERVERATORY_PASSIVE");				
+		if (eYield == YIELD_SCIENCE && hasCopernicusCard && isScientist)
+			change += 2;		
 	}
 
 	return change;
