@@ -1868,10 +1868,10 @@ public:
 	int CardsCount() const;
 	int CardsCount(TradingCardTypes cardType) const;
 	bool CardsHasAny(TradingCardTypes cardType) const;
+	// true if this player is allowed to receive ANY cards
+	bool CardsCanHave() const;
 
-	// How many turns we are behind in tech.
-	// If they have 9 techs and we have 7, and we get 0.5 techs per turn, this value would be ((9 - 7) / 0.5) * 100= 400
-	FAutoVariable<int, CvPlayer> leaderTechDiffT100;
+	void SetTechDiffT00(int diffT100);
 protected:
 	class ConqueredByBoolField
 	{
@@ -2086,6 +2086,9 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iHappyPerMilitaryUnit;
 	FAutoVariable<int, CvPlayer> m_iHappinessToCulture;
 	FAutoVariable<int, CvPlayer> m_iHappinessToScience;
+	// How many turns we are behind in tech.
+	// If they have 9 techs and we have 7, and we get 0.5 techs per turn, this value would be ((9 - 7) / 0.5) * 100= 400
+	FAutoVariable<int, CvPlayer> m_leaderTechDiffT100;
 #ifdef NQ_GOLD_TO_SCIENCE_FROM_POLICIES
 	FAutoVariable<int, CvPlayer> m_iGoldToScience;
 #endif
