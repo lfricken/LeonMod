@@ -7714,6 +7714,12 @@ void CvPlayer::found(int iX, int iY)
 	{
 		return;
 	}
+
+	const bool isFirstFounding = !IsHasLostCapital() && getNumCities() == 0;
+	if (isFirstFounding)
+	{
+		GC.getGame().onPlayerEnteredEra(GetID(), (EraTypes)GetCurrentEra());
+	}
 	
 	// TODO HACK -- GIVE players EVERY CARD
 	//for (int cardId = 128; cardId < GC.getNumPolicyInfos(); ++cardId)

@@ -113,6 +113,12 @@ string TradingCard::GetDesc(TradingCardTypes type, CvPlayer* player)
 void TradingCard::OnCountChanged(TradingCardTypes cardType, CvPlayer* player, int delta)
 {
 	player->CardsOnChanged();
+
+	if (delta > 0)
+	{
+		CvString strBuffer = GetLocalizedText("TXT_KEY_GAIN_CARD", TradingCard::GetName(cardType, player).c_str());
+		GC.messagePlayer(0, player->GetID(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer);
+	}
 }
 string TradingCard::GetActivePolicyDesc(TradingCardTypes type)
 {

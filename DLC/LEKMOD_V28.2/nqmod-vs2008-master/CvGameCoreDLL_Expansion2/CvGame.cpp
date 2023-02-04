@@ -10946,11 +10946,17 @@ void CvGame::onPlayerEnteredEra(PlayerTypes, EraTypes eEra)
 	if (m_eraNumPlayersEntered[eEra] == 0)
 	{
 		// map genre > cards of that genre
-		std::vector<CardsOfGenre> genres;
+		std::vector<std::vector<CardsOfGenre>> eras;
 		for (int cardId = 0; cardId < GC.getNumPolicyInfos(); ++cardId)
 		{
 			if (TradingCard::IsCard(cardId))
 			{
+				int era = TradingCard::Era(cardId);
+				while ((int)eras.size() < (era + 1)) // ensure capacity
+				{
+					eras.push_back(std::vector<CardsOfGenre>());
+				}
+				std::vector<CardsOfGenre>& genres = eras[era];
 				int genre = TradingCard::Genre(cardId);
 				while ((int)genres.size() < (genre + 1)) // the 0 genre needs 1 entry
 				{
@@ -10959,13 +10965,18 @@ void CvGame::onPlayerEnteredEra(PlayerTypes, EraTypes eEra)
 				genres[genre].add((TradingCardTypes)cardId);
 			}
 		}
-		// shuffle each genre
-		for (int i = 0; i < (int)genres.size(); ++i)
+		// shuffle each genre in each era
+		for (int e = 0; e < (int)eras.size(); ++e)
 		{
-			genres[i].shuffle(698 * (1 + i));
+			std::vector<CardsOfGenre>& genres = eras[e];
+			for (int i = 0; i < (int)genres.size(); ++i)
+			{
+				genres[i].shuffle(698 * (1 + i));
+			}
 		}
 
 		// make sure we hand out enough cards
+		std::vector<CardsOfGenre>& genres = eras[eEra];
 		const int minCards = 3;		
 		const int numHandoutsNeeded = GC.ceilDiv(minCards, (int)genres.size());
 		for (int i = 0; i < numHandoutsNeeded; ++i)
@@ -10981,8 +10992,8 @@ void CvGame::onPlayerEnteredEra(PlayerTypes, EraTypes eEra)
 					// hand 1 card of each genre
 					for (int genre = 0; genre < (int)genres.size(); ++genre)
 					{
-						TradingCardTypes id = genres[genre].getNext();
-						rPlayer.CardsAdd(id);
+						TradingCardTypes randomEraCardId = genres[genre].getNext();
+						rPlayer.CardsAdd(randomEraCardId);
 					}
 				}
 			}
