@@ -690,6 +690,18 @@ int CvPlot::getExtraYield
 				if (eYieldType == YIELD_FOOD && hasBedouinsCard && isOases)
 					yieldChange += 1;
 			}
+
+			{// CARD_RENAISSANCE_RESOURCES_TRIANGULAR_TRADE - +1 FD, PD, G to a bunch of stuff
+				const bool hasTriangularTradeCard = player.HasPolicy("POLICY_CARD_RENAISSANCE_RESOURCES_TRIANGULAR_TRADE_PASSIVE");
+				const bool isTriangularResource = (plot.HasResource("RESOURCE_SUGAR") || plot.HasResource("RESOURCE_TOBACCO") ||
+					plot.HasResource("RESOURCE_TEA") || plot.HasResource("RESOURCE_COFFEE") || plot.HasResource("RESOURCE_COCOA"));
+				if (eYieldType == YIELD_FOOD && hasTriangularTradeCard && isTriangularResource) 
+					yieldChange += 1;
+				if (eYieldType == YIELD_PRODUCTION && hasTriangularTradeCard && isTriangularResource)
+					yieldChange += 1;
+				if (eYieldType == YIELD_GOLD && hasTriangularTradeCard && isTriangularResource)
+					yieldChange += 1;
+			}
 			
 
 		}

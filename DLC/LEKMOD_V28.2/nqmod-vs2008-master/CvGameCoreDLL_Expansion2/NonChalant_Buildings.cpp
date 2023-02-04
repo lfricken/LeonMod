@@ -345,6 +345,17 @@ int CvPlayer::GetExtraYieldForBuilding
 			yieldChange += 2;
 	}
 
+	{// CARD_RENAISSANCE_BUILDINGS_DOMINANCE gives +1C +1Diplo to palace for every 2 military units
+		const bool hasDominanceCard = player.HasPolicy("POLICY_CARD_RENAISSANCE_BUILDINGS_DOMINANCE_PASSIVE");
+		const bool isPalace = eBuildingClass == BuildingClass("BUILDINGCLASS_PALACE");
+		int numUnits = player.getNumMilitaryUnits();
+
+		if (eYieldType == YIELD_CULTURE && !isPercentMod && hasDominanceCard && isPalace)
+			yieldChange += numUnits / 2;
+		if (eYieldType == YIELD_DIPLOMATIC_SUPPORT && !isPercentMod && hasDominanceCard && isPalace)
+			yieldChange += numUnits / 2;
+	}
+
 
 	return yieldChange;
 }
