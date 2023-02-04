@@ -448,6 +448,24 @@ void sendGameStats(char* pURL);
 int baseYieldToSymbol(int iNumYieldTypes, int iYieldStack);
 
 bool isPickableName(const char* szName);
+// randomly shuffles the vector
+template <typename T>
+void shuffleVector(std::vector<T>* pVec, unsigned short extraSeed)
+{
+	std::vector<T>& vec = *pVec;
+	const int count = vec.size();
+	for (int i = 0; i < count; i++)
+	{
+		int swapIdx = (GC.getGame().getJonRandNumExtraSafe(count - i, "", GC.getFakeSeed(count) + i + extraSeed) + i);
+
+		if (i != swapIdx)
+		{
+			T iTemp = vec[i];
+			vec[i] = vec[swapIdx];
+			vec[swapIdx] = iTemp;
+		}
+	}
+}
 void shuffleArray(int* piShuffle, int iNum, const CvRandom& rand, unsigned short extraSeed = 8413);
 void fillWithRandomIndexes(int* piShuffle, int iNum, const CvRandom& rand, unsigned short extraSeed = 0);
 

@@ -10934,7 +10934,7 @@ struct CardsOfGenre
 	}
 	void shuffle(unsigned short seed)
 	{
-		shuffleArray(&possibilities[0], possibilities.size(), GC.getGame().getJonRand(), seed);
+		shuffleVector(&possibilities, seed);
 	}
 private:
 	std::vector<int> possibilities;

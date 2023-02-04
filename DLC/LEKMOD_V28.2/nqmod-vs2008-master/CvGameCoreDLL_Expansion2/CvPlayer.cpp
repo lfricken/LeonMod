@@ -7427,11 +7427,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 		for (int i = 0; i < numCards; ++i)
 		{
 			TradingCardTypes goodyHutCard = CardsGetRandomValid();
-			CardsAdd(goodyHutCard);
-
-			ss << TradingCard::GetName(goodyHutCard, this);
-			ss << ":  ";
-			ss << TradingCard::GetDesc(goodyHutCard, this);
+			CardsAdd(goodyHutCard); // handles the message
 		}
 	}
 	//////////
@@ -28465,9 +28461,32 @@ void CvPlayer::CardsOnChanged()
 	DLLUI->setDirty(CardsDirtyBit, true);
 }
 
-TradingCardTypes CvPlayer::CardsGetRandomValid() const
+TradingCardTypes CvPlayer::CardsGetRandomValid(bool avoidDuplicates) const
 {
-	return (TradingCardTypes)0;
+	std::vector< TradingCardTypes> possibleCards;
+	for (int cardId = 0; cardId < GC.getNumPolicyInfos(); ++cardId)
+	{
+		if (TradingCard::IsCard(cardId))
+		{
+			int era = TradingCard::Era(cardId);
+			bool isAcceptableEra = era == GetCurrentEra();
+			bool isIllegalDuplicate = avoidDuplicates && CardsHasAny((TradingCardTypes)cardId);
+			if (isAcceptableEra && !isIllegalDuplicate)
+			{
+				possibleCards.push_back((TradingCardTypes)cardId);
+			}
+		}
+	}
+	if (possibleCards.size() < 1)
+	{
+		return CardsGetRandomValid(false);
+	}
+	else
+	{
+		shuffleVector(&possibleCards, (GetID() + 15) * 345);
+	}
+
+	return (TradingCardTypes)possibleCards[0];
 }
 void CvPlayer::SetTechDiffT00(int diffT100)
 {

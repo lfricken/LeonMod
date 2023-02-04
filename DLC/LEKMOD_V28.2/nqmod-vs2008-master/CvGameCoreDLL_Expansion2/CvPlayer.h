@@ -1850,7 +1850,7 @@ public:
 	bool hasTurnTimerExpired();
 
 	// returns a card type that could be awarded to this player
-	TradingCardTypes CardsGetRandomValid() const;
+	TradingCardTypes CardsGetRandomValid(bool avoidDuplicates = true) const;
 	// called when state information about a card changes (add, remove, visible, etc.)
 	virtual void CardsOnChanged();
 	// DO NOT CALL, should only be called from net handler
