@@ -2047,13 +2047,13 @@ void CvDeal::RemoveResourceTrade(ResourceTypes eResource)
 	}
 }
 
-void CvDeal::RemoveCardTrade(PlayerTypes eFrom, int cardIdx)
+void CvDeal::RemoveCardTrade(PlayerTypes eFrom, int cardType)
 {
 	for (TradedItemList::iterator it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
 	{
 		if (it->m_eItemType == TRADE_ITEM_CARD && 
 			it->m_eFromPlayer == eFrom &&
-			it->m_iData1 == cardIdx)
+			it->m_iData2 == cardType)
 		{
 			m_TradedItems.erase(it);
 			return;
