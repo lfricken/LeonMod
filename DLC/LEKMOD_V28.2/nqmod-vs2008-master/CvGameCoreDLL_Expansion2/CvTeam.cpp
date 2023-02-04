@@ -7261,6 +7261,7 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 			if(kPlayer.isAlive() && kPlayer.getTeam() == GetID())
 			{
 				gDLL->GameplayEraChanged(ePlayer, eNewValue);
+				GC.getGame().onPlayerEnteredEra(ePlayer, eNewValue);
 			}
 		}
 

@@ -2568,6 +2568,10 @@ unsigned long CvGlobals::getFakeSeed(const unsigned int x, const unsigned int y,
 	seed += other * 227;
 	return seed;
 }
+int CvGlobals::ceilDiv(int numerator, int denominator) const
+{
+	return (((100 * numerator) / denominator) + 99) / 100;
+}
 int CvGlobals::rand(int maxInclusive, string log, const CvPlot* plot, const unsigned long other)
 {
 	return this->getGame().getJonRandNum(maxInclusive + 1, log.c_str(), plot, other);

@@ -292,6 +292,7 @@ CvPlayer::CvPlayer() :
 	, m_iHappyPerMilitaryUnit("CvPlayer::m_iHappyPerMilitaryUnit", m_syncArchive)
 	, m_iHappinessToCulture("CvPlayer::m_iHappinessToCulture", m_syncArchive)
 	, m_iHappinessToScience("CvPlayer::m_iHappinessToScience", m_syncArchive)
+	, m_leaderTechDiffT100("CvPlayer::m_leaderTechDiffT100", m_syncArchive)
 #ifdef NQ_GOLD_TO_SCIENCE_FROM_POLICIES
 	, m_iGoldToScience("CvPlayer::m_iGoldToScience", m_syncArchive)
 #endif
@@ -1001,6 +1002,7 @@ void CvPlayer::uninit()
 	m_iHappyPerMilitaryUnit = 0;
 	m_iHappinessToCulture = 0;
 	m_iHappinessToScience = 0;
+	m_leaderTechDiffT100 = 0;
 #ifdef NQ_GOLD_TO_SCIENCE_FROM_POLICIES
 	m_iGoldToScience = 0;
 #endif
@@ -1160,7 +1162,6 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 	// Uninit class
 	uninit();
 
-	leaderTechDiffT100 = 0;
 	m_eID = eID;
 	if(m_eID != NO_PLAYER)
 	{
@@ -7426,11 +7427,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 		for (int i = 0; i < numCards; ++i)
 		{
 			TradingCardTypes goodyHutCard = CardsGetRandomValid();
-			CardsAdd(goodyHutCard);
-
-			ss << TradingCard::GetName(goodyHutCard, this);
-			ss << ":  ";
-			ss << TradingCard::GetDesc(goodyHutCard, this);
+			CardsAdd(goodyHutCard); // handles the message
 		}
 	}
 	//////////
@@ -7713,13 +7710,19 @@ void CvPlayer::found(int iX, int iY)
 	{
 		return;
 	}
+
+	const bool isFirstFounding = !IsHasLostCapital() && getNumCities() == 0;
+	if (isFirstFounding)
+	{
+		GC.getGame().onPlayerEnteredEra(GetID(), (EraTypes)GetCurrentEra());
+	}
 	
 	// TODO HACK -- GIVE players EVERY CARD
-	for (int cardId = 128; cardId < GC.getNumPolicyInfos(); ++cardId)
-	{
-		if (TradingCard::IsCard(cardId))
-			CardsAdd((TradingCardTypes)cardId);
-	}
+	//for (int cardId = 128; cardId < GC.getNumPolicyInfos(); ++cardId)
+	//{
+	//	if (TradingCard::IsCard(cardId))
+	//		CardsAdd((TradingCardTypes)cardId);
+	//}
 
 	SetTurnsSinceSettledLastCity(0);
 
@@ -19484,7 +19487,7 @@ void CvPlayer::RecalculateNonLeaderBoost()
 		GC.getSCIENCE_CATCHUP_DIFF_NONET100(), 
 		3, 
 		GC.getPercentTurnsDoneT10000() / 100, 
-		leaderTechDiffT100, 
+		m_leaderTechDiffT100, 
 		GC.getSCIENCE_CATCHUP_DIFFT100()
 	);
 }
@@ -21836,6 +21839,10 @@ void CvPlayer::clearResearchQueue()
 //	research immediately and should be used with clear.  Clear will clear the entire queue.
 bool CvPlayer::pushResearch(TechTypes eTech, bool bClear)
 {
+	stringstream s;
+	s << "Player:pushResearch " << GetID() << " " << eTech << " " << bClear;
+	GC.debugState(s); // Player::pushResearch
+
 	int i;
 	int iNumSteps;
 	int iShortestPath;
@@ -25193,6 +25200,7 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_iHappyPerMilitaryUnit;
 	kStream >> m_iHappinessToCulture;
 	kStream >> m_iHappinessToScience;
+	kStream >> m_leaderTechDiffT100;
 #ifdef NQ_GOLD_TO_SCIENCE_FROM_POLICIES
 	kStream >> m_iGoldToScience;
 #endif
@@ -25778,6 +25786,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_iHappyPerMilitaryUnit;
 	kStream << m_iHappinessToCulture;
 	kStream << m_iHappinessToScience;
+	kStream << m_leaderTechDiffT100;
 #ifdef NQ_GOLD_TO_SCIENCE_FROM_POLICIES
 	kStream << m_iGoldToScience;
 #endif
@@ -28420,6 +28429,10 @@ bool CvPlayer::CardsHasAny(TradingCardTypes cardType) const
 {
 	return CardsCount(cardType) >= 1;
 }
+bool CvPlayer::CardsCanHave() const
+{
+	return isAlive() && !isMinorCiv() && isMajorCiv() && !isBarbarian();
+}
 void CvPlayer::DoUpdateCardBenefits()
 {
 	// check EVERY card type since we may have lost a passive card whos policy now needs to get removed
@@ -28448,7 +28461,34 @@ void CvPlayer::CardsOnChanged()
 	DLLUI->setDirty(CardsDirtyBit, true);
 }
 
-TradingCardTypes CvPlayer::CardsGetRandomValid() const
+TradingCardTypes CvPlayer::CardsGetRandomValid(bool avoidDuplicates) const
 {
-	return (TradingCardTypes)0;
+	std::vector< TradingCardTypes> possibleCards;
+	for (int cardId = 0; cardId < GC.getNumPolicyInfos(); ++cardId)
+	{
+		if (TradingCard::IsCard(cardId))
+		{
+			int era = TradingCard::Era(cardId);
+			bool isAcceptableEra = era == GetCurrentEra();
+			bool isIllegalDuplicate = avoidDuplicates && CardsHasAny((TradingCardTypes)cardId);
+			if (isAcceptableEra && !isIllegalDuplicate)
+			{
+				possibleCards.push_back((TradingCardTypes)cardId);
+			}
+		}
+	}
+	if (possibleCards.size() < 1)
+	{
+		return CardsGetRandomValid(false);
+	}
+	else
+	{
+		shuffleVector(&possibleCards, (GetID() + 15) * 345);
+	}
+
+	return (TradingCardTypes)possibleCards[0];
+}
+void CvPlayer::SetTechDiffT00(int diffT100)
+{
+	m_leaderTechDiffT100 = diffT100;
 }

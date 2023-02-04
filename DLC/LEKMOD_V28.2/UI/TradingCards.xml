@@ -44,14 +44,14 @@
 		</Box>
 	</Instance>
 	<Instance Name="PlayerCardTab">
-		<Button Anchor="L,T" Size="40,24" Offset="0,0" String="INST" ID="Button">
+		<Button Anchor="L,T" Size="50,24" Offset="0,0" String="INST" ID="Button">
 			<ShowOnMouseOver>
-				<AlphaAnim Anchor="L,C" Size="40,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
-					<Grid Size="40,27" Offset="0,2" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+				<AlphaAnim Anchor="L,C" Size="50,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+					<Grid Size="50,27" Offset="0,2" Padding="0,0" Style="Grid9FrameTurnsHL"/>
 				</AlphaAnim>
 			</ShowOnMouseOver>
 			<!-- Selected State  -->
-			<Grid Anchor="C,C" Offset="0,1" Size="40,26" Style="Grid9FrameTurns" Hidden="0" ID="Highlight"/>
+			<Grid Anchor="C,C" Offset="0,1" Size="50,26" Style="Grid9FrameTurns" Hidden="0" ID="Highlight"/>
 		</Button>
 	</Instance>
 	<Box Style="BGBlock_ClearTopBar"/>
@@ -69,10 +69,11 @@
 		<Label Style="MenuTitleCaption" String="TXT_KEY_CARD_SCREEN" />
 		<!-- Top Panel  -->
 		<Box Anchor="C,T" Size="955,32" Offset="0,44" Color="0.0.0.128">
-			<Stack ID="Tabs" Anchor="L,T" Size="971,32" Offset="0,0" Padding="0" StackGrowth="Right">
-			<Button Anchor="L,T" Size="60,24" Offset="0,0" String="Player:" ID="ButtonA">
-			</Button>
-				<!-- Tabs -->
+			<Stack Anchor="L,T" Offset="0,0" Padding="1" StackGrowth="Right">
+				<Button Anchor="L,T" Size="60,24" Offset="0,0" String="Player:" ID="ButtonA"></Button>
+				<Stack ID="Tabs" Anchor="L,T" Size="971,32" Offset="0,0" Padding="1" StackGrowth="Right">
+					<!-- Tabs -->
+				</Stack>
 			</Stack>
 			<Image Anchor="C,B" Offset="0,0" Texture="HorizontalTrim.dds" Size="971,5"/>
 		</Box>

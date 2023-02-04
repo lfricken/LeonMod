@@ -489,6 +489,8 @@ public:
 	void saveReplay();
 
 	void addPlayer(PlayerTypes eNewPlayer, LeaderHeadTypes eLeader, CivilizationTypes eCiv);
+	// called when a player enters an era
+	void onPlayerEnteredEra(PlayerTypes ePlayer, EraTypes eEra);
 
 	void testVictory();
 	bool testVictory(const VictoryTypes eVictory, const TeamTypes eTeam, bool* pbEndScore = NULL) const;
@@ -762,6 +764,8 @@ protected:
 	std::vector<CvCompetition> m_competitions;
 	std::vector<int> m_barbSpawnX;
 	std::vector<int> m_barbSpawnY;
+	// 0 if nobody has entered the era, 3 if 3 people have, etc.
+	std::vector<int> m_eraNumPlayersEntered;
 	// keeps track of which spawn point barbarians should consider spawning
 	int m_barbSpawnCounter;
 

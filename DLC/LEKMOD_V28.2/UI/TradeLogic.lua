@@ -208,7 +208,7 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 		if (bClearTableAndDisplayDeal) then
 			g_bMessageFromDiploAI = true;
 			
-			Controls.DiscussionText:SetText( szLeaderMessage );
+			Controls.DiscussionText:LocalizeAndSetText( szLeaderMessage );
 		    
 			DoClearTable();
 			DisplayDeal();
@@ -220,7 +220,7 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 			
 			g_bMessageFromDiploAI = true;
 			
-			Controls.DiscussionText:SetText( szLeaderMessage );
+			Controls.DiscussionText:LocalizeAndSetText( szLeaderMessage );
 		end
 		
 		-- Resize the height of the box to fit the text
@@ -580,7 +580,7 @@ function DoUpdateButtons()
         --print( "PVP Updating ProposeButton" );
 	    
         if( g_bNewDeal ) then
-            Controls.ProposeButton:SetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_PROPOSE" ));
+            Controls.ProposeButton:LocalizeAndSetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_PROPOSE" ));
             Controls.ProposeButton:SetVoid1( PROPOSE_TYPE );
             Controls.CancelButton:SetHide( true );
             
@@ -589,7 +589,7 @@ function DoUpdateButtons()
             Controls.ModificationBlock:SetHide( true );
             
         elseif( UI.HasMadeProposal( g_iUs ) == g_iThem ) then
-            Controls.ProposeButton:SetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_WITHDRAW" ));
+            Controls.ProposeButton:LocalizeAndSetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_WITHDRAW" ));
             Controls.ProposeButton:SetVoid1( WITHDRAW_TYPE );
             Controls.CancelButton:SetHide( true );
             
@@ -599,7 +599,7 @@ function DoUpdateButtons()
             
         else
             Controls.ProposeButton:SetVoid1( ACCEPT_TYPE );
-            Controls.ProposeButton:SetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_ACCEPT" ));
+            Controls.ProposeButton:LocalizeAndSetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_ACCEPT" ));
             Controls.CancelButton:SetVoid1( REFUSE_TYPE );
             Controls.CancelButton:SetHide( false );
             
@@ -616,24 +616,24 @@ function DoUpdateButtons()
 		
 		-- Human is making a demand
         if( g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_HUMAN_DEMAND ) then
-            Controls.ProposeButton:SetText( Locale.ToUpper(Locale.ConvertTextKey( "TXT_KEY_DIPLO_DEMAND_BUTTON" )));
-            Controls.CancelButton:SetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_CANCEL" ));
+            Controls.ProposeButton:LocalizeAndSetText( Locale.ToUpper(Locale.ConvertTextKey( "TXT_KEY_DIPLO_DEMAND_BUTTON" )));
+            Controls.CancelButton:LocalizeAndSetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_CANCEL" ));
             
     	-- If the AI made an offer change what buttons are visible for the human to respond with
     	elseif (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER) then
-    		Controls.ProposeButton:SetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_ACCEPT" ));
-    		Controls.CancelButton:SetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_REFUSE" ));
+    		Controls.ProposeButton:LocalizeAndSetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_ACCEPT" ));
+    		Controls.CancelButton:LocalizeAndSetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_REFUSE" ));
     		
     	-- AI is making a demand or Request
     	elseif (	g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_DEMAND or 
     				g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_REQUEST) then
     				
-    		Controls.ProposeButton:SetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_ACCEPT" ));
-    		Controls.CancelButton:SetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_REFUSE" ));
+    		Controls.ProposeButton:LocalizeAndSetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_ACCEPT" ));
+    		Controls.CancelButton:LocalizeAndSetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_REFUSE" ));
     		
     	else
-    		Controls.ProposeButton:SetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_PROPOSE" ));
-    		Controls.CancelButton:SetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_CANCEL" ));
+    		Controls.ProposeButton:LocalizeAndSetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_PROPOSE" ));
+    		Controls.CancelButton:LocalizeAndSetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_CANCEL" ));
     	end
 		
 		Controls.WhatDoYouWantButton:SetHide(true);
@@ -798,10 +798,10 @@ function SubStackHandler( bIsUs, none, control )
     
     if( stack:IsHidden() ) then
         stack:SetHide( false );
-        control:SetText( "[ICON_MINUS]" .. Locale.ConvertTextKey( label ) );
+        control:LocalizeAndSetText( "[ICON_MINUS]" .. Locale.ConvertTextKey( label ) );
     else
         stack:SetHide( true );
-        control:SetText( "[ICON_PLUS]" .. Locale.ConvertTextKey( label ) );
+        control:LocalizeAndSetText( "[ICON_PLUS]" .. Locale.ConvertTextKey( label ) );
     end
     
     if( bIsUs == 1 ) then
@@ -990,8 +990,8 @@ function ResetDisplay()
 	-- Research Agreement cost
 	local iRACost = Game.GetResearchAgreementCost(g_iUs, g_iThem);
 	local strRAString = Locale.ConvertTextKey("TXT_KEY_DIPLO_RESCH_AGREEMENT_US", iRACost);
-	Controls.UsTableResearchAgreement:SetText(strRAString);
-	Controls.ThemTableResearchAgreement:SetText(strRAString);
+	Controls.UsTableResearchAgreement:LocalizeAndSetText(strRAString);
+	Controls.ThemTableResearchAgreement:LocalizeAndSetText(strRAString);
 
 
     if( g_bTradeReview ) then
@@ -1002,12 +1002,12 @@ function ResetDisplay()
     	CivIconHookup( g_iUs, 64, Controls.UsSymbolShadow, Controls.UsCivIconBG, Controls.UsCivIconShadow, false, true );
     	CivIconHookup( g_iThem, 64, Controls.ThemSymbolShadow, Controls.ThemCivIconBG, Controls.ThemCivIconShadow, false, true );
 
-    	Controls.UsText:SetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_ITEMS_LABEL", Locale.ConvertTextKey( g_pUs:GetNameKey() ) ) );
+    	Controls.UsText:LocalizeAndSetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_ITEMS_LABEL", Locale.ConvertTextKey( g_pUs:GetNameKey() ) ) );
 
         if( m_bIsMulitplayer and pOtherPlayer:IsHuman() ) then
-        	Controls.ThemText:SetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_ITEMS_LABEL", Locale.ConvertTextKey( g_pThem:GetNickName() ) ) );
+        	Controls.ThemText:LocalizeAndSetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_ITEMS_LABEL", Locale.ConvertTextKey( g_pThem:GetNickName() ) ) );
         else
-        	Controls.ThemText:SetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_ITEMS_LABEL", Locale.ConvertTextKey( g_pThem:GetName() ) ) );
+        	Controls.ThemText:LocalizeAndSetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_ITEMS_LABEL", Locale.ConvertTextKey( g_pThem:GetName() ) ) );
     	end
     
     elseif( g_bPVPTrade == false ) then
@@ -1018,16 +1018,16 @@ function ResetDisplay()
 
 			
     	local strString = Locale.ConvertTextKey("TXT_KEY_DIPLO_LEADER_SAYS", g_pThem:GetName());
-    	Controls.NameText:SetText(strString);
+    	Controls.NameText:LocalizeAndSetText(strString);
 	
     	if( not g_bMessageFromDiploAI ) then
-    		Controls.DiscussionText:SetText(Locale.ConvertTextKey("TXT_KEY_DIPLO_HERE_OFFER"));
+    		Controls.DiscussionText:LocalizeAndSetText(Locale.ConvertTextKey("TXT_KEY_DIPLO_HERE_OFFER"));
     	end
  	
     	-- Set Civ Icon
     	CivIconHookup( g_iThem, 64, Controls.ThemSymbolShadow, Controls.ThemCivIconBG, Controls.ThemCivIconShadow, false, true );
 
-    	Controls.LeaderNameItems:SetText(Locale.ConvertTextKey("TXT_KEY_DIPLO_ITEMS_LABEL",Locale.ConvertTextKey(g_pThem:GetNameKey())));  						
+    	Controls.LeaderNameItems:LocalizeAndSetText(Locale.ConvertTextKey("TXT_KEY_DIPLO_ITEMS_LABEL",Locale.ConvertTextKey(g_pThem:GetNameKey())));  						
     	
     	-- set up their portrait
     	local themCivType = g_pThem:GetCivilizationType();
@@ -1060,7 +1060,7 @@ function ResetDisplay()
 
 		TruncateString(Controls.ThemName, Controls.ThemTablePanel:GetSizeX() - Controls.ThemTablePanel:GetOffsetX(), 
 						   Locale.ConvertTextKey( "TXT_KEY_DIPLO_ITEMS_LABEL", g_pThem:GetNickName() ));
-        Controls.ThemCiv:SetText( "(" .. Locale.ConvertTextKey( GameInfo.Civilizations[ g_pThem:GetCivilizationType() ].ShortDescription ) .. ")" );
+        Controls.ThemCiv:LocalizeAndSetText( "(" .. Locale.ConvertTextKey( GameInfo.Civilizations[ g_pThem:GetCivilizationType() ].ShortDescription ) .. ")" );
     
     end
    
@@ -1075,35 +1075,35 @@ function ResetDisplay()
     -- Us
     local iGold = g_Deal:GetGoldAvailable(g_iUs, iItemToBeChanged);
     local strGoldString = iGold .. " " .. Locale.ConvertTextKey("TXT_KEY_DIPLO_GOLD");
-    Controls.UsPocketGold:SetText( strGoldString );
+    Controls.UsPocketGold:LocalizeAndSetText( strGoldString );
     
     local bGoldTradeAllowed = g_Deal:IsPossibleToTradeItem(g_iUs, g_iThem, TradeableItems.TRADE_ITEM_GOLD, 1);	-- 1 here is 1 Gold, which is the minimum possible
     
     if (not bGoldTradeAllowed) then
 	    Controls.UsPocketGold:SetDisabled(true);
 	    Controls.UsPocketGold:GetTextControl():SetColorByName("Gray_Black");
-	    Controls.UsPocketGold:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NEED_DOF_TT_ONE_LINE"));
+	    Controls.UsPocketGold:LocalizeAndSetToolTip(Locale.ConvertTextKey("TXT_KEY_DIPLO_NEED_DOF_TT_ONE_LINE"));
 	else
 	    Controls.UsPocketGold:SetDisabled(false);
 	    Controls.UsPocketGold:GetTextControl():SetColorByName("Beige_Black");
-	    Controls.UsPocketGold:SetToolTipString(nil);	    
+	    Controls.UsPocketGold:LocalizeAndSetToolTip(nil);	    
     end
 
 	-- Them
     iGold = g_Deal:GetGoldAvailable(g_iThem, iItemToBeChanged);
     strGoldString = iGold .. " " .. Locale.ConvertTextKey("TXT_KEY_DIPLO_GOLD");
-    Controls.ThemPocketGold:SetText( strGoldString );
+    Controls.ThemPocketGold:LocalizeAndSetText( strGoldString );
     
     bGoldTradeAllowed = g_Deal:IsPossibleToTradeItem(g_iThem, g_iUs, TradeableItems.TRADE_ITEM_GOLD, 1);	-- 1 here is 1 Gold, which is the minimum possible
     
     if (not bGoldTradeAllowed) then
 	    Controls.ThemPocketGold:SetDisabled(true);
 	    Controls.ThemPocketGold:GetTextControl():SetColorByName("Gray_Black");
-	    Controls.ThemPocketGold:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NEED_DOF_TT_ONE_LINE"));
+	    Controls.ThemPocketGold:LocalizeAndSetToolTip(Locale.ConvertTextKey("TXT_KEY_DIPLO_NEED_DOF_TT_ONE_LINE"));
 	else
 	    Controls.ThemPocketGold:SetDisabled(false);
 	    Controls.ThemPocketGold:GetTextControl():SetColorByName("Beige_Black");
-	    Controls.ThemPocketGold:SetToolTipString(nil);	    
+	    Controls.ThemPocketGold:LocalizeAndSetToolTip(nil);	    
     end
     
     ---------------------------------------------------------------------------------- 
@@ -1113,7 +1113,7 @@ function ResetDisplay()
 	-- Us
 	local iGoldPerTurn = g_pUs:CalculateGoldRate();
     strGoldString = iGoldPerTurn .. " " .. Locale.ConvertTextKey("TXT_KEY_DIPLO_GOLD_PER_TURN");
-    Controls.UsPocketGoldPerTurn:SetText( strGoldString );
+    Controls.UsPocketGoldPerTurn:LocalizeAndSetText( strGoldString );
 
     local bGPTAllowed = g_Deal:IsPossibleToTradeItem(g_iUs, g_iThem, TradeableItems.TRADE_ITEM_GOLD_PER_TURN, 1, g_iDealDuration);	-- 1 here is 1 GPT, which is the minimum possible
     
@@ -1128,7 +1128,7 @@ function ResetDisplay()
     -- Them
 	iGoldPerTurn = g_pThem:CalculateGoldRate();
     strGoldString = iGoldPerTurn .. " " .. Locale.ConvertTextKey("TXT_KEY_DIPLO_GOLD_PER_TURN");
-    Controls.ThemPocketGoldPerTurn:SetText( strGoldString );
+    Controls.ThemPocketGoldPerTurn:LocalizeAndSetText( strGoldString );
     
     bGPTAllowed = g_Deal:IsPossibleToTradeItem(g_iThem, g_iUs, TradeableItems.TRADE_ITEM_GOLD_PER_TURN, 1, g_iDealDuration);	-- 1 here is 1 GPT, which is the minimum possible
     
@@ -1171,7 +1171,7 @@ function ResetDisplay()
 		Controls.UsPocketAllowEmbassy:GetTextControl():SetColorByName("Beige_Black");
     end
     
-    Controls.UsPocketAllowEmbassy:SetToolTipString(strOurTooltip);
+    Controls.UsPocketAllowEmbassy:LocalizeAndSetToolTip(strOurTooltip);
     
     bEmbassyAllowed = g_Deal:IsPossibleToTradeItem(g_iThem, g_iUs, TradeableItems.TRADE_ITEM_ALLOW_EMBASSY, g_iDealDuration);
 
@@ -1194,7 +1194,7 @@ function ResetDisplay()
 		Controls.ThemPocketAllowEmbassy:GetTextControl():SetColorByName("Beige_Black");
 	end
     
-    Controls.ThemPocketAllowEmbassy:SetToolTipString(strTheirTooltip);
+    Controls.ThemPocketAllowEmbassy:LocalizeAndSetToolTip(strTheirTooltip);
     
     ---------------------------------------------------------------------------------- 
     -- pocket Open Borders
@@ -1229,7 +1229,7 @@ function ResetDisplay()
 		Controls.UsPocketOpenBorders:GetTextControl():SetColorByName("Beige_Black");
     end
     
-	Controls.UsPocketOpenBorders:SetToolTipString(strOurTooltip);
+	Controls.UsPocketOpenBorders:LocalizeAndSetToolTip(strOurTooltip);
 
     bOpenBordersAllowed = g_Deal:IsPossibleToTradeItem(g_iThem, g_iUs, TradeableItems.TRADE_ITEM_OPEN_BORDERS, g_iDealDuration);
     
@@ -1248,7 +1248,7 @@ function ResetDisplay()
 		Controls.ThemPocketOpenBorders:GetTextControl():SetColorByName("Beige_Black");
     end
 
-	Controls.ThemPocketOpenBorders:SetToolTipString(strTheirTooltip);
+	Controls.ThemPocketOpenBorders:LocalizeAndSetToolTip(strTheirTooltip);
         
     ---------------------------------------------------------------------------------- 
     -- pocket Defensive Pact
@@ -1276,8 +1276,8 @@ function ResetDisplay()
 		strTooltip = strTooltip .. strDisabledTT;
 	end
 	
-	Controls.UsPocketDefensivePact:SetToolTipString(strTooltip);
-	Controls.ThemPocketDefensivePact:SetToolTipString(strTooltip);
+	Controls.UsPocketDefensivePact:LocalizeAndSetToolTip(strTooltip);
+	Controls.ThemPocketDefensivePact:LocalizeAndSetToolTip(strTooltip);
     
     -- Are we not allowed to give DP? (don't have tech, or are already providing it to them)
     if (not bDefensivePactAllowed) then
@@ -1345,8 +1345,8 @@ function ResetDisplay()
 		strTooltip = strTooltip .. strDisabledTT;
 	end
 
-	Controls.UsPocketResearchAgreement:SetToolTipString(strTooltip);
-	Controls.ThemPocketResearchAgreement:SetToolTipString(strTooltip);
+	Controls.UsPocketResearchAgreement:LocalizeAndSetToolTip(strTooltip);
+	Controls.ThemPocketResearchAgreement:LocalizeAndSetToolTip(strTooltip);
 	
 	if (not bResearchAgreementAllowed) then
 		Controls.UsPocketResearchAgreement:SetDisabled(true);
@@ -1391,8 +1391,8 @@ function ResetDisplay()
 		strTooltip = strTooltip .. strDisabledTT;
 	end
 
-	Controls.UsPocketTradeAgreement:SetToolTipString(strTooltip);
-	Controls.ThemPocketTradeAgreement:SetToolTipString(strTooltip);
+	Controls.UsPocketTradeAgreement:LocalizeAndSetToolTip(strTooltip);
+	Controls.ThemPocketTradeAgreement:LocalizeAndSetToolTip(strTooltip);
     
     -- Are we not allowed to give RA? (don't have tech, or are already providing it to them)
     if (not bTradeAgreementAllowed) then
@@ -1446,8 +1446,8 @@ function ResetDisplay()
 				Controls.ThemPocketDoF:GetTextControl():SetColorByName("Beige_Black");
 			end
 			
-		    Controls.UsPocketDoF:SetToolTipString(strTooltip);
-		    Controls.ThemPocketDoF:SetToolTipString(strTooltip);
+		    Controls.UsPocketDoF:LocalizeAndSetToolTip(strTooltip);
+		    Controls.ThemPocketDoF:LocalizeAndSetToolTip(strTooltip);
 			
 		else
 			Controls.UsPocketDoF:SetHide(true);
@@ -1463,6 +1463,7 @@ function ResetDisplay()
     local bFound = false;
 	local count = g_pUs:CardCount();
 	for cardIdx = 0, count-1, 1 do
+		local cardType = g_pUs:CardType(cardIdx);
 		if (g_Deal:IsPossibleToTradeItem(g_iUs, g_iThem, TradeableItems.TRADE_ITEM_CARD, cardIdx, cardType)) then
 			bFound = true;
 			break;
@@ -1471,11 +1472,11 @@ function ResetDisplay()
 	local noneStr = "TXT_KEY_CARD_NONE_TO_TRADE";
     if( bFound ) then
         Controls.UsPocketCards:SetDisabled( false );
-        Controls.UsPocketCards:SetToolTipString("");
+        Controls.UsPocketCards:LocalizeAndSetToolTip("");
 		Controls.UsPocketCards:GetTextControl():SetColorByName("Beige_Black");
     else
         Controls.UsPocketCards:SetDisabled( true );
-        Controls.UsPocketCards:SetToolTipString( Locale.ConvertTextKey(noneStr));
+        Controls.UsPocketCards:LocalizeAndSetToolTip( Locale.ConvertTextKey(noneStr));
 		Controls.UsPocketCards:GetTextControl():SetColorByName("Gray_Black");
     end
 
@@ -1483,6 +1484,7 @@ function ResetDisplay()
     local bFound = false;
 	local count = g_pThem:CardCount();
 	for cardIdx = 0, count-1, 1 do
+		local cardType = g_pThem:CardType(cardIdx);
 		if (g_Deal:IsPossibleToTradeItem(g_iThem, g_iUs, TradeableItems.TRADE_ITEM_CARD, cardIdx, cardType)) then
 			bFound = true;
 			break;
@@ -1490,11 +1492,11 @@ function ResetDisplay()
 	end
     if( bFound ) then
         Controls.ThemPocketCards:SetDisabled( false );
-        Controls.ThemPocketCards:SetToolTipString("");
+        Controls.ThemPocketCards:LocalizeAndSetToolTip("");
 		Controls.ThemPocketCards:GetTextControl():SetColorByName("Beige_Black");
     else
         Controls.ThemPocketCards:SetDisabled( true );
-        Controls.ThemPocketCards:SetToolTipString( Locale.ConvertTextKey(noneStr));
+        Controls.ThemPocketCards:LocalizeAndSetToolTip( Locale.ConvertTextKey(noneStr));
 		Controls.ThemPocketCards:GetTextControl():SetColorByName("Gray_Black");
     end
 
@@ -1511,11 +1513,11 @@ function ResetDisplay()
     end
     if( bFound ) then
         Controls.UsPocketCities:SetDisabled( false );
-        Controls.UsPocketCities:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_TO_TRADE_CITY_TT" ));
+        Controls.UsPocketCities:LocalizeAndSetToolTip( Locale.ConvertTextKey( "TXT_KEY_DIPLO_TO_TRADE_CITY_TT" ));
 		Controls.UsPocketCities:GetTextControl():SetColorByName("Beige_Black");
     else
         Controls.UsPocketCities:SetDisabled( true );
-        Controls.UsPocketCities:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_TO_TRADE_CITY_NO_TT" ));
+        Controls.UsPocketCities:LocalizeAndSetToolTip( Locale.ConvertTextKey( "TXT_KEY_DIPLO_TO_TRADE_CITY_NO_TT" ));
 		Controls.UsPocketCities:GetTextControl():SetColorByName("Gray_Black");
     end
     
@@ -1529,11 +1531,11 @@ function ResetDisplay()
     end
     if( bFound ) then
         Controls.ThemPocketCities:SetDisabled( false );
-        Controls.ThemPocketCities:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_TO_TRADE_CITY_TT" ));
+        Controls.ThemPocketCities:LocalizeAndSetToolTip( Locale.ConvertTextKey( "TXT_KEY_DIPLO_TO_TRADE_CITY_TT" ));
 		Controls.ThemPocketCities:GetTextControl():SetColorByName("Beige_Black");
     else
         Controls.ThemPocketCities:SetDisabled( true );
-        Controls.ThemPocketCities:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_TO_TRADE_CITY_NO_THEM" ));
+        Controls.ThemPocketCities:LocalizeAndSetToolTip( Locale.ConvertTextKey( "TXT_KEY_DIPLO_TO_TRADE_CITY_NO_THEM" ));
 		Controls.ThemPocketCities:GetTextControl():SetColorByName("Gray_Black");
     end
       
@@ -1545,24 +1547,24 @@ function ResetDisplay()
     
 		Controls.UsPocketOtherPlayer:SetDisabled( true );
 		Controls.UsPocketOtherPlayer:GetTextControl():SetColorByName( "Gray_Black" );
-		Controls.UsPocketOtherPlayer:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_OTHER_PLAYERS_NO_PLAYERS") );
-		Controls.UsPocketOtherPlayer:SetText( Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_OTHER_PLAYERS" ) );
+		Controls.UsPocketOtherPlayer:LocalizeAndSetToolTip( Locale.ConvertTextKey( "TXT_KEY_DIPLO_OTHER_PLAYERS_NO_PLAYERS") );
+		Controls.UsPocketOtherPlayer:LocalizeAndSetText( Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_OTHER_PLAYERS" ) );
 		
 		Controls.ThemPocketOtherPlayer:SetDisabled( true );
 		Controls.ThemPocketOtherPlayer:GetTextControl():SetColorByName( "Gray_Black" );
-		Controls.ThemPocketOtherPlayer:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_OTHER_PLAYERS_NO_PLAYERS_THEM" ));
-		Controls.ThemPocketOtherPlayer:SetText( Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_OTHER_PLAYERS" ) );
+		Controls.ThemPocketOtherPlayer:LocalizeAndSetToolTip( Locale.ConvertTextKey( "TXT_KEY_DIPLO_OTHER_PLAYERS_NO_PLAYERS_THEM" ));
+		Controls.ThemPocketOtherPlayer:LocalizeAndSetText( Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_OTHER_PLAYERS" ) );
 		
 	else
 		Controls.UsPocketOtherPlayer:SetDisabled( false );
 		Controls.UsPocketOtherPlayer:GetTextControl():SetColorByName( "Beige_Black" );
-		Controls.UsPocketOtherPlayer:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_OTHER_PLAYERS_OPEN" ) );
-		Controls.UsPocketOtherPlayer:SetText( "[ICON_PLUS]" .. Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_OTHER_PLAYERS" ) );
+		Controls.UsPocketOtherPlayer:LocalizeAndSetToolTip( Locale.ConvertTextKey( "TXT_KEY_DIPLO_OTHER_PLAYERS_OPEN" ) );
+		Controls.UsPocketOtherPlayer:LocalizeAndSetText( "[ICON_PLUS]" .. Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_OTHER_PLAYERS" ) );
 		
 		Controls.ThemPocketOtherPlayer:SetDisabled( false );
 		Controls.ThemPocketOtherPlayer:GetTextControl():SetColorByName( "Beige_Black" );
-		Controls.ThemPocketOtherPlayer:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_OTHER_PLAYERS_OPEN" ));
-		Controls.ThemPocketOtherPlayer:SetText( "[ICON_PLUS]" .. Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_OTHER_PLAYERS" ) );
+		Controls.ThemPocketOtherPlayer:LocalizeAndSetToolTip( Locale.ConvertTextKey( "TXT_KEY_DIPLO_OTHER_PLAYERS_OPEN" ));
+		Controls.ThemPocketOtherPlayer:LocalizeAndSetText( "[ICON_PLUS]" .. Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_OTHER_PLAYERS" ) );
     end
     	  
    	-- true  
@@ -1609,7 +1611,7 @@ function ResetDisplay()
 	                local pResource = GameInfo.Resources[resType];
 					local iResourceCount = g_Deal:GetNumResource(iPlayerFrom, resType);
 				    local strString = pResource.IconString .. " " .. Locale.ConvertTextKey(pResource.Description) .. " (" .. iResourceCount .. ")";
-	                instance.Button:SetText( strString );
+	                instance.Button:LocalizeAndSetText( strString );
 	            else
 	                instance.Button:SetHide( true );
 	            end
@@ -1628,7 +1630,7 @@ function ResetDisplay()
 					local pFrom = Players[iPlayerFrom];
 					local iNumCumulative = pFrom:GetResourceCumulative(resType);
 				    local strString = pResource.IconString .. " " .. Locale.ConvertTextKey(pResource.Description) .. " (" .. iNumCumulative .. ")";
-	                instance.Button:SetText( strString );
+	                instance.Button:LocalizeAndSetText( strString );
 	            else
 	                instance.Button:SetHide( true );
 	            end
@@ -1639,48 +1641,48 @@ function ResetDisplay()
 	    fromPocketLump:SetDisabled( not hasAnyLump );
 	    if (hasAnyLump) then
 			fromPocketLump:GetTextControl():SetColorByName("Beige_Black");
-			fromPocketLump:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_STRAT_RESCR_TRADE_YES" .. TXT_SUFFIX ) );
+			fromPocketLump:LocalizeAndSetToolTip( Locale.ConvertTextKey( "TXT_KEY_DIPLO_STRAT_RESCR_TRADE_YES" .. TXT_SUFFIX ) );
 			if( fromPocketLumpStack:IsHidden() ) then
-	    		fromPocketLump:SetText( "[ICON_PLUS]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_ITEMS_LUMP_RESOURCES" ) );
+	    		fromPocketLump:LocalizeAndSetText( "[ICON_PLUS]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_ITEMS_LUMP_RESOURCES" ) );
 			else
-	    		fromPocketLump:SetText( "[ICON_MINUS]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_ITEMS_LUMP_RESOURCES" ) );
+	    		fromPocketLump:LocalizeAndSetText( "[ICON_MINUS]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_ITEMS_LUMP_RESOURCES" ) );
 			end
 		else
 			fromPocketLump:GetTextControl():SetColorByName("Gray_Black");
-			fromPocketLump:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_STRAT_RESCR_TRADE_NO" .. TXT_SUFFIX ));
-			fromPocketLump:SetText( Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_STRATEGIC_RESOURCES" ) );
+			fromPocketLump:LocalizeAndSetToolTip( Locale.ConvertTextKey( "TXT_KEY_DIPLO_STRAT_RESCR_TRADE_NO" .. TXT_SUFFIX ));
+			fromPocketLump:LocalizeAndSetText( Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_STRATEGIC_RESOURCES" ) );
 	    end
 
 	    -- luxuries
 	    fromPocketLux:SetDisabled( not hasAnyLux );
 	    if (hasAnyLux) then
 			fromPocketLux:GetTextControl():SetColorByName("Beige_Black");
-			fromPocketLux:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_LUX_RESCR_TRADE_YES" .. TXT_SUFFIX ) );
+			fromPocketLux:LocalizeAndSetToolTip( Locale.ConvertTextKey( "TXT_KEY_DIPLO_LUX_RESCR_TRADE_YES" .. TXT_SUFFIX ) );
 			if( fromPocketLuxStack:IsHidden() ) then
-	    		fromPocketLux:SetText( "[ICON_PLUS]" .. Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_LUXURY_RESOURCES" ) );
+	    		fromPocketLux:LocalizeAndSetText( "[ICON_PLUS]" .. Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_LUXURY_RESOURCES" ) );
 			else
-	    		fromPocketLux:SetText( "[ICON_MINUS]" .. Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_LUXURY_RESOURCES" ) );
+	    		fromPocketLux:LocalizeAndSetText( "[ICON_MINUS]" .. Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_LUXURY_RESOURCES" ) );
 			end
 		else
 			fromPocketLux:GetTextControl():SetColorByName("Gray_Black");
-			fromPocketLux:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_LUX_RESCR_TRADE_NO" .. TXT_SUFFIX ));
-			fromPocketLux:SetText( Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_LUXURY_RESOURCES" ) );
+			fromPocketLux:LocalizeAndSetToolTip( Locale.ConvertTextKey( "TXT_KEY_DIPLO_LUX_RESCR_TRADE_NO" .. TXT_SUFFIX ));
+			fromPocketLux:LocalizeAndSetText( Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_LUXURY_RESOURCES" ) );
 	    end
 	    
 	    -- Strategics
 	    fromPocketStrat:SetDisabled( not hasAnyStrat );
 	    if (hasAnyStrat) then
 			fromPocketStrat:GetTextControl():SetColorByName("Beige_Black");
-			fromPocketStrat:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_STRAT_RESCR_TRADE_YES" .. TXT_SUFFIX) );
+			fromPocketStrat:LocalizeAndSetToolTip( Locale.ConvertTextKey( "TXT_KEY_DIPLO_STRAT_RESCR_TRADE_YES" .. TXT_SUFFIX) );
 			if( fromPocketStratStack:IsHidden() ) then
-	    		fromPocketStrat:SetText( "[ICON_PLUS]" .. Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_STRATEGIC_RESOURCES" ) );
+	    		fromPocketStrat:LocalizeAndSetText( "[ICON_PLUS]" .. Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_STRATEGIC_RESOURCES" ) );
 			else
-	    		fromPocketStrat:SetText( "[ICON_MINUS]" .. Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_STRATEGIC_RESOURCES" ) );
+	    		fromPocketStrat:LocalizeAndSetText( "[ICON_MINUS]" .. Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_STRATEGIC_RESOURCES" ) );
 			end
 		else
 			fromPocketStrat:GetTextControl():SetColorByName("Gray_Black");
-			fromPocketStrat:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_STRAT_RESCR_TRADE_NO" .. TXT_SUFFIX) );
-			fromPocketStrat:SetText( Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_STRATEGIC_RESOURCES" ) );
+			fromPocketStrat:LocalizeAndSetToolTip( Locale.ConvertTextKey( "TXT_KEY_DIPLO_STRAT_RESCR_TRADE_NO" .. TXT_SUFFIX) );
+			fromPocketStrat:LocalizeAndSetText( Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_STRATEGIC_RESOURCES" ) );
 	    end
     end
 		
@@ -1711,16 +1713,16 @@ function ResetDisplay()
 		Controls.UsPocketVote:SetDisabled( not bCanSellVote );
 		if (bCanSellVote) then
 			Controls.UsPocketVote:GetTextControl():SetColorByName("Beige_Black");
-			Controls.UsPocketVote:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_VOTE_TRADE_YES" ) .. sTooltipDetails);
+			Controls.UsPocketVote:LocalizeAndSetToolTip( Locale.ConvertTextKey( "TXT_KEY_DIPLO_VOTE_TRADE_YES" ) .. sTooltipDetails);
 			if ( Controls.UsPocketVoteStack:IsHidden() ) then
-				Controls.UsPocketVote:SetText( "[ICON_PLUS]" .. Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_VOTES" ));
+				Controls.UsPocketVote:LocalizeAndSetText( "[ICON_PLUS]" .. Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_VOTES" ));
 			else
-				Controls.UsPocketVote:SetText( "[ICON_MINUS]" .. Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_VOTES" ));
+				Controls.UsPocketVote:LocalizeAndSetText( "[ICON_MINUS]" .. Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_VOTES" ));
 			end
 		else
 			Controls.UsPocketVote:GetTextControl():SetColorByName("Gray_Black");
-			Controls.UsPocketVote:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_VOTE_TRADE_NO" ) .. sTooltipDetails);
-			Controls.UsPocketVote:SetText( Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_VOTES" ));
+			Controls.UsPocketVote:LocalizeAndSetToolTip( Locale.ConvertTextKey( "TXT_KEY_DIPLO_VOTE_TRADE_NO" ) .. sTooltipDetails);
+			Controls.UsPocketVote:LocalizeAndSetText( Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_VOTES" ));
 		end
 		
 		RefreshPocketVotes(0);
@@ -1729,16 +1731,16 @@ function ResetDisplay()
 		Controls.ThemPocketVote:SetDisabled( not bCanBuyVote );
 		if (bCanBuyVote) then
 			Controls.ThemPocketVote:GetTextControl():SetColorByName("Beige_Black");
-			Controls.ThemPocketVote:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_VOTE_TRADE_YES_THEM" ) .. sTooltipDetails);
+			Controls.ThemPocketVote:LocalizeAndSetToolTip( Locale.ConvertTextKey( "TXT_KEY_DIPLO_VOTE_TRADE_YES_THEM" ) .. sTooltipDetails);
 			if ( Controls.ThemPocketVoteStack:IsHidden() ) then
-				Controls.ThemPocketVote:SetText( "[ICON_PLUS]" .. Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_VOTES" ));
+				Controls.ThemPocketVote:LocalizeAndSetText( "[ICON_PLUS]" .. Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_VOTES" ));
 			else
-				Controls.ThemPocketVote:SetText( "[ICON_MINUS]" .. Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_VOTES" ));
+				Controls.ThemPocketVote:LocalizeAndSetText( "[ICON_MINUS]" .. Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_VOTES" ));
 			end
 		else
 			Controls.ThemPocketVote:GetTextControl():SetColorByName("Gray_Black");
-			Controls.ThemPocketVote:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_VOTE_TRADE_NO_THEM" ) .. sTooltipDetails);
-			Controls.ThemPocketVote:SetText( Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_VOTES" ));
+			Controls.ThemPocketVote:LocalizeAndSetToolTip( Locale.ConvertTextKey( "TXT_KEY_DIPLO_VOTE_TRADE_NO_THEM" ) .. sTooltipDetails);
+			Controls.ThemPocketVote:LocalizeAndSetText( Locale.ConvertTextKey( "TXT_KEY_TRADE_ITEM_VOTES" ));
 		end
    
     else
@@ -1975,10 +1977,10 @@ function DisplayDeal()
         if( TradeableItems.TRADE_ITEM_PEACE_TREATY == itemType ) then
 			local str = Locale.ConvertTextKey("TXT_KEY_DIPLO_PEACE_TREATY", g_iPeaceDuration);
             if( bFromUs ) then
-				Controls.UsTablePeaceTreaty:SetText(str);
+				Controls.UsTablePeaceTreaty:LocalizeAndSetText(str);
                 Controls.UsTablePeaceTreaty:SetHide( false );
             else
-				Controls.ThemTablePeaceTreaty:SetText(str);
+				Controls.ThemTablePeaceTreaty:LocalizeAndSetText(str);
                 Controls.ThemTablePeaceTreaty:SetHide( false );
             end
         
@@ -1992,19 +1994,19 @@ function DisplayDeal()
             
             -- update quantity
             if( bFromUs ) then
-                Controls.UsGoldAmount:SetText( data1 );
+                Controls.UsGoldAmount:LocalizeAndSetText( data1 );
                 
 				strString = Locale.ConvertTextKey("TXT_KEY_DIPLO_GOLD");
-				Controls.UsTableGold:SetText( strString );
+				Controls.UsTableGold:LocalizeAndSetText( strString );
 				strTooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_CURRENT_GOLD", g_Deal:GetGoldAvailable(g_iUs, iItemToBeChanged) );
-				Controls.UsTableGold:SetToolTipString( strTooltip );
+				Controls.UsTableGold:LocalizeAndSetToolTip( strTooltip );
             else
-                Controls.ThemGoldAmount:SetText( data1 );
+                Controls.ThemGoldAmount:LocalizeAndSetText( data1 );
                 
 				strString = Locale.ConvertTextKey("TXT_KEY_DIPLO_GOLD");
-				Controls.ThemTableGold:SetText( strString );
+				Controls.ThemTableGold:LocalizeAndSetText( strString );
 				strTooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_CURRENT_GOLD", g_Deal:GetGoldAvailable(g_iThem, iItemToBeChanged) );
-				Controls.ThemTableGold:SetToolTipString( strTooltip );
+				Controls.ThemTableGold:LocalizeAndSetToolTip( strTooltip );
             end
          
         elseif( TradeableItems.TRADE_ITEM_GOLD_PER_TURN == itemType ) then
@@ -2015,21 +2017,21 @@ function DisplayDeal()
             if( bFromUs ) then
                 Controls.UsTableGoldPerTurn:SetHide( false );
                 Controls.UsGoldPerTurnTurns:LocalizeAndSetText( "TXT_KEY_DIPLO_TURNS", duration );
-                Controls.UsGoldPerTurnAmount:SetText( data1 );
+                Controls.UsGoldPerTurnAmount:LocalizeAndSetText( data1 );
                 
 				strString = Locale.ConvertTextKey( "TXT_KEY_DIPLO_GOLD_PER_TURN" );
-				Controls.UsTableGoldPerTurnButton:SetText( strString );
+				Controls.UsTableGoldPerTurnButton:LocalizeAndSetText( strString );
 				strTooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_CURRENT_GPT", g_pUs:CalculateGoldRate() - data1 );
-				Controls.UsTableGoldPerTurn:SetToolTipString( strTooltip );
+				Controls.UsTableGoldPerTurn:LocalizeAndSetToolTip( strTooltip );
            else
                 Controls.ThemTableGoldPerTurn:SetHide( false );
                 Controls.ThemGoldPerTurnTurns:LocalizeAndSetText( "TXT_KEY_DIPLO_TURNS", duration );
-                Controls.ThemGoldPerTurnAmount:SetText( data1 );
+                Controls.ThemGoldPerTurnAmount:LocalizeAndSetText( data1 );
                 
 				strString = Locale.ConvertTextKey( "TXT_KEY_DIPLO_GOLD_PER_TURN" );
-				Controls.ThemTableGoldPerTurnButton:SetText( strString );
+				Controls.ThemTableGoldPerTurnButton:LocalizeAndSetText( strString );
 				strTooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_CURRENT_GPT", g_pThem:CalculateGoldRate() - data1 );
-				Controls.ThemTableGoldPerTurn:SetToolTipString( strTooltip );
+				Controls.ThemTableGoldPerTurn:LocalizeAndSetToolTip( strTooltip );
             end
         
         elseif( TradeableItems.TRADE_ITEM_CITIES == itemType ) then
@@ -2056,8 +2058,8 @@ function DisplayDeal()
                     Controls.ThemTableCitiesStack:SetHide( false );
                 end
             
-                instance.CityName:SetText( pCity:GetName() );
-                instance.CityPop:SetText( pCity:GetPopulation() );
+                instance.CityName:LocalizeAndSetText( pCity:GetName() );
+                instance.CityPop:LocalizeAndSetText( pCity:GetPopulation() );
             else
                 if( bFromUs ) then
                     instance = g_UsTableCitiesIM:GetInstance();
@@ -2067,7 +2069,7 @@ function DisplayDeal()
                     Controls.ThemTableCitiesStack:SetHide( false );
                 end
                 instance.CityName:LocalizeAndSetText( "TXT_KEY_RAZED_CITY" );
-                instance.CityPop:SetText( "" );
+                instance.CityPop:LocalizeAndSetText( "" );
             end
 
 
@@ -2091,8 +2093,8 @@ function DisplayDeal()
 				cardName = g_pThem:CardName(data2);
 				cardDesc = g_pThem:CardDesc(data2);
 			end
-			instance.CardName:SetText(cardName);
-			instance.Button:SetToolTipString(cardDesc);
+			instance.CardName:LocalizeAndSetText(cardName);
+			instance.Button:LocalizeAndSetToolTip(cardDesc);
 
 
 
@@ -2160,7 +2162,7 @@ function DisplayDeal()
 				
                 if( GameInfo.Resources[ data1 ].ResourceUsage == 1 ) then -- is strategic
                     Controls.UsTableStrategicStack:SetHide( false );
-	                g_UsTableResources[ data1 ].AmountEdit:SetText( data2 );
+	                g_UsTableResources[ data1 ].AmountEdit:LocalizeAndSetText( data2 );
                 else
                     Controls.UsTableLuxuryStack:SetHide( false );
                 end
@@ -2171,7 +2173,7 @@ function DisplayDeal()
                 
                 if( GameInfo.Resources[ data1 ].ResourceUsage == 1 ) then -- is strategic
                     Controls.ThemTableStrategicStack:SetHide( false );
-	                g_ThemTableResources[ data1 ].AmountEdit:SetText( data2 );
+	                g_ThemTableResources[ data1 ].AmountEdit:LocalizeAndSetText( data2 );
                 else
                     Controls.ThemTableLuxuryStack:SetHide( false );
                 end
@@ -2187,14 +2189,14 @@ function DisplayDeal()
 				g_usTableInstances[ data1 ].DurationEdit:SetHide( false );
 				
                 Controls.UsTableLumpStack:SetHide( false );
-                g_usTableInstances[ data1 ].AmountEdit:SetText( data2 );
+                g_usTableInstances[ data1 ].AmountEdit:LocalizeAndSetText( data2 );
 
             else				
                 g_themTableInstances[ data1 ].Container:SetHide( false );
 				g_themTableInstances[ data1 ].DurationEdit:SetHide( false );
                 
                 Controls.ThemTableLumpStack:SetHide( false );
-                g_themTableInstances[ data1 ].AmountEdit:SetText( data2 );
+                g_themTableInstances[ data1 ].AmountEdit:LocalizeAndSetText( data2 );
             end
             
             g_usPocketLumpStackInstanceTable[ data1 ].Button:SetHide( true );
@@ -2228,17 +2230,17 @@ function DisplayDeal()
 						
 						if ( bFromUs ) then
 							local cInstance = g_UsTableVoteIM:GetInstance();
-							cInstance.ProposalLabel:SetText(sProposalText);
-							cInstance.VoteLabel:SetText(sChoiceText);
-							cInstance.Button:SetToolTipString(sTooltip);
+							cInstance.ProposalLabel:LocalizeAndSetText(sProposalText);
+							cInstance.VoteLabel:LocalizeAndSetText(sChoiceText);
+							cInstance.Button:LocalizeAndSetToolTip(sTooltip);
 							cInstance.Button:SetVoids( g_iUs, iVoteIndex );
 							cInstance.Button:RegisterCallback( Mouse.eLClick, OnChooseTableVote );
 							Controls.UsTableVoteStack:SetHide( false );
 						else
 							local cInstance = g_ThemTableVoteIM:GetInstance();
-							cInstance.ProposalLabel:SetText(sProposalText);
-							cInstance.VoteLabel:SetText(sChoiceText);
-							cInstance.Button:SetToolTipString(sTooltip);
+							cInstance.ProposalLabel:LocalizeAndSetText(sProposalText);
+							cInstance.VoteLabel:LocalizeAndSetText(sChoiceText);
+							cInstance.Button:LocalizeAndSetToolTip(sTooltip);
 							cInstance.Button:SetVoids( g_iThem, iVoteIndex );
 							cInstance.Button:RegisterCallback( Mouse.eLClick, OnChooseTableVote );
 							Controls.ThemTableVoteStack:SetHide( false );
@@ -2372,7 +2374,7 @@ function ChangeGoldAmount( string, control )
 	if( string ~= nil and string ~= "" ) then
     	iGold = tonumber(string);
     else
-        control:SetText( 0 );
+        control:LocalizeAndSetText( 0 );
 	end
 	
 	local iAmountAvailable;
@@ -2383,14 +2385,14 @@ function ChangeGoldAmount( string, control )
 		iAmountAvailable = g_Deal:GetGoldAvailable(g_iUs, TradeableItems.TRADE_ITEM_GOLD);
 		if (iGold > iAmountAvailable) then
 			iGold = iAmountAvailable;
-			Controls.UsGoldAmount:SetText(iGold);
+			Controls.UsGoldAmount:LocalizeAndSetText(iGold);
 		end
 		
         g_Deal:ChangeGoldTrade( g_iUs, iGold );
         
         local iItemToBeChanged = -1;
 		local strTooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_CURRENT_GOLD", g_Deal:GetGoldAvailable(g_iUs, iItemToBeChanged) );
-		Controls.UsTableGold:SetToolTipString( strTooltip );
+		Controls.UsTableGold:LocalizeAndSetToolTip( strTooltip );
         
     -- Gold from them
     else
@@ -2398,14 +2400,14 @@ function ChangeGoldAmount( string, control )
 		iAmountAvailable = g_Deal:GetGoldAvailable(g_iThem, TradeableItems.TRADE_ITEM_GOLD);
 		if (iGold > iAmountAvailable) then
 			iGold = iAmountAvailable;
-			Controls.ThemGoldAmount:SetText(iGold);
+			Controls.ThemGoldAmount:LocalizeAndSetText(iGold);
 		end
 		
         g_Deal:ChangeGoldTrade( g_iThem, iGold );
         
         local iItemToBeChanged = -1;
 		local strTooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_CURRENT_GOLD", g_Deal:GetGoldAvailable(g_iThem, iItemToBeChanged) );
-		Controls.ThemTableGold:SetToolTipString( strTooltip );
+		Controls.ThemTableGold:LocalizeAndSetToolTip( strTooltip );
     end
 end
 Controls.UsGoldAmount:RegisterCallback( ChangeGoldAmount );
@@ -2480,7 +2482,7 @@ function ChangeGoldPerTurnAmount( string, control )
 	if( string ~= nil and string ~= "" ) then
 	    iGoldPerTurn = tonumber(string);
     else
-        control:SetText( 0 );
+        control:LocalizeAndSetText( 0 );
     end
 	
 	-- GPT from us
@@ -2488,26 +2490,26 @@ function ChangeGoldPerTurnAmount( string, control )
 		
 		if (iGoldPerTurn > g_pUs:CalculateGoldRate()) then
 			iGoldPerTurn = g_pUs:CalculateGoldRate();
-			Controls.UsGoldPerTurnAmount:SetText(iGoldPerTurn);
+			Controls.UsGoldPerTurnAmount:LocalizeAndSetText(iGoldPerTurn);
 		end
 
         g_Deal:ChangeGoldPerTurnTrade( g_iUs, iGoldPerTurn, g_iDealDuration );
 		
 		local strTooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_CURRENT_GPT", g_pUs:CalculateGoldRate() - iGoldPerTurn );
-		Controls.UsTableGoldPerTurn:SetToolTipString( strTooltip );
+		Controls.UsTableGoldPerTurn:LocalizeAndSetToolTip( strTooltip );
 		
     -- GPT from them
     else
 		
 		if (iGoldPerTurn > g_pThem:CalculateGoldRate()) then
 			iGoldPerTurn = g_pThem:CalculateGoldRate();
-			Controls.ThemGoldPerTurnAmount:SetText(iGoldPerTurn);
+			Controls.ThemGoldPerTurnAmount:LocalizeAndSetText(iGoldPerTurn);
 		end
 
         g_Deal:ChangeGoldPerTurnTrade( g_iThem, iGoldPerTurn, g_iDealDuration );
 		
 		local strTooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_CURRENT_GPT", g_pThem:CalculateGoldRate() - iGoldPerTurn );
-		Controls.ThemTableGoldPerTurn:SetToolTipString( strTooltip );
+		Controls.ThemTableGoldPerTurn:LocalizeAndSetToolTip( strTooltip );
 		
     end
 end
@@ -2784,7 +2786,7 @@ function LumpChangeAmount( editText, control )
 	if( editText ~= nil and editText ~= "" ) then
         iAmount = tonumber(editText);
     else
-        control:SetText( 0 );
+        control:LocalizeAndSetText( 0 );
         return;
     end
 
@@ -2794,7 +2796,7 @@ function LumpChangeAmount( editText, control )
 	local maxAmount = pPlayer:GetResourceCumulative(resourceId);
     if (iAmount > maxAmount) then
 		iAmount = math.min(iAmount, maxAmount);
-    	control:SetText(iAmount);
+    	control:LocalizeAndSetText(iAmount);
     	return; -- dont call set deal!
     end
 
@@ -2813,7 +2815,7 @@ function AddPocketLump( row, isUs, stack )
     local controlTable = {};
     ContextPtr:BuildInstanceForControl( "PocketResource", controlTable, stack );
         
-    controlTable.Button:SetText( "" );		-- Text and quantity will be set for the specific player when the UI comes up
+    controlTable.Button:LocalizeAndSetText( "" );		-- Text and quantity will be set for the specific player when the UI comes up
     controlTable.Button:SetVoids( isUs, row.ID );
     controlTable.Button:RegisterCallback( Mouse.eLClick, LumpAdd );
     
@@ -2829,7 +2831,7 @@ function AddPocketResource( row, isUs, stack )
     local controlTable = {};
     ContextPtr:BuildInstanceForControl( "PocketResource", controlTable, stack );
         
-    controlTable.Button:SetText( "" );		-- Text and quantity will be set for the specific player when the UI comes up
+    controlTable.Button:LocalizeAndSetText( "" );		-- Text and quantity will be set for the specific player when the UI comes up
     controlTable.Button:SetVoids( isUs, row.ID );
     controlTable.Button:RegisterCallback( Mouse.eLClick, PocketResourceHandler );
     
@@ -2848,7 +2850,7 @@ function AddTableLump( row, isUs, stack )
     ContextPtr:BuildInstanceForControl( "TableStrategic", controlTable, stack );
     
     local strString = row.IconString .. " " .. Locale.ConvertTextKey(row.Description);
-    controlTable.Button:SetText( strString );
+    controlTable.Button:LocalizeAndSetText( strString );
     controlTable.Button:SetVoids( isUs, row.ID );
     controlTable.Button:RegisterCallback( Mouse.eLClick, LumpRemove );
     controlTable.AmountEdit:RegisterCallback( LumpChangeAmount );
@@ -2870,7 +2872,7 @@ function AddTableStrategic( row, isUs, stack )
     ContextPtr:BuildInstanceForControl( "TableStrategic", controlTable, stack );
     
     local strString = row.IconString .. " " .. Locale.ConvertTextKey(row.Description);
-    controlTable.Button:SetText( strString );
+    controlTable.Button:LocalizeAndSetText( strString );
     controlTable.Button:SetVoids( isUs, row.ID );
     controlTable.Button:RegisterCallback( Mouse.eLClick, TableResourceHandler );
     controlTable.AmountEdit:RegisterCallback( ChangeResourceAmount );
@@ -2894,7 +2896,7 @@ function AddTableLuxury( row, isUs, stack )
     ContextPtr:BuildInstanceForControl( "TableLuxury", controlTable, stack );
     
     local strString = row.IconString .. " " .. Locale.ConvertTextKey(row.Description);
-    controlTable.Button:SetText( strString );
+    controlTable.Button:LocalizeAndSetText( strString );
     controlTable.Button:SetVoids( isUs, row.ID );
     controlTable.Button:RegisterCallback( Mouse.eLClick, TableResourceHandler );
     
@@ -2928,13 +2930,13 @@ function ChangeResourceAmount( string, control )
 	if( string ~= nil and string ~= "" ) then
         iNumResource = tonumber(string);
     else
-        control:SetText( 0 );
+        control:LocalizeAndSetText( 0 );
     end
     
     -- Can't offer more than someone has
     if (iNumResource > g_Deal:GetNumResource(iPlayer, iResourceID)) then
 		iNumResource = g_Deal:GetNumResource(iPlayer, iResourceID);
-		control:SetText(iNumResource);
+		control:LocalizeAndSetText(iNumResource);
 	end
     
     if ( bIsUs ) then
@@ -3064,9 +3066,9 @@ function RefreshPocketVotes(iIsUs)
 				local sTooltip = GetVoteTooltip(pLeague, i, tVote.Repeal, iNumVotes);
 				if (g_Deal:IsPossibleToTradeItem(g_iUs, g_iThem, TradeableItems.TRADE_ITEM_VOTE_COMMITMENT, tVote.ID, tVote.VoteChoice, iNumVotes, tVote.Repeal)) then
 					local cInstance = g_UsPocketVoteIM:GetInstance();
-					cInstance.ProposalLabel:SetText(sProposalText);
-					cInstance.VoteLabel:SetText(sChoiceText);
-					cInstance.Button:SetToolTipString(sTooltip);
+					cInstance.ProposalLabel:LocalizeAndSetText(sProposalText);
+					cInstance.VoteLabel:LocalizeAndSetText(sChoiceText);
+					cInstance.Button:LocalizeAndSetToolTip(sTooltip);
 					cInstance.Button:SetVoids(g_iUs, i);
 					cInstance.Button:RegisterCallback( Mouse.eLClick, OnChoosePocketVote );
 				end
@@ -3078,9 +3080,9 @@ function RefreshPocketVotes(iIsUs)
 				local sTooltip = GetVoteTooltip(pLeague, i, tVote.Repeal, iNumVotes);
 				if (g_Deal:IsPossibleToTradeItem(g_iThem, g_iUs, TradeableItems.TRADE_ITEM_VOTE_COMMITMENT, tVote.ID, tVote.VoteChoice, iNumVotes, tVote.Repeal)) then
 					local cInstance = g_ThemPocketVoteIM:GetInstance();
-					cInstance.ProposalLabel:SetText(sProposalText);
-					cInstance.VoteLabel:SetText(sChoiceText);
-					cInstance.Button:SetToolTipString(sTooltip);
+					cInstance.ProposalLabel:LocalizeAndSetText(sProposalText);
+					cInstance.VoteLabel:LocalizeAndSetText(sChoiceText);
+					cInstance.Button:LocalizeAndSetToolTip(sTooltip);
 					cInstance.Button:SetVoids(g_iThem, i);
 					cInstance.Button:RegisterCallback( Mouse.eLClick, OnChoosePocketVote );
 				end
@@ -3258,8 +3260,8 @@ function ShowCityChooser( isUs )
         if ( g_Deal:IsPossibleToTradeItem( m_iFrom, m_iTo, TradeableItems.TRADE_ITEM_CITIES, pCity:GetX(), pCity:GetY() ) ) then
             local instance = m_pIM:GetInstance();
             
-            instance.CityName:SetText( pCity:GetName() );
-            instance.CityPop:SetText( pCity:GetPopulation() );
+            instance.CityName:LocalizeAndSetText( pCity:GetName() );
+            instance.CityPop:LocalizeAndSetText( pCity:GetPopulation() );
             instance.Button:SetVoids( m_iFrom, iCityID );
             instance.Button:RegisterCallback( Mouse.eLClick, OnChooseCity );
             
@@ -3338,6 +3340,7 @@ function ShowCardChooser( isUs )
 	for cardIdx = 0, count-1, 1 do
 
 		-- canTrade does a hidden check
+		local cardType = m_pFrom:CardType(cardIdx);
 		local canTradeCard = g_Deal:IsPossibleToTradeItem(m_iFrom, m_iTo, TradeableItems.TRADE_ITEM_CARD, cardIdx, cardType);
         if (canTradeCard) then
 			local cardType = m_pFrom:CardType(cardIdx);
@@ -3346,8 +3349,8 @@ function ShowCardChooser( isUs )
 
 			-- text
 			local instance = m_pIM:GetInstance();
-			instance.CardName:SetText(cardName);
-			instance.Button:SetToolTipString(cardDesc);
+			instance.CardName:LocalizeAndSetText(cardName);
+			instance.Button:LocalizeAndSetToolTip(cardDesc);
 
 			-- button logic
 			instance.Button:SetVoids(m_iFrom, cardIdx);
@@ -3557,7 +3560,7 @@ function ShowOtherPlayerChooser( isUs, type )
     		end
 			
 			-- Tooltip
-			otherPlayerButtonSubTableNameButton:SetToolTipString(strToolTip);
+			otherPlayerButtonSubTableNameButton:LocalizeAndSetToolTip(strToolTip);
 			
 		end
 	end

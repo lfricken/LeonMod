@@ -329,11 +329,23 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 	--]]
 	
 	-- Scientific Influence
-	local iScientificInfluence = pActivePlayer:GetTotalBuildingYields(pCity, iBuildingID, YieldTypes.YIELD_SCIENTIFIC_INSIGHT, false);
-	local sign = "";
-	if (iScientificInfluence > 0) then sign="+"; end
-	if (iScientificInfluence ~= nil and iScientificInfluence ~= 0) then
-		table.insert(lines, Locale.ConvertTextKey("{SCIENTIFIC_INFLUENCE}: ") .. sign .. iScientificInfluence);
+	if (true) then
+		local iScientificInfluence = pActivePlayer:GetTotalBuildingYields(pCity, iBuildingID, YieldTypes.YIELD_SCIENTIFIC_INSIGHT, false);
+		local sign = "";
+		if (iScientificInfluence > 0) then sign="+"; end
+		if (iScientificInfluence ~= nil and iScientificInfluence ~= 0) then
+			table.insert(lines, Locale.ConvertTextKey("{SCIENTIFIC_INFLUENCE}: ") .. sign .. iScientificInfluence);
+		end
+	end
+
+	-- Diplomatic Support
+	if (true) then
+		local val = pActivePlayer:GetTotalBuildingYields(pCity, iBuildingID, YieldTypes.YIELD_DIPLOMATIC_SUPPORT, false);
+		local sign = "";
+		if (val > 0) then sign="+"; end
+		if (val ~= nil and val ~= 0) then
+			table.insert(lines, Locale.ConvertTextKey("{DIPLOMATIC_INFLUENCE}: ") .. sign .. val);
+		end
 	end
 
 	-- Resource Requirements
