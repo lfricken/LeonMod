@@ -1861,7 +1861,6 @@ void CvGame::updateScienceCatchup()
 	// find winner
 	int bestTechTreeBeakers = 0;
 	for (int iPlayer = 0; iPlayer < MAX_CIV_PLAYERS; iPlayer++)
-	for (PlayerTypes iPlayer = (PlayerTypes)0; iPlayer < MAX_CIV_PLAYERS; iPlayer = (PlayerTypes)(iPlayer + 1))
 	{
 		const CvPlayer& rPlayer = GET_PLAYER((PlayerTypes)iPlayer);
 		if (rPlayer.isHuman()) // ONLY consider human players when producing tech boost
@@ -11901,7 +11900,7 @@ void CvGame::BuildCannotPerformActionHelpText(CvString* toolTipSink, const char*
 //	--------------------------------------------------------------------------------
 void CvGame::LogGameState(bool bLogHeaders)
 {
-	if(GC.getLogging() && GC.getAILogging())
+	//if(GC.getLogging() && GC.getAILogging())
 	{
 		CvString strOutput;
 

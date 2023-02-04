@@ -21838,6 +21838,10 @@ void CvPlayer::clearResearchQueue()
 //	research immediately and should be used with clear.  Clear will clear the entire queue.
 bool CvPlayer::pushResearch(TechTypes eTech, bool bClear)
 {
+	stringstream s;
+	s << "Player:pushResearch " << GetID() << " " << eTech << " " << bClear;
+	GC.debugState(s); // Player::pushResearch
+
 	int i;
 	int iNumSteps;
 	int iShortestPath;
