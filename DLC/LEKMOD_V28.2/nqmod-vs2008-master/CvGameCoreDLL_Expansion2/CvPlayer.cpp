@@ -292,6 +292,7 @@ CvPlayer::CvPlayer() :
 	, m_iHappyPerMilitaryUnit("CvPlayer::m_iHappyPerMilitaryUnit", m_syncArchive)
 	, m_iHappinessToCulture("CvPlayer::m_iHappinessToCulture", m_syncArchive)
 	, m_iHappinessToScience("CvPlayer::m_iHappinessToScience", m_syncArchive)
+	, leaderTechDiffT100("CvPlayer::leaderTechDiffT100", m_syncArchive)
 #ifdef NQ_GOLD_TO_SCIENCE_FROM_POLICIES
 	, m_iGoldToScience("CvPlayer::m_iGoldToScience", m_syncArchive)
 #endif
@@ -1001,6 +1002,7 @@ void CvPlayer::uninit()
 	m_iHappyPerMilitaryUnit = 0;
 	m_iHappinessToCulture = 0;
 	m_iHappinessToScience = 0;
+	leaderTechDiffT100 = 0;
 #ifdef NQ_GOLD_TO_SCIENCE_FROM_POLICIES
 	m_iGoldToScience = 0;
 #endif
@@ -25193,6 +25195,7 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_iHappyPerMilitaryUnit;
 	kStream >> m_iHappinessToCulture;
 	kStream >> m_iHappinessToScience;
+	kStream >> leaderTechDiffT100;
 #ifdef NQ_GOLD_TO_SCIENCE_FROM_POLICIES
 	kStream >> m_iGoldToScience;
 #endif
@@ -25778,6 +25781,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_iHappyPerMilitaryUnit;
 	kStream << m_iHappinessToCulture;
 	kStream << m_iHappinessToScience;
+	kStream << leaderTechDiffT100;
 #ifdef NQ_GOLD_TO_SCIENCE_FROM_POLICIES
 	kStream << m_iGoldToScience;
 #endif

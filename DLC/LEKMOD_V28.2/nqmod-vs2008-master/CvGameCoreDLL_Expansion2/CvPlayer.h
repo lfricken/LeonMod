@@ -1321,9 +1321,6 @@ public:
 	void RecalculateNonLeaderBoost();
 	// [0, 100] where 15 would be a +15% science boost
 	T100 GetNonLeaderBoostT100() const;
-	// How many turns we are behind in tech.
-	// If they have 9 techs and we have 7, and we get 0.5 techs per turn, this value would be ((9 - 7) / 0.5) * 100= 400
-	T100 leaderTechDiffT100;
 
 	int GetScience() const;
 	// get beaker output T100. includeBoost indicates whether to include any boost from better players
@@ -2086,6 +2083,9 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iHappyPerMilitaryUnit;
 	FAutoVariable<int, CvPlayer> m_iHappinessToCulture;
 	FAutoVariable<int, CvPlayer> m_iHappinessToScience;
+	// How many turns we are behind in tech.
+	// If they have 9 techs and we have 7, and we get 0.5 techs per turn, this value would be ((9 - 7) / 0.5) * 100= 400
+	FAutoVariable<int, CvPlayer> leaderTechDiffT100;
 #ifdef NQ_GOLD_TO_SCIENCE_FROM_POLICIES
 	FAutoVariable<int, CvPlayer> m_iGoldToScience;
 #endif
