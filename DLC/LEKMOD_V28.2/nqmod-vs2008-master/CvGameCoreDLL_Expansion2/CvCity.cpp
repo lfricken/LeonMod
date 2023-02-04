@@ -2363,7 +2363,7 @@ void CvCity::doMajorTask(TaskTypes eTask)
 }
 int CvCity::GetTurnsTillCanDoMajorTask() const
 {
-	return max(0, (m_iLastMajorTaskTurn + 3) - GC.getGame().getGameTurn());
+	return max(0, (m_iLastMajorTaskTurn + 5) - GC.getGame().getGameTurn());
 }
 int CvCity::GetLastMajorTaskTurn() const
 {
