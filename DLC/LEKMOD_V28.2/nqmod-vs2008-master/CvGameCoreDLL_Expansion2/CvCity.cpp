@@ -2178,9 +2178,10 @@ void CvCity::DoUpdateIndustrialRouteToCapital()
 		if (!isConnected)
 		{
 			const bool isIndustrialConnectionAny = GET_PLAYER(getOwner()).IsCapitalConnectedToCity(this, GC.getGame().GetIndustrialRoute(), false);
-			const bool hasSeaport = HasBuildingClass(GC.GetGameBuildings()->BuildingClass("BUILDINGCLASS_SEAPORT"));
+			const bool hasShipyard = HasBuildingClass(GC.GetGameBuildings()->BuildingClass("BUILDINGCLASS_SHIPYARD"));
 			const bool hasFactory = HasBuildingClass(GC.GetGameBuildings()->BuildingClass("BUILDINGCLASS_FACTORY"));
-			isConnected = isIndustrialConnectionAny && hasSeaport && hasFactory;
+			const bool hasTextile = HasBuildingClass(GC.GetGameBuildings()->BuildingClass("BUILDINGCLASS_TEXTILE"));
+			isConnected = isIndustrialConnectionAny && hasShipyard;
 		}
 		SetIndustrialRouteToCapital(isConnected);
 	}
