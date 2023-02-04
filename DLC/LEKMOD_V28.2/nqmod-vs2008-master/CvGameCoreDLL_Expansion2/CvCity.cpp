@@ -2179,8 +2179,8 @@ void CvCity::DoUpdateIndustrialRouteToCapital()
 		{
 			const bool isIndustrialConnectionAny = GET_PLAYER(getOwner()).IsCapitalConnectedToCity(this, GC.getGame().GetIndustrialRoute(), false);
 			const bool hasShipyard = HasBuildingClass(GC.GetGameBuildings()->BuildingClass("BUILDINGCLASS_SHIPYARD"));
-			const bool hasFactory = HasBuildingClass(GC.GetGameBuildings()->BuildingClass("BUILDINGCLASS_FACTORY"));
-			const bool hasTextile = HasBuildingClass(GC.GetGameBuildings()->BuildingClass("BUILDINGCLASS_TEXTILE"));
+			//const bool hasFactory = HasBuildingClass(GC.GetGameBuildings()->BuildingClass("BUILDINGCLASS_FACTORY"));
+			//const bool hasTextile = HasBuildingClass(GC.GetGameBuildings()->BuildingClass("BUILDINGCLASS_TEXTILE"));
 			isConnected = isIndustrialConnectionAny && hasShipyard;
 		}
 		SetIndustrialRouteToCapital(isConnected);
@@ -2968,7 +2968,6 @@ bool CvCity::canTrain(UnitCombatTypes eUnitCombat) const
 bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVisible, bool bIgnoreCost, CvString* toolTipSink) const
 {
 	VALIDATE_OBJECT
-	BuildingTypes ePrereqBuilding;
 	int iI;
 
 	if(eBuilding == NO_BUILDING)
@@ -3248,6 +3247,38 @@ bool CvCity::canJoin() const
 {
 	VALIDATE_OBJECT
 	return true;
+}
+// true if this building would allow the given building to be constructed here
+bool CvCity::satisfiesAtLeastOneRequiredClass(BuildingTypes b) const
+{
+	std::vector<int> prereqClasses;
+	const CvBuildingEntry* pToBuild = GC.getBuildingInfo(b);
+	for (int iClass = 0; iClass < GC.getNumBuildingClassInfos(); iClass++)
+	{
+		int numNeeded = pToBuild->GetPrereqNumOfBuildingClass(iClass);
+		if (numNeeded != 0) // -1 means one in every city
+		{
+			prereqClasses.push_back(iClass);
+		}
+	}
+	bool satisfied = false;
+	// dont bother with the rest of the calcs if we have no prereqs
+	if (prereqClasses.size() == 0)
+	{
+		return true;
+	}
+	else
+	{
+		for (int i = 0; i < (int)prereqClasses.size(); ++i)
+		{
+			if (HasBuildingClass((BuildingClassTypes)prereqClasses[i]))
+			{
+				satisfied = true;
+				break;
+			}
+		}
+	}
+	return satisfied;
 }
 
 //	--------------------------------------------------------------------------------

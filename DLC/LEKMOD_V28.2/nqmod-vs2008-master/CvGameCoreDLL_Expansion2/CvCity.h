@@ -123,6 +123,8 @@ public:
 	bool canPrepare(SpecialistTypes eSpecialist, bool bContinue = false) const;
 	bool canMaintain(ProcessTypes eProcess, bool bContinue = false) const;
 	bool canJoin() const;
+	// true if this building would allow the given building to be constructed here
+	bool satisfiesAtLeastOneRequiredClass(BuildingTypes b) const;
 
 	// true if this city is a captured city state capital
 	bool IsOwnedMinorCapital() const;
