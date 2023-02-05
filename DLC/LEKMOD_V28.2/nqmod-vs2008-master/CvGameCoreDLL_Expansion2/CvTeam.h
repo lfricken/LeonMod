@@ -386,10 +386,14 @@ public:
 
 	int getVictoryPoints() const;
 	void changeVictoryPoints(int iChange);
-
 	void DoTestSmallAwards();
 	bool IsSmallAwardAchieved(SmallAwardTypes eAward) const;
 	void SetSmallAwardAchieved(SmallAwardTypes eAward, bool bValue);
+
+
+	// gets the nonchalant version of victory points
+	int GetTrophyPoints(string* tooltip) const;
+
 
 	void verifySpyUnitsValidPlot();
 

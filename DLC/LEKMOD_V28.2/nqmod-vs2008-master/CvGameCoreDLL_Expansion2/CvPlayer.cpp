@@ -18392,7 +18392,7 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 				GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, GetID(), strMessage.toUTF8(), -1, -1);
 			}
 
-			GC.getGame().testVictory();
+			GC.getGame().checkIfGameShouldEnd();
 		}
 
 		GC.getGame().setScoreDirty(true);

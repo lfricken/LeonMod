@@ -4663,7 +4663,7 @@ void CvTeam::changeProjectCount(ProjectTypes eIndex, int iChange)
 						}
 					}
 					m_abCanLaunch[iVictory] = achievedThreshold;
-					GC.getGame().testVictory();
+					GC.getGame().checkIfGameShouldEnd();
 				}
 			}
 		}

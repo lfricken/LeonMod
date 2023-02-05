@@ -491,9 +491,10 @@ public:
 	void addPlayer(PlayerTypes eNewPlayer, LeaderHeadTypes eLeader, CivilizationTypes eCiv);
 	// called when a player enters an era
 	void onPlayerEnteredEra(PlayerTypes ePlayer, EraTypes eEra);
-
-	void testVictory();
-	bool testVictory(const VictoryTypes eVictory, const TeamTypes eTeam, bool* pbEndScore = NULL) const;
+	// check to see if someone won / the game ended
+	void checkIfGameShouldEnd();
+	// see if the given team won
+	bool didTeamAcheiveVictory(const VictoryTypes eVictory, const TeamTypes eTeam, bool* pbEndScore = NULL) const;
 
 	int getPlotExtraYield(int iX, int iY, YieldTypes eYield) const;
 	void setPlotExtraYield(int iX, int iY, YieldTypes eYield, int iCost);

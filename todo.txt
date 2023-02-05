@@ -1,6 +1,7 @@
 
 
-
+m_bTechsDiscovered needs to be serialized
+roll needs to have randomness
 
 fix ai card trade estimate
 fix ai resource estimate
@@ -9,7 +10,7 @@ fix random resource gen number RESOURCE_VARIATION
 
 policy start % odds
 
-
+C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization V\Resource\DX9
 
 trading
 	TEST

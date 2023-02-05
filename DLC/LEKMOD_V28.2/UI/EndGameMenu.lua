@@ -56,7 +56,7 @@ Controls.MainMenuButton:RegisterCallback( Mouse.eLClick, OnMainMenu );
 ----------------------------------------------------------------
 function OnBack()
 	if (m_bAllowBack) then
-		Network.SendExtendedGame();
+		--Network.SendExtendedGame();
 		UIManager:DequeuePopup( ContextPtr );
 		Controls.BackgroundImage:UnloadTexture();	
 	end
@@ -119,7 +119,7 @@ ContextPtr:SetUpdate( OnUpdate );
 
 ----------------------------------------------------------------
 ----------------------------------------------------------------
-function OnDisplay( type, team )
+function OnDisplay(winTypeOriginal, team )
 
 	if(not ContextPtr:IsHidden()) then
 		return;
@@ -139,25 +139,27 @@ function OnDisplay( type, team )
 		Controls.ButtonStack:ReprocessAnchoring();
 	end
 
-	if( team == Game.GetActiveTeam() ) then
+	local winType = 3;
+	local didWin = true;
+	if(didWin) then
     	Controls.EndGameText:SetText( Locale.ConvertTextKey( "TXT_KEY_VICTORY_BANG" ) );
 		local victoryType = nil;
-		if( type == EndGameTypes.Tutorial1 ) then
+		if(winType == EndGameTypes.Tutorial1 ) then
 	    	Controls.EndGameText:SetText( Locale.ConvertTextKey( "TXT_KEY_TUTORIAL_1_COMPLETE" ) );
 	    	bTutorialGame = true;
-		elseif( type == EndGameTypes.Tutorial2 ) then
+		elseif(winType == EndGameTypes.Tutorial2 ) then
 	    	Controls.EndGameText:SetText( Locale.ConvertTextKey( "TXT_KEY_TUTORIAL_2_COMPLETE" ) );
 	    	bTutorialGame = true;
-		elseif( type == EndGameTypes.Tutorial3 ) then
+		elseif(winType == EndGameTypes.Tutorial3 ) then
 	    	Controls.EndGameText:SetText( Locale.ConvertTextKey( "TXT_KEY_TUTORIAL_3_COMPLETE" ) );
 	    	bTutorialGame = true;
-		elseif( type == EndGameTypes.Tutorial4 ) then
+		elseif(winType == EndGameTypes.Tutorial4 ) then
 	    	Controls.EndGameText:SetText( Locale.ConvertTextKey( "TXT_KEY_TUTORIAL_4_COMPLETE" ) );
 	    	bTutorialGame = true;
-		elseif( type == EndGameTypes.Tutorial5 ) then
+		elseif(winType == EndGameTypes.Tutorial5 ) then
 	    	Controls.EndGameText:SetText( Locale.ConvertTextKey( "TXT_KEY_TUTORIAL_5_COMPLETE" ) );
 	    	bTutorialGame = true;
-		elseif( type == EndGameTypes.Technology ) then
+		elseif(winType == EndGameTypes.Technology ) then
 	    	Controls.EndGameText:SetText( Locale.ConvertTextKey( "TXT_KEY_VICTORY_FLAVOR_TECHNOLOGY" ) );
 	    	victoryType = "VICTORY_SPACE_RACE";
 	    	deferredDisplayTime = 7;
@@ -170,19 +172,19 @@ function OnDisplay( type, team )
 	    	end
 	    	Controls.GameOverContainer:SetHide(true);
 	    	
-		elseif( type == EndGameTypes.Domination ) then
+		elseif(winType == EndGameTypes.Domination ) then
 	    	Controls.EndGameText:SetText( Locale.ConvertTextKey( "TXT_KEY_VICTORY_FLAVOR_DOMINATION" ) );
 	    	victoryType = "VICTORY_DOMINATION";
 	    	Controls.GameOverContainer:SetHide(true);
-		elseif( type == EndGameTypes.Culture ) then
+		elseif(winType == EndGameTypes.Culture ) then
 	    	Controls.EndGameText:SetText( Locale.ConvertTextKey( "TXT_KEY_VICTORY_FLAVOR_CULTURE" ) );
 	    	victoryType = "VICTORY_CULTURAL";
 	    	Controls.GameOverContainer:SetHide(true);
-		elseif( type == EndGameTypes.Diplomatic ) then
+		elseif(winType == EndGameTypes.Diplomatic ) then
 	    	Controls.EndGameText:SetText( Locale.ConvertTextKey( "TXT_KEY_VICTORY_FLAVOR_DIPLOMACY" ) );
 	    	victoryType = "VICTORY_DIPLOMATIC";
 	    	Controls.GameOverContainer:SetHide(true);
-		elseif( type == EndGameTypes.Time ) then
+		elseif(winType == EndGameTypes.Time ) then
 	    	Controls.EndGameText:SetText( Locale.ConvertTextKey( "TXT_KEY_VICTORY_FLAVOR_TIME" ) );
 	    	victoryType = "VICTORY_TIME";
 	    	Controls.GameOverContainer:SetHide(true);
@@ -212,22 +214,22 @@ function OnDisplay( type, team )
     	Controls.BackgroundImage:SetTexture( "Victory_Defeat.dds" );
 		Controls.BackButton:SetDisabled( false );
 		if (not Game:IsNetworkMultiPlayer() and player:IsAlive() and PreGame.GetGameOption("GAMEOPTION_NO_EXTENDED_PLAY") ~= 1) then
-			if( type == EndGameTypes.Technology ) then
+			if(winType == EndGameTypes.Technology ) then
 				Controls.BackButton:SetDisabled( false );
 				m_bAllowBack = true;
-			elseif( type == EndGameTypes.Domination ) then
+			elseif(winType == EndGameTypes.Domination ) then
 				Controls.BackButton:SetDisabled( false );
 				m_bAllowBack = true;
-			elseif( type == EndGameTypes.Culture ) then
+			elseif(winType == EndGameTypes.Culture ) then
 				Controls.BackButton:SetDisabled( false );
 				m_bAllowBack = true;
-			elseif( type == EndGameTypes.Diplomatic ) then
+			elseif(winType == EndGameTypes.Diplomatic ) then
 				Controls.BackButton:SetDisabled( false );
 				m_bAllowBack = true;
-			elseif( type == EndGameTypes.Time ) then
+			elseif(winType == EndGameTypes.Time ) then
 				Controls.BackButton:SetDisabled( false );
 				m_bAllowBack = true;
-			elseif( type == EndGameTypes.Loss ) then
+			elseif(winType == EndGameTypes.Loss ) then
 				Controls.BackButton:SetDisabled( false );
 				m_bAllowBack = true;
 			end
