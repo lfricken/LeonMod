@@ -7718,11 +7718,11 @@ void CvPlayer::found(int iX, int iY)
 	}
 	
 	// TODO HACK -- GIVE players EVERY CARD
-	//for (int cardId = 128; cardId < GC.getNumPolicyInfos(); ++cardId)
-	//{
-	//	if (TradingCard::IsCard(cardId))
-	//		CardsAdd((TradingCardTypes)cardId);
-	//}
+	for (int cardId = 128; cardId < GC.getNumPolicyInfos(); ++cardId)
+	{
+		if (TradingCard::IsCard(cardId))
+			CardsAdd((TradingCardTypes)cardId);
+	}
 
 	SetTurnsSinceSettledLastCity(0);
 
