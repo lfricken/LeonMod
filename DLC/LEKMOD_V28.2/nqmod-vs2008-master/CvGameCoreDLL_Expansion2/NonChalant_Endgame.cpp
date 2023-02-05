@@ -1,32 +1,8 @@
 
-
+#include <algorithm>
 #include "CvGameCoreDLLPCH.h"
+#include "FStlContainerSerialization.h"
 #include "CvGameCoreUtils.h"
-#include "CvInternalGameCoreUtils.h"
-#include "CvGame.h"
-#include "CvMap.h"
-#include "CvPlot.h"
-#include "CvPlayerAI.h"
-#include "CvRandom.h"
-#include "CvTeam.h"
-#include "CvGlobals.h"
-#include "CvMapGenerator.h"
-#include "CvReplayMessage.h"
-#include "CvInfos.h"
-#include "CvReplayInfo.h"
-#include "CvGameTextMgr.h"
-#include "CvSiteEvaluationClasses.h"
-#include "CvImprovementClasses.h"
-#include "CvStartPositioner.h"
-#include "CvTacticalAnalysisMap.h"
-#include "CvGrandStrategyAI.h"
-#include "CvMinorCivAI.h"
-#include "CvDiplomacyAI.h"
-#include "CvNotifications.h"
-#include "CvAdvisorCounsel.h"
-#include "CvAdvisorRecommender.h"
-#include "CvWorldBuilderMapLoader.h"
-#include "CvTypes.h"
 
 #include "cvStopWatch.h"
 #include "CvUnitMission.h"
@@ -72,24 +48,121 @@ void appendTrophyLine(stringstream* ss, int* sumAmount, string desc, int numToAd
 	if (isUnlocked)
 		*sumAmount += numToAdd;
 }
+int CvGlobals::getTROPHY_PER_SCIENCE() const
+{
+	return 2;
+}
+int CvGlobals::getTROPHY_PER_TOURISM() const
+{
+	return 2;
+}
+int CvGlobals::getTROPHY_PER_DIPLOMATIC() const
+{
+	return 2;
+}
+int CvGlobals::getTROPHY_PER_UNITED_NATIONS() const
+{
+	return 2;
+}
+int CvGlobals::getTROPHY_PER_CAPITAL() const
+{
+	return 1;
+}
 int HasUnitedNationsTrophy(TeamTypes eTeam)
 {
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
+	{
+		PlayerTypes ePlayerLoop = (PlayerTypes)iPlayerLoop;
+		if (GET_PLAYER(ePlayerLoop).getTeam() == eTeam)
+		{
+			if (GC.getGame().GetGameLeagues()->GetDiplomaticVictor() == ePlayerLoop)
+			{
+				return 1;
+			}
+		}
+	}
 	return 0;
 }
 int HasDiplomaticTrophy(TeamTypes eTeam)
 {
+	int totalTeamPoints = 0;
+	int totalTeamPointsNeeded = 0;
+
+	totalTeamPoints += GET_TEAM(eTeam).GetTotalDiplomaticInfluence();
+	totalTeamPointsNeeded += GET_TEAM(eTeam).GetTotalDiplomaticInfluenceNeeded();
+
+	// check if they won
+	if (totalTeamPoints >= totalTeamPointsNeeded)
+		return GC.getTROPHY_PER_DIPLOMATIC();
 	return 0;
 }
 int HasTourismTrophy(TeamTypes eTeam)
 {
+	bool allHaveTourism = true;
+	bool hasTeamMembers = false;
+	// See if all players on this team have influential culture with all other players (still alive)
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
+	{
+		const CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iPlayerLoop);
+		if (kPlayer.isAlive())
+		{
+			if (kPlayer.getTeam() == eTeam)
+			{
+				hasTeamMembers = true;
+				int numNeeded = GC.getGame().GetGameCulture()->GetNumCivsInfluentialForWin();
+				bool hasEnoughInfluenced = kPlayer.GetCulture()->GetNumCivsInfluentialOn() >= numNeeded;
+				if (!hasEnoughInfluenced)
+				{
+					allHaveTourism = false;
+				}
+			}
+		}
+	}
+	if (hasTeamMembers && allHaveTourism)
+		return GC.getTROPHY_PER_TOURISM();
 	return 0;
 }
 int HasScientificTrophy(TeamTypes eTeam)
 {
+	bool allHaveScience = true;
+	bool hasTeamMembers = false;
+	// every player on team must meet science goal
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
+	{
+		const PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+		const CvPlayer& player = GET_PLAYER(eLoopPlayer);
+		if (player.isAlive())
+		{
+			if (player.getTeam() == eTeam)
+			{
+				hasTeamMembers = true;
+				if (player.GetScientificInfluence() < player.GetScientificInfluenceNeeded())
+				{
+					allHaveScience = false;
+				}
+			}
+		}
+	}
+	if (hasTeamMembers && allHaveScience)
+		return GC.getTROPHY_PER_SCIENCE();
 	return 0;
 }
-bool HasConquestTrophy(TeamTypes eTeam)
+int HasConquestTrophy(TeamTypes eTeam)
 {
+	int numCapitals = 0;
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
+	{
+		const CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iPlayerLoop);
+		if (kPlayer.isAlive())
+		{
+			if (kPlayer.getTeam() == eTeam)
+			{
+				numCapitals += kPlayer.GetNumCapitals();
+			}
+		}
+	}
+	if (numCapitals > 0)
+		return numCapitals * GC.getTROPHY_PER_CAPITAL();
 	return 0;
 }
 int CvTeam::GetTrophyPoints(string* tooltip) const
@@ -126,404 +199,54 @@ bool shouldGameEnd()
 	}
 	return false;
 }
+struct TeamScore
+{
+	TeamScore(TeamTypes team, int trophyScore) : Team(team), TrophyScore(trophyScore) { }
+	TeamTypes Team;
+	int TrophyScore;
+};
+bool compare(const TeamScore& lhs, const TeamScore& rhs)
+{
+	// randomly determine a tie
+	if (lhs.TrophyScore == rhs.TrophyScore)
+	{
+		unsigned long seed = 0;
+		seed += 345621594 * lhs.TrophyScore;
+		seed += 98615 * lhs.Team;
+		seed += 321891373 * rhs.TrophyScore;
+		seed += 96429789 * rhs.Team;
+		int randomTieResolution = GC.rand(1, "Winner Tie Resolution", NULL, seed);
+		return (bool)randomTieResolution;
+	}
+	else // higher values go earlier in the array
+		return lhs.TrophyScore > rhs.TrophyScore;
+}
+void CvGame::doEndGame()
+{
+	// find first place
+	std::vector<TeamScore> scores;
+	for (int i = 0; i < MAX_TEAMS; ++i)
+	{
+		TeamTypes eTeam = (TeamTypes)i;
+		int trophies = GET_TEAM(eTeam).GetTrophyPoints(NULL);
+		scores.push_back(TeamScore(eTeam, trophies));
+	}
+	sort(scores.begin(), scores.end(), compare);
+	TeamTypes eWinner = scores[0].Team;
+
+
+	showEndGameSequence();
+	saveReplay();
+}
 
 
 void CvGame::checkIfGameShouldEnd()
 {
-	bool bEndScore = false;
-
-	// Send a game event to allow a Lua script to set the victory state
-	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-	if (pkScriptSystem)
-	{
-		CvLuaArgsHandle args;
-		bool bResult;
-		LuaSupport::CallHook(pkScriptSystem, "GameCoreTestVictory", args.get(), bResult);
-	}
-
-	// allow victory after victory
-	//if(getVictory() != NO_VICTORY)
-	//{
-	//	return;
-	//}
-	//if(getGameState() == GAMESTATE_EXTENDED)
-	//{
-	//	return;
-	//}
-
 	updateScore();
 	bool hasGameAlreadyEnded = false; // TODO
 	if (!hasGameAlreadyEnded && shouldGameEnd())
 	{
-		//setWinner((TeamTypes)1, (VictoryTypes)2);
-		//setGameState(GAMESTATE_EXTENDED);
-		showEndGameSequence();
-	}
-}
-bool CvGame::didTeamAcheiveVictory(const VictoryTypes eVictory, const TeamTypes eTeam, bool* pbEndScore) const
-{
-	CvAssert(eVictory >= 0 && eVictory < GC.getNumVictoryInfos());
-	CvAssert(eTeam >= 0 && eTeam < MAX_CIV_TEAMS);
-	CvAssert(GET_TEAM(eTeam).isAlive());
-
-	CvVictoryInfo* pkVictoryInfo = GC.getVictoryInfo(eVictory);
-	if (pkVictoryInfo == NULL)
-	{
-		return false;
-	}
-
-	// Has the player already achieved this victory?
-	if (GET_TEAM(eTeam).isVictoryAchieved(eVictory))
-	{
-		return false;
-	}
-
-	bool bValid = isVictoryValid(eVictory);
-	if (pbEndScore)
-	{
-		*pbEndScore = false;
-	}
-
-	// Can't end the game unless a certain number of turns has already passed (ignore this on Debug Micro Map because it's only for testing)
-	if (getElapsedGameTurns() <= /*10*/ GC.getMIN_GAME_TURNS_ELAPSED_TO_TEST_VICTORY() && (GC.getMap().getWorldSize() != WORLDSIZE_DEBUG))
-	{
-		return false;
-	}
-
-	// End Score
-	if (bValid)
-	{
-		if (pkVictoryInfo->isEndScore())
-		{
-			if (pbEndScore)
-			{
-				*pbEndScore = true;
-			}
-
-			if (getMaxTurns() == 0)
-			{
-				bValid = false;
-			}
-			else if (getElapsedGameTurns() < getMaxTurns())
-			{
-				bValid = false;
-			}
-			else
-			{
-				bool bFound = false;
-
-				for (int iK = 0; iK < MAX_CIV_TEAMS; iK++)
-				{
-					if (GET_TEAM((TeamTypes)iK).isAlive())
-					{
-						if (iK != eTeam)
-						{
-							if (getTeamScore((TeamTypes)iK) >= getTeamScore(eTeam))
-							{
-								bFound = true;
-								break;
-							}
-						}
-					}
-				}
-
-				if (bFound)
-				{
-					bValid = false;
-				}
-			}
-		}
-	}
-
-	// Target Score
-	if (bValid)
-	{
-		if (pkVictoryInfo->isTargetScore())
-		{
-			if (getTargetScore() == 0)
-			{
-				bValid = false;
-			}
-			else if (getTeamScore(eTeam) < getTargetScore())
-			{
-				bValid = false;
-			}
-			else
-			{
-				bool bFound = false;
-
-				for (int iK = 0; iK < MAX_CIV_TEAMS; iK++)
-				{
-					if (GET_TEAM((TeamTypes)iK).isAlive())
-					{
-						if (iK != eTeam)
-						{
-							if (getTeamScore((TeamTypes)iK) >= getTeamScore(eTeam))
-							{
-								bFound = true;
-								break;
-							}
-						}
-					}
-				}
-
-				if (bFound)
-				{
-					bValid = false;
-				}
-			}
-		}
-	}
-
-	// Conquest
-	if (bValid)
-	{
-		if (pkVictoryInfo->isConquest())
-		{
-			if (GET_TEAM(eTeam).getNumCities() == 0)
-			{
-				bValid = false;
-			}
-			else
-			{
-				bool bFound = false;
-
-				for (int iK = 0; iK < MAX_CIV_TEAMS; iK++)
-				{
-					if (GET_TEAM((TeamTypes)iK).isAlive())
-					{
-						if (iK != eTeam)
-						{
-							if (GET_TEAM((TeamTypes)iK).getNumCities() > 0)
-							{
-								bFound = true;
-								break;
-							}
-						}
-					}
-				}
-
-				if (bFound)
-				{
-					bValid = false;
-				}
-			}
-		}
-	}
-
-	// Diplomacy Victory
-	if (bValid)
-	{
-		if (pkVictoryInfo->isDiploVote())
-		{
-			bValid = false;
-			// if any player won, award this victory
-			for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
-			{
-				PlayerTypes ePlayerLoop = (PlayerTypes)iPlayerLoop;
-				if (GET_PLAYER(ePlayerLoop).getTeam() == eTeam)
-				{
-					if (m_pGameLeagues->GetDiplomaticVictor() == ePlayerLoop)
-					{
-						bValid = true;
-					}
-				}
-			}
-
-			{ // check to see if they've accumulated enough diplomatic influence
-				int totalTeamPoints = 0;
-				int totalTeamPointsNeeded = 0;
-
-				totalTeamPoints += GET_TEAM(eTeam).GetTotalDiplomaticInfluence();
-				totalTeamPointsNeeded += GET_TEAM(eTeam).GetTotalDiplomaticInfluenceNeeded();
-
-				// check if they won
-				if (totalTeamPoints >= totalTeamPointsNeeded)
-					bValid = true; // mark to win
-			}
-		}
-	}
-
-	// Culture victory
-	if (bValid)
-	{
-		if (pkVictoryInfo->isInfluential())
-		{
-			// See if all players on this team have influential culture with all other players (still alive)
-			bValid = false;
-			for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
-			{
-				CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iPlayerLoop);
-				if (kPlayer.isAlive())
-				{
-					if (kPlayer.getTeam() == eTeam)
-					{
-						if (kPlayer.GetCulture()->GetNumCivsInfluentialOn() >= m_pGameCulture->GetNumCivsInfluentialForWin())
-						{
-							// Not enough civs for a win
-							bValid = true;
-							break;
-						}
-					}
-				}
-			}
-		}
-	}
-
-	// Religion in all Cities
-	if (bValid)
-	{
-		if (pkVictoryInfo->IsReligionInAllCities())
-		{
-			bool bReligionInAllCities = true;
-
-			CvCity* pLoopCity;
-			int iLoop;
-
-			PlayerTypes eLoopPlayer;
-
-			// See if all players on this team have their State Religion in their Cities
-			for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
-			{
-				eLoopPlayer = (PlayerTypes)iPlayerLoop;
-
-				if (GET_PLAYER(eLoopPlayer).isAlive())
-				{
-					if (GET_PLAYER(eLoopPlayer).getTeam() == eTeam)
-					{
-						for (pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iLoop))
-						{
-							// Any Cities WITHOUT State Religion?
-							if (pLoopCity->GetPlayersReligion() != eLoopPlayer)
-							{
-								bReligionInAllCities = false;
-								break;
-							}
-						}
-
-						if (!bReligionInAllCities)
-						{
-							break;
-						}
-					}
-				}
-			}
-
-			if (!bReligionInAllCities)
-			{
-				bValid = false;
-			}
-		}
-	}
-
-	// FindAllNaturalWonders
-	if (bValid)
-	{
-		if (pkVictoryInfo->IsFindAllNaturalWonders())
-		{
-			int iWorldNumNaturalWonders = GC.getMap().GetNumNaturalWonders();
-
-			if (iWorldNumNaturalWonders == 0 || GET_TEAM(eTeam).GetNumNaturalWondersDiscovered() < iWorldNumNaturalWonders)
-			{
-				bValid = false;
-			}
-		}
-	}
-
-	// Population Percent
-	if (bValid)
-	{
-		if (getAdjustedPopulationPercent(eVictory) > 0)
-		{
-			if (100 * GET_TEAM(eTeam).getTotalPopulation() < getTotalPopulation() * getAdjustedPopulationPercent(eVictory))
-			{
-				bValid = false;
-			}
-		}
-	}
-
-	// Land Percent
-	if (bValid)
-	{
-		if (getAdjustedLandPercent(eVictory) > 0)
-		{
-#ifdef AUI_WARNING_FIXES
-			if (100 * GET_TEAM(eTeam).getTotalLand() < (int)GC.getMap().getLandPlots() * getAdjustedLandPercent(eVictory))
-#else
-			if (100 * GET_TEAM(eTeam).getTotalLand() < GC.getMap().getLandPlots() * getAdjustedLandPercent(eVictory))
-#endif
-			{
-				bValid = false;
-		}
+		doEndGame();
 	}
 }
 
-	// Buildings
-	if (bValid)
-	{
-#ifdef AUI_WARNING_FIXES
-		for (uint iK = 0; iK < GC.getNumBuildingClassInfos(); iK++)
-#else
-		for (int iK = 0; iK < GC.getNumBuildingClassInfos(); iK++)
-#endif
-		{
-			BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(iK);
-			CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-			if (pkBuildingClassInfo)
-			{
-				if (pkBuildingClassInfo->getVictoryThreshold(eVictory) > GET_TEAM(eTeam).getBuildingClassCount(eBuildingClass))
-				{
-					bValid = false;
-					break;
-				}
-			}
-
-	}
-	}
-
-	// Projects
-	if (bValid)
-	{
-		if (pkVictoryInfo->GetID() != 1) // disallow space race rocket ship star ship
-			for (int iK = 0; iK < GC.getNumProjectInfos(); iK++)
-			{
-				const ProjectTypes eProject = static_cast<ProjectTypes>(iK);
-				CvProjectEntry* pkProjectInfo = GC.getProjectInfo(eProject);
-				if (pkProjectInfo)
-				{
-					if (pkProjectInfo->GetVictoryMinThreshold(eVictory) > GET_TEAM(eTeam).getProjectCount(eProject))
-					{
-						bValid = false;
-						break;
-					}
-				}
-			}
-	}
-
-	// science
-	if (bValid)
-	{
-		if (pkVictoryInfo->GetID() == 1) // space race rocket ship star ship
-		{
-			// every player on team must meet science goal
-			for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
-			{
-				const PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
-				const CvPlayerAI& player = GET_PLAYER(eLoopPlayer);
-				if (player.isAlive())
-				{
-					if (player.getTeam() == eTeam)
-					{
-						if (player.GetScientificInfluence() < player.GetScientificInfluenceNeeded())
-						{
-							bValid = false; // not enough science
-							break;
-						}
-					}
-				}
-			}
-		}
-	}
-
-	return bValid;
-}

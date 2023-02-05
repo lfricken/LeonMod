@@ -493,8 +493,7 @@ public:
 	void onPlayerEnteredEra(PlayerTypes ePlayer, EraTypes eEra);
 	// check to see if someone won / the game ended
 	void checkIfGameShouldEnd();
-	// see if the given team won
-	bool didTeamAcheiveVictory(const VictoryTypes eVictory, const TeamTypes eTeam, bool* pbEndScore = NULL) const;
+	void doEndGame();
 
 	int getPlotExtraYield(int iX, int iY, YieldTypes eYield) const;
 	void setPlotExtraYield(int iX, int iY, YieldTypes eYield, int iCost);

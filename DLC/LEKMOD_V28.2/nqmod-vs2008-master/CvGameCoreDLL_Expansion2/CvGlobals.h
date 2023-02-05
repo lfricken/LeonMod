@@ -7902,6 +7902,11 @@ public:
 	{
 		return m_fLEAGUE_PROJECT_REWARD_TIER_2_THRESHOLD;
 	}
+	int getTROPHY_PER_SCIENCE() const;
+	int getTROPHY_PER_TOURISM() const;
+	int getTROPHY_PER_DIPLOMATIC() const;
+	int getTROPHY_PER_UNITED_NATIONS() const;
+	int getTROPHY_PER_CAPITAL() const;
 
 	////////////// END DEFINES //////////////////
 

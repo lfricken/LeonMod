@@ -7454,7 +7454,7 @@ void CvGameLeagues::SetDiplomaticVictor(PlayerTypes ePlayer)
 	if (m_eDiplomaticVictor == NO_PLAYER)
 	{
 		m_eDiplomaticVictor = ePlayer;
-		GC.getGame().checkIfGameShouldEnd();
+		//GC.getGame().checkIfGameShouldEnd();
 	}
 }
 
