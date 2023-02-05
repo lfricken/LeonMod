@@ -21,6 +21,9 @@ In GitHub Desktop (CLOSE CIV!):
 * To enable the mod, click `Current branch` and select `main`
 * To see update info, click `History`
 
+Did it work?:
+* Click `Single Player > Set Up Game` 
+* You should see `NonChalant` at the top
 
 ### Want to contribute?
 * See the issues page. We have issues that can be fixed or tested by people without C++, XML, or Lua experience!
