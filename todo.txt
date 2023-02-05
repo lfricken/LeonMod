@@ -1,12 +1,15 @@
 
 
 
-
-fix ai card trade estimate
-fix ai resource estimate
-fix random resource gen number RESOURCE_VARIATION
+record map settings with less land
 
 
+kendall card gltiches
+antiquity card needs to only be activatable after
+do hidden antiquity sites still work at all?
+
+do combat strength calculation tooltip serverside
+auto delete cards
 policy start % odds
 
 
