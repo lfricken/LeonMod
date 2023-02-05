@@ -163,6 +163,46 @@ bool TradingCard::CanActivate(TradingCardTypes cardType, const CvPlayer* pPlayer
 	}
 	return success;
 }
+string TradingCard::GetActivePolicy(TradingCardTypes type)
+{
+	const CvPolicyEntry* pInfo = GC.getPolicyInfo((PolicyTypes)type);
+	if (pInfo != NULL)
+	{
+		if (pInfo->CardIsActive())
+		{
+			return pInfo->GetType();
+		}
+		else
+		{
+			return "";
+		}
+	}
+	return "";
+}
+string TradingCard::GetPassivePolicy(TradingCardTypes type)
+{
+	const CvPolicyEntry* pInfo = GC.getPolicyInfo((PolicyTypes)type);
+	if (pInfo != NULL)
+	{
+		if (pInfo->CardIsActive())
+		{
+			return "";
+		}
+		else
+		{
+			return pInfo->GetType();
+		}
+	}
+	return "";
+}
+int TradingCard::GetEstimatedValue(TradingCardTypes type)
+{
+	const bool should_AI_Accept_Any_Deal = false; // switch to true so AI will not value cards and trade no matter what
+	if (should_AI_Accept_Any_Deal)
+		return 1;
+
+	return 65;
+}
 FDataStream& operator <<(FDataStream& kStream, const TradingCardTypes& data)
 {
 	kStream << (int)data;
