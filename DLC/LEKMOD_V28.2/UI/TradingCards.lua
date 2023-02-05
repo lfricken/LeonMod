@@ -6,7 +6,7 @@ include( "InstanceManager" );
 include( "TradeRouteHelpers" );
 
 local g_PopupInfo = nil; -- info we were launched with
-local g_isDebugMode = true; -- allows card manipulation
+local g_isDebugMode = false; -- allows card manipulation
 
 g_localPlayer = Game.GetActivePlayer();
 g_CurrentTab = g_localPlayer;		-- The currently selected Tab.

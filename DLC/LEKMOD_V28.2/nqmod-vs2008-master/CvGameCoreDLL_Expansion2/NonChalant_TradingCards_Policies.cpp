@@ -101,14 +101,14 @@ bool TradingCard::IsConditionSatisfied(TradingCardTypes type, const CvPlayer* pP
 	case 152: // POLICY_CARD_ANCIENT_POLITICAL_EXCLUSIVE_PASSIVE
 	{
 		int numLibertyPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(1));
-		int numPolicies = player.GetNumPolicies();
+		int numPolicies = player.GetNumPoliciesTotal();
 		const bool satisfied = ((numLibertyPolicies == 0) && (numPolicies >= 5));
 		return (!satisfied);
 	}
 	case 155: // POLICY_CARD_ANCIENT_POLITICAL_PROTECTIVE_PASSIVE
 	{
 		int numHonorPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(2));
-		int numPolicies = player.GetNumPolicies();
+		int numPolicies = player.GetNumPoliciesTotal();
 		const bool satisfied = ((numHonorPolicies == 0) && (numPolicies >= 5));
 		return (!satisfied);
 	}
