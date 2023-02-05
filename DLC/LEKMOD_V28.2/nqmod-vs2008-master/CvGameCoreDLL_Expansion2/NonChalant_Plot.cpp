@@ -563,7 +563,7 @@ int CvPlot::getExtraYield
 				const bool isQuarry = plot.HasImprovement("IMPROVEMENT_QUARRY");
 				if (eYieldType == YIELD_PRODUCTION && hasFlints && isObsidian)
 					yieldChange += 2;
-				if (eYieldType == YIELD_PRODUCTION && hasFlints && isQuarry)
+				if (eYieldType == YIELD_CULTURE && hasFlints && isQuarry)
 					yieldChange += 1;
 			}			
 
@@ -576,7 +576,7 @@ int CvPlot::getExtraYield
 					yieldChange += 4;
 			}
 
-			{// CARD_ANCIENT_RESOURCES_SACRIFICIAL_LAMBS - -1FD +4FH to sheep
+			{// CARD_ANCIENT_RESOURCES_SPEAR_FISHING +1FD to fish
 				const bool hasSpearfishing = player.HasPolicy("POLICY_CARD_ANCIENT_RESOURCES_SPEAR_FISHING_PASSIVE");
 				const bool isFish = plot.HasResource("RESOURCE_FISH");
 				if (eYieldType == YIELD_FOOD && hasSpearfishing && isFish)
