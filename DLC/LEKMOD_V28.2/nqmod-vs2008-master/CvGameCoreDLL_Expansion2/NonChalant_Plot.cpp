@@ -580,7 +580,7 @@ int CvPlot::getExtraYield
 				const bool hasSpearfishing = player.HasPolicy("POLICY_CARD_ANCIENT_RESOURCES_SPEAR_FISHING_PASSIVE");
 				const bool isFish = plot.HasResource("RESOURCE_FISH");
 				if (eYieldType == YIELD_FOOD && hasSpearfishing && isFish)
-					yieldChange += 2;				
+					yieldChange += 1;				
 			}
 
 			{// CARD_ANCIENT_RESOURCES_DIVINE_CREATION - +4C +4FH from Natural Wonders
@@ -627,7 +627,7 @@ int CvPlot::getExtraYield
 				const bool hasGillnetsCard = player.HasPolicy("POLICY_CARD_MEDIEVAL_RESOURCE_GILLNETS_PASSIVE");
 				const bool isFish = plot.HasResource("RESOURCE_FISH");
 				if (eYieldType == YIELD_PRODUCTION && hasGillnetsCard && isFish)
-					yieldChange += 2;
+					yieldChange += 1;
 			}
 
 			{// CARD_MEDIEVAL_RESOURCE_PRECIOUS_METALS - +2C +2G to Metals
