@@ -1,7 +1,8 @@
 
 
 
-
+reorder game options
+auto check the good ones, see the default button
 
 kendall card gltiches
 antiquity card needs to only be activatable after
