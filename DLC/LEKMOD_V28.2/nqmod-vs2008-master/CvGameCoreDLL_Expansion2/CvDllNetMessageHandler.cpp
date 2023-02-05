@@ -382,9 +382,40 @@ void CvDllNetMessageHandler::ResponseFoundPantheon(PlayerTypes ePlayer, BeliefTy
 		throw new exception("ResponseFoundPantheon was null.");
 	}
 }
+
+const int SpecialIdx = 0;
+const char SpecialMessageId = 5;
+
+// this message is to activate a card
+const char ActivateCardId = 1;
+void CvDllNetMessageHandler::SendNetAction(const PlayerTypes ePlayer, const int cardIdx, const NET_ACTION action)
+{
+	std::string messageIdentifier = "00"; // need at least 2 chars
+	messageIdentifier[SpecialIdx] = SpecialMessageId;
+	gDLL->SendFoundReligion(ePlayer, (ReligionTypes)cardIdx, messageIdentifier.c_str(), 
+		(BeliefTypes)action, (BeliefTypes)0, (BeliefTypes)0, (BeliefTypes)0, 0, 0);
+}
+void ResponseNetAction(const PlayerTypes ePlayer, int cardIdx, NET_ACTION cardAction)
+{
+	if (cardAction == NET_ACTION_CARD_ACTIVATE)
+	{
+		GET_PLAYER(ePlayer).CardsActivate(cardIdx);
+	}
+	else if (cardAction == NET_ACTION_CARD_TOGGLE_VISIBILITY)
+	{
+		GET_PLAYER(ePlayer).CardsToggleVisibility(cardIdx);
+	}
+}
 //------------------------------------------------------------------------------
 void CvDllNetMessageHandler::ResponseFoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion, const char* szCustomName, BeliefTypes eBelief1, BeliefTypes eBelief2, BeliefTypes eBelief3, BeliefTypes eBelief4, int iCityX, int iCityY)
 {
+	// actually a different type of message
+	if (szCustomName[SpecialIdx] == SpecialMessageId)
+	{
+		ResponseNetAction(ePlayer, eReligion, (NET_ACTION)eBelief1);
+		return;
+	}
+
 	CvGame& kGame(GC.getGame());
 	CvGameReligions* pkGameReligions(kGame.GetGameReligions());
 
@@ -1228,8 +1259,7 @@ void CvDllNetMessageHandler::ResponseUpdatePolicies(PlayerTypes ePlayer, bool bN
 		}
 		else
 		{
-			kPlayer.setHasPolicy(ePolicy, bValue);
-			kPlayer.DoUpdateHappiness();
+			kPlayer.doAdoptPolicy(ePolicy, false, false);
 #ifdef AUI_CITIZENS_MID_TURN_ASSIGN_RUNS_SELF_CONSISTENCY
 			kPlayer.doSelfConsistencyCheckAllCities();
 #endif

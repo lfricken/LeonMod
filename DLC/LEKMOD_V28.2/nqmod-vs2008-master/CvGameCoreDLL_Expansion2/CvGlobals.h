@@ -291,6 +291,8 @@ public:
 	{
 		return m_aiPlotDirectionX;
 	}
+	// does integer ceiling division via T100. 1/100 = 1, but 1/101 = 0
+	int ceilDiv(int numerator, int denominator) const;
 	unsigned long getFakeSeed(const unsigned int x = 1, const unsigned int y = 1, const unsigned int other = 1);
 	// number in range [0, maxInclusive]
 	int rand(int maxInclusive, string log, const CvPlot* plot = NULL, const unsigned long other = 23);
@@ -7389,6 +7391,10 @@ public:
 	{
 		return m_iNUKE_FEATURE;
 	}
+	inline int getRESOURCE_VARIATION()
+	{
+		return m_iRESOURCE_VARIATION;
+	}
 	inline int getARTIFACT_RESOURCE()
 	{
 		return m_iARTIFACT_RESOURCE;
@@ -9883,6 +9889,7 @@ protected:
 	int m_iSHALLOW_WATER_TERRAIN;
 	int m_iRUINS_IMPROVEMENT;
 	int m_iNUKE_FEATURE;
+	int m_iRESOURCE_VARIATION;
 	int m_iARTIFACT_RESOURCE;
 	int m_iHIDDEN_ARTIFACT_RESOURCE;
 	int m_iCAPITAL_BUILDINGCLASS;

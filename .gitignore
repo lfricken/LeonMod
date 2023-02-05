@@ -4,11 +4,13 @@
 # not sure why this is needed for next part, but it is
 
 # allow these exact files:
+!*.sublime-project
 !.gitignore
 !*/
 !/readme.md
 !/todo.txt
 !/behavior.txt
+!/recommended_map.png
 
 # most data
 !/DLC/LEKMOD_V28.2/Override/CIV5Units.xml

@@ -230,6 +230,7 @@ CvCity::CvCity() :
 	, m_iTradeRouteRecipientBonus(0)
 	, m_iTradeRouteTargetBonus(0)
 	, m_unitBeingBuiltForOperation()
+	, m_bNeedsYieldUpdate("CvCity::m_bNeedsYieldUpdate", m_syncArchive)
 	, m_bNeverLost("CvCity::m_bNeverLost", m_syncArchive)
 	, m_bDrafted("CvCity::m_bDrafted", m_syncArchive)
 	, m_bAirliftTargeted("CvCity::m_bAirliftTargeted", m_syncArchive)   // unused
@@ -964,6 +965,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iCheapestPlotInfluence = 0;
 	m_unitBeingBuiltForOperation.Invalidate();
 
+	m_bNeedsYieldUpdate = false;
 	m_bNeverLost = true;
 	m_bDrafted = false;
 	m_bAirliftTargeted = false;   // unused
@@ -2084,6 +2086,12 @@ void CvCity::doTurn()
 		// XXX
 	}
 
+	if (m_bNeedsYieldUpdate)
+	{
+		m_bNeedsYieldUpdate = false;
+		UpdateBuildingYields();
+	}
+
 	stringstream s;
 	s << "City:doTurn " << m_eOwner << " " << getNameKey() << " " << getYieldRateTimes100(YIELD_FOOD, false) << " " << getYieldRateTimes100(YIELD_PRODUCTION, false)
 		<< " " << getYieldRateTimes100(YIELD_GOLD, false) << " " << getYieldRateTimes100(YIELD_SCIENCE, false) << " " << getYieldRateTimes100(YIELD_CULTURE, false)
@@ -2170,9 +2178,10 @@ void CvCity::DoUpdateIndustrialRouteToCapital()
 		if (!isConnected)
 		{
 			const bool isIndustrialConnectionAny = GET_PLAYER(getOwner()).IsCapitalConnectedToCity(this, GC.getGame().GetIndustrialRoute(), false);
-			const bool hasSeaport = HasBuildingClass(GC.GetGameBuildings()->BuildingClass("BUILDINGCLASS_SEAPORT"));
-			const bool hasFactory = HasBuildingClass(GC.GetGameBuildings()->BuildingClass("BUILDINGCLASS_FACTORY"));
-			isConnected = isIndustrialConnectionAny && hasSeaport && hasFactory;
+			const bool hasShipyard = HasBuildingClass(GC.GetGameBuildings()->BuildingClass("BUILDINGCLASS_SHIPYARD"));
+			//const bool hasFactory = HasBuildingClass(GC.GetGameBuildings()->BuildingClass("BUILDINGCLASS_FACTORY"));
+			//const bool hasTextile = HasBuildingClass(GC.GetGameBuildings()->BuildingClass("BUILDINGCLASS_TEXTILE"));
+			isConnected = isIndustrialConnectionAny && hasShipyard;
 		}
 		SetIndustrialRouteToCapital(isConnected);
 	}
@@ -2354,7 +2363,7 @@ void CvCity::doMajorTask(TaskTypes eTask)
 }
 int CvCity::GetTurnsTillCanDoMajorTask() const
 {
-	return max(0, (m_iLastMajorTaskTurn + 3) - GC.getGame().getGameTurn());
+	return max(0, (m_iLastMajorTaskTurn + 5) - GC.getGame().getGameTurn());
 }
 int CvCity::GetLastMajorTaskTurn() const
 {
@@ -2959,7 +2968,6 @@ bool CvCity::canTrain(UnitCombatTypes eUnitCombat) const
 bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVisible, bool bIgnoreCost, CvString* toolTipSink) const
 {
 	VALIDATE_OBJECT
-	BuildingTypes ePrereqBuilding;
 	int iI;
 
 	if(eBuilding == NO_BUILDING)
@@ -3008,26 +3016,9 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVis
 		return false;
 
 	// Does this city have prereq buildings?
-	for(iI = 0; iI < iNumBuildingClassInfos; iI++)
+	if (!m_pCityBuildings->HasPrereqBuildings(eBuilding))
 	{
-		CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo((BuildingClassTypes)iI);
-		if(!pkBuildingClassInfo)
-		{
-			continue;
-		}
-
-		if(pkBuildingInfo->IsBuildingClassNeededInCity(iI))
-		{
-			ePrereqBuilding = ((BuildingTypes)(thisCivInfo.getCivilizationBuildings(iI)));
-
-			if(ePrereqBuilding != NO_BUILDING)
-			{
-				if(0 == m_pCityBuildings->GetNumBuilding(ePrereqBuilding) /* && (bContinue || (getFirstBuildingOrder(ePrereqBuilding) == -1))*/)
-				{
-					return false;
-				}
-			}
-		}
+		return false;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////
@@ -3256,6 +3247,38 @@ bool CvCity::canJoin() const
 {
 	VALIDATE_OBJECT
 	return true;
+}
+// true if this building would allow the given building to be constructed here
+bool CvCity::satisfiesAtLeastOneRequiredClass(BuildingTypes b) const
+{
+	std::vector<int> prereqClasses;
+	const CvBuildingEntry* pToBuild = GC.getBuildingInfo(b);
+	for (int iClass = 0; iClass < GC.getNumBuildingClassInfos(); iClass++)
+	{
+		int numNeeded = pToBuild->GetPrereqNumOfBuildingClass(iClass);
+		if (numNeeded != 0) // -1 means one in every city
+		{
+			prereqClasses.push_back(iClass);
+		}
+	}
+	bool satisfied = false;
+	// dont bother with the rest of the calcs if we have no prereqs
+	if (prereqClasses.size() == 0)
+	{
+		return true;
+	}
+	else
+	{
+		for (int i = 0; i < (int)prereqClasses.size(); ++i)
+		{
+			if (HasBuildingClass((BuildingClassTypes)prereqClasses[i]))
+			{
+				satisfied = true;
+				break;
+			}
+		}
+	}
+	return satisfied;
 }
 
 //	--------------------------------------------------------------------------------
@@ -10412,8 +10435,10 @@ void CvCity::setCitySizeBoost(int iBoost)
 		setLayoutDirty(true);
 	}
 }
-
-
+void CvCity::flagNeedsUpdate()
+{
+	m_bNeedsYieldUpdate = true;
+}
 //	--------------------------------------------------------------------------------
 bool CvCity::isNeverLost() const
 {
@@ -10735,8 +10760,8 @@ void CvCity::changeSeaPlotYield(YieldTypes eIndex, int iChange)
 int CvCity::getHillYieldChangesFromBuildings(YieldTypes eYield) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
-	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	CvAssertMsg(eYield >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 	return m_ppaiTerrainYieldChange[TERRAIN_HILL][eYield];
 }
 #endif
@@ -12216,6 +12241,10 @@ int CvCity::getDamage() const
 void CvCity::setDamage(int iValue, bool noMessage)
 {
 	VALIDATE_OBJECT
+
+	stringstream s;
+	s << "CvCity:setDamage " << m_eOwner << " " << iValue << " " << GetMaxHitPoints();
+	GC.debugState(s); // CvCity::setDamage
 
 	if(iValue < 0)
 		iValue = 0;
@@ -14760,29 +14789,9 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 				}
 
 				// Does this city have prereq buildings?
-				int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
-				BuildingTypes ePrereqBuilding;
-				for(int iI = 0; iI < iNumBuildingClassInfos; iI++)
+				if (!m_pCityBuildings->HasPrereqBuildings(eBuildingType))
 				{
-					CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo((BuildingClassTypes)iI);
-					if(!pkBuildingClassInfo)
-					{
-						continue;
-					}
-
-					if(pkBuildingInfo->IsBuildingClassNeededInCity(iI))
-					{
-						CvCivilizationInfo& thisCivInfo = getCivilizationInfo();
-						ePrereqBuilding = ((BuildingTypes)(thisCivInfo.getCivilizationBuildings(iI)));
-
-						if(ePrereqBuilding != NO_BUILDING)
-						{
-							if(0 == m_pCityBuildings->GetNumBuilding(ePrereqBuilding))
-							{
-								return false;
-							}
-						}
-					}
+					return false;
 				}
 			}
 
@@ -15302,6 +15311,7 @@ bool CvCity::doCheckProduction()
 
 						if(iProductionGold > 0)
 						{
+							// REFUND for wonder cost in gold
 							thisPlayer.GetTreasury()->ChangeGold(iProductionGold);
 
 							if(getOwner() == GC.getGame().getActivePlayer())
@@ -15926,6 +15936,7 @@ void CvCity::read(FDataStream& kStream)
 	kStream >> m_unitBeingBuiltForOperation.m_iArmyID;
 	kStream >> m_unitBeingBuiltForOperation.m_iSlotID;
 
+	kStream >> m_bNeedsYieldUpdate;
 	kStream >> m_bNeverLost;
 	kStream >> m_bDrafted;
 	kStream >> m_bAirliftTargeted;  // unused
@@ -16265,6 +16276,7 @@ void CvCity::write(FDataStream& kStream) const
 	kStream << m_unitBeingBuiltForOperation.m_iArmyID;
 	kStream << m_unitBeingBuiltForOperation.m_iSlotID;
 
+	kStream << m_bNeedsYieldUpdate;
 	kStream << m_bNeverLost;
 	kStream << m_bDrafted;
 	kStream << m_bAirliftTargeted;  // unused

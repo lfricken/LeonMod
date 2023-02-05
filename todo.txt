@@ -1,4 +1,71 @@
 
+
+
+
+
+kendall card gltiches
+antiquity card needs to only be activatable after
+do hidden antiquity sites still work at all?
+
+do combat strength calculation tooltip serverside
+auto delete cards
+policy start % odds
+
+
+
+trading
+	TEST
+	verify building limit
+	verify punish buildings
+	verify units are penalized
+	verify building/unit build permission should check the shortage variable
+	verify log resource gainz
+
+	DO
+
+Trading Cards
+	TEST
+	card from ancient ruin
+	gen cards each era
+	fix ai trade value estimate
+
+
+
+Map
+	DO
+	get rid of grid point logic
+	extract things to functions
+	map gen would join function
+	map gen script fill variable
+	map gen script snake variable
+	carefully control start position and map gen
+		make sure there are variety of sea benefits
+
+
+
+
+
+
+
+-- folders to search 
+C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization V\Assets\DLC\LEKMOD_V28.2\UI, C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization V\Assets\DLC\Expansion2\UI, C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization V\Assets\DLC\Expansion\UI, C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization V\Assets\UI
+
+
+
+
+end turn
+increase score
+end turn
+increase score
+end turn
+increase score
+end turn
+increase score
+end turn
+increase score
+
+
+
 try packet dropper
 try network latency
 UDP 1200 (used for friends service)

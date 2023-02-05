@@ -29,6 +29,9 @@ int CvLuaGame::lGetAdditionalHelpBuilding(lua_State* L)
 	{
 		const BuildingTypes eBuilding = (BuildingTypes)id;
 		const CvBuildingEntry* thisBuildingEntry = GC.getBuildingInfo(eBuilding);
+		const BuildingClassTypes eClass = (BuildingClassTypes)thisBuildingEntry->GetBuildingClassType();
+		const int maxPercent = GC.getBuildingClassInfo(eClass)->getMaxPlayerInstancesPercent();
+		const bool isPercentLimited = maxPercent != -1;
 		if (thisBuildingEntry != NULL)
 		{
 			const CvBuildingClassInfo& kBuildingClassInfo = thisBuildingEntry->GetBuildingClassInfo();
@@ -39,6 +42,20 @@ int CvLuaGame::lGetAdditionalHelpBuilding(lua_State* L)
 				s << "[NEWLINE][NEWLINE]Every {WORLD_WONDER} will cost an additional [COLOR_NEGATIVE_TEXT]+";
 				s << costIncreasePerWonder;
 				s << "% [ENDCOLOR][ICON_PRODUCTION] for each World Wonder already in the City.";
+			}
+			else if (isPercentLimited)
+			{
+				Localization::String loc = Localization::Lookup("TXT_KEY_NO_ACTION_PLAYER_COUNT_MAX_PERCENT");
+				loc << maxPercent;
+				s << loc.toUTF8();
+
+				const int additional = 0;
+				if (additional != 0)
+				{
+					Localization::String loc = Localization::Lookup("TXT_KEY_NO_ACTION_PLAYER_COUNT_MAX_PERCENT_ADDITIONAL");
+					loc << additional;
+					s << loc.toUTF8();
+				}
 			}
 		}
 	}

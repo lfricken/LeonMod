@@ -239,6 +239,18 @@ bool IsPromotionValidForUnitCombatType(PromotionTypes ePromotion, UnitTypes eUni
 		return false;
 	}
 
+	// unit class valid?
+	const UnitClassTypes restriction = promotionInfo->GetClassRestriction();
+	const bool hasRestriction = restriction != NO_UNITCLASS;
+	if (hasRestriction)
+	{
+		const bool thisUnitMatches = unitInfo->GetUnitClassType() == restriction;
+		if (!thisUnitMatches)
+		{
+			return false;
+		}
+	}
+
 	return true;
 }
 
@@ -886,6 +898,20 @@ bool isPickableName(const char* szName)
 }
 
 void shuffleArray(int* piShuffle, int iNum, const CvRandom& rand, unsigned short extraSeed)
+{
+	for (int i = 0; i < iNum; i++)
+	{
+		int swapIdx = (rand.getSafe(iNum - i, GC.getFakeSeed(iNum) + i + extraSeed) + i);
+
+		if (i != swapIdx)
+		{
+			int iTemp = piShuffle[i];
+			piShuffle[i] = piShuffle[swapIdx];
+			piShuffle[swapIdx] = iTemp;
+		}
+	}
+}
+void fillWithRandomIndexes(int* piShuffle, int iNum, const CvRandom& rand, unsigned short extraSeed)
 {
 	int iI, iJ;
 

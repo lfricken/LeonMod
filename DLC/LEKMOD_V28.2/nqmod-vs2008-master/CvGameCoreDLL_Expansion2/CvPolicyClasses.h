@@ -15,12 +15,12 @@ class CvPolicyAI;
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvPolicyEntry
-//!  \brief		A single entry in the policy tree
+//  \brief		A single entry in the policy tree
 //
 //!  Key Attributes:
-//!  - Used to be called CvPolicyInfo
-//!  - Populated from XML\GameInfo\CIV5PolicyInfos.xml
-//!  - Array of these contained in CvPolicyXMLEntries class
+//  - Used to be called CvPolicyInfo
+//  - Populated from XML\GameInfo\CIV5PolicyInfos.xml
+//  - Array of these contained in CvPolicyXMLEntries class
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 class CvPolicyEntry: public CvBaseInfo
 {
@@ -307,6 +307,13 @@ public:
 	int GetFlavorValue(int i) const;
 
 	bool IsOneShot() const;
+	// If true, we should not consider this policy to be a policy for any counting purposes
+	// it is likely being used as a hack to grant a player benefits, rather than as a "policy"
+	bool IsHiddenFromPolicyCount() const;
+	bool CardIsActive() const;
+	int CardEra() const;
+	int CardGenre() const;
+
 	bool IncludesOneShotFreeUnits() const;
 
 	BuildingTypes GetFreeBuildingOnConquest() const;
@@ -541,6 +548,10 @@ private:
 	bool m_bAbleToAnnexCityStates;
 
 	bool m_bOneShot;
+	bool m_bHiddenFromPolicyCount;
+	bool m_bCardIsActive;
+	int m_iCardEra;
+	int m_iCardGenre;
 	bool m_bIncludesOneShotFreeUnits;
 
 	CvString m_strWeLoveTheKingKey;

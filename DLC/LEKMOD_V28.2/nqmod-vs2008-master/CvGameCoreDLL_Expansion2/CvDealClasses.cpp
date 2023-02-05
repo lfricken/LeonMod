@@ -531,6 +531,39 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			}
 		}
 	}
+	else if (eItem == TRADE_ITEM_CARD)
+	{
+		if (!bFinalizing) // finalizing passes in each existing trade item
+		{
+			for (TradedItemList::iterator it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
+			{
+				const bool isCard = it->m_eItemType == TRADE_ITEM_CARD;
+				const bool isAlreadyInDeal = it->m_iData1 == iData1; // same card
+				if (isCard && isAlreadyInDeal)
+				{
+					return false; // no duplicate
+				}
+			}
+		}
+		if (!pFromPlayer->CardsIsVisible(iData1))
+		{
+			return false; // cannot trade hidden cards
+		}
+		// compare the passed cardType to the one the player actually has in this cardIdx slot
+		// if they don't match, something went wrong
+		const bool isTypeExpected = pFromPlayer->CardsType(iData1) == iData2;
+		if (!isTypeExpected)
+		{
+			return false; // card types were wrong
+		}
+		return true;
+	}
+	else if (eItem == TRADE_ITEM_LUMP)
+	{
+		const int amountWant = iData2;
+		const int amountHave = pFromPlayer->getResourceCumulative((ResourceTypes)iData1);
+		return amountHave >= amountWant;
+	}
 	// City
 	else if(eItem == TRADE_ITEM_CITIES)
 	{
@@ -1189,7 +1222,6 @@ void CvDeal::AddMapTrade(PlayerTypes eFrom)
 		CvAssertMsg(false, "DEAL: Trying to add an invalid Map item to a deal");
 	}
 }
-
 /// Insert a resource trade
 void CvDeal::AddResourceTrade(PlayerTypes eFrom, ResourceTypes eResource, int iAmount, int iDuration)
 {
@@ -1220,6 +1252,49 @@ void CvDeal::AddResourceTrade(PlayerTypes eFrom, ResourceTypes eResource, int iA
 	}
 }
 
+void CvDeal::AddCardTrade(PlayerTypes eFrom, int cardIdx)
+{
+	const TradingCardTypes cardType = GET_PLAYER(eFrom).CardsType(cardIdx);
+	if (cardType != CARD_INVALID) // possibly cardIdx is out of bounds
+	{
+		CvTradedItem item;
+		item.m_eFromPlayer = eFrom;
+		item.m_eItemType = TRADE_ITEM_CARD;
+		item.m_iDuration = 0;
+#ifdef AUI_YIELDS_APPLIED_AFTER_TURN_NOT_BEFORE
+		item.m_iTurnsRemaining = -1;
+#else
+		item.m_iFinalTurn = -1;
+#endif
+		item.m_iData1 = cardIdx;
+		item.m_iData2 = cardType;
+		m_TradedItems.push_back(item);
+	}
+}
+void CvDeal::AddLumpTrade(PlayerTypes eFrom, ResourceTypes eResource, int amount)
+{
+	CvAssertMsg(amount >= 0, "DEAL: Trying to add a negative amount of a Resource to a deal.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+
+	if (IsPossibleToTradeItem(eFrom, GetOtherPlayer(eFrom), TRADE_ITEM_LUMP, eResource, amount))
+	{
+		CvTradedItem item;
+		item.m_eItemType = TRADE_ITEM_LUMP;
+		item.m_iDuration = 0;
+#ifdef AUI_YIELDS_APPLIED_AFTER_TURN_NOT_BEFORE
+		item.m_iTurnsRemaining = -1;
+#else
+		item.m_iFinalTurn = -1;
+#endif
+		item.m_iData1 = (int)eResource;
+		item.m_iData2 = amount;
+		item.m_eFromPlayer = eFrom;
+		m_TradedItems.push_back(item);
+	}
+	else
+	{
+		CvAssertMsg(false, "DEAL: Trying to add an invalid Resource to a deal");
+	}
+}
 /// Insert a city trade
 void CvDeal::AddCityTrade(PlayerTypes eFrom, int iCityID)
 {
@@ -1718,14 +1793,21 @@ bool CvDeal::ChangeResourceTrade(PlayerTypes eFrom, ResourceTypes eResource, int
 	CvAssertMsg(iDuration < GC.getGame().getEstimateEndTurn() * 2, "DEAL: Trade item has a crazy long duration (probably invalid).  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Changing deal item for a player that's not actually in this deal!  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
+	TradeableItems toCheck = TRADE_ITEM_RESOURCES;
+	if (iDuration <= 0)
+	{
+		toCheck = TRADE_ITEM_LUMP;
+	}
+
+
 	TradedItemList::iterator it;
 	for(it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
 	{
-		if(it->m_eItemType == TRADE_ITEM_RESOURCES &&
+		if(it->m_eItemType == toCheck &&
 		        it->m_eFromPlayer == eFrom &&
 		        (ResourceTypes)it->m_iData1 == eResource)
 		{
-			if(IsPossibleToTradeItem(eFrom, GetOtherPlayer(eFrom), TRADE_ITEM_RESOURCES, eResource, iAmount))
+			if(IsPossibleToTradeItem(eFrom, GetOtherPlayer(eFrom), toCheck, eResource, iAmount))
 			{
 				it->m_iData2 = iAmount;
 				it->m_iDuration = iDuration;
@@ -1880,6 +1962,8 @@ CvDeal::DealRenewStatus CvDeal::GetItemTradeableState(TradeableItems eTradeItem)
 	{
 		// not renewable
 	case TRADE_ITEM_ALLOW_EMBASSY:
+	case TRADE_ITEM_CARD:
+	case TRADE_ITEM_LUMP:
 	case TRADE_ITEM_CITIES:
 	case TRADE_ITEM_UNITS:
 	case TRADE_ITEM_SURRENDER:
@@ -1948,7 +2032,6 @@ void CvDeal::RemoveByType(TradeableItems eItemType, PlayerTypes eFrom)
 		}
 	}
 }
-
 /// Delete a resource trade
 void CvDeal::RemoveResourceTrade(ResourceTypes eResource)
 {
@@ -1964,6 +2047,32 @@ void CvDeal::RemoveResourceTrade(ResourceTypes eResource)
 	}
 }
 
+void CvDeal::RemoveCardTrade(PlayerTypes eFrom, int cardType)
+{
+	for (TradedItemList::iterator it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
+	{
+		if (it->m_eItemType == TRADE_ITEM_CARD && 
+			it->m_eFromPlayer == eFrom &&
+			it->m_iData2 == cardType)
+		{
+			m_TradedItems.erase(it);
+			return;
+		}
+	}
+}
+void CvDeal::RemoveLumpTrade(ResourceTypes eResource)
+{
+	TradedItemList::iterator it;
+	for (it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
+	{
+		if (it->m_eItemType == TRADE_ITEM_LUMP &&
+			(ResourceTypes)it->m_iData1 == eResource)
+		{
+			m_TradedItems.erase(it);
+			break;
+		}
+	}
+}
 /// Delete a city trade
 void CvDeal::RemoveCityTrade(PlayerTypes eFrom, int iCityID)
 {
@@ -2492,6 +2601,22 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 							}
 						}
 					}
+				}
+				// Cards
+				else if (it->m_eItemType == TRADE_ITEM_CARD)
+				{
+					int tradedCardIdx = it->m_iData1;
+					TradingCardTypes tradedCardType = (TradingCardTypes)it->m_iData2;
+					GET_PLAYER(eAcceptedToPlayer).CardsAdd(tradedCardType);
+					GET_PLAYER(eAcceptedFromPlayer).CardsDestroy(tradedCardIdx);
+				}
+				// Lump resources
+				else if (it->m_eItemType == TRADE_ITEM_LUMP)
+				{
+					const ResourceTypes type = (ResourceTypes)it->m_iData1;
+					const int tradeAmount = it->m_iData2;
+					GET_PLAYER(eAcceptedToPlayer).changeResourceCumulative(type, +tradeAmount);
+					GET_PLAYER(eAcceptedFromPlayer).changeResourceCumulative(type, -tradeAmount);
 				}
 				// City
 				else if(it->m_eItemType == TRADE_ITEM_CITIES)

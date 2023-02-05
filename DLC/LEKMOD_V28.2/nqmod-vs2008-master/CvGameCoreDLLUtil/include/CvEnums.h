@@ -8,11 +8,18 @@
 #pragma once 
 #ifndef CVENUMS_H
 #define CVENUMS_H
+#include "NonChalant_Enums.h"
 
 // Mem Allocation Tags
 enum eCiv5GameCoreMPoolType
 {
 	c_eCiv5GameplayDLL = c_eMPoolTypeUserStart + 0x100,		// Adding 0x100 because we don't want to collide with the app's IDs
+};
+
+enum NET_ACTION
+{
+	NET_ACTION_CARD_ACTIVATE,
+	NET_ACTION_CARD_TOGGLE_VISIBILITY,
 };
 
 enum MiniCompetitionTypes
@@ -991,6 +998,7 @@ enum ButtonPopupTypes
 
 	NUM_FIXED_BUTTONPOPUP_TYPES,		// Do not add any more sequential enums!  Use hash values!
 };
+const ButtonPopupTypes BUTTONPOPUP_TRADING_CARDS = (ButtonPopupTypes)7091; // 7091 was arbitrarily chosen, but must match the value elsewhere
 
 //////////////////////////////////////////
 //    /\   | |    |  ____|  __ \__   __| |

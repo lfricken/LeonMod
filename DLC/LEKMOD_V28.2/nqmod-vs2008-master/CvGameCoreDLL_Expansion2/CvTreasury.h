@@ -112,7 +112,7 @@ public:
 
 protected:
 	CvPlayer* m_pPlayer;
-	int m_iGold;
+	int m_iGoldT100;
 	int m_iGoldPerTurnFromDiplomacy;
 	int m_iExpensePerTurnUnitMaintenance;
 	int m_iExpensePerTurnUnitSupply;

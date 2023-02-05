@@ -26,6 +26,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iPrereqOrPromotion7(NO_PROMOTION),
 	m_iPrereqOrPromotion8(NO_PROMOTION),
 	m_iPrereqOrPromotion9(NO_PROMOTION),
+	m_iClassRestriction(0),
 	m_iTechPrereq(NO_TECH),
 	m_iInvisibleType(NO_INVISIBLE),
 	m_iSeeInvisibleType(NO_INVISIBLE),
@@ -393,6 +394,9 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 
 	const char* szPromotionPrereqOr9 = kResults.GetText("PromotionPrereqOr9");
 	m_iPrereqOrPromotion9 = GC.getInfoTypeForString(szPromotionPrereqOr9, true);
+
+	const char* szRestriction = kResults.GetText("ClassRestriction");
+	m_iClassRestriction = GC.getInfoTypeForString(szRestriction, true);
 
 	//Arrays
 	const int iNumUnitClasses = kUtility.MaxRows("UnitClasses");
@@ -777,6 +781,10 @@ int CvPromotionEntry::GetPrereqOrPromotion9() const
 void CvPromotionEntry::SetPrereqOrPromotion9(int i)
 {
 	m_iPrereqOrPromotion9 = i;
+}
+UnitClassTypes CvPromotionEntry::GetClassRestriction() const
+{
+	return (UnitClassTypes)m_iClassRestriction;
 }
 
 /// Accessor: Gets the tech prerequisite for this promotion

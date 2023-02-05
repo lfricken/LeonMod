@@ -156,7 +156,7 @@ int CvPlayer::GetExtraYieldForBuilding
 			yieldChange += 10;
 	}
 
-	{// POLICY_TRADE_UNIONS - renamed Mercenary Army - gives + 15% gold to merchant's guilds
+	{// POLICY_TRADE_UNIONS - renamed Mercenary Army - gives + 15% gold to Caravansarys
 		const bool hasMercenaryArmy = player.HasPolicy("POLICY_TRADE_UNIONS");
 		const bool isMerchantsGuild = eBuildingClass == BuildingClass("BUILDINGCLASS_GUILD_GOLD");
 		if (eYieldType == YIELD_GOLD && isPercentMod && hasMercenaryArmy && isMerchantsGuild)
@@ -165,12 +165,22 @@ int CvPlayer::GetExtraYieldForBuilding
 
 	{// POLICY_URBANIZATION - +3% Production and Science to Windmill, Workshop, Factory
 		const bool hasUrbanization = player.HasPolicy("POLICY_URBANIZATION");
-		const bool isWorkshopOrWindmillOrFactory = eBuildingClass == BuildingClass("BUILDINGCLASS_WORKSHOP") ||
+		const bool isProductionBuilding = 
+			eBuildingClass == BuildingClass("BUILDINGCLASS_WORKSHOP") ||
 			eBuildingClass == BuildingClass("BUILDINGCLASS_WINDMILL") ||
-			eBuildingClass == BuildingClass("BUILDINGCLASS_FACTORY");
-		if (eYieldType == YIELD_SCIENCE && isPercentMod && hasUrbanization && isWorkshopOrWindmillOrFactory)
+			eBuildingClass == BuildingClass("BUILDINGCLASS_FORGE") ||
+			eBuildingClass == BuildingClass("BUILDINGCLASS_SHIPYARD") ||
+			eBuildingClass == BuildingClass("BUILDINGCLASS_TEXTILE") ||
+			eBuildingClass == BuildingClass("BUILDINGCLASS_FACTORY") ||
+			eBuildingClass == BuildingClass("BUILDINGCLASS_STEEL_MILL") ||
+			eBuildingClass == BuildingClass("BUILDINGCLASS_REFINERY") ||
+			eBuildingClass == BuildingClass("BUILDINGCLASS_HYDRO_PLANT") || 
+			eBuildingClass == BuildingClass("BUILDINGCLASS_REFINERY") || 
+			eBuildingClass == BuildingClass("BUILDINGCLASS_SOLAR_PLANT") || 
+			eBuildingClass == BuildingClass("BUILDINGCLASS_NUCLEAR_PLANT") ;
+		if (eYieldType == YIELD_SCIENCE && isPercentMod && hasUrbanization && isProductionBuilding)
 			yieldChange += 3;
-		if (eYieldType == YIELD_PRODUCTION && isPercentMod && hasUrbanization && isWorkshopOrWindmillOrFactory)
+		if (eYieldType == YIELD_PRODUCTION && isPercentMod && hasUrbanization && isProductionBuilding)
 			yieldChange += 3;
 	}
 
@@ -179,24 +189,30 @@ int CvPlayer::GetExtraYieldForBuilding
 			player.HasPolicy("POLICY_UNIVERSAL_HEALTHCARE_F") ||
 			player.HasPolicy("POLICY_UNIVERSAL_HEALTHCARE_O") ||
 			player.HasPolicy("POLICY_UNIVERSAL_HEALTHCARE_A");
-		const bool isGranary = eBuildingClass == BuildingClass("BUILDINGCLASS_GRANARY");
-		const bool isAquaduct = eBuildingClass == BuildingClass("BUILDINGCLASS_AQUEDUCT");
-		const bool isHospital = eBuildingClass == BuildingClass("BUILDINGCLASS_HOSPITAL");
+		const bool isLevel1FoodBuilding = 
+			eBuildingClass == BuildingClass("BUILDINGCLASS_GRANARY") || eBuildingClass == BuildingClass("BUILDINGCLASS_COOKING_HEARTH") || 
+			eBuildingClass == BuildingClass("BUILDINGCLASS_FISHERY") || eBuildingClass == BuildingClass("BUILDINGCLASS_HUNTERS_HAVEN");
+		const bool isLevel2FoodBuilding = 
+			eBuildingClass == BuildingClass("BUILDINGCLASS_AQUEDUCT") || eBuildingClass == BuildingClass("BUILDINGCLASS_WATERMILL") ||
+			eBuildingClass == BuildingClass("BUILDINGCLASS_GROCER");
+		const bool isLevel3FoodBuilding = 
+			eBuildingClass == BuildingClass("BUILDINGCLASS_HOSPITAL") || eBuildingClass == BuildingClass("BUILDINGCLASS_STOCKYARDS") ||
+			eBuildingClass == BuildingClass("BUILDINGCLASS_GRAIN_SILO");
 		if (!isPercentMod)
 		{
-			if (eYieldType == YIELD_MAINTENANCE && hasUniversal && isGranary)
+			if (eYieldType == YIELD_MAINTENANCE && hasUniversal && isLevel1FoodBuilding)
 				yieldChange += 1;
 
-			if (eYieldType == YIELD_MAINTENANCE && hasUniversal && isAquaduct)
+			if (eYieldType == YIELD_MAINTENANCE && hasUniversal && isLevel2FoodBuilding)
 				yieldChange += 2;
-			if (eYieldType == YIELD_FOOD && hasUniversal && isAquaduct)
+			if (eYieldType == YIELD_FOOD && hasUniversal && isLevel2FoodBuilding)
 				yieldChange += 1;
 
-			if (eYieldType == YIELD_MAINTENANCE && hasUniversal && isHospital)
+			if (eYieldType == YIELD_MAINTENANCE && hasUniversal && isLevel3FoodBuilding)
 				yieldChange += 2;
-			if (eYieldType == YIELD_FOOD && hasUniversal && isHospital)
+			if (eYieldType == YIELD_FOOD && hasUniversal && isLevel3FoodBuilding)
 				yieldChange += 4;
-			if (eYieldType == YIELD_PRODUCTION && hasUniversal && isHospital)
+			if (eYieldType == YIELD_PRODUCTION && hasUniversal && isLevel3FoodBuilding)
 				yieldChange -= 2;
 		}
 	}
@@ -306,6 +322,82 @@ int CvPlayer::GetExtraYieldForBuilding
 			yieldChange += 1;
 	}
 
+	{// POLICY_CARD_ANCIENT_BUILDINGS_DRUIDS_PASSIVE grants +1C +1PD to Walls, Castles, Arsenals, and Military Bases to Prussia
+		const bool hasDruidsCard = player.HasPolicy("POLICY_CARD_ANCIENT_BUILDINGS_DRUIDS_PASSIVE");
+		const bool isShrine = eBuildingClass == BuildingClass("BUILDINGCLASS_SHRINE");		
+		if (eYieldType == YIELD_FAITH && !isPercentMod && hasDruidsCard && isShrine)
+			yieldChange += 2;
+		if (eYieldType == YIELD_MAINTENANCE && !isPercentMod && hasDruidsCard && isShrine)
+			yieldChange -= 1;		
+	}
+
+	{// POLICY_CARD_ANCIENT_BUILDINGS_HARBORMASTER_PASSIVE grants -2 Maintenance to Harbors
+		const bool hasHarbormasterCard = player.HasPolicy("POLICY_CARD_ANCIENT_BUILDINGS_HARBORMASTER_PASSIVE");
+		const bool isHarbor = eBuildingClass == BuildingClass("BUILDINGCLASS_HARBOR");		
+		if (eYieldType == YIELD_MAINTENANCE && !isPercentMod && hasHarbormasterCard && isHarbor)
+			yieldChange -= 2;
+	}
+
+	{// POLICY_CARD_CLASSICAL_BUILDINGS_GLADIATOR_GAMES_PASSIVE grants +2 Maintenance to Colloseums
+		const bool hasGladitorGamesCard = player.HasPolicy("POLICY_CARD_CLASSICAL_BUILDINGS_GLADIATOR_GAMES_PASSIVE");
+		const bool isColloseum = eBuildingClass == BuildingClass("BUILDINGCLASS_COLOSSEUM");
+		if (eYieldType == YIELD_MAINTENANCE && !isPercentMod && hasGladitorGamesCard && isColloseum)
+			yieldChange += 2;
+	}
+
+	{// CARD_RENAISSANCE_BUILDINGS_DOMINANCE gives +1C +1Diplo to palace for every 2 military units
+		const bool hasDominanceCard = player.HasPolicy("POLICY_CARD_RENAISSANCE_BUILDINGS_DOMINANCE_PASSIVE");
+		const bool isPalace = eBuildingClass == BuildingClass("BUILDINGCLASS_PALACE");
+		int numUnits = player.getNumMilitaryUnits();
+
+		if (eYieldType == YIELD_CULTURE && !isPercentMod && hasDominanceCard && isPalace)
+			yieldChange += numUnits / 2;
+		if (eYieldType == YIELD_DIPLOMATIC_SUPPORT && !isPercentMod && hasDominanceCard && isPalace)
+			yieldChange += numUnits / 2;
+	}
+
+	{// CARD_RENAISSANCE_BUILDINGS_EXPRESSIONALISM gives +2C +2Diplo to palace for every GW
+		const bool hasExpressionalismCard = player.HasPolicy("POLICY_CARD_RENAISSANCE_BUILDINGS_EXPRESSIONALISM_PASSIVE");
+		const bool isPalace = eBuildingClass == BuildingClass("BUILDINGCLASS_PALACE");
+		int numGreatWorks = player.GetNumSpecialistGreatWorks();
+
+		if (eYieldType == YIELD_CULTURE && !isPercentMod && hasExpressionalismCard && isPalace)
+			yieldChange += numGreatWorks * 2;
+		if (eYieldType == YIELD_DIPLOMATIC_SUPPORT && !isPercentMod && hasExpressionalismCard && isPalace)
+			yieldChange += numGreatWorks * 2;
+	}
+
+	{// CARD_RENAISSANCE_BUILDINGS_GRANDEUR gives +1C +1 Diplo to palace for every Wonder
+		const bool hasGrandeurCard = player.HasPolicy("POLICY_CARD_RENAISSANCE_BUILDINGS_GRANDEUR_PASSIVE");
+		const bool isPalace = eBuildingClass == BuildingClass("BUILDINGCLASS_PALACE");		
+		int numWonders = player.GetNumWonders(); 
+
+		if (eYieldType == YIELD_CULTURE && !isPercentMod && hasGrandeurCard && isPalace)
+			yieldChange += numWonders;
+		if (eYieldType == YIELD_DIPLOMATIC_SUPPORT && !isPercentMod && hasGrandeurCard && isPalace)
+			yieldChange += numWonders; 
+	}
+
+	{// CARD_RENAISSANCE_BUILDINGS_MEDICI_BANK gives +5%GD +1C  for each Bank
+		const bool hasMediciCard = player.HasPolicy("POLICY_CARD_RENAISSANCE_BUILDINGS_MEDICI_BANK_PASSIVE");
+		const bool isPalace = eBuildingClass == BuildingClass("BUILDINGCLASS_PALACE");		
+		int numBanks = player.countNumBuildingClasses(BuildingClassTypes(40));
+
+		if (eYieldType == YIELD_GOLD && isPercentMod && hasMediciCard && isPalace)
+			yieldChange += numBanks * 5;
+		if (eYieldType == YIELD_CULTURE && !isPercentMod && hasMediciCard && isPalace)
+			yieldChange += numBanks;
+	}
+	
+
+	{// CARD_RENAISSANCE_BUILDINGS_COPERNICUS_OBSERVERATORY If 5 Observeratories, +1 Insight
+		const bool hasCopernicusCard = player.HasPolicy("POLICY_CARD_RENAISSANCE_BUILDINGS_COPERNICUS_OBSERVERATORY_PASSIVE");
+		const bool isObserveratory = eBuildingClass == BuildingClass("BUILDINGCLASS_OBSERVATORY");
+		const bool numObserveratories = player.countNumBuildingClasses(BuildingClassTypes(10));
+		if (eYieldType == YIELD_SCIENTIFIC_INSIGHT && (numObserveratories >= 5) && hasCopernicusCard && isObserveratory)
+			yieldChange += 1;
+	}
+
 
 	return yieldChange;
 }
@@ -378,13 +470,116 @@ BuildingAddType CvPlayer::ShouldHaveBuilding(const CvPlayer& rPlayer, const CvCi
 
 	{// CIVILIZATION_RUSSIA gets free Jarliq in Capital upon discovery of Philosophy
 		const bool isJarliq = eBuildingClass == BuildingClass("BUILDINGCLASS_COURTHOUSE");
-		const bool isFrance = rPlayer.IsCiv("CIVILIZATION_FRANCE");
-		const bool hasPhilosophy = rPlayer.HasTech("TECH_PHILOSOPHY");
 		if (isJarliq)
 		{
 			const bool isFrance = rPlayer.IsCiv("CIVILIZATION_FRANCE");
 			const bool hasPhilosophy = rPlayer.HasTech("TECH_PHILOSOPHY");
 			if (isFrance && hasPhilosophy)
+				return ADD;
+			else
+				return REMOVE;
+		}
+	}
+
+	{// BUILDING_CARD_SHIPS_OF_THE_DESERT goes in cities with Caravansary and POLICY_CARD_ANCIENT_BUILDINGS_SHIPS_OF_THE_DESERT_PASSIVE
+		const bool isShipsBuilding = eBuildingClass == BuildingClass("BUILDINGCLASS_CARD_SHIPS_OF_THE_DESERT");
+		if (isShipsBuilding)
+		{
+			const bool hasCaravansary = rCity.HasBuildingClass(BuildingClassTypes(129));
+			const bool hasShipsPolicy = rPlayer.HasPolicy("POLICY_CARD_ANCIENT_BUILDINGS_SHIPS_OF_THE_DESERT_PASSIVE");
+			if (hasCaravansary && hasShipsPolicy)
+				return ADD;
+			else
+				return REMOVE;
+		}
+	}
+
+	{// BUILDING_CARD_ANCIENT_BUILDINGS_FORCED_LEVY goes in cities with Caravansary and POLICY_CARD_ANCIENT_BUILDINGS_FORCED_LEVY_PASSIVE
+		const bool isForcedLevyBuilding = eBuildingClass == BuildingClass("BUILDINGCLASS_CARD_ANCIENT_BUILDINGS_FORCED_LEVY");
+		if (isForcedLevyBuilding)
+		{
+			const bool hasBarracks = rCity.HasBuildingClass(BuildingClassTypes(25));
+			const bool hasForcedLevyPolicy = rPlayer.HasPolicy("POLICY_CARD_ANCIENT_BUILDINGS_FORCED_LEVY_PASSIVE");
+			if (hasBarracks && hasForcedLevyPolicy)
+				return ADD;
+			else
+				return REMOVE;
+		}
+	}
+
+	{// BUILDING_CARD_ANCIENT_BUILDINGS_FORCED_LEVY goes in cities with Caravansary and POLICY_CARD_ANCIENT_BUILDINGS_FORCED_LEVY_PASSIVE
+		const bool iswalls = eBuildingClass == BuildingClass("BUILDINGCLASS_WALLS");
+		if (iswalls)
+		{
+			const bool hasProtectiveCard = rPlayer.HasPolicy("POLICY_CARD_ANCIENT_POLITICAL_PROTECTIVE_PASSIVE");			
+			if (hasProtectiveCard)
+				return ADD;
+			else
+				return REMOVE;
+		}
+	}
+
+	{// BUILDING_CARD_CLASSICAL_BUILDINGS_BEACONS_OF_HOPE goes in cities with Lighthouse and POLICY_CARD_CLASSICAL_BUILDINGS_BEACONS_OF_HOPE
+		const bool isBeaconsOfHopeBuilding = eBuildingClass == BuildingClass("BUILDINGCLASS_CARD_CLASSICAL_BUILDINGS_BEACONS_OF_HOPE");
+		if (isBeaconsOfHopeBuilding)
+		{
+			const bool hasBeaconsOfHopeCard = rPlayer.HasPolicy("POLICY_CARD_CLASSICAL_BUILDINGS_BEACONS_OF_HOPE_PASSIVE");
+			const bool hasLighthouse = rCity.HasBuildingClass(BuildingClassTypes(13));
+			if (hasBeaconsOfHopeCard && hasLighthouse)
+				return ADD;
+			else
+				return REMOVE;
+		}
+	}
+
+	{// CARD_CLASSICAL_BUILDINGS_CHAMPION_OF_THE_PEOPLE free statue if barracks
+		const bool isStatue = eBuildingClass == BuildingClass("BUILDINGCLASS_STATUE_1");
+		if (isStatue)
+		{
+			const bool hasChampionCard = rPlayer.HasPolicy("POLICY_CARD_CLASSICAL_LEGENDARY_CHAMPION_PASSIVE");
+			const bool hasBarracks = rCity.HasBuildingClass(BuildingClassTypes(25));
+			if (hasChampionCard && hasBarracks)
+				return ADD;
+			else
+				return REMOVE;
+		}
+	}
+
+	{// CARD_CLASSICAL_BUILDINGS_FLUTE_AND_LYRE free Musicians Courtyard if Fuontain and Garden
+		const bool isMusiciansCourtyard = eBuildingClass == BuildingClass("BUILDINGCLASS_CARD_CLASSICAL_BUILDINGS_FLUTE_AND_LYRE");
+		if (isMusiciansCourtyard)
+		{
+			const bool hasFluteCard = rPlayer.HasPolicy("POLICY_CARD_CLASSICAL_BUILDINGS_FLUTE_AND_LYRE_PASSIVE");
+			const bool hasGarden = rCity.HasBuildingClass(BuildingClassTypes(12));
+			const bool hasFountain = rCity.HasBuildingClass(BuildingClassTypes(232));
+			if (hasFluteCard && hasGarden && hasFountain)
+				return ADD;
+			else
+				return REMOVE;
+		}
+	}
+
+	{// CARD_MEDIEVAL_BUILDINGS_CAMBRIDGE_UNIVERSITY free Cambridge University if Oxford University + Wings
+		const bool isCambridgeUniversity = eBuildingClass == BuildingClass("BUILDINGCLASS_CARD_MEDIEVAL_BUILDINGS_CAMBRIDGE_UNIVERSITY");
+		if (isCambridgeUniversity)
+		{
+			const bool hasCambrigeCard = rPlayer.HasPolicy("POLICY_CARD_MEDIEVAL_BUILDINGS_CAMBRIDGE_UNIVERSITY_PASSIVE");
+			const bool hasOxford1 = rCity.HasBuildingClass(BuildingClassTypes(53));
+			const bool hasOxford2 = rCity.HasBuildingClass(BuildingClassTypes(229));
+			const bool hasOxford3 = rCity.HasBuildingClass(BuildingClassTypes(230));
+			if (hasCambrigeCard && hasOxford1 && hasOxford2 && hasOxford3)
+				return ADD;
+			else
+				return REMOVE;
+		}
+	}
+
+	{// CARD_MEDIEVAL_BUILDINGS_FEALTY free Fealty Building in Capital
+		const bool isFealtyBuilding = eBuildingClass == BuildingClass("BUILDINGCLASS_CARD_MEDIEVAL_BUILDINGS_FEALTY");
+		if (isFealtyBuilding)
+		{
+			const bool hasFealtyCard = rPlayer.HasPolicy("POLICY_CARD_MEDIEVAL_BUILDINGS_FEALTY_ACTIVE");			
+			if (hasFealtyCard && isYourCapital)
 				return ADD;
 			else
 				return REMOVE;
@@ -549,6 +744,53 @@ int CvPlayer::getSpecialistYieldHardcoded(const CvCity* pCity, const SpecialistT
 			change += 1;
 		if (eYield == YIELD_SCIENCE && hasPorcelainTower && isScientist)
 			change += 1;
+	}
+
+	{// CARD_CLASSICAL_BUILDINGS_CANNON_OF_TEN gives +1T to Writer, Artist and Musician Specialists
+		const bool hasCannonCard = player.HasPolicy("POLICY_CARD_CLASSICAL_BUILDINGS_CANNON_OF_TEN_PASSIVE");
+		if (eYield == YIELD_TOURISM && hasCannonCard && (isMusician || isWriter || isArtist))
+			change += 1;		
+	}
+
+	{// CARD_RENAISSANCE_BUILDINGS_WILLIAM_SHAKSPEARE gives +1C, +1T to Writer if you have Globe Theater
+		const bool hasWilliamShakespeareCard = player.HasPolicy("POLICY_CARD_RENAISSANCE_BUILDINGS_WILLIAM_SHAKSPEARE_PASSIVE");
+		const bool hasGlobeTheater = player.HasWonder(BuildingClass("BUILDINGCLASS_GLOBE_THEATER"));
+		if (eYield == YIELD_TOURISM && hasWilliamShakespeareCard && hasGlobeTheater && isWriter)
+			change += 1;
+		if (eYield == YIELD_CULTURE && hasWilliamShakespeareCard && hasGlobeTheater && isWriter)
+			change += 1;
+	}
+	{// CARD_RENAISSANCE_BUILDINGS_MICHAEL_ANGELO gives +1C, +1T to Artist if you have Sistine Chapel
+		const bool hasMichaelAngeloCard = player.HasPolicy("POLICY_CARD_RENAISSANCE_BUILDINGS_MICHAEL_ANGELO_PASSIVE");
+		const bool hasSistineChapel = player.HasWonder(BuildingClass("BUILDINGCLASS_SISTINE_CHAPEL"));
+		if (eYield == YIELD_TOURISM && hasMichaelAngeloCard && hasSistineChapel && isArtist)
+			change += 1;
+		if (eYield == YIELD_CULTURE && hasMichaelAngeloCard && hasSistineChapel && isArtist)
+			change += 1;
+	}
+	{// CARD_RENAISSANCE_BUILDINGS_J_S_BACH gives +1C, +1T to Musician if you have Teatro Alla Scala
+		const bool hasBachCard = player.HasPolicy("POLICY_CARD_RENAISSANCE_BUILDINGS_J_S_BACH_PASSIVE");
+		const bool hasTeatroAllaScala = player.HasWonder(BuildingClass("BUILDINGCLASS_UFFIZI"));
+		if (eYield == YIELD_TOURISM && hasBachCard && hasTeatroAllaScala && isMusician)
+			change += 1;
+		if (eYield == YIELD_CULTURE && hasBachCard && hasTeatroAllaScala && isMusician)
+			change += 1;
+	}
+	{// CARD_RENAISSANCE_BUILDINGS_DOUBLE_ENTRY_ACCOUNTING gives +2G Merchant. +1PD +1Diplo if Big Ben
+		const bool hasDoubleEntrCard = player.HasPolicy("POLICY_CARD_RENAISSANCE_BUILDINGS_DOUBLE_ENTRY_ACCOUNTING_PASSIVE");
+		const bool hasBigBen = player.HasWonder(BuildingClass("BUILDINGCLASS_BIG_BEN"));
+		if (eYield == YIELD_GOLD && hasDoubleEntrCard && isMerchant)
+			change += 2;
+		if (eYield == YIELD_PRODUCTION && hasDoubleEntrCard && hasBigBen && isMerchant)
+			change += 1;
+		if (eYield == YIELD_DIPLOMATIC_SUPPORT && hasDoubleEntrCard && hasBigBen && isMerchant)
+			change += 1;
+	}
+
+	{// CARD_RENAISSANCE_BUILDINGS_COPERNICUS_OBSERVERATORY gives +2SC to Scientist.
+		const bool hasCopernicusCard = player.HasPolicy("POLICY_CARD_RENAISSANCE_BUILDINGS_COPERNICUS_OBSERVERATORY_PASSIVE");				
+		if (eYield == YIELD_SCIENCE && hasCopernicusCard && isScientist)
+			change += 2;		
 	}
 
 	return change;

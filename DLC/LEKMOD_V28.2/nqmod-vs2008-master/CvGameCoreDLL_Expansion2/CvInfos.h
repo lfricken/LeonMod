@@ -515,6 +515,7 @@ public:
 	int getMaxGlobalInstances() const;
 	int getMaxTeamInstances() const;
 	int getMaxPlayerInstances() const;
+	int getMaxPlayerInstancesPercent() const;
 	int getExtraPlayerInstances() const;
 	int getDefaultBuildingIndex() const;
 	void setDefaultBuildingIndex(int i);
@@ -531,6 +532,7 @@ protected:
 	int m_iMaxGlobalInstances;
 	int m_iMaxTeamInstances;
 	int m_iMaxPlayerInstances;
+	int m_iMaxPlayerInstancesPercent;
 	int m_iExtraPlayerInstances;
 	int m_iDefaultBuildingIndex;
 
@@ -1193,6 +1195,7 @@ public:
 	bool isFaith() const;
 	bool isUnit() const;
 	bool isMap() const;
+	int isCard() const;
 
 	int getBarbarianUnitProb() const;
 	int getMinBarbarians() const;
@@ -1217,6 +1220,7 @@ protected:
 	bool m_bFaith;
 	bool m_bUnit;
 	bool m_bMap;
+	int m_iCard;
 
 	int m_iBarbarianUnitProb;
 	int m_iMinBarbarians;

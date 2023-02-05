@@ -1,8 +1,11 @@
 -------------------------------
 -- TopPanel.lua
 -------------------------------
+include( "InstanceManager" );
+local g_resourceIM = InstanceManager:new( "ResourceInst", "ResourceEntry", Controls.ResourceStack );
 
 function UpdateData()
+	g_resourceIM:ResetInstances();
 
 	local iPlayerID = Game.GetActivePlayer();
 
@@ -184,53 +187,85 @@ function UpdateData()
 			-----------------------------
 			-- Update Resources
 			-----------------------------
-			local pResource;
-			local bShowResource;
-			local iNumAvailable;
-			local iNumUsed;
-			local iNumTotal;
-			
-			local strResourceText = "";
-			local strTempText = "";
-			
+			local pResource;			
 			for pResource in GameInfo.Resources() do
 				local iResourceLoop = pResource.ID;
 				
+				-- is strategic?
 				if (Game.GetResourceUsageType(iResourceLoop) == ResourceUsageTypes.RESOURCEUSAGE_STRATEGIC) then
-					
-					bShowResource = false;
-					
+					local iStored = pPlayer:GetResourceCumulative(iResourceLoop);
+					local iDomestic = pPlayer:GetNumResourceTotal(iResourceLoop, false, false);
+					local iTemp = pPlayer:GetNumResourceTotal(iResourceLoop, true, false);
+					local iImport = iTemp - iDomestic;
+					local iExport = pPlayer:GetResourceExport(iResourceLoop);
+					local iGross = pPlayer:GetNumResourceTotal(iResourceLoop, true, true);
+					local iExpended = pPlayer:GetNumResourceUsed(iResourceLoop);
+					local bWasShortage = pPlayer:GetWasShortage(iResource);
+					local iNet = iGross - iExpended;
+					local variation = math.max(1, GameDefines.RESOURCE_VARIATION);
+					local expected = variation * iGross;
+					local icon = pResource.IconString;
+					local resourceName = pResource.Description;
+
+					-- has tech?
+					local bShowResource = false;
 					if (pTeam:GetTeamTechs():HasTech(GameInfoTypes[pResource.TechReveal])) then
 						if (pTeam:GetTeamTechs():HasTech(GameInfoTypes[pResource.TechCityTrade])) then
 							bShowResource = true;
 						end
 					end
-					
-					iNumAvailable = pPlayer:GetNumResourceAvailable(iResourceLoop, true);
-					iNumUsed = pPlayer:GetNumResourceUsed(iResourceLoop);
-					iNumTotal = pPlayer:GetNumResourceTotal(iResourceLoop, true);
-					
-					if (iNumUsed > 0) then
+					-- or has some?
+					if (iStored > 0 or iGross > 0 or iExpended > 0) then
 						bShowResource = true;
 					end
-							
+					
+
 					if (bShowResource) then
-						local text = Locale.ConvertTextKey(pResource.IconString);
-						strTempText = string.format("%i %s   ", iNumAvailable, text);
-						
+
 						-- Colorize for amount available
-						if (iNumAvailable > 0) then
-							strTempText = "[COLOR_POSITIVE_TEXT]" .. strTempText .. "[ENDCOLOR]";
-						elseif (iNumAvailable < 0) then
-							strTempText = "[COLOR_WARNING_TEXT]" .. strTempText .. "[ENDCOLOR]";
+						local netText = "";
+						if (iNet > 0) then
+							netText = Locale.ConvertTextKey("TXT_KEY_POSITIVE_NUM", math.abs(iNet));
+						elseif (iNet < 0) then
+							netText = Locale.ConvertTextKey("TXT_KEY_NEGATIVE_NUM", math.abs(iNet));
+						else
+							netText = "+" .. math.abs(iNet);
 						end
+
+						-- panel display
+						local text = Locale.ConvertTextKey("TXT_KEY_TP_RESOURCE_SHORT", iStored, netText, pResource.IconString);
+
+						-- tooltip
+						local tooltip = "";
+						local infoKey = "TXT_KEY_TP_RESOURCE_INFO";
+						local info = Locale.ConvertTextKey(infoKey, icon, resourceName, iStored, iGross, iExpended, netText, iImport, iExport, iDomestic);
+						tooltip = tooltip .. info;
 						
-						strResourceText = strResourceText .. strTempText;
+						-- shortage?
+						if (bWasShortage) then
+							local shortageStr = Locale.ConvertTextKey("TXT_KEY_TP_RESOURCE_SHORTAGE");
+							tooltip = tooltip .. shortageStr;
+						end
+
+						-- going negative, display turns left
+						if (iExpended > 0 and iStored > 0) then
+							local turnsRemaining = math.ceil(iStored / math.abs(iExpended));
+							local remaining = Locale.ConvertTextKey("TXT_KEY_TP_RESOURCE_TURNS", turnsRemaining);
+							tooltip = tooltip .. remaining;
+						end
+
+						-- explain how the mechanics work
+						local explainStr = "TXT_KEY_TP_RESOURCE_EXPLAIN";
+						local explain = Locale.ConvertTextKey(explainStr, variation, expected, resourceName);
+						tooltip = tooltip .. explain;
+
+						-- populate instance
+                    	instance = g_resourceIM:GetInstance();
+                    	instance.ResourceEntry:SetText(text);
+                    	instance.ResourceEntry:SetToolTipString(tooltip);
 					end
 				end
 			end
-			
-			Controls.ResourceString:SetText(strResourceText);
 			
 		-- No Cities, so hide science
 		else
@@ -378,7 +413,6 @@ function DoInitTooltips()
 	Controls.CultureString:SetToolTipCallback( CultureTipHandler );
 	Controls.TourismString:SetToolTipCallback( TourismTipHandler );
 	Controls.FaithString:SetToolTipCallback( FaithTipHandler );
-	Controls.ResourceString:SetToolTipCallback( ResourcesTipHandler );
 	Controls.InternationalTradeRoutes:SetToolTipCallback( InternationalTradeRoutesTipHandler );
 end
 
@@ -1167,74 +1201,6 @@ function FaithTipHandler( control )
 
 	tipControlTable.TooltipLabel:SetText( strText );
 	tipControlTable.TopPanelMouseover:SetHide(false);
-    
-    -- Autosize tooltip
-    tipControlTable.TopPanelMouseover:DoAutoSize();
-	
-end
-
--- Resources Tooltip
-function ResourcesTipHandler( control )
-
-	local strText;
-	local iPlayerID = Game.GetActivePlayer();
-	local pPlayer = Players[iPlayerID];
-	local pTeam = Teams[pPlayer:GetTeam()];
-	local pCity = UI.GetHeadSelectedCity();
-	
-	strText = "";
-	
-	local pResource;
-	local bShowResource;
-	local bThisIsFirstResourceShown = true;
-	local iNumAvailable;
-	local iNumUsed;
-	local iNumTotal;
-	
-	for pResource in GameInfo.Resources() do
-		local iResourceLoop = pResource.ID;
-		
-		if (Game.GetResourceUsageType(iResourceLoop) == ResourceUsageTypes.RESOURCEUSAGE_STRATEGIC) then
-			
-			bShowResource = false;
-			
-			if (pTeam:GetTeamTechs():HasTech(GameInfoTypes[pResource.TechReveal])) then
-				if (pTeam:GetTeamTechs():HasTech(GameInfoTypes[pResource.TechCityTrade])) then
-					bShowResource = true;
-				end
-			end
-			
-			if (bShowResource) then
-				iNumAvailable = pPlayer:GetNumResourceAvailable(iResourceLoop, true);
-				iNumUsed = pPlayer:GetNumResourceUsed(iResourceLoop);
-				iNumTotal = pPlayer:GetNumResourceTotal(iResourceLoop, true);
-				
-				-- Add newline to the front of all entries that AREN'T the first
-				if (bThisIsFirstResourceShown) then
-					strText = "";
-					bThisIsFirstResourceShown = false;
-				else
-					strText = strText .. "[NEWLINE][NEWLINE]";
-				end
-				
-				strText = strText .. iNumAvailable .. " " .. pResource.IconString .. " " .. Locale.ConvertTextKey(pResource.Description);
-				
-				-- Details
-				if (iNumUsed ~= 0 or iNumTotal ~= 0) then
-					strText = strText .. ": ";
-					strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_RESOURCE_INFO", iNumTotal, iNumUsed);
-				end
-			end
-		end
-	end
-	
-	print(strText);
-	if(strText ~= "") then
-		tipControlTable.TopPanelMouseover:SetHide(false);
-		tipControlTable.TooltipLabel:SetText( strText );
-	else
-		tipControlTable.TopPanelMouseover:SetHide(true);
-	end
     
     -- Autosize tooltip
     tipControlTable.TopPanelMouseover:DoAutoSize();

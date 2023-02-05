@@ -1936,6 +1936,7 @@ CvGlobals::CvGlobals() :
 	m_iSHALLOW_WATER_TERRAIN(5),
 	m_iRUINS_IMPROVEMENT(0),
 	m_iNUKE_FEATURE(6),
+	m_iRESOURCE_VARIATION(1),
 	m_iARTIFACT_RESOURCE(35),
 	m_iHIDDEN_ARTIFACT_RESOURCE(39),
 	m_iCAPITAL_BUILDINGCLASS(28),
@@ -2567,6 +2568,10 @@ unsigned long CvGlobals::getFakeSeed(const unsigned int x, const unsigned int y,
 	seed += other * 227;
 	return seed;
 }
+int CvGlobals::ceilDiv(int numerator, int denominator) const
+{
+	return (((100 * numerator) / denominator) + 99) / 100;
+}
 int CvGlobals::rand(int maxInclusive, string log, const CvPlot* plot, const unsigned long other)
 {
 	return this->getGame().getJonRandNum(maxInclusive + 1, log.c_str(), plot, other);
@@ -2702,7 +2707,10 @@ void CvGlobals::logSpecificMessage(PlayerTypes ePlayer, const char* strString)
 
 void CvGlobals::debugState(const stringstream& s)
 {
-	FILogFile* pLog = LOGFILEMGR.GetLog("state.log", 0);
+	const int localPid = GC.getGame().getActivePlayer();
+	stringstream ss;
+	ss << "state" << localPid << ".log";
+	FILogFile* pLog = LOGFILEMGR.GetLog(ss.str().c_str(), 0);
 	if (pLog)
 	{
 		stringstream b;
@@ -7065,6 +7073,7 @@ void CvGlobals::cacheGlobals()
 	m_iSHALLOW_WATER_TERRAIN = getDefineINT("SHALLOW_WATER_TERRAIN");
 	m_iRUINS_IMPROVEMENT = getDefineINT("RUINS_IMPROVEMENT");
 	m_iNUKE_FEATURE = getDefineINT("NUKE_FEATURE");
+	m_iRESOURCE_VARIATION = getDefineINT("RESOURCE_VARIATION");
 	m_iARTIFACT_RESOURCE = getDefineINT("ARTIFACT_RESOURCE");
 	m_iHIDDEN_ARTIFACT_RESOURCE = getDefineINT("HIDDEN_ARTIFACT_RESOURCE");
 	m_iCAPITAL_BUILDINGCLASS = getDefineINT("CAPITAL_BUILDINGCLASS");

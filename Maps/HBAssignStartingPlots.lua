@@ -66,12 +66,12 @@ AssignStartingPlots = {};
 -- for scrambled AreaID data is theoretically possible, but I have not spent
 -- development resources and time on this, directing attention to other tasks.
 
-local horsesPer = 3;
-local ironPer = 6;
-local coalPer = 9;
-local oilPer = 12;
-local aluminumPer = 15;
-local uraniumPer = 18;
+local horsesPer = 4;
+local ironPer = 5;
+local coalPer = 6;
+local oilPer = 6;
+local aluminumPer = 7;
+local uraniumPer = 7;
 -- how frequent resources are relative to number of tiles. 16 means 16 tiles out of 1000 
 -- will have a particular type of resource. So 1000 size world would have 16 iron AND 16 horses, AND etc.
 function getStratFrequency(this)
@@ -3775,6 +3775,7 @@ function AssignStartingPlots:FindStart(region_number, NoCoast)
 		bSuccessFlag = true;
 		bForcedPlacementFlag = true;
 		forcePlot:SetPlotType(PlotTypes.PLOT_LAND, false, true);
+		print("HBAssignStartingPlots calling SetPlotType 1");
 		forcePlot:SetTerrainType(TerrainTypes.TERRAIN_GRASS, false, true);
 		forcePlot:SetFeatureType(FeatureTypes.NO_FEATURE, -1);
 		self.startingPlots[region_number] = {iWestX, iSouthY, 0};
@@ -3820,6 +3821,7 @@ function AssignStartingPlots:FindCoastalStart(region_number)
 			local forcePlot = Map.GetPlot(iWestX, iSouthY);
 			bForcedPlacementFlag = true;
 			forcePlot:SetPlotType(PlotTypes.PLOT_LAND, false, true);
+			print("HBAssignStartingPlots calling SetPlotType 2");
 			forcePlot:SetTerrainType(TerrainTypes.TERRAIN_GRASS, false, true);
 			forcePlot:SetFeatureType(FeatureTypes.NO_FEATURE, -1);
 			self.startingPlots[region_number] = {iWestX, iSouthY, 0};
@@ -4103,6 +4105,7 @@ function AssignStartingPlots:FindCoastalStart(region_number)
 			bSuccessFlag = false;
 			bForcedPlacementFlag = true;
 			forcePlot:SetPlotType(PlotTypes.PLOT_LAND, false, true);
+			print("HBAssignStartingPlots calling SetPlotType 3");
 			forcePlot:SetTerrainType(TerrainTypes.TERRAIN_GRASS, false, true);
 			forcePlot:SetFeatureType(FeatureTypes.NO_FEATURE, -1);
 			self.startingPlots[region_number] = {iWestX, iSouthY, 0};
@@ -4280,6 +4283,7 @@ function AssignStartingPlots:FindStartWithoutRegardToAreaID(region_number, bMust
 		bSuccessFlag = false;
 		bForcedPlacementFlag = true;
 		forcePlot:SetPlotType(PlotTypes.PLOT_LAND, false, true);
+		print("HBAssignStartingPlots calling SetPlotType 4");
 		forcePlot:SetTerrainType(TerrainTypes.TERRAIN_GRASS, false, true);
 		forcePlot:SetFeatureType(FeatureTypes.NO_FEATURE, -1);
 		self.startingPlots[region_number] = {iWestX, iSouthY, 0};
@@ -4757,6 +4761,7 @@ function AssignStartingPlots:AttemptToPlaceHillsAtPlot(x, y)
 	end	
 	-- Change the plot type from flatlands to hills and clear any features.
 	plot:SetPlotType(PlotTypes.PLOT_HILLS, false, true);
+	print("HBAssignStartingPlots calling SetPlotType 5");
 	plot:SetFeatureType(FeatureTypes.NO_FEATURE, -1);
 	return true
 end
@@ -7490,10 +7495,12 @@ function AssignStartingPlots:AttemptToPlaceNaturalWonder(wonder_number, row_numb
 				if GameInfo.Natural_Wonder_Placement[row_number].ChangeCoreTileToMountain == true then
 					if not plot:IsMountain() then
 						plot:SetPlotType(PlotTypes.PLOT_MOUNTAIN, false, false);
+						print("HBAssignStartingPlots calling SetPlotType 6");
 					end
 				elseif GameInfo.Natural_Wonder_Placement[row_number].ChangeCoreTileToFlatland == true then
 					if plot:GetPlotType() ~= PlotTypes.PLOT_LAND then
 						plot:SetPlotType(PlotTypes.PLOT_LAND, false, false);
+						print("HBAssignStartingPlots calling SetPlotType 7");
 					end
 				end
 				if GameInfo.Natural_Wonder_Placement[row_number].ChangeCoreTileTerrainToGrass == true then
@@ -8038,23 +8045,12 @@ end
 ------------------------------------------------------------------------------
 function AssignStartingPlots:PlaceCityState(coastal_plot_list, inland_plot_list, check_proximity, check_collision, i)
 	-- returns coords, plus boolean indicating whether assignment succeeded or failed.
-	-- Argument "check_collision" should be false if plots in lists were already checked, true if not.
-	if coastal_plot_list == nil or inland_plot_list == nil then
-		print("Nil plot list incoming for PlaceCityState()");
-	end
-	local iW, iH = Map.GetGridSize()
 
-	print("------------------------------------- CS PLOTS READOUT -------------------------------------");
-	print("Inc. Coastal List Size: ", table.maxn(coastal_plot_list));
-	print("Inc. Inland List Size: ", table.maxn(inland_plot_list));
-	print("--------------------------------------------------------------------------------------------");
-
-	--local coastornot = Map.Rand(100, "Chance for coast v inland");
+	local iW, iH = Map.GetGridSize();
 
 	local x,y = math.floor(iW * self.haltonPointsX[i*3]), math.floor(iH * self.haltonPointsY[i*2]);
 
 	x,y = self:findNear(x, y, iW, iH);
-
 	return x, y, true;
 end
 
@@ -8071,7 +8067,7 @@ function AssignStartingPlots:findNear(x, y, iW, iH)
 		for u = 0, d do
 
 			local i = GetI(x+xOffA,y+yOffA,iW);
-			print("Checking: (" .. x+xOffA .. ", " .. y+yOffA .. ")");
+			--print("Checking: (" .. x+xOffA .. ", " .. y+yOffA .. ")");
 			if self:isValidForCs(x+xOffA, y+yOffA, iW, iH) then
 				return x+xOffA, y+yOffA;
 			end
@@ -8255,110 +8251,9 @@ function AssignStartingPlots:PlaceCityStateInRegion(city_state_number, region_nu
 		x, y, placed_city_state = self:PlaceCityState(eligible_coastal, eligible_inland, false, false, city_state_number + 1);
 		-- Don't need to re-check collisions.
 	end
-	
-	-- Disabling all fallback methods of city state placement. Jon has decided that, rather than
-	-- force city states in to locations where they cannot even settle, we will discard them instead.
-	--
-	-- I am leaving the fallback methods in the code, but disabled, in case they are of any use to modders. - BT
-
-	--[[
-	if placed_city_state == false then -- Failed with proximity checks in play. Drop the prox check and force it.
-		-- Main loop, second pass, forced
-		reached_middle = false;
-		local curWX = iWestX;
-		local curSY = iSouthY;
-		local curWid = iWidth;
-		local curHei = iHeight;
-		while placed_city_state == false and reached_middle == false do
-			-- Send the remaining unprocessed portion of the region to be processed.
-			local nextWX, nextSY, nextWid, nextHei;
-			eligible_coastal, eligible_inland, nextWX, nextSY, nextWid, nextHei, 
-			  reached_middle = self:ObtainNextSectionInRegion(curWX, curSY, curWid, curHei, iAreaID, true, false) -- Force it, but not on top of an already placed player.
-			curWX, curSY, curWid, curHei = nextWX, nextSY, nextWid, nextHei;
-			-- Attempt to place city state using the two plot lists received from the last call.
-			x, y, placed_city_state = self:PlaceCityState(eligible_coastal, eligible_inland, false, false) -- Don't need to re-check collisions.
-		end
-	end
-
-	
-	if placed_city_state == false then -- Failed even trying to force it. Now allow the CS to be placed on top of another.
-		-- Main loop, third pass, forced with collision checks completely disabled.
-		reached_middle = false;
-		local curWX = iWestX;
-		local curSY = iSouthY;
-		local curWid = iWidth;
-		local curHei = iHeight;
-		while placed_city_state == false and reached_middle == false do
-			-- Send the remaining unprocessed portion of the region to be processed.
-			local nextWX, nextSY, nextWid, nextHei;
-			eligible_coastal, eligible_inland, nextWX, nextSY, nextWid, nextHei, 
-			  reached_middle = self:ObtainNextSectionInRegion(curWX, curSY, curWid, curHei, iAreaID, true, true) -- Force it any way you can.
-			curWX, curSY, curWid, curHei = nextWX, nextSY, nextWid, nextHei;
-			-- Attempt to place city state using the two plot lists received from the last call.
-			x, y, placed_city_state = self:PlaceCityState(eligible_coastal, eligible_inland, false, false) -- Don't need to re-check collisions.
-		end
-	end
-
-	if placed_city_state == false then -- Getting desperate to place this city state.
-		local fallback_plots, fallback_scores, best_fallback_plots, best_fallback_score = {}, {}, {}, 99999999;
-		for region_loop_y = 0, iHeight - 1 do
-			for region_loop_x = 0, iWidth - 1 do
-				local x = (region_loop_x + iWestX) % iW;
-				local y = (region_loop_y + iSouthY) % iH;
-				local plotIndex = y * iW + x + 1;
-				local plot = Map.GetPlot(x, y);
-				local plotType = plot:GetPlotType()
-				local terrainType = plot:GetTerrainType()
-				local featureType = plot:GetFeatureType()
-				--
-				local iPlotScore = 1 + self.cityStateData[plotIndex];
-				if self.playerCollisionData[plotIndex] == true then
-					iPlotScore = iPlotScore * 1000;
-				end
-				if plotType == PlotTypes.PLOT_OCEAN then
-					iPlotScore = iPlotScore * 10;
-				elseif plotType == PlotTypes.PLOT_MOUNTAIN then
-					iPlotScore = iPlotScore * 2;
-				elseif terrainType == TerrainTypes.TERRAIN_SNOW then
-					iPlotScore = iPlotScore * 3;
-				end
-				table.insert(fallback_plots, plotIndex);
-				table.insert(fallback_scores, iPlotScore);
-			end
-		end
-		for loop, iPlotScore in ipairs(fallback_scores) do
-			if iPlotScore < best_fallback_score then
-				best_fallback_score = iPlotScore;
-			end
-		end
-		for loop, iPlotScore in ipairs(fallback_scores) do
-			if iPlotScore == best_fallback_score then
-				table.insert(best_fallback_plots, fallback_plots[loop]);
-			end
-		end
-		local iNumFallbackCandidates = table.maxn(best_fallback_plots);
-		local selectedPlotIndex;
-		if iNumFallbackCandidates > 0 then
-			local diceroll = 1 + Map.Rand(iNumFallbackCandidates, "City State Placement fallback plot - Lua");
-			selectedPlotIndex = best_fallback_plots[diceroll];
-			x = (selectedPlotIndex - 1) % iW;
-			y = (selectedPlotIndex - x - 1) / iW;
-			placed_city_state = true;
-			local plot = Map.GetPlot(x, y);
-			local plotType = plot:GetPlotType()
-			if plotType == PlotTypes.PLOT_OCEAN or plotType == PlotTypes.PLOT_MOUNTAIN then
-				plot:SetPlotType(PlotTypes.PLOT_LAND, false, false)
-			end
-			plot:SetTerrainType(TerrainTypes.TERRAIN_PLAINS, false, true)
-			plot:SetFeatureType(FeatureTypes.NO_FEATURE, -1)
-			print("-"); print("Forced placement on emergency fallback plot for City State #", city_state_number); print("-");
-		else
-			print("ERROR: Can't find any water, mountains, or land in this region. ... Yup, it's bad.");
-		end
-	end
-	]]--
 
 	if placed_city_state == true then
+		print("City State: " .. x .. "," .. y);
 		-- Record and enact the placement.
 		self.cityStatePlots[city_state_number] = {x, y, region_number};
 		self.city_state_validity_table[city_state_number] = true; -- This is the line that marks a city state as valid to be processed by the rest of the system.
@@ -8420,6 +8315,7 @@ function AssignStartingPlots:PlaceCityStates()
 				]]--
 				--
 				if success == true then
+					print("City State placed: " .. cs_x .. "," .. cs_y);
 					self.cityStatePlots[cs_number] = {cs_x, cs_y, -1};
 					self.city_state_validity_table[cs_number] = true; -- This is the line that marks a city state as valid to be processed by the rest of the system.
 					local city_state_ID = cs_number + GameDefines.MAX_MAJOR_CIVS - 1;
@@ -13347,6 +13243,7 @@ function AssignStartingPlots:FixResourceGraphics()
 				if res_ID == self.fur_ID then
 					-- Always want it flat.  The foxes fall into the hills.
 					plot:SetPlotType(PlotTypes.PLOT_LAND, false, true)
+					print("HBAssignStartingPlots calling SetPlotType 9");
 				end
 				
 				-- MOD.Barathor: Gets the latitude of the tile to determine jungle eligibility.  Note: I like to use symmetrical latitudes, with an equator the width of two rows, which my map script utilizes.
@@ -13418,6 +13315,7 @@ function AssignStartingPlots:FixResourceGraphics()
 				--if res_ID == self.ivory_ID then
 					-- Always want it flat.  Other types are fine on hills.
 					plot:SetPlotType(PlotTypes.PLOT_LAND, false, true)
+					print("HBAssignStartingPlots calling SetPlotType 10");
 				--end				
 				
 				-- Don't remove flood plains if present for the few that are placed on it, only remove other features, like marsh or any trees.				

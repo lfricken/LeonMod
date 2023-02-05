@@ -164,9 +164,6 @@ public:
 	int getCachedExcessHappinessForThisTurn() const;
 	int getCachedSpyStartingRank() const;
 #endif
-
-	void doTurn();
-	void doTurnPostDiplomacy();
 #ifdef AUI_YIELDS_APPLIED_AFTER_TURN_NOT_BEFORE
 	void cacheYields();
 #endif
@@ -712,15 +709,16 @@ public:
 	bool IsAlwaysSeeBarbCamps() const;
 	void SetAlwaysSeeBarbCampsCount(int iValue);
 	void ChangeAlwaysSeeBarbCampsCount(int iChange);
-
-	void setHasPolicy(PolicyTypes eIndex, bool bNewValue);
+	// returns the delta (-1 removed, 0 no change, +1 added)
+	int setHasPolicy(PolicyTypes eIndex, bool bNewValue);
 	int getNextPolicyCost() const;
 	T100 getNextPolicyCostT100() const;
 	void DoUpdateNextPolicyCost();
 	bool canAdoptPolicy(PolicyTypes ePolicy) const;
-	void doAdoptPolicy(PolicyTypes ePolicy);
+	int doAdoptPolicy(PolicyTypes ePolicy, const bool setHavePolicy = true, const bool payForPolicy = true);
 	void DoBuyNewBranch(PolicyBranchTypes eBranch);
 
+	/// Empire in Anarchy?
 	bool IsAnarchy() const;
 	int GetAnarchyNumTurns() const;
 	void SetAnarchyNumTurns(int iValue);
@@ -729,7 +727,8 @@ public:
 	int getAdvancedStartPoints() const;
 	void setAdvancedStartPoints(int iNewValue);
 	void changeAdvancedStartPoints(int iChange);
-
+	
+	bool isHasMet(PlayerTypes other) const;
 	bool canStealTech(PlayerTypes eTarget, TechTypes eTech) const;
 	bool canSpyDestroyUnit(PlayerTypes eTarget, CvUnit& kUnit) const;
 	bool canSpyBribeUnit(PlayerTypes eTarget, CvUnit& kUnit) const;
@@ -883,6 +882,7 @@ public:
 
 	int getFakeRand(const int iMax, string log, const CvPlot* plot, const int other) const;
 	void DoSpawnGreatPerson(PlayerTypes eMinor);
+	void DoTurnCities();
 	void DoGreatPeopleSpawnTurn();
 	CvCity* GetGreatPersonSpawnCity(UnitTypes eUnit);
 
@@ -1215,6 +1215,13 @@ public:
 
 	bool isTurnActive() const;
 	void setTurnActive(bool bNewValue, bool bDoTurn = true);
+
+	void DoTurnBegin(const bool bDoTurn);
+	void DoTurnEnd();
+	// called at the beginning of a players turn
+	void DoTurn();
+	void doTurnPostDiplomacy();
+
 	bool isSimultaneousTurns() const;
 #ifdef AUI_GAME_BETTER_HYBRID_MODE
 	int getTurnOrder() const;
@@ -1314,9 +1321,6 @@ public:
 	void RecalculateNonLeaderBoost();
 	// [0, 100] where 15 would be a +15% science boost
 	T100 GetNonLeaderBoostT100() const;
-	// How many turns we are behind in tech.
-	// If they have 9 techs and we have 7, and we get 0.5 techs per turn, this value would be ((9 - 7) / 0.5) * 100= 400
-	T100 leaderTechDiffT100;
 
 	int GetScience() const;
 	// get beaker output T100. includeBoost indicates whether to include any boost from better players
@@ -1379,9 +1383,19 @@ public:
 	bool isPlayable() const;
 	void setPlayable(bool bNewValue);
 
+	// updates how many resources we have, and whether or not we are in a shortage
+	void DoTurnResources();
+	int changeResourceCumulative(ResourceTypes eIndex, int delta);
+	void SetShortage(ResourceTypes type, bool shortage);
+	// true if there is a shortage
+	bool wasShortage(ResourceTypes eIndex) const;
+	int getResourceCumulative(ResourceTypes eIndex) const;
 	int getNumResourceUsed(ResourceTypes eIndex) const;
 	void changeNumResourceUsed(ResourceTypes eIndex, int iChange);
-	int getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport = true) const;
+	// gross resources
+	int getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport = true, bool includeExport = true) const;
+	int getNumResourceGross(ResourceTypes eIndex) const;
+	int getNumResourceExpense(ResourceTypes eIndex) const;
 	void changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bIgnoreResourceWarning = false);
 
 	int getSiphonLuxuryCount(PlayerTypes eFromPlayer) const;
@@ -1441,7 +1455,7 @@ public:
 	int getUnitClassCountPlusMaking(UnitClassTypes eIndex) const;
 
 	int getBuildingClassCount(BuildingClassTypes eIndex) const;
-	bool isBuildingClassMaxedOut(BuildingClassTypes eIndex, int iExtra = 0) const;
+	bool isBuildingClassMaxedOut(BuildingClassTypes eIndex, int iExtra = 0, bool checkAbsolute = true, bool checkPercent = true) const;
 	void changeBuildingClassCount(BuildingClassTypes eIndex, int iChange);
 	int getBuildingClassMaking(BuildingClassTypes eIndex) const;
 	void changeBuildingClassMaking(BuildingClassTypes eIndex, int iChange);
@@ -1487,6 +1501,7 @@ public:
 	const CLLNode<TechTypes>* headResearchQueueNode() const;
 	CLLNode<TechTypes>* tailResearchQueueNode();
 
+	void FlagAllCitiesForUpdate();
 	void addCityName(const CvString& szName);
 	int getNumCityNames() const;
 	CvString getCityName(int iIndex) const;
@@ -1502,6 +1517,8 @@ public:
 	CvCity* nextCity(int* pIterIdx, bool bRev=false);
 	// number of cities this player owns, including puppets
 	int getNumCities() const;
+	// pass a function that takes a city and returns an int, loops over owned cities
+	int CountNumCities(int (*check)(const CvCity&)) const;
 	CvCity* getCity(int iID);
 	const CvCity* getCity(int iID) const;
 	CvCity* addCity();
@@ -1591,6 +1608,7 @@ public:
 	void AddAPlot(CvPlot* pPlot); // adds a plot at the end of the list
 	CvPlotsVector& GetPlots();  // gets the list of plots the player owns
 	const CvPlotsVector& GetPlots() const;
+	int CountOwnedPlots(int (*check)(const CvPlot&)) const;
 	int GetNumPlots() const;
 
 	int GetNumPlotsBought() const;
@@ -1740,7 +1758,7 @@ public:
 	CvTacticalAI* GetTacticalAI() const;
 	CvHomelandAI* GetHomelandAI() const;
 
-	// total number of policies owned by this player BY ANY MEANS EXCEPT policies owned on turn 1
+	// total number of policies owned by this player BY ANY MEANS EXCEPT policies owned on turn 1, and HiddenFromPolicyCount
 	int CvPlayer::GetNumPoliciesTotal() const;
 	// true if this player has this policy
 	// includes ideology
@@ -1833,6 +1851,29 @@ public:
 
 	bool hasTurnTimerExpired();
 
+	// returns a card type that could be awarded to this player
+	TradingCardTypes CardsGetRandomValid(bool avoidDuplicates = true) const;
+	// called when state information about a card changes (add, remove, visible, etc.)
+	virtual void CardsOnChanged();
+	// DO NOT CALL, should only be called from net handler
+	void CardsActivate(int cardIdx);
+	// DO NOT CALL, should only be called from net handler
+	bool CardsToggleVisibility(int cardIdx);
+	void CardsAdd(TradingCardTypes cardType);
+	void CardsRemove(TradingCardTypes cardType);
+	void CardsDestroy(int cardIdx);
+	// called at the end of each turn, correctly updates passive benefits
+	void DoUpdateCardBenefits();
+	TradingCardTypes CardsType(int cardIdx) const;
+	bool CardsIsVisible(int cardIdx) const;
+	// total number of cards this player has
+	int CardsCount() const;
+	int CardsCount(TradingCardTypes cardType) const;
+	bool CardsHasAny(TradingCardTypes cardType) const;
+	// true if this player is allowed to receive ANY cards
+	bool CardsCanHave() const;
+
+	void SetTechDiffT00(int diffT100);
 protected:
 	class ConqueredByBoolField
 	{
@@ -2047,6 +2088,9 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iHappyPerMilitaryUnit;
 	FAutoVariable<int, CvPlayer> m_iHappinessToCulture;
 	FAutoVariable<int, CvPlayer> m_iHappinessToScience;
+	// How many turns we are behind in tech.
+	// If they have 9 techs and we have 7, and we get 0.5 techs per turn, this value would be ((9 - 7) / 0.5) * 100= 400
+	FAutoVariable<int, CvPlayer> m_leaderTechDiffT100;
 #ifdef NQ_GOLD_TO_SCIENCE_FROM_POLICIES
 	FAutoVariable<int, CvPlayer> m_iGoldToScience;
 #endif
@@ -2226,6 +2270,8 @@ protected:
 
 	CvString m_strEmbarkedGraphicOverride;
 
+	FAutoVariable<std::vector<int>, CvPlayer> m_paiWasShortage;
+	FAutoVariable<std::vector<int>, CvPlayer> m_paiNumResourceCumulative;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiNumResourceUsed;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiNumResourceTotal;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiResourceGiftedToMinors;
@@ -2259,6 +2305,8 @@ protected:
 	FAutoVariable<std::vector<bool>, CvPlayer> m_pabLoyalMember;
 
 	FAutoVariable<std::vector<bool>, CvPlayer> m_pabGetsScienceFromPlayer;
+	// which cards this player owns (they can own multiple of one type)
+	FAutoVariable<std::vector<TradingCardState>, CvPlayer> m_cards;
 
 	FAutoVariable< std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > >, CvPlayer> m_ppaaiSpecialistExtraYield;
 	FAutoVariable< std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > >, CvPlayer> m_ppaaiImprovementYieldChange;

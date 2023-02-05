@@ -1720,6 +1720,7 @@ CvBuildingClassInfo::CvBuildingClassInfo() :
 	m_iMaxGlobalInstances(0),
 	m_iMaxTeamInstances(0),
 	m_iMaxPlayerInstances(0),
+	m_iMaxPlayerInstancesPercent(0),
 	m_iExtraPlayerInstances(0),
 	m_iDefaultBuildingIndex(NO_BUILDING),
 	m_bNoLimit(false),
@@ -1746,6 +1747,10 @@ int CvBuildingClassInfo::getMaxTeamInstances() const
 int CvBuildingClassInfo::getMaxPlayerInstances() const
 {
 	return m_iMaxPlayerInstances;
+}
+int CvBuildingClassInfo::getMaxPlayerInstancesPercent() const
+{
+	return m_iMaxPlayerInstancesPercent;
 }
 //------------------------------------------------------------------------------
 int CvBuildingClassInfo::getExtraPlayerInstances() const
@@ -1789,6 +1794,7 @@ bool CvBuildingClassInfo::CacheResults(Database::Results& kResults, CvDatabaseUt
 	m_iMaxGlobalInstances = kResults.GetInt("MaxGlobalInstances");
 	m_iMaxTeamInstances = kResults.GetInt("MaxTeamInstances");
 	m_iMaxPlayerInstances = kResults.GetInt("MaxPlayerInstances");
+	m_iMaxPlayerInstancesPercent = kResults.GetInt("MaxPlayerInstancesPercent");
 	m_iExtraPlayerInstances = kResults.GetInt("ExtraPlayerInstances");
 
 	m_bNoLimit = kResults.GetBool("NoLimit");
@@ -3989,6 +3995,7 @@ CvGoodyInfo::CvGoodyInfo() : CvBaseInfo()
 	, m_bFaith(0)
 	, m_bUnit(0)
 	, m_bMap(0)
+	, m_iCard(0)
 
 	, m_iBarbarianUnitProb(0)
 	, m_iMinBarbarians(0)
@@ -4004,7 +4011,8 @@ bool CvGoodyInfo::isCulture() const { return m_bCulture; }
 bool CvGoodyInfo::isProduction() const { return m_bProduction; }
 bool CvGoodyInfo::isFaith() const { return m_bFaith; }
 bool CvGoodyInfo::isUnit() const{ return m_bUnit;}
-bool CvGoodyInfo::isMap() const{	return m_bMap;}
+bool CvGoodyInfo::isMap() const { return m_bMap; }
+int CvGoodyInfo::isCard() const { return m_iCard; }
 
 int CvGoodyInfo::getBarbarianUnitProb() const{	return m_iBarbarianUnitProb;}
 int CvGoodyInfo::getMinBarbarians() const{	return m_iMinBarbarians;}
@@ -4039,6 +4047,7 @@ bool CvGoodyInfo::CacheResults(Database::Results& results, CvDatabaseUtility& kU
 	m_bFaith = results.GetBool("GivesFaith");
 	m_bUnit = results.GetBool("GivesUnit");
 	m_bMap = results.GetInt("GivesMap");
+	m_iCard = results.GetInt("GivesCard");
 
 	// what does this do?
 	m_iBarbarianUnitProb = results.GetInt("BarbarianUnitProb");

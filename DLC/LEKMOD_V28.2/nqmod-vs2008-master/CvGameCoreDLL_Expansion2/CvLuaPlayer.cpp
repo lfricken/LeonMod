@@ -27,6 +27,7 @@
 #include "CvInternalGameCoreUtils.h"
 #include "ICvDLLUserInterface.h"
 #include "CvDllInterfaces.h"
+#include "CvDllNetMessageHandler.h"
 
 // include this last to turn warnings into errors for code analysis
 #include "LintFree.h"
@@ -717,11 +718,13 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(SetOption);
 	Method(IsPlayable);
 	Method(SetPlayable);
-
+	
+	Method(GetResourceCumulative);
 	Method(GetNumResourceUsed);
 	Method(GetNumResourceTotal);
 	Method(ChangeNumResourceTotal);
 	Method(GetNumResourceAvailable);
+	Method(GetWasShortage);
 
 	Method(GetResourceExport);
 	Method(GetResourceImport);
@@ -824,6 +827,18 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetWeDenouncedFriendCount);
 	Method(IsFriendDeclaredWarOnUs);
 	Method(GetWeDeclaredWarOnFriendCount);
+
+	Method(CardCount);
+	Method(CardName);
+	Method(CardType);
+	Method(CardToggleVisibility);
+	Method(CardIsVisible);
+	Method(CardDesc);
+	Method(CardPassiveDesc);
+	Method(CardActiveDesc);
+	Method(CardActivate);
+	Method(CardDelete);
+
 	//Method(IsWorkingAgainstPlayerAccepted);
 	Method(GetCoopWarAcceptedState);
 	Method(GetNumWarsFought);
@@ -7376,6 +7391,10 @@ int CvLuaPlayer::lSetPlayable(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::setPlayable);
 }
+int CvLuaPlayer::lGetResourceCumulative(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::getResourceCumulative);
+}
 //------------------------------------------------------------------------------
 //int getNumResourceUsed(ResourceTypes  iIndex);
 int CvLuaPlayer::lGetNumResourceUsed(lua_State* L)
@@ -7399,6 +7418,10 @@ int CvLuaPlayer::lChangeNumResourceTotal(lua_State* L)
 int CvLuaPlayer::lGetNumResourceAvailable(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::getNumResourceAvailable);
+}
+int CvLuaPlayer::lGetWasShortage(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::wasShortage);
 }
 
 //------------------------------------------------------------------------------
@@ -8198,6 +8221,125 @@ int CvLuaPlayer::lGetWeDeclaredWarOnFriendCount(lua_State* L)
 	const int iValue = pkPlayer->GetDiplomacyAI()->GetWeDeclaredWarOnFriendCount();
 
 	lua_pushinteger(L, iValue);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lCardCount(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int count = pkPlayer->CardsCount();
+	lua_pushinteger(L, count);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lCardType(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int cardIdx = lua_tointeger(L, 2);
+	const TradingCardTypes type = pkPlayer->CardsType(cardIdx);
+	lua_pushinteger(L, (int)type);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lCardActivate(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int cardIdx = lua_tointeger(L, 2);
+	CvDllNetMessageHandler::SendNetAction(pkPlayer->GetID(), cardIdx, NET_ACTION_CARD_ACTIVATE);
+
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lCardToggleVisibility(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int cardIdx = lua_tointeger(L, 2);
+	CvDllNetMessageHandler::SendNetAction(pkPlayer->GetID(), cardIdx, NET_ACTION_CARD_TOGGLE_VISIBILITY);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lCardIsVisible(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int cardIdx = lua_tointeger(L, 2);
+	const bool isVisible = pkPlayer->CardsIsVisible(cardIdx);
+	lua_pushboolean(L, isVisible);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lCardName(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const TradingCardTypes type = (TradingCardTypes)lua_tointeger(L, 2);
+
+	if (type == CARD_INVALID)
+	{
+		lua_pushstring(L, "ERROR549812");
+	}
+	else
+	{
+		const string desc = TradingCard::GetName(type, pkPlayer);
+		lua_pushstring(L, desc.c_str());
+	}
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lCardDesc(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const TradingCardTypes type = (TradingCardTypes)lua_tointeger(L, 2);
+	if (type == CARD_INVALID)
+	{
+		lua_pushstring(L, "ERROR59111");
+	}
+	else
+	{
+		const string desc = TradingCard::GetDesc(type, pkPlayer);
+		lua_pushstring(L, desc.c_str());
+	}
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lCardPassiveDesc(lua_State* L)
+{
+	//CvPlayerAI* pkPlayer = GetInstance(L);
+	const TradingCardTypes type = (TradingCardTypes)lua_tointeger(L, 2);
+	if (type == CARD_INVALID)
+	{
+		lua_pushstring(L, "ERROR184365");
+	}
+	else
+	{
+		const string desc = TradingCard::GetPassivePolicyDesc(type);
+		lua_pushstring(L, desc.c_str());
+	}
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lCardActiveDesc(lua_State* L)
+{
+	//CvPlayerAI* pkPlayer = GetInstance(L);
+	const TradingCardTypes type = (TradingCardTypes)lua_tointeger(L, 2);
+	if (type == CARD_INVALID)
+	{
+		lua_pushstring(L, "ERROR591241");
+	}
+	else
+	{
+		const string desc = TradingCard::GetActivePolicyDesc(type);
+		lua_pushstring(L, desc.c_str());
+	}
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lCardDelete(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int cardIdx = lua_tointeger(L, 2);
+
+	// WARNING NOT NETWORK SAFE -- DEBUG ONLY
+	pkPlayer->CardsDestroy(cardIdx);
+
 	return 1;
 }
 ////------------------------------------------------------------------------------

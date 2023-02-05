@@ -123,6 +123,8 @@ public:
 	bool canPrepare(SpecialistTypes eSpecialist, bool bContinue = false) const;
 	bool canMaintain(ProcessTypes eProcess, bool bContinue = false) const;
 	bool canJoin() const;
+	// true if this building would allow the given building to be constructed here
+	bool satisfiesAtLeastOneRequiredClass(BuildingTypes b) const;
 
 	// true if this city is a captured city state capital
 	bool IsOwnedMinorCapital() const;
@@ -563,6 +565,8 @@ public:
 	int getCitySizeBoost() const;
 	void setCitySizeBoost(int iBoost);
 
+	// marks that this city needs a refresh at the end of the turn
+	void flagNeedsUpdate();
 	bool isNeverLost() const;
 	void setNeverLost(bool bNewValue);
 
@@ -647,6 +651,7 @@ public:
 	int GetBaseYieldRateFromBuildings(YieldTypes eIndex) const;
 	void ChangeBaseYieldRateFromBuildings(YieldTypes eIndex, int iChange);
 
+	// IDEMPOTENT. Refreshes yield and percentages from buildings in the city
 	void UpdateBuildingYields();
 
 	int GetBaseYieldRateFromMisc(YieldTypes eIndex) const;
@@ -985,6 +990,8 @@ protected:
 
 	OperationSlot m_unitBeingBuiltForOperation;
 
+	// marked true if this cities yields need to be updated during its DoTurn phase
+	FAutoVariable<bool, CvCity> m_bNeedsYieldUpdate;
 	FAutoVariable<bool, CvCity> m_bNeverLost;
 	FAutoVariable<bool, CvCity> m_bDrafted;
 	FAutoVariable<bool, CvCity> m_bAirliftTargeted;   // unused

@@ -191,6 +191,7 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(IsPaused);
 	Method(GetBestLandUnit);
 	Method(GetBestLandUnitCombat);
+	Method(IsHasMet);
 
 	Method(GetFaithCost);
 	Method(GetVpAdjustment);
@@ -1227,6 +1228,15 @@ int CvLuaGame::lGetBestLandUnitCombat(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvGame::getBestLandUnitCombat);
 }
+int CvLuaGame::lIsHasMet(lua_State* L)
+{
+	PlayerTypes a = (PlayerTypes)lua_tointeger(L, 2);
+	PlayerTypes b = (PlayerTypes)lua_tointeger(L, 3);
+
+	const bool luaDidMeet = GET_PLAYER(a).isHasMet(b);
+	lua_pushboolean(L, luaDidMeet);
+	return 1;
+}
 //------------------------------------------------------------------------------
 //int GetFaithCost();
 int CvLuaGame::lGetFaithCost(lua_State* L)
@@ -1878,6 +1888,7 @@ int CvLuaGame::lGetNumResourceRequiredForBuilding(lua_State* L)
 {
 	const BuildingTypes eBuilding = (BuildingTypes) luaL_checkint(L, 1);
 	const ResourceTypes eResource = (ResourceTypes) luaL_checkint(L, 2);
+	const bool isLump = lua_toboolean(L, 3);
 
 	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 	CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
@@ -1885,7 +1896,14 @@ int CvLuaGame::lGetNumResourceRequiredForBuilding(lua_State* L)
 	int iNumNeeded = 0;
 	if(pkBuildingInfo && pkResourceInfo)
 	{
-		iNumNeeded = pkBuildingInfo->GetResourceQuantityRequirement(eResource);
+		if (isLump)
+		{
+			iNumNeeded = pkBuildingInfo->GetResourceCostLump(eResource);
+		}
+		else
+		{
+			iNumNeeded = pkBuildingInfo->GetResourceQuantityRequirement(eResource);
+		}
 	}
 
 	lua_pushinteger(L, iNumNeeded);

@@ -274,7 +274,7 @@ void CvGame::init(HandicapTypes eHandicap)
 	for (int i = 0; i < NUM_COMPETITIONS; ++i)
 	{
 		m_competitions.push_back(CvCompetition(MAX_MAJOR_CIVS, (MiniCompetitionTypes)i));
-		m_competitions[i].UpdateAndSort();
+		m_competitions[i].Update(false, 5);
 	}
 
 	// set up pseudorandom barbarian spawn points
@@ -284,6 +284,11 @@ void CvGame::init(HandicapTypes eHandicap)
 	m_barbSpawnY = halton<int>(3, 100 * 100, 400, GC.getGame().getJonRandNum(500, NULL, NULL, 368712));
 	m_barbSpawnCounter = 0;
 	
+	m_eraNumPlayersEntered.clear();
+	for (int i = 0; i < GC.getNumEraInfos(); ++i)
+	{
+		m_eraNumPlayersEntered.push_back(0);
+	}
 
 	// set up random policy costs
 	const int numPolicies = 2 * GC.getNumPolicyInfos(); // 2 to safely handle branches
@@ -606,9 +611,9 @@ bool CvGame::InitMap(CvGameInitialItemsOverrides& kGameInitialItemsOverrides)
 
 #ifdef AUI_PLOT_OBSERVER_SEE_ALL_PLOTS
 					pLoopPlot->setRevealed(OBSERVER_TEAM, true, false);
-					pLoopPlot->changeVisibilityCount(OBSERVER_TEAM, pLoopPlot->getVisibilityCount(OBSERVER_TEAM) + 1, NO_INVISIBLE, true, true);
+					pLoopPlot->changeVisibilityCount(OBSERVER_TEAM, 1, NO_INVISIBLE, true, true);
 #else
-					pLoopPlot->changeVisibilityCount(eTeam, pLoopPlot->getVisibilityCount(eTeam) + 1, NO_INVISIBLE, true, false);
+					pLoopPlot->changeVisibilityCount(eTeam, 1, NO_INVISIBLE, true, false);
 
 					for(int iJ = 0; iJ < iNumInvisibleInfos; iJ++)
 					{
@@ -1073,6 +1078,7 @@ void CvGame::uninit()
 	m_barbSpawnX.clear();
 	m_barbSpawnY.clear();
 	m_barbSpawnCounter = 0;
+	m_eraNumPlayersEntered.clear();
 	randomPolicyRebateT100.clear();
 
 	m_mapRand.uninit();
@@ -1861,7 +1867,6 @@ void CvGame::updateScienceCatchup()
 	// find winner
 	int bestTechTreeBeakers = 0;
 	for (int iPlayer = 0; iPlayer < MAX_CIV_PLAYERS; iPlayer++)
-	for (PlayerTypes iPlayer = (PlayerTypes)0; iPlayer < MAX_CIV_PLAYERS; iPlayer = (PlayerTypes)(iPlayer + 1))
 	{
 		const CvPlayer& rPlayer = GET_PLAYER((PlayerTypes)iPlayer);
 		if (rPlayer.isHuman()) // ONLY consider human players when producing tech boost
@@ -1890,7 +1895,7 @@ void CvGame::updateScienceCatchup()
 
 			const T100 turnDifferenceT100 = adjustedBeakerDifferenceT100 * 100 / medianScienceOutputT100;
 
-			rPlayer.leaderTechDiffT100 = turnDifferenceT100;
+			rPlayer.SetTechDiffT00(turnDifferenceT100);
 		}
 	}
 }
@@ -5058,7 +5063,7 @@ int CvGame::getMaxTurnLen()
 		ret = baseTurnTime;
 	}
 
-	return ret * 2;
+	return ret;
 }
 #endif
 
@@ -8197,7 +8202,7 @@ void CvGame::doTurn()
 	{// In multi-player with simultaneous turns, we activate all of the AI players
 	 // at the same time.  The human players who are playing simultaneous turns will be activated in updateMoves after all
 	 // the AI players are processed.
-		shuffleArray(aiShuffle, MAX_PLAYERS, getJonRand());
+		fillWithRandomIndexes(aiShuffle, MAX_PLAYERS, getJonRand());
 
 		for(iI = 0; iI < MAX_PLAYERS; iI++)
 		{
@@ -8274,8 +8279,11 @@ void CvGame::doTurn()
 	ChangeVpAdjustment(GetVpAcceleration());
 
 	updateScienceCatchup();
+
+	const int sessionLength = 5;
+	const bool sessionEndsThisTurn = GC.getGame().getGameTurn() % sessionLength == 0;
 	for (int i = 0; i < NUM_COMPETITIONS; ++i)
-		m_competitions[i].UpdateAndSort();
+		m_competitions[i].Update(sessionEndsThisTurn, sessionLength);
 
 	// Who's Winning
 	if(GET_PLAYER(getActivePlayer()).isAlive() && !IsStaticTutorialActive())
@@ -9231,7 +9239,7 @@ void CvGame::activateAllSimultaneousHumanPlayers()
 	int aiShuffle[MAX_PLAYERS];
 	if (GC.getGame().isOption("GAMEOPTION_SIMULTANEOUS_PLAYER_TURN_ACTIVATION_ORDER_RANDOMIZED"))
 	{
-		shuffleArray(aiShuffle, MAX_PLAYERS, getJonRand(), GC.getGame().getElapsedGameTurns() * 1234);
+		fillWithRandomIndexes(aiShuffle, MAX_PLAYERS, getJonRand(), GC.getGame().getElapsedGameTurns() * 1234);
 	}
 	else
 	{
@@ -10460,6 +10468,7 @@ void CvGame::Read(FDataStream& kStream)
 	kStream >> m_barbSpawnX;
 	kStream >> m_barbSpawnY;
 	kStream >> m_barbSpawnCounter;
+	kStream >> m_eraNumPlayersEntered;
 
 	m_mapRand.read(kStream);
 	bool wasCallStackDebuggingEnabled = m_jonRand.callStackDebuggingEnabled();
@@ -10698,6 +10707,7 @@ void CvGame::Write(FDataStream& kStream) const
 	kStream << m_barbSpawnX;
 	kStream << m_barbSpawnY;
 	kStream << m_barbSpawnCounter;
+	kStream << m_eraNumPlayersEntered;
 
 	m_mapRand.write(kStream);
 	m_jonRand.write(kStream);
@@ -10903,6 +10913,93 @@ void CvGame::addPlayer(PlayerTypes eNewPlayer, LeaderHeadTypes eLeader, Civiliza
 	CvPreGame::setSlotStatus(eNewPlayer, SS_COMPUTER);
 	CvPreGame::setPlayerColor(eNewPlayer, eColor);
 	GET_PLAYER(eNewPlayer).init(eNewPlayer);
+}
+struct CardsOfGenre
+{
+	CardsOfGenre(TradingCardGenres)
+	{
+		idx = 0;
+		possibilities = std::vector<int>();
+	}
+	TradingCardTypes getNext()
+	{
+		int val = possibilities[idx];
+		idx++;
+		idx = idx % possibilities.size();
+		return (TradingCardTypes)val;
+	}
+	void add(TradingCardTypes p)
+	{
+		possibilities.push_back((int)p);
+	}
+	void shuffle(unsigned short seed)
+	{
+		shuffleVector(&possibilities, seed);
+	}
+private:
+	std::vector<int> possibilities;
+	int idx;
+};
+void CvGame::onPlayerEnteredEra(PlayerTypes, EraTypes eEra)
+{
+	// first player entered
+	if (m_eraNumPlayersEntered[eEra] == 0)
+	{
+		// map genre > cards of that genre
+		std::vector<std::vector<CardsOfGenre>> eras;
+		for (int cardId = 0; cardId < GC.getNumPolicyInfos(); ++cardId)
+		{
+			if (TradingCard::IsCard(cardId))
+			{
+				int era = TradingCard::Era(cardId);
+				while ((int)eras.size() < (era + 1)) // ensure capacity
+				{
+					eras.push_back(std::vector<CardsOfGenre>());
+				}
+				std::vector<CardsOfGenre>& genres = eras[era];
+				int genre = TradingCard::Genre(cardId);
+				while ((int)genres.size() < (genre + 1)) // the 0 genre needs 1 entry
+				{
+					genres.push_back(TradingCardGenres(genre));
+				}
+				genres[genre].add((TradingCardTypes)cardId);
+			}
+		}
+		// shuffle each genre in each era
+		for (int e = 0; e < (int)eras.size(); ++e)
+		{
+			std::vector<CardsOfGenre>& genres = eras[e];
+			for (int i = 0; i < (int)genres.size(); ++i)
+			{
+				genres[i].shuffle(698 * (1 + i));
+			}
+		}
+
+		// make sure we hand out enough cards
+		std::vector<CardsOfGenre>& genres = eras[eEra];
+		const int minCards = 3;		
+		const int numHandoutsNeeded = GC.ceilDiv(minCards, (int)genres.size());
+		for (int i = 0; i < numHandoutsNeeded; ++i)
+		{
+			// to each player
+			for (int i = 0; i < MAX_CIV_PLAYERS; i++)
+			{
+				const PlayerTypes eLoop = (PlayerTypes)i;
+
+				CvPlayer& rPlayer = GET_PLAYER(eLoop);
+				if (rPlayer.CardsCanHave())
+				{
+					// hand 1 card of each genre
+					for (int genre = 0; genre < (int)genres.size(); ++genre)
+					{
+						TradingCardTypes randomEraCardId = genres[genre].getNext();
+						rPlayer.CardsAdd(randomEraCardId);
+					}
+				}
+			}
+		}
+	}
+	m_eraNumPlayersEntered[eEra] += 1;
 }
 
 //	--------------------------------------------------------------------------------
@@ -11898,7 +11995,7 @@ void CvGame::BuildCannotPerformActionHelpText(CvString* toolTipSink, const char*
 //	--------------------------------------------------------------------------------
 void CvGame::LogGameState(bool bLogHeaders)
 {
-	if(GC.getLogging() && GC.getAILogging())
+	//if(GC.getLogging() && GC.getAILogging())
 	{
 		CvString strOutput;
 

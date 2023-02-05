@@ -1579,7 +1579,7 @@ function OnCityViewUpdate()
 		-------------------------------------------
 
 		local turnsTill = pCity:GetTurnsTillCanDoMajorTask();
-		local turnsRemainStr = Locale.ConvertTextKey("TXT_KEY_CITYVIEW_MAJORTASK_LIMIT", 3, turnsTill);
+		local turnsRemainStr = Locale.ConvertTextKey("TXT_KEY_CITYVIEW_MAJORTASK_LIMIT", "a few", turnsTill);
 
 		-- possibly disable Razing/Unrazing
 		local canRazeWithCapitalConsideration = pPlayer:CanRaze(pCity, false);
