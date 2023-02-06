@@ -9956,16 +9956,7 @@ bool CvUnit::blastTourism()
 
 	// Apply lesser amount to other civs
 	int iTourismBlastOthers = iTourismBlast * iTourismBlastPercentOthers / 100;
-	PlayerTypes eLoopPlayer;
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-		if (eLoopPlayer != eOwner && eLoopPlayer != getOwner() && kUnitOwner.GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
-		{
-			kUnitOwner.GetCulture()->ChangeInfluenceOn(eLoopPlayer, iTourismBlastOthers);
-		}
-	}
+	kUnitOwner.AddOneShotTourism(iTourismBlastOthers);
 
 	if(pPlot->isActiveVisible(false))
 	{

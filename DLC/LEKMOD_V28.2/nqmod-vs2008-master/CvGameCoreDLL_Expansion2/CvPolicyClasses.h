@@ -48,6 +48,7 @@ public:
 	int GetCultureFromBarbarianKills() const;
 	int GetGoldFromKills() const;
 	int GetScienceFromKills() const; // NQMP GJS - Honor Finisher
+	int GetYieldFromKills(YieldTypes yield) const;
 	int GetEmbarkedExtraMoves() const;
 	int GetAttackBonusTurns() const;
 	int GetGoldenAgeTurns() const;
@@ -339,6 +340,14 @@ private:
 	int m_iCultureFromBarbarianKills;
 	int m_iGoldFromKills;
 	int m_iScienceFromKills; // NQMP GJS - Honor Finisher
+
+	int m_iFaithFromKills;
+	int m_iGoldenAgePointsFromKills;
+
+	int m_iTourismFromKills;
+	int m_iScientificInsightFromKills;
+	int m_iDiplomaticSupportFromKills;
+
 	int m_iEmbarkedExtraMoves;
 	int m_iAttackBonusTurns;
 	int m_iGoldenAgeTurns;
@@ -715,10 +724,8 @@ enum PolicyModifierType
     POLICYMOD_BUILDING_PRODUCTION_MODIFIER,
     POLICYMOD_FREE_EXPERIENCE,
     POLICYMOD_EXTRA_CULTURE_FROM_IMPROVEMENTS,
-    POLICYMOD_CULTURE_FROM_KILLS,
     POLICYMOD_EMBARKED_EXTRA_MOVES,
     POLICYMOD_CULTURE_FROM_BARBARIAN_KILLS,
-    POLICYMOD_GOLD_FROM_KILLS,
     POLICYMOD_CULTURE_FROM_GARRISON,
     POLICYMOD_UNIT_FREQUENCY_MODIFIER,
     POLICYMOD_TRADE_MISSION_GOLD_MODIFIER,
@@ -788,7 +795,6 @@ enum PolicyModifierType
     POLICYMOD_SHARED_RELIGION_TOURISM_MODIFIER,
     POLICYMOD_TRADE_ROUTE_TOURISM_MODIFIER,
 	POLICYMOD_OPEN_BORDERS_TOURISM_MODIFIER,
-	POLICYMOD_SCIENCE_FROM_KILLS, // NQMP GJS - Honor Finisher
 	POLICYMOD_MINOR_MILITARY_NUM_EXTRA_UNITS_TO_GIFT, // NQMP GJS - Patronage Finisher
 	POLICYMOD_CITY_STATE_BONUS_MODIFIER, // NQMP GJS - Patronage Finisher
 	POLICYMOD_EXTRA_TERRITORY_CLAIM, // NQMP GJS - Colonialism
@@ -802,6 +808,7 @@ enum PolicyModifierType
 	POLICYMOD_IDEOLOGY_PRESSURE_UNHAPPINESS_MODIFIER,
 #endif
 	POLICYMOD_INTERNAL_TRADE_GOLD_CHANGE, // NQMP GJS - Silk Road
+	POLICYMOD_YIELD_FROM_KILLS,
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -839,7 +846,7 @@ public:
 	CvPolicyXMLEntries* GetPolicies() const;
 
 	// Functions to return benefits from policies
-	int GetNumericModifier(PolicyModifierType eType);
+	int GetNumericModifier(PolicyModifierType eType, int arg2 = 0);
 	int GetYieldModifier(YieldTypes eYieldType);
 	int GetBuildingClassYieldModifier(BuildingClassTypes eBuildingClass, YieldTypes eYieldType);
 	int GetBuildingClassYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYieldType);

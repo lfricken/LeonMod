@@ -37,6 +37,11 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iCultureFromBarbarianKills(0),
 	m_iGoldFromKills(0),
 	m_iScienceFromKills(0), // NQMP GJS - Honor Finisher
+	m_iFaithFromKills(0),
+	m_iGoldenAgePointsFromKills(0),
+	m_iTourismFromKills(0),
+	m_iScientificInsightFromKills(0),
+	m_iDiplomaticSupportFromKills(0),
 	m_iEmbarkedExtraMoves(0),
 	m_iAttackBonusTurns(0),
 	m_iGoldenAgeTurns(0),
@@ -369,6 +374,13 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iCultureFromBarbarianKills = kResults.GetInt("CultureFromBarbarianKills");
 	m_iGoldFromKills = kResults.GetInt("GoldFromKills");
 	m_iScienceFromKills = kResults.GetInt("ScienceFromKills"); // NQMP GJS - Honor Finisher
+
+	m_iFaithFromKills = kResults.GetInt("FaithFromKills");
+	m_iGoldenAgePointsFromKills = kResults.GetInt("GoldenAgePointsFromKills");
+	m_iScientificInsightFromKills = kResults.GetInt("ScientificInsightFromKills");
+	m_iDiplomaticSupportFromKills = kResults.GetInt("DiplomaticSupportFromKills");
+	m_iTourismFromKills = kResults.GetInt("TourismFromKills");
+
 	m_iEmbarkedExtraMoves = kResults.GetInt("EmbarkedExtraMoves");
 	m_iAttackBonusTurns = kResults.GetInt("AttackBonusTurns");
 	m_iGoldenAgeTurns = kResults.GetInt("GoldenAgeTurns");
@@ -955,8 +967,32 @@ int CvPolicyEntry::GetScienceFromKills() const
 {
 	return m_iScienceFromKills;
 }
-// NQMP GJS - Honor Finisher end
+int CvPolicyEntry::GetYieldFromKills(YieldTypes yield) const
+{
+	switch (yield)
+	{
+	case YIELD_GOLD:
+		return GetGoldFromKills();
+	case YIELD_CULTURE:
+		return GetCultureFromKills();
+	case YIELD_SCIENCE:
+		return GetScienceFromKills();
 
+	case YIELD_FAITH:
+		return m_iFaithFromKills;
+	case YIELD_GOLDEN:
+		return m_iGoldenAgePointsFromKills;
+
+	case YIELD_SCIENTIFIC_INSIGHT:
+		return m_iScientificInsightFromKills;
+	case YIELD_DIPLOMATIC_SUPPORT:
+		return m_iDiplomaticSupportFromKills;
+	case YIELD_TOURISM:
+		return m_iTourismFromKills;
+	default: return 0;
+	}
+	return 0;
+}
 /// Extra moves for embarked units
 int CvPolicyEntry::GetEmbarkedExtraMoves() const
 {
@@ -2996,7 +3032,7 @@ CvPolicyXMLEntries* CvPlayerPolicies::GetPolicies() const
 }
 
 /// Get numeric modifier by adding up its value from all purchased policies
-int CvPlayerPolicies::GetNumericModifier(PolicyModifierType eType)
+int CvPlayerPolicies::GetNumericModifier(PolicyModifierType eType, int arg2)
 {
 	int rtnValue = 0;
 
@@ -3057,21 +3093,14 @@ int CvPlayerPolicies::GetNumericModifier(PolicyModifierType eType)
 			case POLICYMOD_EXTRA_CULTURE_FROM_IMPROVEMENTS:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetCultureImprovementChange();
 				break;
-			case POLICYMOD_CULTURE_FROM_KILLS:
-				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetCultureFromKills();
-				break;
 			case POLICYMOD_EMBARKED_EXTRA_MOVES:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetEmbarkedExtraMoves();
 				break;
 			case POLICYMOD_CULTURE_FROM_BARBARIAN_KILLS:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetCultureFromBarbarianKills();
 				break;
-			case POLICYMOD_GOLD_FROM_KILLS:
-				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetGoldFromKills();
-				break;
-			// NQMP GJS - Honor Finisher
-			case POLICYMOD_SCIENCE_FROM_KILLS:
-				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetScienceFromKills();
+			case POLICYMOD_YIELD_FROM_KILLS:
+				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetYieldFromKills((YieldTypes)arg2);
 				break;
 			// NQMP GJS - Honor Finisher end
 			case POLICYMOD_CULTURE_FROM_GARRISON:

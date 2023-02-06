@@ -264,6 +264,10 @@ public:
 	void ChangeScientificInfluence(const int iChange);
 	// how much needed to achieve condition
 	int GetScientificInfluenceNeeded() const;
+	// see ChangeYield instead
+	void AddOneShotTourism(int amount);
+
+	void ChangeYield(YieldTypes type, int amount);
 
 	T100 GetCompetitionHammersT100(const HammerCompetitionTypes eType) const;
 	void ChangeCompetitionHammersT100(const HammerCompetitionTypes eType, const long long iChangeT100);
