@@ -6274,6 +6274,50 @@ int CvPlayer::GetScientificInfluenceNeeded() const
 	targetValue -= (targetValue * GC.getGame().GetVpAdjustment()) / 1000;
 	return targetValue;
 }
+void CvPlayer::AddOneShotTourism(int tourismBlast)
+{
+	tourismBlast = abs(tourismBlast);
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		const PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+		if (eLoopPlayer != GetID() && GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
+		{
+			GetCulture()->ChangeInfluenceOn(eLoopPlayer, +tourismBlast);
+		}
+	}
+}
+void CvPlayer::ChangeYield(YieldTypes type, int amount)
+{
+	switch (type)
+	{
+	case YIELD_GOLD:
+		GetTreasury()->ChangeGold(amount);
+		break;
+
+	case YIELD_CULTURE:
+		changeJONSCulture(amount);
+		break;
+	case YIELD_SCIENCE:
+		changeOverflowResearch(amount);
+		break;
+	case YIELD_FAITH:
+		ChangeFaith(amount);
+		break;
+
+	case YIELD_GOLDEN:
+		ChangeGoldenAgeProgressMeter(amount);
+
+	case YIELD_TOURISM:
+		AddOneShotTourism(amount);
+		break;
+	case YIELD_DIPLOMATIC_SUPPORT:
+		ChangeDiplomaticInfluence(amount);
+		break;
+	case YIELD_SCIENTIFIC_INSIGHT:
+		ChangeScientificInfluence(amount);
+		break;
+	}
+}
 T100 CvPlayer::GetCompetitionHammersT100(const HammerCompetitionTypes eType) const
 {
 	if (eType < 0 || eType >= (int)m_competitionT100.size())
@@ -11496,18 +11540,8 @@ void CvPlayer::DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitT
 
 			switch(eYield)
 			{
-			case YIELD_FOOD:
-			case YIELD_PRODUCTION:
-				// Not supported, local to a city
-				return;
-
-			case YIELD_GOLD:
-				iPolicyValue += GetPlayerPolicies()->GetNumericModifier(POLICYMOD_GOLD_FROM_KILLS);
-				break;
-
 			case YIELD_CULTURE:
 				iTraitValue += GetPlayerTraits()->GetCultureFromKills();
-				iPolicyValue += GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_KILLS);
 
 				// Do we get it for barbarians?
 				if(bWasBarbarian)
@@ -11518,16 +11552,16 @@ void CvPlayer::DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitT
 
 			case YIELD_FAITH:
 				iTraitValue += GetPlayerTraits()->GetFaithFromKills();
-
 				if (eYield == YIELD_FAITH && (GC.getGame().isOption(GAMEOPTION_NO_RELIGION)))
 				{
 					return;
 				}
 				break;
-			case YIELD_SCIENCE:
-				iPolicyValue += GetPlayerPolicies()->GetNumericModifier(POLICYMOD_SCIENCE_FROM_KILLS); // NQMP GJS - Honor Finisher
-				break;
 			}
+
+			iPolicyValue += GetPlayerPolicies()->GetNumericModifier(POLICYMOD_YIELD_FROM_KILLS, eYield);
+			
+
 
 			iBeliefValue += GC.getGame().GetGameReligions()->GetBeliefYieldForKill(eYield, iX, iY, GetID());
 
@@ -11547,31 +11581,9 @@ void CvPlayer::DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitT
 			iOtherValue = (iOtherValue * iCombatStrength) / 100;
 			int iTotalValue = iPolicyValue + iTraitValue + iBeliefValue + iOtherValue;
 
-			if(iTotalValue > 0)
+			if(iTotalValue != 0)
 			{
-				switch(eYield)
-				{
-				case YIELD_GOLD:
-					GetTreasury()->ChangeGold(iTotalValue);
-					break;
-				case YIELD_CULTURE:
-					changeJONSCulture(iTotalValue);
-					break;
-				case YIELD_FAITH:
-					ChangeFaith(iTotalValue);
-					break;
-				case YIELD_SCIENCE:
-					TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
-					if(eCurrentTech == NO_TECH)
-					{
-						changeOverflowResearch(iTotalValue);
-					}
-					else
-					{
-						GET_TEAM(getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iTotalValue, GetID());
-					}
-					break;
-				}
+				ChangeYield(eYield, iTotalValue);
 				iNumBonuses++;
 				ReportYieldFromKill(eYield, iTotalValue, iX, iY, iNumBonuses);
 			}
@@ -11638,16 +11650,31 @@ void CvPlayer::ReportYieldFromKill(YieldTypes eYield, int iValue, int iX, int iY
 		switch(eYield)
 		{
 		case YIELD_GOLD:
-			yieldString = "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]";
+			yieldString = "TXT_KEY_CULTURE_POPUP";
 			break;
+
 		case YIELD_CULTURE:
-			yieldString = "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]";
+			yieldString = "TXT_KEY_GOLD_POPUP";
 			break;
 		case YIELD_FAITH:
-			yieldString = "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]";
+			yieldString = "TXT_KEY_FAITH_POPUP";
 			break;
 		case YIELD_SCIENCE:
-			yieldString = "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]";
+			yieldString = "TXT_KEY_SCIENCE_POPUP";
+			break;
+
+		case YIELD_GOLDEN:
+			yieldString = "TXT_KEY_GOLDEN_AGE_POPUP";
+			break;
+
+		case YIELD_SCIENTIFIC_INSIGHT:
+			yieldString = "TXT_KEY_SCIENTIFIC_INSIGHT_POPUP";
+			break;
+		case YIELD_DIPLOMATIC_SUPPORT:
+			yieldString = "TXT_KEY_DIPLOMATIC_SUPPORT_POPUP";
+			break;
+		case YIELD_TOURISM:
+			yieldString = "TXT_KEY_CULTURAL_INFLUENCE_POPUP";
 			break;
 		default:
 			// Not supported
@@ -11656,10 +11683,10 @@ void CvPlayer::ReportYieldFromKill(YieldTypes eYield, int iValue, int iX, int iY
 
 		if(GetID() == GC.getGame().getActivePlayer())
 		{
-			char text[256] = {0};
-			int delayT100 = GC.getPOST_COMBAT_TEXT_DELAYT100() * (100 + (iDelay * 50)) / 100; // 1 is added to avoid overlapping with XP text
-			sprintf_s(text, yieldString, iValue);
-			GC.GetEngineUserInterface()->AddPopupText(iX, iY, text, delayT100 / f100);
+			CvString localized = GetLocalizedText(yieldString, iValue);
+			// 1 is added to avoid overlapping with XP text
+			int delayT100 = GC.getPOST_COMBAT_TEXT_DELAYT100() * (100 + (iDelay * 50)) / 100;
+			GC.GetEngineUserInterface()->AddPopupText(iX, iY, localized, delayT100 / f100);
 		}
 	}
 }
