@@ -544,7 +544,7 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 			        kMissionData.eMissionType == CvTypes::getMISSION_DISEMBARK())
 			{
 				stringstream s;
-				s << "Mission:ContinueMission " << kMissionData.iData1 << " " << kMissionData.iData2;
+				s << "Mission:ContinueMission " << hUnit->getOwner() << " " << hUnit->GetID() << " " << kMissionData.iData1 << " " << kMissionData.iData2;
 				GC.debugState(s); // CvUnitMission::ContinueMission
 				if(hUnit->getDomainType() == DOMAIN_AIR)
 				{

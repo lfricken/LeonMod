@@ -749,8 +749,11 @@ public:
 	int changeDamage(int iChange, PlayerTypes ePlayer = NO_PLAYER, decimal fAdditionalTextDelay = 0, const CvString* pAppendText = NULL);
 	static void ShowDamageDeltaText(int iDelta, CvPlot* pkPlot, decimal fAdditionalTextDelay = 0, const CvString* pAppendText = NULL);
 
+	// moves are multiplied by GC.getMOVE_DENOMINATOR, so 2 moves actually returns as 120 (probably)
 	int getMoves() const;
+	// moves are multiplied by GC.getMOVE_DENOMINATOR, so 2 moves actually returns as 120 (probably)
 	void setMoves(int iNewValue);
+	// moves are multiplied by GC.getMOVE_DENOMINATOR, so 2 moves actually returns as 120 (probably)
 	void changeMoves(int iChange);
 	void finishMoves();
 

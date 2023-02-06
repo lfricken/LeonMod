@@ -16039,18 +16039,16 @@ int CvUnit::changeDamage(int iChange, PlayerTypes ePlayer, decimal fAdditionalTe
 }
 
 
-//	--------------------------------------------------------------------------------
+// moves are multiplied by GC.getMOVE_DENOMINATOR, so 2 moves actually returns as 120 (probably)
 int CvUnit::getMoves() const
 {
 	VALIDATE_OBJECT
 
 	if (isBarbarian()) // barbarian units only get 1 move per turn
-		return min(1, m_iMoves.get());
+		return min(2 * GC.getMOVE_DENOMINATOR(), m_iMoves.get());
 	return m_iMoves;
 }
-
-
-//	--------------------------------------------------------------------------------
+// moves are multiplied by GC.getMOVE_DENOMINATOR, so 2 moves actually returns as 120 (probably)
 void CvUnit::setMoves(int iNewValue)
 {
 	VALIDATE_OBJECT
@@ -16082,9 +16080,7 @@ void CvUnit::setMoves(int iNewValue)
 		}
 	}
 }
-
-
-//	--------------------------------------------------------------------------------
+// moves are multiplied by GC.getMOVE_DENOMINATOR, so 2 moves actually returns as 120 (probably)
 void CvUnit::changeMoves(int iChange)
 {
 	VALIDATE_OBJECT
@@ -22335,6 +22331,10 @@ void CvUnit::AutoMission()
 void CvUnit::UpdateMission()
 {
 	VALIDATE_OBJECT
+
+	stringstream s;
+	s << "CvUnit:UpdateMission " << getOwner() << " " << GetID();
+	GC.debugState(s); // CvPlayer::UpdateMission
 	CvUnitMission::UpdateMission(m_thisHandle);
 }
 
