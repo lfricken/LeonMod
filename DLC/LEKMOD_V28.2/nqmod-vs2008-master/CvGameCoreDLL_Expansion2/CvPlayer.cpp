@@ -5578,6 +5578,9 @@ void CvPlayer::updateTimers()
 	CvUnit* pLoopUnit;
 	int iLoop;
 	m_endTurnBusyUnitUpdatesLeft--;
+	stringstream s;
+	s << "player:updateTimers " << GetID();
+	GC.debugState(s); // CvPlayer::updateTimers
 	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 	{
 		pLoopUnit->UpdateMission();

@@ -22335,6 +22335,10 @@ void CvUnit::AutoMission()
 void CvUnit::UpdateMission()
 {
 	VALIDATE_OBJECT
+
+	stringstream s;
+	s << "CvUnit:UpdateMission " << getOwner() << " " << GetID();
+	GC.debugState(s); // CvPlayer::UpdateMission
 	CvUnitMission::UpdateMission(m_thisHandle);
 }
 
