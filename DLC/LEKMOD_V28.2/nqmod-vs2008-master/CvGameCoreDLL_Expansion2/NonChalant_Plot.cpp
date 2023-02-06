@@ -587,7 +587,7 @@ int CvPlot::getExtraYield
 				const bool hasDivineCreation = player.HasPolicy("POLICY_CARD_ANCIENT_RESOURCES_DIVINE_CREATION_PASSIVE");
 				const bool isNaturalWonder = plot.HasAnyNaturalWonder();
 				if (eYieldType == YIELD_CULTURE && hasDivineCreation && isNaturalWonder)
-					yieldChange += 2;
+					yieldChange += 4;
 				if (eYieldType == YIELD_FAITH && hasDivineCreation && isNaturalWonder)
 					yieldChange += 4;
 			}
