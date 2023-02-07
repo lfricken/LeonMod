@@ -146,7 +146,7 @@ int CvPlayer::GetExtraYieldForBuilding
 		const bool hasFuturism = player.HasPolicy("POLICY_FUTURISM");
 		const bool isCourthouse = eBuildingClass == BuildingClass("BUILDINGCLASS_COURTHOUSE");
 		if (eYieldType == YIELD_SCIENTIFIC_INSIGHT && !isPercentMod && hasFuturism && isCourthouse)
-			yieldChange += 3;
+			yieldChange += 2;
 	}
 
 	{// POLICY_UNITED_FRONT - gives + 10 diplo points from courthouse
@@ -285,16 +285,20 @@ int CvPlayer::GetExtraYieldForBuilding
 	}
 
 	{// BUILDINGCLASS_STATUE_OF_LIBERTY grants +10% FD to every Granary
-		const bool isGranry = eBuildingClass == BuildingClass("BUILDINGCLASS_GRANARY");
+		const bool isAqueduct = eBuildingClass == BuildingClass("BUILDINGCLASS_AQUEDUCT");
+		const bool isWatermill = eBuildingClass == BuildingClass("BUILDINGCLASS_WATERMILL");
+		const bool isGrocer = eBuildingClass == BuildingClass("BUILDINGCLASS_GROCER");
 		const bool hasStatueOfLiberty = player.HasWonder(BuildingClass("BUILDINGCLASS_STATUE_OF_LIBERTY"));
-		if (eYieldType == YIELD_FOOD && isPercentMod && hasStatueOfLiberty && isGranry)
+		if (eYieldType == YIELD_FOOD && isPercentMod && hasStatueOfLiberty && (isAqueduct || isWatermill || isGrocer))
 			yieldChange += 10;
 	}
 
 	{// BUILDINGCLASS_KREMLIN grants +10% PD to every Workshop
 		const bool isWorkshop = eBuildingClass == BuildingClass("BUILDINGCLASS_WORKSHOP");
+		const bool isWindmill = eBuildingClass == BuildingClass("BUILDINGCLASS_WINDMILL");
+		const bool isForge = eBuildingClass == BuildingClass("BUILDINGCLASS_FORGE");
 		const bool hasKremlin = player.HasWonder(BuildingClass("BUILDINGCLASS_KREMLIN"));
-		if (eYieldType == YIELD_PRODUCTION && isPercentMod && hasKremlin && isWorkshop)
+		if (eYieldType == YIELD_PRODUCTION && isPercentMod && hasKremlin && (isWorkshop || isWindmill  || isForge))
 			yieldChange += 10;
 	}
 
@@ -322,7 +326,15 @@ int CvPlayer::GetExtraYieldForBuilding
 			yieldChange += 1;
 	}
 
-	{// POLICY_CARD_ANCIENT_BUILDINGS_DRUIDS_PASSIVE grants +1C +1PD to Walls, Castles, Arsenals, and Military Bases to Prussia
+	{// POLICY_SOVEREIGNTY grants +1Insight for every 2 Research Labs
+		const bool hasSovereignty = player.HasPolicy("POLICY_SOVEREIGNTY"); 
+		const bool isPalace = eBuildingClass == BuildingClass("BUILDINGCLASS_PALACE");		
+		int numResearchLab = player.countNumBuildingClasses(BuildingClassTypes(45));
+		if (eYieldType == YIELD_SCIENTIFIC_INSIGHT && !isPercentMod && hasSovereignty && isPalace)
+			yieldChange += numResearchLab / 2;
+	}
+
+	{// CARD_ANCIENT_BUILDINGS_DRUIDS_PASSIVE grants +1C +1PD to Walls, Castles, Arsenals, and Military Bases to Prussia
 		const bool hasDruidsCard = player.HasPolicy("POLICY_CARD_ANCIENT_BUILDINGS_DRUIDS_PASSIVE");
 		const bool isShrine = eBuildingClass == BuildingClass("BUILDINGCLASS_SHRINE");		
 		if (eYieldType == YIELD_FAITH && !isPercentMod && hasDruidsCard && isShrine)
@@ -331,14 +343,14 @@ int CvPlayer::GetExtraYieldForBuilding
 			yieldChange -= 1;		
 	}
 
-	{// POLICY_CARD_ANCIENT_BUILDINGS_HARBORMASTER_PASSIVE grants -2 Maintenance to Harbors
+	{// CARD_ANCIENT_BUILDINGS_HARBORMASTER_PASSIVE grants -2 Maintenance to Harbors
 		const bool hasHarbormasterCard = player.HasPolicy("POLICY_CARD_ANCIENT_BUILDINGS_HARBORMASTER_PASSIVE");
 		const bool isHarbor = eBuildingClass == BuildingClass("BUILDINGCLASS_HARBOR");		
 		if (eYieldType == YIELD_MAINTENANCE && !isPercentMod && hasHarbormasterCard && isHarbor)
 			yieldChange -= 2;
 	}
 
-	{// POLICY_CARD_CLASSICAL_BUILDINGS_GLADIATOR_GAMES_PASSIVE grants +2 Maintenance to Colloseums
+	{// CARD_CLASSICAL_BUILDINGS_GLADIATOR_GAMES_PASSIVE grants +2 Maintenance to Colloseums
 		const bool hasGladitorGamesCard = player.HasPolicy("POLICY_CARD_CLASSICAL_BUILDINGS_GLADIATOR_GAMES_PASSIVE");
 		const bool isColloseum = eBuildingClass == BuildingClass("BUILDINGCLASS_COLOSSEUM");
 		if (eYieldType == YIELD_MAINTENANCE && !isPercentMod && hasGladitorGamesCard && isColloseum)
@@ -400,9 +412,11 @@ int CvPlayer::GetExtraYieldForBuilding
 
 	{// CARD_INDUSTRIAL_BUILDINGS_OFFICER_TRAINING - +1 insight to military academies
 		const bool hasOfficerCard = player.HasPolicy("POLICY_CARD_INDUSTRIAL_BUILDINGS_OFFICER_TRAINING_PASSIVE");
-		const bool isMilitaryAcademy = eBuildingClass == BuildingClass("BUILDINGCLASS_MILITARY_ACADEMY");		
-		if (eYieldType == YIELD_SCIENTIFIC_INSIGHT && !isPercentMod && hasOfficerCard && isMilitaryAcademy)
-			yieldChange += 1;
+		const bool isMilitaryAcademy = eBuildingClass == BuildingClass("BUILDINGCLASS_MILITARY_ACADEMY");
+		const bool isPalace = eBuildingClass == BuildingClass("BUILDINGCLASS_PALACE");
+		const bool numMilitaryAcademies = player.countNumBuildingClasses(BuildingClassTypes(27));
+		if (eYieldType == YIELD_SCIENTIFIC_INSIGHT && !isPercentMod && hasOfficerCard && isPalace)
+			yieldChange += numMilitaryAcademies / 2;
 	}
 
 	{// CARD_INDUSTRIAL_BUILDINGS_WALLSTREET - +25% G 5% Pd stock exchanges

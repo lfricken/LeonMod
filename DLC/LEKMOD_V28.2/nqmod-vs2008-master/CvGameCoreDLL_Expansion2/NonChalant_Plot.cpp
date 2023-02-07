@@ -342,7 +342,7 @@ int CvPlot::getExtraYield
 				const bool hasSpaceProcurement = player.HasPolicy("POLICY_SPACE_PROCUREMENTS");
 				const bool isAcadamy = plot.HasImprovement("IMPROVEMENT_ACADEMY");
 				if (eYieldType == YIELD_SCIENTIFIC_INSIGHT && hasSpaceProcurement && isAcadamy)
-					yieldChange += 3;
+					yieldChange += 2;
 			}
 
 			{// POLICY_NEW_ORDER - gives +3 tourism, culture, diplo points, gold to citadels
@@ -742,7 +742,7 @@ int CvPlot::getExtraYield
 				if (eYieldType == YIELD_CULTURE && hasJohnJaobAstorCard && isFursEtc)
 					yieldChange += 1;
 				if (eYieldType == YIELD_GOLD && hasJohnJaobAstorCard && isFursEtc)
-					yieldChange += 1;				
+					yieldChange += 2;				
 			}
 
 			{// CARD_INDUSTRIAL_RESOURCES_HYDRAULIC_FRACKING - +5 PD to Oil Wells
