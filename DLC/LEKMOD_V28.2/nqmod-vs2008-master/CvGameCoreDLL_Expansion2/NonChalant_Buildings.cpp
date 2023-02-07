@@ -410,7 +410,7 @@ int CvPlayer::GetExtraYieldForBuilding
 			yieldChange += 1;
 	}
 
-	{// CARD_INDUSTRIAL_BUILDINGS_OFFICER_TRAINING - +1 insight to military academies
+	{// CARD_INDUSTRIAL_BUILDINGS_OFFICER_TRAINING - +1/2 insight to military academies
 		const bool hasOfficerCard = player.HasPolicy("POLICY_CARD_INDUSTRIAL_BUILDINGS_OFFICER_TRAINING_PASSIVE");
 		const bool isMilitaryAcademy = eBuildingClass == BuildingClass("BUILDINGCLASS_MILITARY_ACADEMY");
 		const bool isPalace = eBuildingClass == BuildingClass("BUILDINGCLASS_PALACE");
@@ -445,10 +445,39 @@ int CvPlayer::GetExtraYieldForBuilding
 	}
 
 	{// CARD_MODERN_RESOURCES_THOMAS_DOOLITTLE - +2T to Broadcast Towers
-		const bool hasThomsDoolittleard = player.HasPolicy("POLICY_CARD_MODERN_RESOURCES_THOMAS_DOOLITTLE_PASSIVE");
+		const bool hasThomsDoolittleCard = player.HasPolicy("POLICY_CARD_MODERN_RESOURCES_THOMAS_DOOLITTLE_PASSIVE");
 		const bool isBroadcastTower = eBuildingClass == BuildingClass("BUILDINGCLASS_BROADCAST_TOWER");		
-		if (eYieldType == YIELD_TOURISM && !isPercentMod && hasThomsDoolittleard && isBroadcastTower)
+		if (eYieldType == YIELD_TOURISM && !isPercentMod && hasThomsDoolittleCard && isBroadcastTower)
 			yieldChange += 2;
+	}
+
+	{// CARD_MODERN_BUILDINGS_WORLD_CUP - +2T to Stadiums
+		const bool hasWorldCupCard = player.HasPolicy("POLICY_CARD_MODERN_RESOURCES_THOMAS_DOOLITTLE_PASSIVE");
+		const bool isStadium = eBuildingClass == BuildingClass("BUILDINGCLASS_BROADCAST_TOWER");
+		if (eYieldType == YIELD_TOURISM && !isPercentMod && hasWorldCupCard && isStadium)
+			yieldChange += 2;
+	}	
+
+	{// CARD_MODERN_BUILDINGS_FIRESIDE_CHATS - +2T to Broadcast Towers
+		const bool hasFiresideChatsCard = player.HasPolicy("POLICY_CARD_MODERN_BUILDINGS_FIRESIDE_CHATS_PASSIVE");
+		const bool isBroadcastTower = eBuildingClass == BuildingClass("BUILDINGCLASS_BROADCAST_TOWER");
+		if (eYieldType == YIELD_TOURISM && !isPercentMod && hasFiresideChatsCard && isBroadcastTower)
+			yieldChange += 2;
+	}
+
+	{// CARD_MODERN_BUILDINGS_NEW_DEHLI - +5T to Grand Monument
+		const bool hasNewDehliCard = player.HasPolicy("POLICY_CARD_MODERN_BUILDINGS_NEW_DEHLI_PASSIVE");
+		const bool isGrandMonument = eBuildingClass == BuildingClass("BUILDINGCLASS_GRAND_MONUMENT");
+		if (eYieldType == YIELD_TOURISM && !isPercentMod && hasNewDehliCard && isGrandMonument)
+			yieldChange += 5;
+	}
+
+	{// CARD_MODERN_BUILDINGS_ANESTHESIA - +1/2 insight to Medical Labs
+		const bool hasAnesthesiaCard = player.HasPolicy("POLICY_CARD_MODERN_BUILDINGS_ANESTHESIA_PASSIVE");		
+		const bool isPalace = eBuildingClass == BuildingClass("BUILDINGCLASS_PALACE");
+		const bool numMedicalLabs = player.countNumBuildingClasses(BuildingClassTypes(34));
+		if (eYieldType == YIELD_SCIENTIFIC_INSIGHT && !isPercentMod && hasAnesthesiaCard && isPalace)
+			yieldChange += numMedicalLabs / 2;
 	}
 
 
