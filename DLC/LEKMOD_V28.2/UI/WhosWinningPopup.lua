@@ -88,6 +88,7 @@ function OnPopup( popupInfo )
 	local bInvalid = false;
 	
 	-- Keep rolling until we get a new mode
+	local rollCount = 0; -- prevent infinite loop
 	while iRand == g_iLastListMode or bInvalid do
 		bInvalid = false;
 		
@@ -98,6 +99,8 @@ function OnPopup( popupInfo )
 			bInvalid = true;
 		end
 		
+		rollCount = rollCount + 1;
+		if (rollCount > 30) then break; end
 	end
 	
 	g_iListMode = iRand;
