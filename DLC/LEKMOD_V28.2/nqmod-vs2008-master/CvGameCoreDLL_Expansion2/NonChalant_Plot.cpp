@@ -703,6 +703,65 @@ int CvPlot::getExtraYield
 				if (eYieldType == YIELD_GOLD && hasTriangularTradeCard && isTriangularResource)
 					yieldChange += 1;
 			}
+
+			{// CARD_INDUSTRIAL_RESOURCES_GREAT_AWAKENING - +5 FH, +3 C Holy Sites
+				const bool hasGreatAwakeningCard = player.HasPolicy("POLICY_CARD_INDUSTRIAL_RESOURCES_GREAT_AWAKENING_PASSIVE");
+				const bool isHolySite = plot.HasImprovement("IMPROVEMENT_HOLY_SITE");					
+				if (eYieldType == YIELD_FAITH && hasGreatAwakeningCard && isHolySite)
+					yieldChange += 5;
+				if (eYieldType == YIELD_CULTURE && hasGreatAwakeningCard && isHolySite)
+					yieldChange += 3;				
+			}
+
+			{// CARD_INDUSTRIAL_RESOURCES_WAR_MEMORIALS - +5 GD +3 C +3 T Citadels
+				const bool hasWarMemorialsCard = player.HasPolicy("POLICY_CARD_INDUSTRIAL_RESOURCES_WAR_MEMORIALS_PASSIVE");
+				const bool isCitadel = plot.HasImprovement("IMPROVEMENT_CITADEL");
+				if (eYieldType == YIELD_GOLD && hasWarMemorialsCard && isCitadel)
+					yieldChange += 5;
+				if (eYieldType == YIELD_CULTURE && hasWarMemorialsCard && isCitadel)
+					yieldChange += 3;
+				if (eYieldType == YIELD_TOURISM && hasWarMemorialsCard && isCitadel)
+					yieldChange += 3;
+			}
+
+			{// CARD_INDUSTRIAL_RESOURCES_ASSEMBLY_LINE - +5 PD, +5 GD
+				const bool hasAssemblyLineCard = player.HasPolicy("POLICY_CARD_INDUSTRIAL_RESOURCES_ASSEMBLY_LINE_PASSIVE");
+				const bool isManufactory = plot.HasImprovement("IMPROVEMENT_MANUFACTORY");
+				if (eYieldType == YIELD_PRODUCTION && hasAssemblyLineCard && isManufactory)
+					yieldChange += 5;
+				if (eYieldType == YIELD_GOLD && hasAssemblyLineCard && isManufactory)
+					yieldChange += 5;				
+			}
+
+			{// CARD_INDUSTRIAL_RESOURCES_JOHN_JACOB_ASTOR - +1C  +1 PD, +2 GD to Furs
+				const bool hasJohnJaobAstorCard = player.HasPolicy("POLICY_CARD_INDUSTRIAL_RESOURCES_JOHN_JACOB_ASTOR_PASSIVE");
+				const bool isFursEtc = plot.HasResource("RESOURCE_FURS") || plot.HasResource("RESOURCE_BISON")
+					|| plot.HasResource("RESOURCE_DEER") || plot.HasResource("RESOURCE_SALT");
+				if (eYieldType == YIELD_PRODUCTION && hasJohnJaobAstorCard && isFursEtc)
+					yieldChange += 1;
+				if (eYieldType == YIELD_CULTURE && hasJohnJaobAstorCard && isFursEtc)
+					yieldChange += 1;
+				if (eYieldType == YIELD_GOLD && hasJohnJaobAstorCard && isFursEtc)
+					yieldChange += 1;				
+			}
+
+			{// CARD_INDUSTRIAL_RESOURCES_HYDRAULIC_FRACKING - +5 PD to Oil Wells
+				const bool hasHydraulicFrackingCard = player.HasPolicy("POLICY_CARD_INDUSTRIAL_RESOURCES_HYDRAULIC_FRACKING_PASSIVE");
+				const bool isOilWell = plot.HasImprovement("IMPROVEMENT_WELL");
+				if (eYieldType == YIELD_PRODUCTION && hasHydraulicFrackingCard && isOilWell)
+					yieldChange += 5;				
+			}	
+
+			{// CARD_INDUSTRIAL_BUILDINGS_ELI_WHITNEY - +2 PD +2 G to Cotton
+				const bool hasEliWhitney = player.HasPolicy("POLICY_CARD_INDUSTRIAL_BUILDINGS_ELI_WHITNEY_PASSIVE");
+				const bool isCotton = plot.HasResource("RESOURCE_COTTON");
+				if (eYieldType == YIELD_PRODUCTION && hasEliWhitney && isCotton)
+					yieldChange += 2;
+				if (eYieldType == YIELD_GOLD && hasEliWhitney && isCotton)
+					yieldChange += 2;
+			}
+
+			
 			
 
 		}

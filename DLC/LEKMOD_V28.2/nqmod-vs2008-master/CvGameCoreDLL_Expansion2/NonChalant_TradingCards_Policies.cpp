@@ -150,6 +150,11 @@ bool TradingCard::IsConditionSatisfied(TradingCardTypes type, const CvPlayer* pP
 		int numCastles = player.countNumBuildingClasses(BuildingClassTypes(19));
 		return !(numCastles < 6);
 	}
+	case 216: // POLICY_CARD_INDUSTRIAL_BUILDINGS_PENICILLIN_PASSIVE
+	{
+		int numHospitals = player.countNumBuildingClasses(BuildingClassTypes(33));
+		return !(numHospitals < 4);
+	}
 
 
 	default: return true;

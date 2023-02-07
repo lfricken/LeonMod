@@ -394,9 +394,42 @@ int CvPlayer::GetExtraYieldForBuilding
 		const bool hasCopernicusCard = player.HasPolicy("POLICY_CARD_RENAISSANCE_BUILDINGS_COPERNICUS_OBSERVERATORY_PASSIVE");
 		const bool isObserveratory = eBuildingClass == BuildingClass("BUILDINGCLASS_OBSERVATORY");
 		const bool numObserveratories = player.countNumBuildingClasses(BuildingClassTypes(10));
-		if (eYieldType == YIELD_SCIENTIFIC_INSIGHT && (numObserveratories >= 5) && hasCopernicusCard && isObserveratory)
+		if (eYieldType == YIELD_SCIENTIFIC_INSIGHT && !isPercentMod && (numObserveratories >= 5) && hasCopernicusCard && isObserveratory)
 			yieldChange += 1;
 	}
+
+	{// CARD_INDUSTRIAL_BUILDINGS_OFFICER_TRAINING - +1 insight to military academies
+		const bool hasOfficerCard = player.HasPolicy("POLICY_CARD_INDUSTRIAL_BUILDINGS_OFFICER_TRAINING_PASSIVE");
+		const bool isMilitaryAcademy = eBuildingClass == BuildingClass("BUILDINGCLASS_MILITARY_ACADEMY");		
+		if (eYieldType == YIELD_SCIENTIFIC_INSIGHT && !isPercentMod && hasOfficerCard && isMilitaryAcademy)
+			yieldChange += 1;
+	}
+
+	{// CARD_INDUSTRIAL_BUILDINGS_WALLSTREET - +25% G 5% Pd stock exchanges
+		const bool hasWallStreetCard = player.HasPolicy("POLICY_CARD_INDUSTRIAL_BUILDINGS_WALLSTREET_PASSIVE");
+		const bool isStockExchange = eBuildingClass == BuildingClass("BUILDINGCLASS_STOCK_EXCHANGE");
+		if (eYieldType == YIELD_GOLD && isPercentMod && hasWallStreetCard && isStockExchange)
+			yieldChange += 25;
+		if (eYieldType == YIELD_PRODUCTION && isPercentMod && hasWallStreetCard && isStockExchange)
+			yieldChange += 5;
+	}	
+
+	{// CARD_INDUSTRIAL_BUILDINGS_ELI_WHITNEY - +5% PD Textile Mills
+		const bool hasEliWhitneyCard = player.HasPolicy("POLICY_CARD_INDUSTRIAL_BUILDINGS_ELI_WHITNEY_PASSIVE");
+		const bool isTextileMill = eBuildingClass == BuildingClass("BUILDINGCLASS_TEXTILE");
+		if (eYieldType == YIELD_PRODUCTION && isPercentMod && hasEliWhitneyCard && isTextileMill)
+			yieldChange += 5;
+	}
+
+	{// CARD_INDUSTRIAL_BUILDINGS_IMPRESSIONALISM - +2C +2T to Mueseums
+		const bool hasImpressionalismCard = player.HasPolicy("POLICY_CARD_INDUSTRIAL_BUILDINGS_IMPRESSIONALISM_PASSIVE");
+		const bool isMuseum = eBuildingClass == BuildingClass("BUILDINGCLASS_MUSEUM");
+		if (eYieldType == YIELD_CULTURE && !isPercentMod && hasImpressionalismCard && isMuseum)
+			yieldChange += 2;
+		if (eYieldType == YIELD_TOURISM && !isPercentMod && hasImpressionalismCard && isMuseum)
+			yieldChange += 2;
+	}
+
 
 
 	return yieldChange;
@@ -580,6 +613,18 @@ BuildingAddType CvPlayer::ShouldHaveBuilding(const CvPlayer& rPlayer, const CvCi
 		{
 			const bool hasFealtyCard = rPlayer.HasPolicy("POLICY_CARD_MEDIEVAL_BUILDINGS_FEALTY_ACTIVE");			
 			if (hasFealtyCard && isYourCapital)
+				return ADD;
+			else
+				return REMOVE;
+		}
+	}
+
+	{// CARD_INDUSTRIAL_BUILDINGS_PENICILLIN free Pennicilin Building in Capital
+		const bool isPennicilinBuilding = eBuildingClass == BuildingClass("BUILDINGCLASS_CARD_INDUSTRIAL_BUILDINGS_PENICILLIN");
+		if (isPennicilinBuilding)
+		{
+			const bool hasPennicilinCard = rPlayer.HasPolicy("POLICY_CARD_INDUSTRIAL_BUILDINGS_PENICILLIN_PASSIVE");
+			if (hasPennicilinCard && isYourCapital)
 				return ADD;
 			else
 				return REMOVE;
@@ -889,6 +934,19 @@ int CvPlayer::getGreatWorkYieldTotal(const CvCity* pCity, const CvGreatWork* pWo
 		if (eYield == YIELD_TOURISM && hasFlourishingOfTheArts && isArtifact)
 			change += 1;
 		if (eYield == YIELD_CULTURE && hasFlourishingOfTheArts && isArtifact)
+			change += 1;
+	}
+
+	{// CARD_INDUSTRIAL_BUILDINGS_HOWARD_CARTER gives +1C +1T to Artifacts.
+		const bool hasHowardCarterCard = player.HasPolicy("POLICY_CARD_INDUSTRIAL_BUILDINGS_HOWARD_CARTER_PASSIVE");
+		const bool hasLourve = player.HasWonder(BuildingClass("BUILDINGCLASS_LOUVRE"));
+		if (eYield == YIELD_CULTURE && hasHowardCarterCard && isArtifact)
+			change += 1;
+		if (eYield == YIELD_TOURISM && hasHowardCarterCard && isArtifact)
+			change += 1;
+		if (eYield == YIELD_CULTURE && hasHowardCarterCard && isArtifact && hasLourve)
+			change += 1;
+		if (eYield == YIELD_TOURISM && hasHowardCarterCard && isArtifact && hasLourve)
 			change += 1;
 	}
 
