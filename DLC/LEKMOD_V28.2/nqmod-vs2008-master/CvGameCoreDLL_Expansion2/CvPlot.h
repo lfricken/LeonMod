@@ -517,7 +517,10 @@ public:
 		// if true, will only consider military units, if false, will only consider civilian (strength == 0)
 		const bool militaryUnit, const bool bCheckVisibility, const bool bIgnoreBarbs, const bool ignoreEmbarked = false) const;
 	vector<CvUnit*> GetAdjacentEnemyMilitaryUnits(const TeamTypes eMyTeam, const DomainTypes eDomain = NO_DOMAIN, const bool ignoreBarbs = false) const;
+	
 
+	vector<CvPlot*> GetAdjacentPlotsRadiusRange(int radiusStartInclusive, int radiusEndInclusive);
+	vector<CvPlot*> GetAdjacentPlots(int range = 1);
 	bool isRoughGround() const
 	{
 		if(isHills())

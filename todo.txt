@@ -1,16 +1,27 @@
 
+verify map edges work with barbarians
 
+std::sort > stable_sort
+figure out why ai is being dumb with settlers
+when a city is damaged, it has -25% on gold, food, production
+	make sure barbarians attack cities
 
-reorder game options
-auto check the good ones, see the default button
+policy start % odds
+	guaranteed - diplo influence for killing barbarians
 
-kendall card gltiches
-antiquity card needs to only be activatable after
+can you build lighthouse/water stuff when not coastal city? (should be yes)
+turn 15 cards, not on found
+kendall unit limit
+
+diplomacy STRATEGIC RESOURCES US text glitched
+add diplomacy overview entry for your player
+Map/game settings - auto check the good ones, see the default button
+
+antiquity card needs to only be activatable after they are revealed?
 do hidden antiquity sites still work at all?
 
 do combat strength calculation tooltip serverside
-auto delete cards
-policy start % odds
+auto delete obsolete cards
 
 
 
@@ -36,6 +47,8 @@ Map
 	DO
 	get rid of grid point logic
 	extract things to functions
+	balance sea bonus resources
+	balance sea luxuries
 	map gen would join function
 	map gen script fill variable
 	map gen script snake variable

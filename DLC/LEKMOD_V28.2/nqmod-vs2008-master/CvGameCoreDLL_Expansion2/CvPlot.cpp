@@ -3717,7 +3717,53 @@ vector<CvUnit*> CvPlot::GetAdjacentEnemyMilitaryUnits(const TeamTypes eMyTeam, c
 
 	return result;
 }
+vector<CvPlot*> CvPlot::GetAdjacentPlotsRadiusRange(int radiusStartInclusive, int radiusEndInclusive)
+{
+	vector<CvPlot*> plots;
+	for (int radius = radiusStartInclusive; radius <= radiusEndInclusive; ++radius)
+	{
+		vector<CvPlot*> ring = GetAdjacentPlots(radius);
+		plots.insert(plots.end(), ring.begin(), ring.end());
+	}
+	return plots;
+}
+vector<CvPlot*> CvPlot::GetAdjacentPlots(int radius)
+{
+	vector<CvPlot*> plots;
+	if (radius <= 0)
+	{
+		plots.push_back(this);
+	}
+	if (radius > 0)
+	{
+		int x = getX();
+		int y = getY();
+		const int perimeterLen = 6 * radius;
+		const int edgeLen = radius;
 
+		// move to edge of ring
+		DirectionTypes direction = (DirectionTypes)0;
+		for (int r = 0; r < radius; ++r)
+		{
+			nextXy(x, y, direction, &x, &y);
+		}
+		direction = (DirectionTypes)(direction + 1); // 1 / 6rd turn, but we will start the loop at an edge!
+		// loop around the ring
+		for (int i = 0; i < perimeterLen; ++i) // start at 0 so we start at an edge turn!
+		{
+			if (GC.getMap().plotCheckInvalid(x, y))
+				plots.push_back(GC.getMap().plot(x, y));
+
+			// need to change direction, as we have reached end of this edge
+			if (i % edgeLen == 0)
+			{
+				direction = (DirectionTypes)((direction + 1) % NUM_DIRECTION_TYPES); // 1 / 6rd turn
+			}
+			nextXy(x, y, direction, &x, &y);
+		}
+	}
+	return plots;
+}
 //	--------------------------------------------------------------------------------
 int CvPlot::getExtraMovePathCost() const
 {

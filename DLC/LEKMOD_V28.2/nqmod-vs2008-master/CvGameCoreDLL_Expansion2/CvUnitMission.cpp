@@ -386,6 +386,9 @@ void CvUnitMission::UpdateMission(UnitHandle& hUnit)
 		{
 			if(hUnit->GetActivityType() == ACTIVITY_MISSION)
 			{
+				stringstream s;
+				s << "CvUnitMission:UpdateMission " << hUnit->getOwner() << " " << hUnit->GetID();
+				GC.debugState(s); // CvUnitMission::UpdateMission
 				ContinueMission(hUnit);
 			}
 			else

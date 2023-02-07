@@ -16029,7 +16029,11 @@ int CvUnit::changeDamage(int iChange, PlayerTypes ePlayer, decimal fAdditionalTe
 #endif
 }
 
-
+int CvUnit::getMovesPlots() const
+{
+	int numPlots = (getMoves() + (GC.getMOVE_DENOMINATOR() - 1)) / GC.getMOVE_DENOMINATOR();
+	return numPlots;
+}
 // moves are multiplied by GC.getMOVE_DENOMINATOR, so 2 moves actually returns as 120 (probably)
 int CvUnit::getMoves() const
 {
@@ -22323,9 +22327,6 @@ void CvUnit::UpdateMission()
 {
 	VALIDATE_OBJECT
 
-	stringstream s;
-	s << "CvUnit:UpdateMission " << getOwner() << " " << GetID();
-	GC.debugState(s); // CvPlayer::UpdateMission
 	CvUnitMission::UpdateMission(m_thisHandle);
 }
 
