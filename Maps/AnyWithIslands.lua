@@ -936,13 +936,14 @@ function GetI(x,y,maxX)
 	return y * maxX + x + 1;
 end
 
+local NUM_DIRS = 6;
 local firstRingYIsEvenTABLE = {{0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 0}, {-1, 1}};
 local firstRingYIsOddTABLE = {{1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, 0}, {0, 1}};
 ------------------------------------------------------------------------------
 -- Given an x,y and direction, returns the {x,y} of the next tile
 ------------------------------------------------------------------------------
 function dir(x, y, dir0Idx)
-	dir0Idx = dir0Idx % 6; -- only 6 directions!
+	dir0Idx = dir0Idx % NUM_DIRS;
 	local plot_adjustments;
 	if y / 2 > math.floor(y / 2) then
 		plot_adjustments = firstRingYIsOddTABLE[dir0Idx + 1]; -- +1 because lua tables are 1 indexed
@@ -959,7 +960,7 @@ end
 function GetXyAround(xStart, yStart, radius)
 	local xys = {};
 	local edgeLen = radius;
-	local perimeterLen = 6 * radius;
+	local perimeterLen = 6 * radius; -- NUM_DIRS tiles around a plot!
 	if (perimeterLen == 0) then perimeterLen = 1; end
 
 	local pos = {xStart, yStart};
@@ -976,7 +977,7 @@ function GetXyAround(xStart, yStart, radius)
 
 		-- need to change direction, as we have reached end of this edge
 		if (i % edgeLen == 0) then
-			direction = direction + 1; -- 1/6 turn
+			direction = (direction + 1) % NUM_DIRS; -- 1/6 turn
 		end
 		pos = dir(pos[1], pos[2], direction);
 	end

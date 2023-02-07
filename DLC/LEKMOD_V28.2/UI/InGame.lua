@@ -637,6 +637,7 @@ function ShowRebaseRangeIndicator()
 					local hexID = ToHexFromGrid( Vector2( plotX, plotY) );
 					--Events.SerialEventHexHighlight( hexID, true, turn1Color, pathBorderStyle );
 					if pHeadSelectedUnit:CanRebaseAt(thisPlot,plotX,plotY) then
+						-- modifying turn2Color seems to not work...
 						Events.SerialEventHexHighlight( hexID, true, turn2Color, "GroupBorder" );
 					end
 				end
