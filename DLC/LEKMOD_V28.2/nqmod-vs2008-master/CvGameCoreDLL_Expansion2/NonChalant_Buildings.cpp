@@ -444,6 +444,13 @@ int CvPlayer::GetExtraYieldForBuilding
 			yieldChange += 2;
 	}
 
+	{// CARD_MODERN_RESOURCES_THOMAS_DOOLITTLE - +2T to Broadcast Towers
+		const bool hasThomsDoolittleard = player.HasPolicy("POLICY_CARD_MODERN_RESOURCES_THOMAS_DOOLITTLE_PASSIVE");
+		const bool isBroadcastTower = eBuildingClass == BuildingClass("BUILDINGCLASS_BROADCAST_TOWER");		
+		if (eYieldType == YIELD_TOURISM && !isPercentMod && hasThomsDoolittleard && isBroadcastTower)
+			yieldChange += 2;
+	}
+
 
 
 	return yieldChange;

@@ -155,6 +155,10 @@ bool TradingCard::IsConditionSatisfied(TradingCardTypes type, const CvPlayer* pP
 		int numHospitals = player.countNumBuildingClasses(BuildingClassTypes(33));
 		return !(numHospitals < 4);
 	}
+	case 220: // POLICY_CARD_MODERN_UNITS_NATIONALISM_PASSIVE
+	{
+		return !(playerEra >= informationEra);
+	}
 
 
 	default: return true;

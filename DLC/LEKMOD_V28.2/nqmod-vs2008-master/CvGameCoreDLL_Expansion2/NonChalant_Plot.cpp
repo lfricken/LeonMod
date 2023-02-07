@@ -753,12 +753,84 @@ int CvPlot::getExtraYield
 			}	
 
 			{// CARD_INDUSTRIAL_BUILDINGS_ELI_WHITNEY - +2 PD +2 G to Cotton
-				const bool hasEliWhitney = player.HasPolicy("POLICY_CARD_INDUSTRIAL_BUILDINGS_ELI_WHITNEY_PASSIVE");
+				const bool hasEliWhitneyCard = player.HasPolicy("POLICY_CARD_INDUSTRIAL_BUILDINGS_ELI_WHITNEY_PASSIVE");
 				const bool isCotton = plot.HasResource("RESOURCE_COTTON");
-				if (eYieldType == YIELD_PRODUCTION && hasEliWhitney && isCotton)
+				if (eYieldType == YIELD_PRODUCTION && hasEliWhitneyCard && isCotton)
 					yieldChange += 2;
-				if (eYieldType == YIELD_GOLD && hasEliWhitney && isCotton)
+				if (eYieldType == YIELD_GOLD && hasEliWhitneyCard && isCotton)
 					yieldChange += 2;
+			}
+
+			{// CARD_MODERN_RESOURCES_THOMAS_DOOLITTLE - +3 PD +3 G to Copper
+				const bool hasThomasDoolittleCard = player.HasPolicy("POLICY_CARD_MODERN_RESOURCES_THOMAS_DOOLITTLE_PASSIVE");
+				const bool isCopper = plot.HasResource("RESOURCE_COPPER");
+				if (eYieldType == YIELD_PRODUCTION && hasThomasDoolittleCard && isCopper)
+					yieldChange += 2;
+				if (eYieldType == YIELD_GOLD && hasThomasDoolittleCard && isCopper)
+					yieldChange += 2;
+			}
+
+			{// CARD_MODERN_RESOURCES_MODU - +5 PD +5 G to Offshore Wells
+				const bool hasModuCard = player.HasPolicy("POLICY_CARD_INDUSTRIAL_BUILDINGS_ELI_WHITNEY_PASSIVE");
+				const bool isOffshoreWell = plot.HasImprovement("IMPROVEMENT_OFFSHORE_PLATFORM");
+				if (eYieldType == YIELD_PRODUCTION && hasModuCard && isOffshoreWell)
+					yieldChange += 5;
+				if (eYieldType == YIELD_GOLD && hasModuCard && isOffshoreWell)
+					yieldChange += 5;
+			}
+
+			{// CARD_MODERN_RESOURCES_GREAT_WESTERN_TRAIL - +2 PD +2 G to Cattle, Horses
+				const bool hasGreatWesternTrailCard = player.HasPolicy("POLICY_CARD_MODERN_RESOURCES_GREAT_WESTERN_TRAIL_PASSIVE");
+				const bool isCow = plot.HasResource("RESOURCE_COW");
+				const bool isHorse = plot.HasResource("RESOURCE_HORSE");
+				if (eYieldType == YIELD_PRODUCTION && hasGreatWesternTrailCard && isCow)
+					yieldChange += 2;
+				if (eYieldType == YIELD_GOLD && hasGreatWesternTrailCard && isCow)
+					yieldChange += 2;
+				if (eYieldType == YIELD_PRODUCTION && hasGreatWesternTrailCard && isHorse)
+					yieldChange += 1;
+				if (eYieldType == YIELD_CULTURE && hasGreatWesternTrailCard && isHorse)
+					yieldChange += 1;
+			}
+
+			{// CARD_MODERN_RESOURCES_NITRATES - +1 FD +1 PD to Farms
+				const bool hasNitratesCard = player.HasPolicy("POLICY_CARD_MODERN_RESOURCES_NITRATES_PASSIVE");
+				const bool isFarm = plot.HasImprovement("IMPROVEMENT_FARM");
+				if (eYieldType == YIELD_PRODUCTION && hasNitratesCard && isFarm)
+					yieldChange += 1;
+				if (eYieldType == YIELD_FOOD && hasNitratesCard && isFarm)
+					yieldChange += 1;
+			}
+
+			{// CARD_MODERN_RESOURCES_HENRY_FORD - +4 PD +4 G to Rubber
+				const bool hasHenryFordCard = player.HasPolicy("POLICY_CARD_MODERN_RESOURCES_HENRY_FORD_PASSIVE");
+				const bool isRubber = plot.HasResource("RESOURCE_RUBBER");				
+				if (eYieldType == YIELD_PRODUCTION && hasHenryFordCard && isRubber)
+					yieldChange += 4;
+				if (eYieldType == YIELD_GOLD && hasHenryFordCard && isRubber)
+					yieldChange += 4;				
+			}
+
+			{// CARD_MODERN_RESOURCES_COMMERCIAL_FISHING - +2 FD +1 PD +2 G to Fish, Crabs
+				const bool hasCommercialFishinCard = player.HasPolicy("POLICY_CARD_MODERN_RESOURCES_COMMERCIAL_FISHING_PASSIVE");
+				const bool isCrab = plot.HasResource("RESOURCE_CRAB");
+				const bool isFish = plot.HasResource("RESOURCE_FISH");
+				if (eYieldType == YIELD_FOOD && hasCommercialFishinCard && (isCrab || isFish))
+					yieldChange += 2;
+				if (eYieldType == YIELD_PRODUCTION && hasCommercialFishinCard && (isCrab || isFish))
+						yieldChange += 1;
+				if (eYieldType == YIELD_GOLD && hasCommercialFishinCard && (isCrab || isFish))
+							yieldChange += 2;				
+			}
+
+			{// CARD_MODERN_RESOURCES_U_BOAT_PEN - +5 PD +5 Diplo to Dry Docks
+				const bool hasUboatCard = player.HasPolicy("POLICY_CARD_MODERN_RESOURCES_U_BOAT_PEN_PASSIVE");
+				const bool isDryDock = plot.HasImprovement("IMPROVEMENT_DOCK");
+				const bool isChileDryDock = plot.HasImprovement("IMPROVEMENT_CHILE_DOCK");
+				if (eYieldType == YIELD_PRODUCTION && hasUboatCard && (isDryDock || isChileDryDock))
+					yieldChange += 1;
+				if (eYieldType == YIELD_DIPLOMATIC_SUPPORT && hasUboatCard && (isDryDock || isChileDryDock))
+					yieldChange += 1;
 			}
 
 			
