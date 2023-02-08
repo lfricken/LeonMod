@@ -308,6 +308,7 @@ public:
 	// true if this is a nuclear bomb of some sort
 	bool IsNuclearWeapon() const;
 	bool isNukeVictim(const CvPlot* pPlot, TeamTypes eTeam) const;
+	// use canNukeAt instead
 	bool canNuke(const CvPlot* pPlot) const;
 	bool canNukeAt(const CvPlot* pPlot, int iX, int iY) const;
 
