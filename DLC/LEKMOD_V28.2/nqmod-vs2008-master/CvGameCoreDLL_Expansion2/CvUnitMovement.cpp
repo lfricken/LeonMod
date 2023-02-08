@@ -456,7 +456,7 @@ bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot,
 					}
 
 					// At war with this unit's team?
-					if(unit_loop_team_type == BARBARIAN_TEAM || kUnitTeam.isAtWar(unit_loop_team_type))
+					if(kUnitTeam.isAtWar(unit_loop_team_type)) // fixed glitch where barbarians ZOC'd eachother
 					{
 
 						// Same Domain?
