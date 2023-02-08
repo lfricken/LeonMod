@@ -323,7 +323,7 @@ public:
 	int getNumVisibleEnemyDefenders(const CvUnit* pUnit) const;
 	int getNumVisiblePotentialEnemyDefenders(const CvUnit* pUnit) const;
 	bool isVisibleEnemyUnit(PlayerTypes ePlayer) const;
-	bool isVisibleEnemyUnit(const CvUnit* pUnit) const;
+	bool isVisibleEnemyUnit(const CvUnit* pUnit, bool skipDead = true) const;
 	bool isVisibleOtherUnit(PlayerTypes ePlayer) const;
 
 	bool IsActualEnemyUnit(PlayerTypes ePlayer, bool bCombatUnitsOnly = true) const;
@@ -451,7 +451,7 @@ public:
 	{
 		return (PlotTypes)m_ePlotType == PLOT_OCEAN;
 	};
-	// true if land units could consider this a water tile for passage
+	// true if sea units could consider this a water tile for passage
 	// could be a city, so you can't necessarily stop on it
 	bool CanBeUsedAsWater(const PlayerTypes ePlayer) const
 	{
@@ -460,12 +460,13 @@ public:
 	// true if land units could consider this a land tile
 	bool CanBeUsedAsLand() const
 	{
-		return !isWater() || IsAllowsWalkWater();
+		return (!isWater() || IsAllowsWalkWater()) && !isMountain();
 	};
 	bool isHills()          const
 	{
 		return (PlotTypes)m_ePlotType == PLOT_HILLS;
 	};
+	// flat ground (not hills or mountains)
 	bool isOpenGround()     const
 	{
 		if((PlotTypes)m_ePlotType == PLOT_HILLS || (PlotTypes)m_ePlotType == PLOT_MOUNTAIN || m_bRoughFeature) return false;

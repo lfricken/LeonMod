@@ -4637,7 +4637,7 @@ bool CvPlot::isVisibleEnemyUnit(PlayerTypes ePlayer) const
 }
 
 //	-----------------------------------------------------------------------------------------------
-bool CvPlot::isVisibleEnemyUnit(const CvUnit* pUnit) const
+bool CvPlot::isVisibleEnemyUnit(const CvUnit* pUnit, bool skipDead) const
 {
 	CvAssertMsg(pUnit, "Source unit must be valid");
 	const IDInfo* pUnitNode = m_units.head();
@@ -4657,6 +4657,9 @@ bool CvPlot::isVisibleEnemyUnit(const CvUnit* pUnit) const
 			if(pLoopUnit && !pLoopUnit->isInvisible(eTeam, false))
 #endif
 			{
+				bool doesNotCountBecauseDead = skipDead && pLoopUnit->IsDead();
+				if (doesNotCountBecauseDead)
+					continue;
 				if(isEnemy(pLoopUnit, eTeam, bAlwaysHostile))
 				{
 					return true;
