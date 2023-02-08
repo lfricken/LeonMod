@@ -2832,7 +2832,10 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(uint uiParentEventID, const CvCom
 				const int dist = hexDistance(pkCity->plot()->getX() - pkTargetPlot->getX(), pkCity->plot()->getY() - pkTargetPlot->getY());
 				const int popToRemove = getNukePopulationDamage(pkCity, dist);
 				const int damage = kEntry.GetFinalDamage();
-				const bool willDestroy = damage >= pkCity->GetMaxHitPoints() && !pkCity->IsOriginalCapital();
+
+				// dont allow killing cities with nukes, it can lead to crashes if a nuke blows itself up, also imba
+				// if you want to destroy cities, make sure to remove the attacker from the city first!
+				const bool willDestroy = false; // damage >= pkCity->GetMaxHitPoints() && !pkCity->IsOriginalCapital();
 
 				{ // message all players about city nuke
 					string message;
@@ -2962,38 +2965,12 @@ void CvUnitCombat::GenerateNuclearExplosionDamage(CvPlot* pkTargetPlot, int iDam
 
 				if(pLoopCity != NULL)
 				{
-					bool bKillCity = false;
+					// Add damage to the city
+					int netDamage = getNukeCityHitpointDamage(pLoopCity, dist);
+					int iTotalDamage = netDamage + pLoopCity->getDamage();
 
-					// Is the city wiped out? - no capitals!
-					if(!pLoopCity->IsOriginalCapital())
-					{
-						if(iDamageLevel > 2)
-						{
-							bKillCity = true;
-						}
-						else if(iDamageLevel > 1)
-						{
-							if(pLoopCity->getPopulation() < /*5*/ GC.getNUKE_LEVEL2_ELIM_POPULATION_THRESHOLD())
-							{
-								bKillCity = true;
-							}
-						}
-					}
-
-					int iTotalDamage;
-					if(bKillCity)
-					{
-						iTotalDamage = pLoopCity->GetMaxHitPoints();
-					}
-					else
-					{
-						// Add damage to the city
-						int netDamage = getNukeCityHitpointDamage(pLoopCity, dist);
-						iTotalDamage = netDamage + pLoopCity->getDamage();
-
-						// Can't bring a city below 1 HP
-						iTotalDamage = min(iTotalDamage, pLoopCity->GetMaxHitPoints() - 1);
-					}
+					// Can't bring a city below 1 HP
+					iTotalDamage = min(iTotalDamage, pLoopCity->GetMaxHitPoints() - 1);
 
 					CvCombatMemberEntry* pkDamageEntry = AddCombatMember(pkDamageArray, piDamageMembers, iMaxDamageMembers, pLoopCity);
 					if(pkDamageEntry)
