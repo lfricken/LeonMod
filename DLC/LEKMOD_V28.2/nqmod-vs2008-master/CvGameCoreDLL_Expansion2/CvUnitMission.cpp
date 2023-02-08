@@ -81,7 +81,7 @@ void CvUnitMission::AutoMission(UnitHandle hUnit)
 void CvUnitMission::PushMission(UnitHandle hUnit, MissionTypes eMission, int iData1, int iData2, int iFlags, bool bAppend, bool bManual, MissionAITypes eMissionAI, CvPlot* pMissionAIPlot, CvUnit* pMissionAIUnit)
 {
 	stringstream s;
-	s << "CvUnitMission:PushMission " << eMission << " " << iData1 << " " << iData2 << " " << iFlags << " " << bAppend << " "
+	s << "CvUnitMission:PushMission " << hUnit->getOwner() << " " << hUnit->GetID() << " " << eMission << " " << iData1 << " " << iData2 << " " << iFlags << " " << bAppend << " "
 		<< bManual << " " << eMissionAI;
 	if (pMissionAIPlot != NULL) { s << " " << pMissionAIPlot->getX() << " " << pMissionAIPlot->getY(); }
 	GC.debugState(s); // CvUnitMission::PushMission
