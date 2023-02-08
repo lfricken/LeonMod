@@ -257,11 +257,11 @@ void CvPlayerAI::AI_unitUpdate()
 	}
 	else
 	{
-		//if (m_eID == BARBARIAN_PLAYER)
-		//{
-		//	DoTurnMoves_Barbarian();
-		//}
-		//else
+		if (m_eID == BARBARIAN_PLAYER)
+		{
+			DoTurnMoves_Barbarian();
+		}
+		else
 		{
 			// Update tactical AI
 			GetTacticalAI()->CommandeerUnits();

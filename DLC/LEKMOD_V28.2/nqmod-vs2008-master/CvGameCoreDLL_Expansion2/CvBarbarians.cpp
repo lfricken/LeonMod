@@ -907,14 +907,20 @@ bool CvBarbarians::DoSpawnBarbarianUnit(const CvPlot * pPlot, bool, bool bFinish
 }
 void doAttack(CvUnit * pLoopUnit, bool isRangedAttack, int x, int y)
 {
+	// TODO TASK_RANGED_ATTACK is for cities doing attacks
 	//const CvPlot& targetPlot = *GC.getMap().plot(x, y);
-	//if (targetPlot.isCity())
+	//if (targetPlot.isCity()) 
 	//{
 	//	pCity->doTask(TASK_RANGED_ATTACK, pTarget->GetTargetX(), pTarget->GetTargetY(), 0);
 	//}
 	//else
 	//{
-	if (isRangedAttack && pLoopUnit->getDomainType() != DOMAIN_AIR)	// Air attack is ranged, but it goes through the 'move to' mission.
+	const DomainTypes domainForAttacker = pLoopUnit->getDomainType();
+	if (pLoopUnit->IsNuclearWeapon())
+	{
+		pLoopUnit->PushMission(CvTypes::getMISSION_NUKE(), x, y);
+	}
+	else if (isRangedAttack && domainForAttacker != DOMAIN_AIR)	// Air attack is ranged, but it goes through the move mission
 	{
 		pLoopUnit->PushMission(CvTypes::getMISSION_RANGE_ATTACK(), x, y);
 	}
@@ -922,83 +928,111 @@ void doAttack(CvUnit * pLoopUnit, bool isRangedAttack, int x, int y)
 	{
 		pLoopUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), x, y);
 	}
-	//else if (pUnit->canNuke(NULL)) // NUKE tactical attack (ouch)
-	//{
-	//	pUnit->PushMission(CvTypes::getMISSION_NUKE(), pTarget->GetTargetX(), pTarget->GetTargetY());
-	//}
-//}
 }
-bool shouldAttackPlot(CvUnit* pLoopUnit, CvPlot* plot, bool canRangeAttack)
+// checks whether the plot can work for an attack, ignoring range
+bool isAcceptableDomainTarget(CvUnit * pLoopUnit, CvPlot * plot, bool isRangeAttack)
 {
-	bool shouldAttack = false;
+	if (isRangeAttack) // a range attack can hit any domain
+		return true;
+
+	// a non range attack is a mobile attack
+	if (pLoopUnit->getDomainType() == DOMAIN_LAND)
+		return plot->CanBeUsedAsLand();
+	if (pLoopUnit->getDomainType() == DOMAIN_SEA)
+		return plot->CanBeUsedAsWater(pLoopUnit->getOwner()) || plot->isEnemyCity(*pLoopUnit);
+	if (pLoopUnit->getDomainType() == DOMAIN_IMMOBILE)
+		return false;
+	if (pLoopUnit->getDomainType() == DOMAIN_HOVER) // hover units can go anywhere
+		return true;
+	if (pLoopUnit->getDomainType() == DOMAIN_AIR) // air units can go anywhere
+		return true;
+
+	CvAssert(false); // domain type wasn't handled
+	return false;
+}
+// should we attack the given plot?
+bool shouldAttackPlot(CvUnit * pLoopUnit, CvPlot * plot, bool isRangeAttack)
+{
+	// can we ATTACK the plot type? eg, are we a land unit attacking into water?
+	const bool canAttackPlot = isAcceptableDomainTarget(pLoopUnit, plot, isRangeAttack);
+	if (!canAttackPlot)
+		return false;
+
+	// can we range attack or move there now?
 	int x = plot->getX();
 	int y = plot->getY();
-	bool plotHasEnemy = plot->isEnemyCity(*pLoopUnit) || plot->isVisibleEnemyUnit(pLoopUnit);
+	bool shouldAttack = false;
+	const bool dontConsiderDeadUnits = true; // if we DO consider dead units, the attack can fail
+	const bool plotHasEnemy = plot->isEnemyCity(*pLoopUnit) || plot->isVisibleEnemyUnit(pLoopUnit, dontConsiderDeadUnits);
 	if (plotHasEnemy)
 	{
-		bool couldMoveThereThisTurn = TurnsToReachTarget(pLoopUnit, plot, false, false, false) <= 1;
-		shouldAttack = canRangeAttack ? pLoopUnit->canRangeStrikeAt(x, y, false) : couldMoveThereThisTurn;
-	}
-	return shouldAttack;
-}
-void tryAttack(CvUnit * pLoopUnit)
-{
-	const bool canRangeAttack = pLoopUnit->IsCanAttackRanged();
-	const bool isTargetTileMustMatchOurDomain = !canRangeAttack;
-	int unitRange = canRangeAttack ? pLoopUnit->GetRange() : pLoopUnit->getMovesPlots();
-
-	// get nearby plots
-	CvPlot* p = pLoopUnit->plot();
-	vector<CvPlot*> plots = p->GetAdjacentPlotsRadiusRange(1, unitRange);
-	//shuffleVector(&plots, p->getX() * 134 + p->getY() * 235); // shuffle?
-
-	// find attack options
-	for (int i = 0; i < (int)plots.size(); ++i)
-	{
-		CvPlot* plot = plots[i];
-		int x = plot->getX();
-		int y = plot->getY();
-		bool canStillAttack = pLoopUnit->getMoves() > 0;
-		if (canStillAttack)
+		if (pLoopUnit->IsNuclearWeapon())
 		{
-			pLoopUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), x, y);
-			break;
+			const bool canNukeThePlot = pLoopUnit->canNukeAt(pLoopUnit->plot(), x, y);
+			shouldAttack = canNukeThePlot;
+		}
+		else if (isRangeAttack)
+		{
+			const bool canRangeAttackNow = pLoopUnit->canRangeStrikeAt(x, y, false);
+			shouldAttack = canRangeAttackNow;
 		}
 		else
 		{
-			pLoopUnit->SetTurnProcessed(true);
-			break;
-		}
-		//todo write unit can attack function
-		bool willNowAttackPlot = shouldAttackPlot(pLoopUnit, plot, canRangeAttack);
-		if (willNowAttackPlot)
-		{
-			//bool canStillAttack = pLoopUnit->getMoves() > 0 && !pLoopUnit->isOutOfAttacks();
-			//if (canStillAttack)
-			//	doAttack(pLoopUnit, canRangeAttack, x, y);
-			//else if (!pLoopUnit->isFighting())
-			//{
-			//	pLoopUnit->SetTurnProcessed(true);
-			//}
-
-
-			/*int numMissions = pLoopUnit->GetLengthMissionQueue();
-			for (int i = 0; i < 10; ++i)
-			{
-				pLoopUnit->UpdateMission();
-			}*/
-
-			//canStillAttack = pLoopUnit->getMoves() > 0 && !pLoopUnit->isOutOfAttacks();
-			//if (!canStillAttack)
-			//	break;
+			const bool couldMoveThereThisTurn = TurnsToReachTarget(pLoopUnit, plot, false, false, false) <= 1;
+			shouldAttack = couldMoveThereThisTurn;
 		}
 	}
-	// check for valid attacks
-	// randomly prioritize
+	return shouldAttack;
 }
+// try to attack nearby stuff
+void tryDoAttacks(CvUnit * pLoopUnit)
+{
+	// TODO ask unit if we should be attacking at all
+	// air units should not attack if low health
+	// melee units below half health should not attack cities
+
+
+	bool canDoAttacks = true;
+	for (int attempts = 0; attempts < 5; attempts++) // limit the number of attempts
+	{
+		// update whether we can actually attack, fail early in the loop
+		canDoAttacks &= !pLoopUnit->IsDead() && !pLoopUnit->isDelayedDeath() && pLoopUnit->getMoves() > 0 && !pLoopUnit->isOutOfAttacks();
+		if (!canDoAttacks)
+			break;
+
+		const bool isRangeAttack = pLoopUnit->IsCanAttackRanged();
+		const int unitAttackRange = isRangeAttack ? pLoopUnit->GetRange() : pLoopUnit->getMovesPlots();
+
+		// get plots in attack range
+		CvPlot* p = pLoopUnit->plot();
+		vector<CvPlot*> plots = p->GetAdjacentPlotsRadiusRange(1, unitAttackRange);
+		//shuffleVector(&plots, p->getX() * 134 + p->getY() * 235); // randomize attacks, be unpredictable!
+
+		// find attack options
+		bool didAnyAttacks = false;
+		for (int i = 0; i < (int)plots.size(); ++i)
+		{
+			CvPlot* plot = plots[i];
+			int x = plot->getX();
+			int y = plot->getY();
+
+			bool willNowAttackPlot = shouldAttackPlot(pLoopUnit, plot, isRangeAttack);
+			if (willNowAttackPlot)
+			{
+				doAttack(pLoopUnit, isRangeAttack, x, y);
+				didAnyAttacks = true;
+				break;
+			}
+		}
+		if (!didAnyAttacks) // we found no attacks to do
+			canDoAttacks = false;
+	}
+}
+// try to move in some intelligent way
 void tryMove(CvUnit * pLoopUnit)
 {
-	const bool canMove = pLoopUnit->getMoves() > 0;
+	pLoopUnit->finishMoves();
+	pLoopUnit->SetTurnProcessed(true);
 }
 void CvPlayerAI::DoTurnMoves_Barbarian()
 {
@@ -1011,8 +1045,8 @@ void CvPlayerAI::DoTurnMoves_Barbarian()
 		GC.debugState(s); // CvPlayerAI::DoTurnMoves_Barbarian
 
 		// prioritize attacking
-		if (!shouldRetreat)
-			tryAttack(pLoopUnit);
+
+		tryDoAttacks(pLoopUnit);
 		tryMove(pLoopUnit);
 	}
 }
