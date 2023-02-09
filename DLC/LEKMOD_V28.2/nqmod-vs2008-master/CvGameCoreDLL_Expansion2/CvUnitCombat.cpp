@@ -2865,15 +2865,16 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(uint uiParentEventID, const CvCom
 
 				if(willDestroy)
 				{
-					auto_ptr<ICvCity1> pkDllCity(new CvDllCity(pkCity));
-					gDLL->GameplayCitySetDamage(pkDllCity.get(), 0, pkCity->getDamage()); // to stop the fires
-					gDLL->GameplayCityDestroyed(pkDllCity.get(), NO_PLAYER);
+					// this is not safe, if the nuke destroyed its parent city, this causes a crash
+					//auto_ptr<ICvCity1> pkDllCity(new CvDllCity(pkCity));
+					//gDLL->GameplayCitySetDamage(pkDllCity.get(), 0, pkCity->getDamage()); // to stop the fires
+					//gDLL->GameplayCityDestroyed(pkDllCity.get(), NO_PLAYER);
 
-					const PlayerTypes eOldOwner = pkCity->getOwner();
-					pkCity->kill();
+					//const PlayerTypes eOldOwner = pkCity->getOwner();
+					//pkCity->kill();
 
-					if (pkAttacker)
-						GET_PLAYER(pkAttacker->getOwner()).CheckForMurder(eOldOwner);
+					//if (pkAttacker)
+					//	GET_PLAYER(pkAttacker->getOwner()).CheckForMurder(eOldOwner);
 				}
 				else
 				{
