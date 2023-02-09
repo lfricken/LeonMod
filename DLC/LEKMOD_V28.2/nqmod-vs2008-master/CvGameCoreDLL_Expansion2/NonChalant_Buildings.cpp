@@ -393,7 +393,7 @@ int CvPlayer::GetExtraYieldForBuilding
 	{// CARD_RENAISSANCE_BUILDINGS_COPERNICUS_OBSERVERATORY If 5 Observeratories, +1 Insight
 		const bool hasCopernicusCard = player.HasPolicy("POLICY_CARD_RENAISSANCE_BUILDINGS_COPERNICUS_OBSERVERATORY_PASSIVE");
 		const bool isObserveratory = eBuildingClass == BuildingClass("BUILDINGCLASS_OBSERVATORY");
-		const bool numObserveratories = player.countNumBuildingClasses(BuildingClassTypes(10));
+		const int numObserveratories = player.countNumBuildingClasses(BuildingClassTypes(10));
 		if (eYieldType == YIELD_SCIENTIFIC_INSIGHT && (numObserveratories >= 5) && hasCopernicusCard && isObserveratory)
 			yieldChange += 1;
 	}
