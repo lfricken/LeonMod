@@ -53,7 +53,7 @@
 
     <Instance Name="AirButton" >
 
-        <PullDown Anchor="R,C" Offset="-25,0" AnchorSide="o,i" Size="40,22" SpaceForScroll="0" AutoSizePopUp="0" ScrollThreshold="300" ID="PullDown" >
+        <PullDown Anchor="L,C" Offset="0,0" AnchorSide="o,i" Size="60,22" SpaceForScroll="0" AutoSizePopUp="0" ScrollThreshold="300" ID="PullDown" >
             <ButtonData>
                 <Button ID="MajorButton" Size="40,22"  >
                     <Grid   Anchor="C,C" Size="40,22" Offset="0,0" Padding="0,0" Style="Grid9FrameTurns" />

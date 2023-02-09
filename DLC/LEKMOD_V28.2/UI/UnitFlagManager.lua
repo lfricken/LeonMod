@@ -1195,7 +1195,8 @@ function UpdateCityCargo( pPlot )
     -- count the air units
     for i = 0, numUnits - 1 do
         local pPlotUnit = pPlot:GetUnit( i );
-        if( pPlotUnit:GetDomainType() == DomainTypes.DOMAIN_AIR ) then
+        -- dont check cargo, the unit that owns the cargo should display it
+        if( pPlotUnit:GetDomainType() == DomainTypes.DOMAIN_AIR and not pPlotUnit:IsCargo() ) then
             cargoCount = cargoCount + 1;
         end
     end
@@ -1218,7 +1219,8 @@ function UpdateCityCargo( pPlot )
         -- actually add the air units
         for i = 0, numUnits - 1 do
             local pPlotUnit = pPlot:GetUnit( i );
-            if( pPlotUnit:GetDomainType() == DomainTypes.DOMAIN_AIR ) then
+            -- dont check cargo, the unit that owns the cargo should display it
+            if( pPlotUnit:GetDomainType() == DomainTypes.DOMAIN_AIR and not pPlotUnit:IsCargo() ) then
             
                 controlTable = {};
                 cityFlagInstance.PullDown:BuildEntry( "UnitInstance", controlTable );
