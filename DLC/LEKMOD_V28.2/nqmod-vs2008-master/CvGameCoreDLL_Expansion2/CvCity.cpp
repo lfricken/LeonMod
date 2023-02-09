@@ -2897,7 +2897,7 @@ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool b
 		// Air units can't be built above capacity
 		if (pkUnitEntry->GetDomainType() == DOMAIN_AIR)
 		{
-			int iNumAirUnits = plot()->countNumAirUnits(getTeam());
+			int iNumAirUnits = plot()->countNumNonCargoAirUnits(getTeam());
 			if (iNumAirUnits >= GetMaxAirUnits())
 			{
 				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_CITY_AT_AIR_CAPACITY");

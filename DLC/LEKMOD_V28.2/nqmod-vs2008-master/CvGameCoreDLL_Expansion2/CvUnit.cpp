@@ -2518,7 +2518,7 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, byte bMoveFlags) const
 				{
 					if(DOMAIN_SEA != eDomain || enterPlot.getTeam() != eTeam)   // sea units can enter impassable in own cultural borders
 					{
-						if(!canLoad(enterPlot))
+						if(!canPlotUnitLoadThisUnit(enterPlot))
 						{
 							return false;
 						}
@@ -2538,7 +2538,7 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, byte bMoveFlags) const
 				{
 					if(DOMAIN_SEA != eDomain || enterPlot.getTeam() != eTeam)   // sea units can enter impassable in own cultural borders
 					{
-						if(!canLoad(enterPlot))
+						if(!canPlotUnitLoadThisUnit(enterPlot))
 						{
 							return false;
 						}
@@ -2636,7 +2636,7 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, byte bMoveFlags) const
 							return false;
 						}
 					}
-					else if(!isHuman() || (plot() && plot()->isWater()) || !canLoad(enterPlot))
+					else if(!isHuman() || (plot() && plot()->isWater()) || !canPlotUnitLoadThisUnit(enterPlot))
 					{
 						return false;
 					}
@@ -4433,7 +4433,7 @@ bool CvUnit::shouldLoadOnMove(const CvPlot* pPlot) const
 
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canLoad(const CvPlot& targetPlot) const
+bool CvUnit::canPlotUnitLoadThisUnit(const CvPlot& targetPlot) const
 {
 	VALIDATE_OBJECT
 	if(NO_SPECIALUNIT != getSpecialUnitType())
@@ -4484,6 +4484,10 @@ bool CvUnit::canLoad(const CvPlot& targetPlot) const
 		}
 	}
 
+
+
+
+
 	return false;
 }
 
@@ -4499,8 +4503,9 @@ void CvUnit::load()
 
 	pPlot = plot();
 
-	if(!pPlot || !canLoad(*pPlot))
+	if(!pPlot || !canPlotUnitLoadThisUnit(*pPlot))
 	{
+		CvAssert(false);
 		return;
 	}
 
@@ -7253,7 +7258,7 @@ bool CvUnit::canRebaseAt(const CvPlot* pPlot, int iX, int iY) const
 	}
 
 	// Can't load to the target plot
-	if(!canLoad(*pToPlot))
+	if(!canPlotUnitLoadThisUnit(*pToPlot))
 	{
 		return false;
 	}
@@ -7293,7 +7298,7 @@ bool CvUnit::canRebaseAt(const CvPlot* pPlot, int iX, int iY) const
 			}
 		}
 
-		int iUnitsThere = pToPlot->countNumAirUnits(getTeam());
+		int iUnitsThere = pToPlot->countNumNonCargoAirUnits(getTeam());
 		if (iUnitsThere >= pToPlot->getPlotCity()->GetMaxAirUnits())
 		{
 			return false;

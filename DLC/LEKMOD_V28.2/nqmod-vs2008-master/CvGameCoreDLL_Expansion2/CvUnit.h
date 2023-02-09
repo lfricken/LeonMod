@@ -229,7 +229,7 @@ public:
 	// Cargo/transport methods (units inside other units)
 	bool canLoadUnit(const CvUnit& pUnit, const CvPlot& pPlot) const;
 	void loadUnit(CvUnit& pUnit);
-	bool canLoad(const CvPlot& pPlot) const;
+	bool canPlotUnitLoadThisUnit(const CvPlot& pPlot) const;
 	void load();
 	bool shouldLoadOnMove(const CvPlot* pPlot) const;
 	bool canUnload() const;

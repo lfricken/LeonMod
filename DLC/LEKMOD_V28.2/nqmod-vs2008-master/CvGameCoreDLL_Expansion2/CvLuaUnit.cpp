@@ -808,7 +808,7 @@ int CvLuaUnit::lCanLoad(lua_State* L)
 	bool bResult = false;
 	if(pkPlot)
 	{
-		bResult = pkUnit->canLoad(*pkPlot);
+		bResult = pkUnit->canPlotUnitLoadThisUnit(*pkPlot);
 	}
 	lua_pushboolean(L, bResult);
 	return 1;

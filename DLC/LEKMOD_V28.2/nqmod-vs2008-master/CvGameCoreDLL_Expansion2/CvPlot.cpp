@@ -3524,34 +3524,16 @@ int CvPlot::GetAircraftCapacity() const
 		const CvCity* city = getPlotCity();
 		if (city)
 			maxAircraft += city->GetMaxAirUnits();
-
-		// units
-		const vector<const CvUnit*> units = getAllUnitsConst();
-		for (int i = 0; i < (int)units.size(); ++i)
-		{
-			const CvUnit* unit = units[i];
-			if (unit)
-				maxAircraft += unit->cargoSpace();
-		}
 	}
 	return maxAircraft;
 }
 
 bool CvPlot::CanHoldThisAircraft(const CvUnit* aircraft) const
 {
-	//const CvCity* city = this->getPlotCity();
-	//if (city)
-	//{
-	//	city->GetMaxAirUnits() > city->getair;
-	//}
-	//else // check for improvement
-
-	//const PlayerTypes originalOwner = pToPlot->GetPlayerThatBuiltImprovement();
-
 	const int maxAircraft = GetAircraftCapacity();
 
 	{ // CHECK CAPACITY
-		const int currentAircraft = countNumAirUnits(NO_TEAM);
+		const int currentAircraft = countNumNonCargoAirUnits(NO_TEAM);
 		const bool alreadyHasThisUnit = aircraft->plot() == this;
 		if (!alreadyHasThisUnit) // make sure it can hold one more
 		{
@@ -5047,7 +5029,7 @@ bool CvPlot::isValidDomainForLocation(const CvUnit& unit) const
 		return true;
 	}
 
-	if (unit.getDomainType() == DOMAIN_AIR && unit.canLoad(*this))
+	if (unit.getDomainType() == DOMAIN_AIR && unit.canPlotUnitLoadThisUnit(*this))
 	{
 		return true;
 	}
@@ -11718,7 +11700,7 @@ bool CvPlot::canTrain(UnitTypes eUnit, bool, bool) const
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlot::countNumAirUnits(TeamTypes eTeam) const
+int CvPlot::countNumNonCargoAirUnits(TeamTypes eTeam) const
 {
 	int iCount = 0;
 
@@ -11731,8 +11713,8 @@ int CvPlot::countNumAirUnits(TeamTypes eTeam) const
 		{
 			const bool isAirUnit = DOMAIN_AIR == pLoopUnit->getDomainType();
 			const bool isRelevantTeam = pLoopUnit->getTeam() == eTeam || NO_TEAM == eTeam;
-			const bool isWithinOtherUnit = !pLoopUnit->isCargo();
-			if (isAirUnit && isRelevantTeam && isWithinOtherUnit)
+			const bool isWithinOtherUnit = pLoopUnit->isCargo();
+			if (isAirUnit && isRelevantTeam && !isWithinOtherUnit)
 			{
 				iCount += pLoopUnit->getUnitInfo().GetAirUnitCap();
 			}

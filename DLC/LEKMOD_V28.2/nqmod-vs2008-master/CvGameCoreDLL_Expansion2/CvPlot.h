@@ -663,7 +663,7 @@ public:
 
 	int getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUpgrade, PlayerTypes ePlayer) const;
 
-	int countNumAirUnits(TeamTypes eTeam) const;
+	int countNumNonCargoAirUnits(TeamTypes eTeam) const;
 
 	int getFoundValue(PlayerTypes eIndex);
 	bool isBestAdjacentFound(PlayerTypes eIndex);
