@@ -65,18 +65,20 @@ bool CvCitySiteEvaluator::CanFound(const CvPlot* pPlot, const CvPlayer* pPlayer,
 	int iRange(0), iDX(0), iDY(0);
 
 	// Used to have a Python hook: CANNOT_FOUND_CITY_CALLBACK
-
-	if(GC.getGame().isFinalInitialized())
+	if (pPlayer != NULL)
 	{
-#ifdef NQM_AI_GIMP_NO_BUILDING_SETTLERS
-		if (pPlayer && (pPlayer->isHuman() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE)) || (!pPlayer->isHuman() && GC.getGame().isOption("GAMEOPTION_AI_GIMP_NO_BUILDING_SETTLERS")))
-#else
-		if(GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer && pPlayer->isHuman())
-#endif
+		if (GC.getGame().isFinalInitialized())
 		{
-			if(pPlayer->getNumCities() > 0)
+#ifdef NQM_AI_GIMP_NO_BUILDING_SETTLERS
+			if (pPlayer && (pPlayer->isHuman() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE)) || (!pPlayer->isHuman() && GC.getGame().isOption("GAMEOPTION_AI_GIMP_NO_BUILDING_SETTLERS")))
+#else
+			if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer && pPlayer->isHuman())
+#endif
 			{
-				return false;
+				if (pPlayer->getNumCities() > 0)
+				{
+					return false;
+				}
 			}
 		}
 	}
