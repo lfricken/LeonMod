@@ -345,9 +345,11 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 		end
 		local start = "             ";
 		local seperator = "    ";
-		local cityLabel = start..cityStrengthStr..seperator..cityHealth;
+
+		local cityLabel = cityStrengthStr;
 
 		
+		controls.CityHealth:SetText(cityHealth);
 		controls.CityStrength:SetText(cityLabel);
 		
     	if isActiveTeamCity then
