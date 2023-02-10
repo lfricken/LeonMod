@@ -4,8 +4,6 @@
 #include "CvPlayer.h"
 #include "CvGameCoreUtils.h"
 
-using namespace std;
-
 
 void addColoredValue(stringstream& s, bool isGreen, const long value, const string description)
 {

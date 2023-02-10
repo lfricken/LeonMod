@@ -1019,9 +1019,10 @@ void tryDoAttacks(CvUnit * pLoopUnit)
 {
 	// TODO ask unit if we should be attacking at all
 	// air units should not attack if low health
-	// melee units below half health should not attack cities
-
 	const bool isRangeAttack = pLoopUnit->IsCanAttackRanged();
+	const bool shouldAvoidCombatBecauseInjured = pLoopUnit->getHealthPercent() < 35;
+	if (!isRangeAttack && shouldAvoidCombatBecauseInjured)
+		return;
 
 	bool canDoAttacks = true;
 	for (int attempts = 0; canDoAttacks && attempts < 5; attempts++) // limit the number of attempts
