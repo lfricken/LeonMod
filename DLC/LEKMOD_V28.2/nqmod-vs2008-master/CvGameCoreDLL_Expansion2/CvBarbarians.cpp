@@ -1021,6 +1021,7 @@ void tryDoAttacks(CvUnit * pLoopUnit)
 	// air units should not attack if low health
 	// melee units below half health should not attack cities
 
+	const bool isRangeAttack = pLoopUnit->IsCanAttackRanged();
 
 	bool canDoAttacks = true;
 	for (int attempts = 0; canDoAttacks && attempts < 5; attempts++) // limit the number of attempts
@@ -1028,7 +1029,6 @@ void tryDoAttacks(CvUnit * pLoopUnit)
 		// update whether we can actually attack, fail early in the loop
 		canDoAttacks &= !pLoopUnit->IsDead() && !pLoopUnit->isDelayedDeath() && pLoopUnit->getMoves() > 0 && !pLoopUnit->isOutOfAttacks();
 
-		const bool isRangeAttack = pLoopUnit->IsCanAttackRanged();
 		const int unitAttackRange = isRangeAttack ? pLoopUnit->GetRange() : pLoopUnit->getMovesPlots();
 
 		// get plots in attack range
@@ -1087,7 +1087,7 @@ void tryMove(CvUnit * pLoopUnit)
 				shuffleVector(&adjacentPlots, randSeed + 75); // randomize moves, be unpredictable!
 				for (int j = 0; !didMove && j < (int)adjacentPlots.size(); ++j)
 				{
-					CvPlot* adjacentPlot = adjacentPlots[i];
+					CvPlot* adjacentPlot = adjacentPlots[j];
 					doMove(pLoopUnit, isRangeAttack, adjacentPlot->getX(), adjacentPlot->getY());
 					didMove = unitPlot != pLoopUnit->plot();
 				}
