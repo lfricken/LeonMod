@@ -481,7 +481,7 @@ void CvCompetition::Update(bool shouldMoveToNextSession, int numTurnsPerSession)
 		{
 			m_entries[i].iScore = (m_entries[i].iTempScore * 10) / numTurnsPerSession;
 			m_entries[i].iTempScore = 0;
-			sort(m_entries.begin(), m_entries.end(), compareEntries);
+			std::stable_sort(m_entries.begin(), m_entries.end(), compareEntries);
 		}
 	}
 }
