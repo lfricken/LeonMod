@@ -15860,6 +15860,11 @@ int CvUnit::getDamage() const
 	VALIDATE_OBJECT
 	return m_iDamage;
 }
+int CvUnit::getHealthPercent() const
+{
+	VALIDATE_OBJECT
+	return 100 * (GC.getMAX_HIT_POINTS() - getDamage()) / GC.getMAX_HIT_POINTS();
+}
 
 
 //	--------------------------------------------------------------------------------

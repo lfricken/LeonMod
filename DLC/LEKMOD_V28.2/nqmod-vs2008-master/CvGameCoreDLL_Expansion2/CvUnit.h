@@ -745,6 +745,7 @@ public:
 	int getGameTurnCreated() const;
 	void setGameTurnCreated(int iNewValue);
 
+	int getHealthPercent() const;
 	int getDamage() const;
 	int setDamage(int iNewValue, PlayerTypes ePlayer = NO_PLAYER, decimal fAdditionalTextDelay = 0, const CvString* pAppendText = NULL);
 	int changeDamage(int iChange, PlayerTypes ePlayer = NO_PLAYER, decimal fAdditionalTextDelay = 0, const CvString* pAppendText = NULL);
