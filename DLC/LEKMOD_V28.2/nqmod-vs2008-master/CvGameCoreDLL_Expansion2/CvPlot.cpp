@@ -3699,6 +3699,8 @@ vector<CvUnit*> CvPlot::GetAdjacentEnemyMilitaryUnits(const TeamTypes eMyTeam, c
 
 	return result;
 }
+// all the 6 plots adjacent to this plot, will filter out plots outside bounds
+// in order, from inner plots to outer plots, returns the combination of those plots
 vector<CvPlot*> CvPlot::GetAdjacentPlotsRadiusRange(int radiusStartInclusive, int radiusEndInclusive)
 {
 	vector<CvPlot*> plots;
@@ -3709,6 +3711,8 @@ vector<CvPlot*> CvPlot::GetAdjacentPlotsRadiusRange(int radiusStartInclusive, in
 	}
 	return plots;
 }
+// the 6 plots adjacent to this plot, will filter out plots outside bounds, in order
+// or the radius, where 1 is the first ring, 0 is this plot, 2 is ring 2 etc.
 vector<CvPlot*> CvPlot::GetAdjacentPlots(int radius)
 {
 	vector<CvPlot*> plots;
@@ -5057,8 +5061,10 @@ bool CvPlot::isValidDomain(const DomainTypes eDomain, const PlayerTypes ePlayer)
 
 	return false;
 }
-
-//	--------------------------------------------------------------------------------
+int CvPlot::distanceTo(const CvPlot* otherPlot) const
+{
+	return plotDistance(getX(), getY(), otherPlot->getX(), otherPlot->getY());
+}
 bool CvPlot::isValidDomainForAction(const CvUnit& unit) const
 {
 	const DomainTypes eDomain = unit.getDomainType();
