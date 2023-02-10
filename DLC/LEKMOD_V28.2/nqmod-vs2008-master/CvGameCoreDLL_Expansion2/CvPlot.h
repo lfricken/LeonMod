@@ -346,9 +346,10 @@ public:
 	bool IsTradeRoute(PlayerTypes ePlayer = NO_PLAYER) const;
 
 	bool isValidDomainForLocation(const CvUnit& unit) const;
+	// true if the unit could move here
 	bool isValidDomainForAction(const CvUnit& unit) const;
 	bool isValidDomain(const DomainTypes eDomain, const PlayerTypes ePlayer) const;
-
+	int distanceTo(const CvPlot* otherPlot) const;
 
 	inline int getX() const
 	{

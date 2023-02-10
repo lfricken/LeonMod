@@ -16036,7 +16036,7 @@ int CvUnit::changeDamage(int iChange, PlayerTypes ePlayer, decimal fAdditionalTe
 
 int CvUnit::getMovesPlots() const
 {
-	int numPlots = (getMoves() + (GC.getMOVE_DENOMINATOR() - 1)) / GC.getMOVE_DENOMINATOR();
+	int numPlots = (getMoves() + (GC.getMOVE_DENOMINATOR() - 1)) / GC.getMOVE_DENOMINATOR(); // rounds up
 	return numPlots;
 }
 // moves are multiplied by GC.getMOVE_DENOMINATOR, so 2 moves actually returns as 120 (probably)
