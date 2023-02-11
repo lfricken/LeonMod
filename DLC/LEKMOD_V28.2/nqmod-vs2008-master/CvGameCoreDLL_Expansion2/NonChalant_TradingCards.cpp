@@ -201,8 +201,9 @@ int TradingCard::GetEstimatedValue(TradingCardTypes type)
 	if (should_AI_Accept_Any_Deal)
 		return 1;
 
-	int era = Era(type);
-	return (1 + era) * 80;
+	const int era = Era(type);
+	const int estimatedValue = 40 * era + 80; // y = mx + b
+	return estimatedValue
 }
 FDataStream& operator <<(FDataStream& kStream, const TradingCardTypes& data)
 {
