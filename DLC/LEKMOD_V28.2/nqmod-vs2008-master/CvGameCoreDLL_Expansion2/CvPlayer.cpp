@@ -7764,7 +7764,7 @@ void CvPlayer::found(int iX, int iY)
 		GC.getGame().onPlayerEnteredEra(GetID(), (EraTypes)GetCurrentEra());
 
 		// TODO HACK -- GIVE players EVERY CARD
-		if (true)
+		if (false)
 		{
 			for (int cardId = 128; cardId < GC.getNumPolicyInfos(); ++cardId)
 			{
