@@ -28509,6 +28509,18 @@ void CvPlayer::DoUpdateCardBenefits()
 			continue;
 
 		const TradingCardTypes cardType = (TradingCardTypes)i;
+		// first, delete invalid cards
+		if (TradingCard::ShouldDeleteCard(cardType, this))
+		{
+			for (int cardIdx = 0; cardIdx < (int)m_cards.size(); ++cardIdx)
+			{
+				if (CardsType(cardIdx) == cardType)
+				{
+					CardsDestroy(cardIdx);
+				}
+			}
+		}
+
 		const bool hasCard = CardsHasAny(cardType);
 
 		// check passive benefits

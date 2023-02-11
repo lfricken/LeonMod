@@ -48,6 +48,8 @@ public:
 	// Used by the AI to estimate how much value a card type has
 	static int GetEstimatedValue(TradingCardTypes type);
 	static bool IsConditionSatisfied(TradingCardTypes type, const CvPlayer* player, bool isActive);
+	// return true if we should delete every card of this type in this players inventory
+	static bool ShouldDeleteCard(TradingCardTypes type, const CvPlayer* player);
 	static bool CanActivate(TradingCardTypes type, const CvPlayer* pPlayer, stringstream* noActiveReason);
 private:
 };
