@@ -583,11 +583,11 @@ int CvPlot::getExtraYield
 					yieldChange += 1;				
 			}
 
-			{// CARD_ANCIENT_RESOURCES_DIVINE_CREATION - +4C +4FH from Natural Wonders
+			{// CARD_ANCIENT_RESOURCES_DIVINE_CREATION - +2C +4FH from Natural Wonders
 				const bool hasDivineCreation = player.HasPolicy("POLICY_CARD_ANCIENT_RESOURCES_DIVINE_CREATION_PASSIVE");
 				const bool isNaturalWonder = plot.HasAnyNaturalWonder();
 				if (eYieldType == YIELD_CULTURE && hasDivineCreation && isNaturalWonder)
-					yieldChange += 4;
+					yieldChange += 2;
 				if (eYieldType == YIELD_FAITH && hasDivineCreation && isNaturalWonder)
 					yieldChange += 4;
 			}
@@ -668,12 +668,13 @@ int CvPlot::getExtraYield
 			{// CARD_MEDIEVAL_RESOURCE_VITICULTURE - +2C +2FD to Wine. +1G Farms.
 				const bool hasViticultureCard = player.HasPolicy("POLICY_CARD_MEDIEVAL_RESOURCE_VITICULTURE_PASSIVE");
 				const bool isWine = plot.HasResource("RESOURCE_WINE");
+				const bool isOlive = plot.HasResource("RESOURCE_OLIVE");
 				const bool hasFarm = plot.HasImprovement("IMPROVEMENT_FARM");
 				if (eYieldType == YIELD_GOLD && hasViticultureCard && hasFarm)
 					yieldChange += 1;
-				if (eYieldType == YIELD_CULTURE && hasViticultureCard && isWine)
+				if (eYieldType == YIELD_CULTURE && hasViticultureCard && (isWine || isOlive))
 					yieldChange += 2;
-				if (eYieldType == YIELD_FOOD && hasViticultureCard && isWine)
+				if (eYieldType == YIELD_FOOD && hasViticultureCard && (isWine || isOlive))
 					yieldChange += 2;				
 			}
 

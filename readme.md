@@ -1,6 +1,5 @@
 
-# LeonMod
-This mod changes a bunch of things you can [read about here](https://docs.google.com/document/d/12eoA7EOY_42vgNyLlonejqKW4pcny9x_-KcpemVLlEg/edit).
+# LeonMod - [click here to learn](https://docs.google.com/document/d/12eoA7EOY_42vgNyLlonejqKW4pcny9x_-KcpemVLlEg/edit)
 
 # Install Instructions
 Basically, the files you see above need to be merged into your `Sid Meier's Civilization V\Assets` folder. So the whole path looks like `Sid Meier's Civilization V\Assets\DLC\LEKMOD_V28.2`, but if you use [GitHub Desktop](https://desktop.github.com/) with a [GitHub account](github.com/login) you will be able to get updates or turn `on/off` the mod instantly with the press of a button.
