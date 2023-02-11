@@ -405,16 +405,16 @@ int CvPlayer::GetExtraYieldForBuilding
 	{// CARD_RENAISSANCE_BUILDINGS_COPERNICUS_OBSERVERATORY If 5 Observeratories, +1 Insight
 		const bool hasCopernicusCard = player.HasPolicy("POLICY_CARD_RENAISSANCE_BUILDINGS_COPERNICUS_OBSERVERATORY_PASSIVE");
 		const bool isObserveratory = eBuildingClass == BuildingClass("BUILDINGCLASS_OBSERVATORY");
-		const int numObserveratories = player.countNumBuildingClasses(BuildingClassTypes(10));
+		int numObserveratories = player.countNumBuildingClasses(BuildingClassTypes(10));
 		if (eYieldType == YIELD_SCIENTIFIC_INSIGHT && !isPercentMod && (numObserveratories >= 5) && hasCopernicusCard && isObserveratory)
 			yieldChange += 1;
 	}
 
 	{// CARD_INDUSTRIAL_BUILDINGS_OFFICER_TRAINING - +1/2 insight to military academies
 		const bool hasOfficerCard = player.HasPolicy("POLICY_CARD_INDUSTRIAL_BUILDINGS_OFFICER_TRAINING_PASSIVE");
-		const bool isMilitaryAcademy = eBuildingClass == BuildingClass("BUILDINGCLASS_MILITARY_ACADEMY");
+		// const bool isMilitaryAcademy = eBuildingClass == BuildingClass("BUILDINGCLASS_MILITARY_ACADEMY");
 		const bool isPalace = eBuildingClass == BuildingClass("BUILDINGCLASS_PALACE");
-		const bool numMilitaryAcademies = player.countNumBuildingClasses(BuildingClassTypes(27));
+		int numMilitaryAcademies = player.countNumBuildingClasses(BuildingClassTypes(27));
 		if (eYieldType == YIELD_SCIENTIFIC_INSIGHT && !isPercentMod && hasOfficerCard && isPalace)
 			yieldChange += numMilitaryAcademies / 2;
 	}
@@ -475,7 +475,7 @@ int CvPlayer::GetExtraYieldForBuilding
 	{// CARD_MODERN_BUILDINGS_ANESTHESIA - +1/2 insight to Medical Labs
 		const bool hasAnesthesiaCard = player.HasPolicy("POLICY_CARD_MODERN_BUILDINGS_ANESTHESIA_PASSIVE");		
 		const bool isPalace = eBuildingClass == BuildingClass("BUILDINGCLASS_PALACE");
-		const bool numMedicalLabs = player.countNumBuildingClasses(BuildingClassTypes(34));
+		int numMedicalLabs = player.countNumBuildingClasses(BuildingClassTypes(34));
 		if (eYieldType == YIELD_SCIENTIFIC_INSIGHT && !isPercentMod && hasAnesthesiaCard && isPalace)
 			yieldChange += numMedicalLabs / 2;
 	}
