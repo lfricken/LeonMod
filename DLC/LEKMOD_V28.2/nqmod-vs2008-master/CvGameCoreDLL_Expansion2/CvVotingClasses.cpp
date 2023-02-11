@@ -8221,25 +8221,26 @@ bool CvLeagueAI::CanCommitVote(PlayerTypes eToPlayer, CvString* sTooltipSink)
 			}
 		}
 
-		// They don't have a diplomat in our capital
-		if (!DEBUG_LEAGUES)
-		{
-			if (!GetPlayer()->GetEspionage()->IsOtherDiplomatVisitingMe(eToPlayer))
-			{
-				bCanCommit = false;
-				if (sTooltipSink != NULL)
-				{
-					if (GC.getGame().getActivePlayer() == GetPlayer()->GetID())
-					{
-						(*sTooltipSink) += Localization::Lookup("TXT_KEY_DIPLO_VOTE_TRADE_NO_SPY_ACTIVE_PLAYER").toUTF8();
-					}
-					else
-					{
-						(*sTooltipSink) += Localization::Lookup("TXT_KEY_DIPLO_VOTE_TRADE_NO_SPY").toUTF8();
-					}
-				}
-			}
-		}
+		// remove need for spy as diplomat to trade votes
+		//// They don't have a diplomat in our capital
+		//if (!DEBUG_LEAGUES)
+		//{
+		//	if (!GetPlayer()->GetEspionage()->IsOtherDiplomatVisitingMe(eToPlayer))
+		//	{
+		//		bCanCommit = false;
+		//		if (sTooltipSink != NULL)
+		//		{
+		//			if (GC.getGame().getActivePlayer() == GetPlayer()->GetID())
+		//			{
+		//				(*sTooltipSink) += Localization::Lookup("TXT_KEY_DIPLO_VOTE_TRADE_NO_SPY_ACTIVE_PLAYER").toUTF8();
+		//			}
+		//			else
+		//			{
+		//				(*sTooltipSink) += Localization::Lookup("TXT_KEY_DIPLO_VOTE_TRADE_NO_SPY").toUTF8();
+		//			}
+		//		}
+		//	}
+		//}
 
 		// Not a member
 		if (!pLeague->IsMember(GetPlayer()->GetID()))
