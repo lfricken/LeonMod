@@ -384,6 +384,9 @@ void CvUnitMission::UpdateMission(UnitHandle& hUnit)
 
 		if(hUnit->GetMissionTimer() == 0)
 		{
+			stringstream s;
+			s << "CvUnit:UpdateMission " << hUnit->getOwner() << " " << hUnit->GetID();
+			GC.debugState(s); // CvPlayer::UpdateMission
 			if(hUnit->GetActivityType() == ACTIVITY_MISSION)
 			{
 				ContinueMission(hUnit);
