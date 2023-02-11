@@ -4117,7 +4117,7 @@ int CvPlayerCulture::GetTotalThemingBonuses() const
 	int iLoop;
 	for(pCity = m_pPlayer->firstCity(&iLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iLoop))
 	{
-		iRtnValue += pCity->GetCityBuildings()->GetThemingBonuses();;
+		iRtnValue += pCity->GetCityBuildings()->GetThemingBonuses();
 	}
 
 	return iRtnValue;

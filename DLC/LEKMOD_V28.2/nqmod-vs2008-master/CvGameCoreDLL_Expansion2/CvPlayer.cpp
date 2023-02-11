@@ -1526,7 +1526,7 @@ void CvPlayer::initFreeState(CvGameInitialItemsOverrides& kOverrides)
 		setJONSCulture(iInitialCulture);
 
 		 // I think policy points is a better name than Jon's Culture, don't you?
-		ChangeJONSCulturePerTurnForFree(kHandicapInfo.getFreeCulturePerTurn()); // No, IMNSHO ;P
+		ChangeJONSCulturePerTurnForFree(kHandicapInfo.getFreeCulturePerTurn()); // No, IMNSHO;P
 	}
 	// Extra Happiness from Luxuries
 	ChangeExtraHappinessPerLuxury(kHandicapInfo.getExtraHappinessPerLuxury());

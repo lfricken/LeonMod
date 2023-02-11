@@ -3956,7 +3956,7 @@ void CvGame::doControl(ControlTypes eControl)
 	case CONTROL_VICTORY_SCREEN:
 	{
 		CvPopupInfo kPopup(BUTTONPOPUP_VICTORY_INFO, getActivePlayer());
-		kPopup.iData1 = 1;;
+		kPopup.iData1 = 1;
 		GC.GetEngineUserInterface()->AddPopup(kPopup);
 	}
 	break;

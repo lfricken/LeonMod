@@ -177,7 +177,7 @@ int CvPlayer::GetExtraYieldForBuilding
 			eBuildingClass == BuildingClass("BUILDINGCLASS_HYDRO_PLANT") || 
 			eBuildingClass == BuildingClass("BUILDINGCLASS_REFINERY") || 
 			eBuildingClass == BuildingClass("BUILDINGCLASS_SOLAR_PLANT") || 
-			eBuildingClass == BuildingClass("BUILDINGCLASS_NUCLEAR_PLANT") ;
+			eBuildingClass == BuildingClass("BUILDINGCLASS_NUCLEAR_PLANT");
 		if (eYieldType == YIELD_SCIENCE && isPercentMod && hasUrbanization && isProductionBuilding)
 			yieldChange += 3;
 		if (eYieldType == YIELD_PRODUCTION && isPercentMod && hasUrbanization && isProductionBuilding)

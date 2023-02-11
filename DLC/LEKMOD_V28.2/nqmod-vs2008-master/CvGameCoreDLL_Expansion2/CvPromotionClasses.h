@@ -476,7 +476,7 @@ public:
 	void SetPromotion(PromotionTypes eIndex, bool bValue);
 
 	bool GetAllowFeaturePassable(FeatureTypes eFeatureType) const;
-	bool GetAllowTerrainPassable(TerrainTypes eTerrainType) const ;
+	bool GetAllowTerrainPassable(TerrainTypes eTerrainType) const;
 
 	int GetUnitClassAttackMod(UnitClassTypes eUnitClass) const;
 	int GetUnitClassDefenseMod(UnitClassTypes eUnitClass) const;

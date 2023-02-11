@@ -121,60 +121,60 @@ void PopupReturn::read(FDataStream& kStream)
 	int iValue;
 	int i;
 
-	kStream >>  iSize ;
+	kStream >>  iSize;
 	for(i = 0; i < iSize; i++)
 	{
-		kStream >>  iValue ;
+		kStream >>  iValue;
 		CvPopup_SetAtGrow(m_aiSelectedRadioButton, i, iValue);
 	}
 
-	kStream >>  iSize ;
+	kStream >>  iSize;
 	for(i = 0; i < iSize; i++)
 	{
-		kStream >>  iValue ;
+		kStream >>  iValue;
 		CvPopup_SetAtGrow(m_aiBitField, i, iValue);
 	}
 
-	kStream >>  iSize ;
+	kStream >>  iSize;
 	for(i = 0; i < iSize; i++)
 	{
 		CvString strValue;
-		kStream >>  strValue ;
+		kStream >>  strValue;
 		CvPopup_SetAtGrow(m_aszEditBoxString, i, strValue);
 	}
 
-	kStream >>  iSize ;
+	kStream >>  iSize;
 	for(i = 0; i < iSize; i++)
 	{
-		kStream >>  iValue ;
+		kStream >>  iValue;
 		CvPopup_SetAtGrow(m_aiSpinnerWidgetValues, i, iValue);
 	}
 
-	kStream >>  iSize ;
+	kStream >>  iSize;
 	for(i = 0; i < iSize; i++)
 	{
-		kStream >>  iValue ;
+		kStream >>  iValue;
 		CvPopup_SetAtGrow(m_aiPulldownID, i, iValue);
 	}
 
-	kStream >>  iSize ;
+	kStream >>  iSize;
 	for(i = 0; i < iSize; i++)
 	{
-		kStream >>  iValue ;
+		kStream >>  iValue;
 		CvPopup_SetAtGrow(m_aiListBoxID, i, iValue);
 	}
 
-	kStream >>  iSize ;
+	kStream >>  iSize;
 	for(i = 0; i < iSize; i++)
 	{
-		kStream >>  iValue ;
+		kStream >>  iValue;
 		CvPopup_SetAtGrow(m_aiSpinBoxID, i, iValue);
 	}
 
-	kStream >>  iSize ;
+	kStream >>  iSize;
 	for(i = 0; i < iSize; i++)
 	{
-		kStream >>  iValue ;
+		kStream >>  iValue;
 		CvPopup_SetAtGrow(m_aiButtonID, i, iValue);
 	}
 }
@@ -191,52 +191,52 @@ void PopupReturn::write(FDataStream& kStream) const
 	unsigned int iI;
 	//char szString[1024];
 
-	kStream <<  m_aiSelectedRadioButton.size() ;
+	kStream <<  m_aiSelectedRadioButton.size();
 	for(iI = 0; iI < m_aiSelectedRadioButton.size(); iI++)
 	{
-		kStream <<  m_aiSelectedRadioButton[iI] ;
+		kStream <<  m_aiSelectedRadioButton[iI];
 	}
 
-	kStream <<  m_aiBitField.size() ;
+	kStream <<  m_aiBitField.size();
 	for(iI = 0; iI < m_aiBitField.size(); iI++)
 	{
-		kStream <<  m_aiBitField[iI] ;
+		kStream <<  m_aiBitField[iI];
 	}
 
-	kStream <<  m_aszEditBoxString.size() ;
+	kStream <<  m_aszEditBoxString.size();
 	for(iI = 0; iI < m_aszEditBoxString.size(); iI++)
 	{
-		kStream <<  m_aszEditBoxString[iI] ;
+		kStream <<  m_aszEditBoxString[iI];
 	}
 
-	kStream <<  m_aiSpinnerWidgetValues.size() ;
+	kStream <<  m_aiSpinnerWidgetValues.size();
 	for(iI = 0; iI < m_aiSpinnerWidgetValues.size(); iI++)
 	{
-		kStream <<  m_aiSpinnerWidgetValues[iI] ;
+		kStream <<  m_aiSpinnerWidgetValues[iI];
 	}
 
-	kStream <<  m_aiPulldownID.size() ;
+	kStream <<  m_aiPulldownID.size();
 	for(iI = 0; iI < m_aiPulldownID.size(); iI++)
 	{
-		kStream <<  m_aiPulldownID[iI] ;
+		kStream <<  m_aiPulldownID[iI];
 	}
 
-	kStream <<  m_aiListBoxID.size() ;
+	kStream <<  m_aiListBoxID.size();
 	for(iI = 0; iI < m_aiListBoxID.size(); iI++)
 	{
-		kStream <<  m_aiListBoxID[iI] ;
+		kStream <<  m_aiListBoxID[iI];
 	}
 
-	kStream <<  m_aiSpinBoxID.size() ;
+	kStream <<  m_aiSpinBoxID.size();
 	for(iI = 0; iI < m_aiSpinBoxID.size(); iI++)
 	{
-		kStream <<  m_aiSpinBoxID[iI] ;
+		kStream <<  m_aiSpinBoxID[iI];
 	}
 
-	kStream <<  m_aiButtonID.size() ;
+	kStream <<  m_aiButtonID.size();
 	for(iI = 0; iI < m_aiButtonID.size(); iI++)
 	{
-		kStream <<  m_aiButtonID[iI] ;
+		kStream <<  m_aiButtonID[iI];
 	}
 }
 

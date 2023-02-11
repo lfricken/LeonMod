@@ -4618,7 +4618,7 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 		}
 
 		//Achievement Test
-		kNewAlly.GetPlayerAchievements().AlliedWithCityState(GetPlayer()->GetID());;
+		kNewAlly.GetPlayerAchievements().AlliedWithCityState(GetPlayer()->GetID());
 	}
 
 	// Alter who gets this guy's resources

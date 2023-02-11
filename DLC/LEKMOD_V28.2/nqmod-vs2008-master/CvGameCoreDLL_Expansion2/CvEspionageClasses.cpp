@@ -338,7 +338,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_CANT_STEAL_TECH_S");
 							strSummary << GET_PLAYER(eCityOwner).getCivilizationInfo().getShortDescriptionKey();
 							Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_CANT_STEAL_TECH");
-							strNotification << GetSpyRankName(pSpy->m_eRank);;
+							strNotification << GetSpyRankName(pSpy->m_eRank);
 							strNotification << m_pPlayer->getCivilizationInfo().getSpyNames(pSpy->m_iName);
 							strNotification << GET_PLAYER(eCityOwner).getCivilizationInfo().getShortDescriptionKey();
 							pNotifications->Add(NOTIFICATION_SPY_CANT_STEAL_TECH, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
@@ -414,7 +414,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_CANT_STEAL_TECH_S");
 				strSummary << GET_PLAYER(eCityOwner).getCivilizationInfo().getShortDescriptionKey();
 				Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_CANT_STEAL_TECH");
-				strNotification << GetSpyRankName(pSpy->m_eRank);;
+				strNotification << GetSpyRankName(pSpy->m_eRank);
 				strNotification << m_pPlayer->getCivilizationInfo().getSpyNames(pSpy->m_iName);
 				strNotification << GET_PLAYER(eCityOwner).getCivilizationInfo().getShortDescriptionKey();
 				pNotifications->Add(NOTIFICATION_SPY_CANT_STEAL_TECH, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
@@ -2364,7 +2364,7 @@ void CvPlayerEspionage::ProcessSpyMessages()
 			case SPY_RESULT_DETECTED:
 				// notify defending player that a spy of unknown origin stole something
 			{
-				Localization::String strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_TECH_STOLEN_SPY_DETECTED_WO_TECH_S");;
+				Localization::String strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_TECH_STOLEN_SPY_DETECTED_WO_TECH_S");
 				Localization::String strNotification;
 
 				if(pCityEspionage->m_aiSpyAssignment[m_pPlayer->GetID()] == -1)

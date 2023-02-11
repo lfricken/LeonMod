@@ -1217,7 +1217,7 @@ public:
 	int getAlwaysHostileCount() const;
 
 	int getArmyID() const;
-	void setArmyID(int iNewArmyID) ;
+	void setArmyID(int iNewArmyID);
 
 	bool isUnderTacticalControl() const;
 	void setTacticalMove(TacticalAIMoveTypes eMove);

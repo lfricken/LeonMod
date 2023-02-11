@@ -13187,7 +13187,7 @@ CvUnit* CvUnit::GetBestInterceptor(const CvPlot& interceptPlot, CvUnit* /* = NUL
 {
 	VALIDATE_OBJECT
 
-	CvUnit* pBestUnit = NULL;;
+	CvUnit* pBestUnit = NULL;
 	const int noIntercept = 0; // 0 means no intercept ability
 	int previousBest = noIntercept;
 
@@ -23740,7 +23740,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 				}
 			}
 
-			iTemp = pkPromotionInfo->GetFeatureDefensePercent(iI);;
+			iTemp = pkPromotionInfo->GetFeatureDefensePercent(iI);
 			if(iTemp != 0)
 			{
 				iExtra = getExtraFeatureDefensePercent(eFeature);

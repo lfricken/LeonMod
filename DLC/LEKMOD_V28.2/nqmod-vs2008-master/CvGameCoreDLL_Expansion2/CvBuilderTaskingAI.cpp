@@ -265,7 +265,7 @@ int GetPlotYield(CvPlot* pPlot, YieldTypes eYield)
 		return 0;
 	}
 
-	return pPlot->calculateNatureYield(eYield, NO_TEAM);;
+	return pPlot->calculateNatureYield(eYield, NO_TEAM);
 }
 
 void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* pTargetCity, RouteTypes eRoute)

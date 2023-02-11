@@ -2875,7 +2875,7 @@ int CvDiplomacyAI::GetMajorCivOpinionWeight(PlayerTypes ePlayer)
 	iOpinionWeight += GetTimesRobbedScore(ePlayer);
 
 	//////////////////////////////////////
-	// BROKEN PROMISES ;_;
+	// BROKEN PROMISES;_;
 	//////////////////////////////////////
 	iOpinionWeight += GetBrokenMilitaryPromiseScore(ePlayer);
 	iOpinionWeight += GetBrokenMilitaryPromiseWithAnybodyScore(ePlayer);
@@ -3436,7 +3436,7 @@ void applyDemands(CvDiplomacyAI& us, CvPlayer& them, FStaticVector<int, 128, tru
 	}
 }
 ////////////////////////////////////
-// BROKEN PROMISES ;_;
+// BROKEN PROMISES;_;
 ////////////////////////////////////
 void applyBrokenPromises(CvDiplomacyAI& us, CvPlayer& them, FStaticVector<int, 128, true, c_eCiv5GameplayDLL>& viApproachWeights)
 {

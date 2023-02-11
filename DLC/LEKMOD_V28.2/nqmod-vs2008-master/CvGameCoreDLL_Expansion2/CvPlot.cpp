@@ -5729,7 +5729,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 	// Remove effects for old owner before changing the member
 	if(getOwner() != eNewValue)
 	{
-		PlayerTypes eOldOwner = getOwner();;
+		PlayerTypes eOldOwner = getOwner();
 
 		GC.getGame().addReplayMessage(REPLAY_MESSAGE_PLOT_OWNER_CHANGE, eNewValue, "", getX(), getY());
 
@@ -9797,7 +9797,7 @@ void CvPlot::SilentlyResetAllBuildProgress()
 	if(NULL != m_paiBuildProgress)  // if it doesn't exist no point in clearing it out
 	{
 		int iNumBuildInfos = GC.getNumBuildInfos();
-		for(int iThisBuild = 0 ; iThisBuild < iNumBuildInfos; iThisBuild++)
+		for(int iThisBuild = 0; iThisBuild < iNumBuildInfos; iThisBuild++)
 		{
 			CvBuildInfo* pkBuildInfo = GC.getBuildInfo((BuildTypes) iThisBuild);
 			if(!pkBuildInfo)

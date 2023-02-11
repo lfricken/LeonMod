@@ -2630,7 +2630,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 				if ((uiListSize = aBestPlotList.size()) > 0)
 				{
 					aBestPlotList.SortItems();		// Highest score will be first.
-					for (uint i = 0; i < uiListSize ; ++i )	
+					for (uint i = 0; i < uiListSize; ++i )	
 					{
 						CvPlot* pPlot = aBestPlotList.GetElement(i);
 						bool bCanFindPath = GC.getPathFinder().GenerateUnitPath(pUnit.pointer(), iUnitX, iUnitY, pPlot->getX(), pPlot->getY(), MOVE_TERRITORY_NO_ENEMY | MOVE_MAXIMIZE_EXPLORE | MOVE_UNITS_IGNORE_DANGER /*iFlags*/, true/*bReuse*/);

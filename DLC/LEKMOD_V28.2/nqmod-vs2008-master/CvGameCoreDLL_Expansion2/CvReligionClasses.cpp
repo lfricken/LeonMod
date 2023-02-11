@@ -4313,7 +4313,7 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 		if(!m_bHasPaidAdoptionBonus)
 		{
 			int iGoldBonus = pNewReligion->m_Beliefs.GetGoldWhenCityAdopts();
-			iGoldBonus *= GC.getGame().getGameSpeedInfo().getTrainPercent();;
+			iGoldBonus *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 			iGoldBonus /= 100;
 
 			if(iGoldBonus > 0)

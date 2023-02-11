@@ -2852,7 +2852,7 @@ void CvDealAI::DoAddCitiesToUs(CvDeal* pDeal, PlayerTypes eThem, bool bDontChang
 	// Loop through sorted Cities and add them to the deal if they're under the amount to give up - start from the back of the list, because that's where the CLOSEST cities are
 	int iSortedCityID;
 	//			for (int iSortedCityIndex = 0; iSortedCityIndex < viCityProximities.size(); iSortedCityIndex++)
-	for(int iSortedCityIndex = viCityProximities.size() - 1; iSortedCityIndex > -1 ; iSortedCityIndex--)
+	for(int iSortedCityIndex = viCityProximities.size() - 1; iSortedCityIndex > -1; iSortedCityIndex--)
 	{
 		iSortedCityID = viCityProximities.GetElement(iSortedCityIndex);
 		pLoopCity = pLosingPlayer->getCity(iSortedCityID);
@@ -3593,7 +3593,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 			int iCityValueToSurrender = iCityValue * iPercentCitiesGiveUp / 100;
 
 			// Loop through sorted Cities and add them to the deal if they're under the amount to give up - start from the back of the list, because that's where the CLOSEST cities are
-			for(int iSortedCityIndex = viCityProximities.size() - 1; iSortedCityIndex > -1 ; iSortedCityIndex--)
+			for(int iSortedCityIndex = viCityProximities.size() - 1; iSortedCityIndex > -1; iSortedCityIndex--)
 			{
 				iSortedCityID = viCityProximities.GetElement(iSortedCityIndex);
 				pLoopCity = pLosingPlayer->getCity(iSortedCityID);

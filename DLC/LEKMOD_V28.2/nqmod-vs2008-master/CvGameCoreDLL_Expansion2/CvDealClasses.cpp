@@ -317,7 +317,7 @@ int CvDeal::GetGoldAvailable(PlayerTypes ePlayer, TradeableItems eItemToBeChange
 			{
 				iGoldCost = GC.getGame().GetGameDeals()->GetTradeItemGoldCost(it->m_eItemType, m_eFromPlayer, m_eToPlayer);
 
-				if(iGoldCost != 0)		// Negative cost valid?  Maybe ;-O
+				if(iGoldCost != 0)		// Negative cost valid?  Maybe;-O
 				{
 					iGoldAvailable -= iGoldCost;
 				}

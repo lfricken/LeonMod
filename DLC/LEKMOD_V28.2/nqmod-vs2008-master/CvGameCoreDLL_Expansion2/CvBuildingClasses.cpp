@@ -2795,7 +2795,7 @@ bool CvCityBuildings::HasBuildingClass(BuildingClassTypes eClass, int* pCount) c
 			const CvBuildingEntry* pkInfo = GC.getBuildingInfo(type);
 			if (pkInfo && pkInfo->GetBuildingClassType() == eClass)
 			{
-				(*pCount)++;;
+				(*pCount)++;
 			}
 		}
 	}
@@ -4474,7 +4474,7 @@ void BuildingArrayHelpers::Write(FDataStream& kStream, int* paiBuildingArray, in
 		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 		if(pkBuildingInfo)
 		{
-			CvInfosSerializationHelper::WriteHashed(kStream, pkBuildingInfo);;
+			CvInfosSerializationHelper::WriteHashed(kStream, pkBuildingInfo);
 			kStream << paiBuildingArray[iI];
 		}
 		else

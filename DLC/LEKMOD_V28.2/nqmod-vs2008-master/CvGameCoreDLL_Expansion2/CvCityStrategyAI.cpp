@@ -2501,7 +2501,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedNavalGrowth(AICityStrategyTyp
 
 					if(pLoopPlot->isWater() && !pLoopPlot->isLake())
 					{
-						iNumOceanPlots++;;
+						iNumOceanPlots++;
 					}
 				}
 			}
