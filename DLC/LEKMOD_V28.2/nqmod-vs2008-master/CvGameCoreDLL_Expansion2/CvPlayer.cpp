@@ -1906,11 +1906,11 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI, const bool i
 
 		CvUnit* pNewUnit = initUnit(eUnit, pBestPlot->getX(), pBestPlot->getY(), eUnitAI);
 
-		// give free units a big bonus
+		// give free units bonus moves
 		const bool isSettler = pNewUnit->isFound(); // can ever found cities?
 		if (isSettler && isGameStart)
 		{
-			const int extraMoves = 5;
+			const int extraMoves = 3;
 			const int sightBonus = 6;
 
 			// buff unit
