@@ -11180,21 +11180,21 @@ int CvPlayer::GetJONSCultureEverGeneratedTimes100() const
 }
 int CvPlayer::GetVictoryCultureEverGeneratedT100() const
 {
-	// count average culture for living players
-	int totalCultureGeneratedT100 = 0;
-	int numValidPlayers = 0;
+	int highestT100 = 0;
 	for (int i = 0; i < MAX_PLAYERS; ++i)
 	{
 		const CvPlayer& player = GET_PLAYER((PlayerTypes)i);
 		if (player.isAlive() && !player.isMinorCiv() && !player.isBarbarian())
 		{
-			numValidPlayers++;
-			totalCultureGeneratedT100 += player.GetJONSCultureEverGeneratedTimes100();
+			const int thisAmountT100 = player.GetJONSCultureEverGeneratedTimes100();
+			if (thisAmountT100 > highestT100)
+			{
+				highestT100 = thisAmountT100;
+			}
 		}
 	}
-	const int averageCultureT100 = (totalCultureGeneratedT100 / max(1, numValidPlayers));
 
-	return (GetJONSCultureEverGeneratedTimes100() / 2) + (averageCultureT100 / 2);
+	return (GetJONSCultureEverGeneratedTimes100() / 2) + (highestT100 / 2);
 }
 
 
