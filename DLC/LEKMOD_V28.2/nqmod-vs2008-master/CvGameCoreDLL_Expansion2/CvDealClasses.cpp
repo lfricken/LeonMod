@@ -558,25 +558,30 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			return false;
 		}
 
-		if (!bFinalizing) // finalizing passes in each existing trade item
+		const int cardIdx = iData1;
+		const TradingCardTypes cardType = (TradingCardTypes)iData2;
+		// finalizing means we should do a confirmation before the deal goes through
+		// we should not check finalizing, since the card IS already in the deal
+		if (!bFinalizing)
 		{
 			for (TradedItemList::iterator it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
 			{
 				const bool isCard = it->m_eItemType == TRADE_ITEM_CARD;
-				const bool isAlreadyInDeal = it->m_iData1 == iData1; // same card
-				if (isCard && isAlreadyInDeal)
+				const bool isFromSamePlayer = it->m_eFromPlayer == ePlayer;
+				const bool isCardIdxAlreadyInDeal = it->m_iData1 == cardIdx;
+				if (isCard && isFromSamePlayer && isCardIdxAlreadyInDeal)
 				{
-					return false; // no duplicate
+					return false; // can't send same cardIdx twice
 				}
 			}
 		}
-		if (!pFromPlayer->CardsIsVisible(iData1))
+		if (!pFromPlayer->CardsIsVisible(cardIdx))
 		{
 			return false; // cannot trade hidden cards
 		}
 		// compare the passed cardType to the one the player actually has in this cardIdx slot
 		// if they don't match, something went wrong
-		const bool isTypeExpected = pFromPlayer->CardsType(iData1) == iData2;
+		const bool isTypeExpected = pFromPlayer->CardsType(cardIdx) == cardType;
 		if (!isTypeExpected)
 		{
 			return false; // card types were wrong

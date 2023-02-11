@@ -35,6 +35,7 @@ enum TradeableItems
     TRADE_ITEM_ALLOW_EMBASSY,
 	TRADE_ITEM_DECLARATION_OF_FRIENDSHIP,	// Only "traded" between human players
 	TRADE_ITEM_VOTE_COMMITMENT,
+	// data1: cardIdx, data2: cardType
 	TRADE_ITEM_CARD,
 	TRADE_ITEM_LUMP,
     NUM_TRADEABLE_ITEMS,
