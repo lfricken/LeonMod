@@ -27,6 +27,8 @@
 !/DLC/LEKMOD_V28.2/civilzationvatlas-vanilla.dds
 
 !/DLC/LEKMOD_V28.2/nqmod-vs2008-master/**
+#include the whole maps folder
+!/Maps/**
 
 
 # main menu background and music
