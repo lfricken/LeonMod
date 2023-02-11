@@ -975,7 +975,7 @@ bool isAcceptableDomainAttackTarget(CvUnit * pLoopUnit, CvPlot * plot, bool isRa
 		return false;
 	if (pLoopUnit->getDomainType() == DOMAIN_HOVER) // hover units can go anywhere
 		return true;
-	if (pLoopUnit->getDomainType() == DOMAIN_AIR) // air units can go anywhere
+	if (pLoopUnit->getDomainType() == DOMAIN_AIR) // air units can attack anywhere
 		return true;
 
 	CvAssert(false); // domain type wasn't handled
@@ -1021,7 +1021,9 @@ void tryDoAttacks(CvUnit * pLoopUnit)
 	// air units should not attack if low health
 	const bool isRangeAttack = pLoopUnit->IsCanAttackRanged();
 	const bool shouldAvoidCombatBecauseInjured = pLoopUnit->getHealthPercent() < 35;
-	if (!isRangeAttack && shouldAvoidCombatBecauseInjured)
+	const bool isAirUnit = pLoopUnit->getDomainType() == DOMAIN_AIR;
+	const bool isMeleeUnit = !isRangeAttack;
+	if ((isAirUnit || isMeleeUnit) && shouldAvoidCombatBecauseInjured)
 		return;
 
 	bool canDoAttacks = true;
@@ -1081,17 +1083,8 @@ void tryMove(CvUnit * pLoopUnit)
 			if (shouldMoveTowards)
 			{
 				unitPlot = pLoopUnit->plot();
-
-				// we can't move to the plot directly often because the unit prevents us from moving
-				// so try moving to an adjacent plot
-				vector<CvPlot*> adjacentPlots = unitPlot->GetAdjacentPlots();
-				shuffleVector(&adjacentPlots, randSeed + 75); // randomize moves, be unpredictable!
-				for (int j = 0; !didMove && j < (int)adjacentPlots.size(); ++j)
-				{
-					CvPlot* adjacentPlot = adjacentPlots[j];
-					doMove(pLoopUnit, isRangeAttack, adjacentPlot->getX(), adjacentPlot->getY());
-					didMove = unitPlot != pLoopUnit->plot();
-				}
+				doMove(pLoopUnit, isRangeAttack, plot->getX(), plot->getY());
+				didMove = unitPlot != pLoopUnit->plot();
 			}
 		}
 	}
@@ -1106,8 +1099,17 @@ void tryMove(CvUnit * pLoopUnit)
 			if (distance <= moveRange)
 			{
 				unitPlot = pLoopUnit->plot();
-				doMove(pLoopUnit, isRangeAttack, plot->getX(), plot->getY());
-				didMove = unitPlot != pLoopUnit->plot();
+
+				// we can't move to the plot directly often because the unit prevents us from moving
+				// so try moving to an adjacent plot
+				vector<CvPlot*> adjacentPlots = unitPlot->GetAdjacentPlots();
+				shuffleVector(&adjacentPlots, randSeed + 75); // randomize moves, be unpredictable!
+				for (int j = 0; !didMove && j < (int)adjacentPlots.size(); ++j)
+				{
+					CvPlot* adjacentPlot = adjacentPlots[j];
+					doMove(pLoopUnit, isRangeAttack, adjacentPlot->getX(), adjacentPlot->getY());
+					didMove = unitPlot != pLoopUnit->plot();
+				}
 			}
 		}
 	}
