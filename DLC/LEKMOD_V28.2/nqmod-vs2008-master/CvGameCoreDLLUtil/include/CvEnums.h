@@ -1436,10 +1436,14 @@ enum OrderTypes
 {
 	NO_ORDER = -1,
 
+	// train unit
 	ORDER_TRAIN,
+	// construct building
 	ORDER_CONSTRUCT,
+	// create project
 	ORDER_CREATE,
 	ORDER_PREPARE,
+	// gold, science, etc
 	ORDER_MAINTAIN,
 
 	NUM_ORDER_TYPES

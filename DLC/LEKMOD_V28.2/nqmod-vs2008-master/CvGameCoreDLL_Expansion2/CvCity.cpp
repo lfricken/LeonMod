@@ -1823,6 +1823,8 @@ void CvCity::doResourceDemands()
 //	--------------------------------------------------------------------------------
 void CvCity::doTurn()
 {
+	UpdateFreeBuildings(false);
+
 #ifdef AUI_PERF_LOGGING_FORMATTING_TWEAKS
 	AI_PERF_FORMAT("City-AI-perf.csv", ("CvCity::doTurn, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()));
 #else
@@ -14352,6 +14354,8 @@ int CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, bool bUseToSati
 		IncrementUnitStatCount(pUnit);
 	}
 
+	OnAfterFinishBuild(ORDER_TRAIN, eUnitType);
+
 	return pUnit->GetID();
 }
 
@@ -14409,9 +14413,15 @@ bool CvCity::CreateBuilding(BuildingTypes eBuildingType)
 		CheckForAchievementBuilding(eBuildingType);
 	}
 
+	OnAfterFinishBuild(ORDER_CONSTRUCT, eBuildingType);
+
 	return true;
 }
 
+void CvCity::OnAfterFinishBuild(OrderTypes type, int data1)
+{
+	UpdateFreeBuildings(false);
+}
 
 //	--------------------------------------------------------------------------------
 bool CvCity::CreateProject(ProjectTypes eProjectType)
@@ -14505,6 +14515,8 @@ bool CvCity::CreateProject(ProjectTypes eProjectType)
 			gDLL->GameplaySpaceshipEdited(pDllPlot.get(), spaceshipState);
 		}
 	}
+
+	OnAfterFinishBuild(ORDER_CREATE, eProjectType);
 
 	return true;
 }
