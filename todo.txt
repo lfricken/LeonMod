@@ -1,5 +1,5 @@
 
-
+find and fix ;; or WHITESPACE;
 
 reorder game options
 auto check the good ones, see the default button

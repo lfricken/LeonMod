@@ -11762,6 +11762,9 @@ int CvUnit::GetBaseCombatStrength(bool bIgnoreEmbarked) const
 		return GetEmbarkedUnitDefense() / 100;
 	}
 
+	if (!isHuman() && isFound()) // ai glitches if the settlers have strength
+		return 0;
+
 	return m_iBaseCombat;
 }
 
@@ -12301,7 +12304,7 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 
 	if(m_bEmbarked)
 	{
-		return GetEmbarkedUnitDefense();;
+		return GetEmbarkedUnitDefense();
 	}
 
 	if(GetBaseCombatStrength() == 0)
@@ -12937,7 +12940,7 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 
 		if (pDefender->isEmbarked())
 		{
-			iDefenderStrength = pDefender->GetEmbarkedUnitDefense();;
+			iDefenderStrength = pDefender->GetEmbarkedUnitDefense();
 		}
 
 		// Use Ranged combat value for defender, UNLESS it's a boat or an Impi (ranged support)
