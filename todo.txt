@@ -1,11 +1,13 @@
 
-
+allow trading votes without tech or diplomats (diplomats still do stuff)
+deal history screen is busted?
+disallow per turn with cards
 remove ai threaten situation where you can get all their stuff (and readd lump gold trading)
 road gold cost 1/4th gold > 1 turn to build, substantial trade route bonus
 capped cities limit of 2 + the benefits
 start with warrior and scout?
 disable attack button of ranged unit
-decouple victory point options
+decouple victory point options from engine building
 missing - cultural influence, scientific insight
 usage of strategic resources too low
 

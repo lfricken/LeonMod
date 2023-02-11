@@ -3013,9 +3013,9 @@ CvString CvPlayerCulture::GetOurTourism_Tooltip() const
 
 	{	// EXPLAIN tourism from culture
 		stringstream s;
-		s << "Each policy will cause +";
+		s << "The average number of policies in the world will cause +";
 		s << GC.getTOURISM_FROM_CITY_CULTURE_PER_POLICY();
-		s << "% of city [ICON_CULTURE] Culture to be added to {TXT_KEY_CULTURAL_INFLUENCE}";
+		s << "% of city [ICON_CULTURE] Culture to be added to {TXT_KEY_CULTURAL_INFLUENCE} per policy";
 		tooltip += s.str().c_str();
 	}
 
@@ -3024,7 +3024,7 @@ CvString CvPlayerCulture::GetOurTourism_Tooltip() const
 		s << "[NEWLINE][ICON_BULLET][COLOR_POSITIVE_TEXT]+";
 		s << GetTourismFromCityCultureT100() / 100;
 		s << "[ENDCOLOR] [ICON_CULTURAL_INFLUENCE] from [COLOR_CYAN]";
-		s << GetTourismFromCulturePercentT100();
+		s << GetAverageTourismFromCulturePercentT100();
 		s << "%[ENDCOLOR] of [COLOR_CYAN]";
 		s << GetCultureFromCitiesT100() / 100;
 		s << "[ENDCOLOR] City [ICON_CULTURE] Culture";
@@ -3104,7 +3104,7 @@ int CvPlayerCulture::GetTourismFromCityCultureT100() const
 	// culture from cities
 	cityCultureT100 += GetCultureFromCitiesT100();
 
-	T100 result = cityCultureT100 * GetTourismFromCulturePercentT100();
+	T100 result = cityCultureT100 * GetAverageTourismFromCulturePercentT100();
 	result /= 100;
 	return result;
 }
@@ -3123,11 +3123,26 @@ int CvPlayerCulture::GetCultureFromCitiesT100() const
 
 int CvPlayerCulture::GetTourismFromCulturePercentT100() const
 {
-	const int numPoliciesPast = max(0, m_pPlayer->GetNumPolicies() - numPolicyThreshold);
+	const int numPoliciesPast = max(0, m_pPlayer->GetNumPoliciesTotal() - numPolicyThreshold);
 
 	return min(maxPolicyTourismPercentage, (numPoliciesPast * GC.getTOURISM_FROM_CITY_CULTURE_PER_POLICY()));
 }
+int CvPlayerCulture::GetAverageTourismFromCulturePercentT100() const
+{
+	int count = 0;
+	int sum = 0;
+	for (int i = 0; i < (int)MAX_MAJOR_CIVS; ++i)
+	{
+		const CvPlayer& player = GET_PLAYER((PlayerTypes)i);
+		if (player.isAlive())
+		{
+			count += 1;
+			sum += player.GetCulture()->GetTourismFromCulturePercentT100();
+		}
+	}
 
+	return sum / count;
+}
 T100 CvPlayerCulture::GetInfluencePercentT100(PlayerTypes ePlayer) const
 {
 	T100 iPercentT100 = 0;

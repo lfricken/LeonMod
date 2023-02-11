@@ -318,6 +318,8 @@ public:
 	int GetNetTourismFromCitiesT100() const;
 	// percent of city culture that is converted to tourism
 	int GetTourismFromCulturePercentT100() const;
+	// average percent of city culture that is converted to tourism
+	int GetAverageTourismFromCulturePercentT100() const;
 
 
 	//int GetTourismModifierTradeRoute() const;
