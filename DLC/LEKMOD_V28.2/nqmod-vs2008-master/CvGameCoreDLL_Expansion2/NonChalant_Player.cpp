@@ -57,24 +57,18 @@ string CvPlayer::GetCityCapCurrent_WithSourcesTooltip(int* sum) const
 		appendNewLine(&ss, sum, "from the {TXT_KEY_ERA_7}", +1, player.GetCurrentEra() >= 7);
 		// last era is 8 (future)
 	}
-	//{ // 1 per courthouse
-	//	const int numCourthouses = player.countNumBuildingClasses(BuildingClass("BUILDINGCLASS_COURTHOUSE"));
-	//	int maxCourthouseBonus = 2;
-	//	// iron curtain +1
-	//	if (player.HasPolicy("POLICY_NEW_ORDER"))
-	//		maxCourthouseBonus += 2;
-	//	if (player.HasPolicy("POLICY_HONOR_FINISHER"))
-	//		maxCourthouseBonus += 1;
+	{ // 1 per courthouse
+		const int numConquered = CountNumCities(ConqueredCities);
+		int maxConqueredBonus = 2;
+		// iron curtain +1
+		if (player.HasPolicy("POLICY_NEW_ORDER"))
+			maxConqueredBonus += 2;
+		if (player.HasPolicy("POLICY_HONOR_FINISHER"))
+			maxConqueredBonus += 1;
 
-	//	stringstream desc;
-	//	desc << "from 1 per Courthouse (max " << maxCourthouseBonus << ")";
-	//	appendNewLine(&ss, sum, desc.str(), min(maxCourthouseBonus, numCourthouses), numCourthouses > 0);
-	//}
-	{ // 1 per conquered city
-		int numConquered = CountNumCities(ConqueredCities);
 		stringstream desc;
-		desc << "from 1 per Conquered City";
-		appendNewLine(&ss, sum, desc.str(), numConquered, numConquered > 0);
+		desc << "from 1 per Conquered City (max bonus of " << maxConqueredBonus << ")";
+		appendNewLine(&ss, sum, desc.str(), min(maxConqueredBonus, numConquered), numConquered > 0);
 	}
 	{ // iron curtain +2
 		appendNewLine(&ss, sum, "from the Iron Curtain Tenet", +2, player.HasPolicy("POLICY_IRON_CURTAIN"));
