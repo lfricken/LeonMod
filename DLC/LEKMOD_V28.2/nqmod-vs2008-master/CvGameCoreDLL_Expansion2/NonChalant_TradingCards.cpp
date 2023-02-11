@@ -203,7 +203,7 @@ int TradingCard::GetEstimatedValue(TradingCardTypes type)
 
 	const int era = Era(type);
 	const int estimatedValue = 40 * era + 80; // y = mx + b
-	return estimatedValue
+	return estimatedValue;
 }
 FDataStream& operator <<(FDataStream& kStream, const TradingCardTypes& data)
 {
