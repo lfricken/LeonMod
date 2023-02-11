@@ -11180,21 +11180,21 @@ int CvPlayer::GetJONSCultureEverGeneratedTimes100() const
 }
 int CvPlayer::GetVictoryCultureEverGeneratedT100() const
 {
-	// count average culture for living players
-	int totalCultureGeneratedT100 = 0;
-	int numValidPlayers = 0;
+	int highestT100 = 0;
 	for (int i = 0; i < MAX_PLAYERS; ++i)
 	{
 		const CvPlayer& player = GET_PLAYER((PlayerTypes)i);
 		if (player.isAlive() && !player.isMinorCiv() && !player.isBarbarian())
 		{
-			numValidPlayers++;
-			totalCultureGeneratedT100 += player.GetJONSCultureEverGeneratedTimes100();
+			const int thisAmountT100 = player.GetJONSCultureEverGeneratedTimes100();
+			if (thisAmountT100 > highestT100)
+			{
+				highestT100 = thisAmountT100;
+			}
 		}
 	}
-	const int averageCultureT100 = (totalCultureGeneratedT100 / max(1, numValidPlayers));
 
-	return (GetJONSCultureEverGeneratedTimes100() / 2) + (averageCultureT100 / 2);
+	return (GetJONSCultureEverGeneratedTimes100() / 2) + (highestT100 / 2);
 }
 
 
@@ -11649,12 +11649,18 @@ void CvPlayer::ReportYieldFromKill(YieldTypes eYield, int iValue, int iX, int iY
 	{
 		switch(eYield)
 		{
+		case YIELD_FOOD:
+			yieldString = "TXT_KEY_FOOD_POPUP";
+			break;
+		case YIELD_PRODUCTION:
+			yieldString = "TXT_KEY_PRODUCTION_POPUP";
+			break;
 		case YIELD_GOLD:
-			yieldString = "TXT_KEY_CULTURE_POPUP";
+			yieldString = "TXT_KEY_GOLD_POPUP";
 			break;
 
 		case YIELD_CULTURE:
-			yieldString = "TXT_KEY_GOLD_POPUP";
+			yieldString = "TXT_KEY_CULTURE_POPUP";
 			break;
 		case YIELD_FAITH:
 			yieldString = "TXT_KEY_FAITH_POPUP";
@@ -18391,14 +18397,13 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 
 			GC.getGame().GetGameDeals()->DoCancelAllDealsWithPlayer(GetID());
 
-			// Reset relationships with minor civs
+			// set friendship to 0 with all civs
 			for(int iPlayerLoop = MAX_MAJOR_CIVS; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 			{
 				PlayerTypes eOtherPlayer = (PlayerTypes) iPlayerLoop;
-
-				int sets[MAX_CIV_PLAYERS] = { CvMinorCivAI::SkipFriendshipUpdate }; // all elements 0
-				sets[GetID()] = 0;
-				GET_PLAYER(eOtherPlayer).GetMinorCivAI()->SetAndUpdateFriendshipSelective(sets);
+				const PlayerTypes thisPlayer = GetID();
+				const int existingFriendship = GET_PLAYER(eOtherPlayer).GetMinorCivAI()->GetEffectiveFriendshipWithMajorTimes100(thisPlayer);
+				GET_PLAYER(eOtherPlayer).GetMinorCivAI()->ChangeFriendshipWithMajorTimes100Instant(thisPlayer, -existingFriendship, false);
 			}
 
 			setTurnActive(false);
