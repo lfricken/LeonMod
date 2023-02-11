@@ -412,7 +412,7 @@ public:
 
 	void DoFriendship();
 	static const int SkipFriendshipUpdate = -9999999;
-	// ONLY sets friendship values if -1 is not passed for them
+	// ONLY sets friendship values if SkipFriendshipUpdate is not passed for them
 	void SetAndUpdateFriendshipSelective(const int setsNegativeOneT100[MAX_CIV_PLAYERS]);
 	// sets every friendship value
 	void SetAndUpdateFriendship(const int setsT100[MAX_CIV_TEAMS]);

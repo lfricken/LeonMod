@@ -4041,10 +4041,10 @@ void CvMinorCivAI::DoFriendship()
 		m_aiFriendshipDeltaWithMajorTimes100[i] = 0;
 	}
 }
-void CvMinorCivAI::SetAndUpdateFriendshipSelective(const int setsNegativeOneT100[MAX_CIV_PLAYERS])
+void CvMinorCivAI::SetAndUpdateFriendshipSelective(const int setsNegativeOneT100[MAX_MAJOR_CIVS])
 {
-	int sets[MAX_CIV_PLAYERS] = { 0 }; // all elements 0
-	for (int i = 0; i < MAX_CIV_PLAYERS; ++i)
+	int sets[MAX_MAJOR_CIVS] = { 0 }; // all elements 0
+	for (int i = 0; i < MAX_MAJOR_CIVS; ++i)
 	{
 		const PlayerTypes e = (PlayerTypes)i;
 		if (setsNegativeOneT100[i] == SkipFriendshipUpdate)
@@ -4058,13 +4058,13 @@ void CvMinorCivAI::SetAndUpdateFriendshipSelective(const int setsNegativeOneT100
 	}
 	SetAndUpdateFriendship(sets);
 }
-void CvMinorCivAI::SetAndUpdateFriendship(const int setsT100[MAX_CIV_PLAYERS])
+void CvMinorCivAI::SetAndUpdateFriendship(const int setsT100[MAX_MAJOR_CIVS])
 {
-	int changesT100[MAX_CIV_PLAYERS] = { 0 }; // all elements 0
+	int changesT100[MAX_MAJOR_CIVS] = { 0 }; // all elements 0
 	for (int i = 0; i < MAX_MAJOR_CIVS; ++i)
 	{
 		const PlayerTypes e = (PlayerTypes)i;
-		changesT100[i] = setsT100[i] - GetBaseFriendshipWithMajorTimes100(e);
+		changesT100[i] = setsT100[i] - GetBaseFriendshipWithMajorTimes100(e); // dX = newX - oldX
 	}
 	ChangeAndUpdateFriendship(changesT100);
 }
@@ -4077,7 +4077,17 @@ void CvMinorCivAI::ChangeAndUpdateFriendship(const int changesT100[MAX_MAJOR_CIV
 	int highestAllyFriendshipT100 = 0;
 	PlayerTypes highestAllyPlayer = NO_PLAYER;
 
-	// apply friendship number changes
+	// any dead players should have 0 friendship
+	// do this first so we can easily calculate the winner later
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		if (!GET_PLAYER((PlayerTypes)iPlayerLoop).isAlive())
+		{
+			SetFriendshipWithMajorTimes100((PlayerTypes)iPlayerLoop, 0);
+		}
+	}
+
+	// do standard updates
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		const PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
@@ -8243,20 +8253,24 @@ void CvMinorCivAI::DoTeamDeclaredWarOnMe(TeamTypes eEnemyTeam)
 	CivsList veMinorsNowWary;
 	int iRand;
 
-	int sets[MAX_CIV_PLAYERS] = { SkipFriendshipUpdate };
+	int newFriendshipValuesT100[MAX_MAJOR_CIVS] = { -27 };
 	// Since eEnemyTeam was the aggressor, drop the base influence to the minimum
 	for(int iEnemyMajorLoop = 0; iEnemyMajorLoop < MAX_MAJOR_CIVS; iEnemyMajorLoop++)
 	{
 		PlayerTypes eEnemyMajorLoop = (PlayerTypes) iEnemyMajorLoop;
-		if(!GET_PLAYER(eEnemyMajorLoop).isAlive())
-			continue;
-		if(GET_PLAYER(eEnemyMajorLoop).getTeam() != eEnemyTeam)
-			continue;
-		
-		sets[iEnemyMajorLoop] = 100 * GC.getMINOR_FRIENDSHIP_AT_WAR();
+		const bool isValidPlayer = GET_PLAYER(eEnemyMajorLoop).isAlive();
+		const bool isNewEnemy = GET_PLAYER(eEnemyMajorLoop).getTeam() == eEnemyTeam;
+		if (isValidPlayer && isNewEnemy)
+		{
+			newFriendshipValuesT100[iEnemyMajorLoop] = 100 * GC.getMINOR_FRIENDSHIP_AT_WAR();
+		}
+		else
+		{
+			newFriendshipValuesT100[iEnemyMajorLoop] = SkipFriendshipUpdate;
+		}
 	}
 
-	SetAndUpdateFriendshipSelective(sets);
+	SetAndUpdateFriendshipSelective(newFriendshipValuesT100);
 
 	// xml, rename xml to indicate it is for WaryOf, not Permanent War
 	// Minor Civ Warmonger

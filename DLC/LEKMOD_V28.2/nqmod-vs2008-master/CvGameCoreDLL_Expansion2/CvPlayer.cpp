@@ -18391,14 +18391,13 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 
 			GC.getGame().GetGameDeals()->DoCancelAllDealsWithPlayer(GetID());
 
-			// Reset relationships with minor civs
+			// set friendship to 0 with all civs
 			for(int iPlayerLoop = MAX_MAJOR_CIVS; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 			{
 				PlayerTypes eOtherPlayer = (PlayerTypes) iPlayerLoop;
-
-				int sets[MAX_CIV_PLAYERS] = { CvMinorCivAI::SkipFriendshipUpdate }; // all elements 0
-				sets[GetID()] = 0;
-				GET_PLAYER(eOtherPlayer).GetMinorCivAI()->SetAndUpdateFriendshipSelective(sets);
+				const PlayerTypes thisPlayer = GetID();
+				const int existingFriendship = GET_PLAYER(eOtherPlayer).GetMinorCivAI()->GetEffectiveFriendshipWithMajorTimes100(thisPlayer);
+				GET_PLAYER(eOtherPlayer).GetMinorCivAI()->ChangeFriendshipWithMajorTimes100Instant(thisPlayer, -existingFriendship, false);
 			}
 
 			setTurnActive(false);
