@@ -150,6 +150,28 @@ bool TradingCard::IsConditionSatisfied(TradingCardTypes type, const CvPlayer* pP
 		int numCastles = player.countNumBuildingClasses(BuildingClassTypes(19));
 		return !(numCastles < 6);
 	}
+	case 216: // POLICY_CARD_INDUSTRIAL_BUILDINGS_PENICILLIN_PASSIVE
+	{
+		int numHospitals = player.countNumBuildingClasses(BuildingClassTypes(33));
+		return !(numHospitals < 4);
+	}
+	case 220: // POLICY_CARD_MODERN_UNITS_NATIONALISM_PASSIVE
+	{
+		return !(playerEra >= informationEra);
+	}
+	case 231: // POLICY_CARD_MODERN_BUILDINGS_ALBERT_EINSTEIN_ACTIVE
+	{
+		int numResearchLabs = player.countNumBuildingClasses(BuildingClassTypes(45));
+		return !(numResearchLabs < 3);
+	}
+	case 234: // POLICY_CARD_MODERN_BUILDINGS_BENITO_MUSSOLINI_ACTIVE
+	{
+		int numFreedomTenants = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(9));
+		int numOrderTenants = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(10));
+		int numAutocracyTenants = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(11));
+		return !((numFreedomTenants < 3) && (numOrderTenants < 3) && (numAutocracyTenants < 3));		
+	}
+
 
 
 	default: return true;

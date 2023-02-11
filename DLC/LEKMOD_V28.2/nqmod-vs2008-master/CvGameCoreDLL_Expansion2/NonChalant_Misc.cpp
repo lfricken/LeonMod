@@ -68,6 +68,14 @@ int CvGlobals::getYIELD_PER_TURN_ALLY(const YieldTypes eYieldType, const PlayerT
 			if (hasPatronageFinisher)
 				value += 5;
 		}
+
+		if (eYieldType == YIELD_DIPLOMATIC_SUPPORT)
+		{
+			const bool hasGestapoCard = player.HasPolicy("POLICY_CARD_MODERN_BUILDINGS_GESTAPO_PASSIVE");
+			const bool hasNationalIntelligenceAgency = player.HasWonder(BuildingClass("BUILDINGCLASS_INTELLIGENCE_AGENCY"));
+			if (hasGestapoCard && hasNationalIntelligenceAgency)
+				value += 10;
+		}
 	}
 
 	return value;
