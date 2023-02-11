@@ -11649,12 +11649,18 @@ void CvPlayer::ReportYieldFromKill(YieldTypes eYield, int iValue, int iX, int iY
 	{
 		switch(eYield)
 		{
+		case YIELD_FOOD:
+			yieldString = "TXT_KEY_FOOD_POPUP";
+			break;
+		case YIELD_PRODUCTION:
+			yieldString = "TXT_KEY_PRODUCTION_POPUP";
+			break;
 		case YIELD_GOLD:
-			yieldString = "TXT_KEY_CULTURE_POPUP";
+			yieldString = "TXT_KEY_GOLD_POPUP";
 			break;
 
 		case YIELD_CULTURE:
-			yieldString = "TXT_KEY_GOLD_POPUP";
+			yieldString = "TXT_KEY_CULTURE_POPUP";
 			break;
 		case YIELD_FAITH:
 			yieldString = "TXT_KEY_FAITH_POPUP";

@@ -1,4 +1,25 @@
 
+
+remove ai threaten situation where you can get all their stuff (and readd lump gold trading)
+road gold cost 1/4th gold > 1 turn to build, substantial trade route bonus
+capped cities limit of 2 + the benefits
+start with warrior and scout?
+disable attack button of ranged unit
+decouple victory point options
+missing - cultural influence, scientific insight
+usage of strategic resources too low
+
+wonder descriptions need to say whether they have a card
+caravansary harbor mutually exclusive
+no early city state allies
+no culture per policy
+cards?
+tamils getting 30% of culture? (because they have 16 policies)
+we made city conquering way too powerful, now you can go past city limits
+scientist competion glitched?
+trade menu nullification check on cards is bugged
+do should have building check when a building gets built
+india has bonuses to cattle, production got reduced (visual glitch where improvement)
 find and fix ;; or WHITESPACE;
 
 reorder game options
