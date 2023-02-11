@@ -18459,6 +18459,14 @@ bool CvUnit::isOutOfAttacks() const
 {
 	VALIDATE_OBJECT
 
+	// naval units cannot do range attacks after moving half their moves
+	if (getDomainType() == DOMAIN_SEA)
+	{
+		int halfMax = maxMoves() / 2;
+		if (m_iMoves < halfMax)
+			return true;
+	}
+
 	// Units with blitz don't run out of attacks!
 	if(isBlitz())
 	{
@@ -20533,14 +20541,6 @@ bool CvUnit::canEverRangeStrikeAt(int iX, int iY) const
 		{
 			return false;
 		}
-	}
-
-	// naval units cannot do range attacks after moving half their moves
-	if (getDomainType() == DOMAIN_SEA)
-	{
-		int halfMax = maxMoves() / 2;
-		if (m_iMoves < halfMax)
-			return false;
 	}
 
 	// In Range?
