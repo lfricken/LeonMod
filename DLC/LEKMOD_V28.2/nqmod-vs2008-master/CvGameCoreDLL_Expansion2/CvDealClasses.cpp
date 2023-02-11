@@ -365,12 +365,19 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	// Gold
 	if(eItem == TRADE_ITEM_GOLD)
 	{
-		// DoF has not been made with this player
-		if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer))
+		// no AI exploiting
+		if (this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
 		{
-			if (pFromPlayer->getTeam() != pToPlayer->getTeam() && (!pFromPlayer->GetDiplomacyAI()->IsDoFAccepted(eToPlayer) || !pToPlayer->GetDiplomacyAI()->IsDoFAccepted(ePlayer)))
-				return false;
+			return false;
 		}
+
+		// removed. ignore declaration of friendship when considering (can we trade gold?)
+		//// DoF has not been made with this player
+		//if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer))
+		//{
+		//	if (pFromPlayer->getTeam() != pToPlayer->getTeam() && (!pFromPlayer->GetDiplomacyAI()->IsDoFAccepted(eToPlayer) || !pToPlayer->GetDiplomacyAI()->IsDoFAccepted(ePlayer)))
+		//		return false;
+		//}
 
 		// Can't trade more Gold than you have
 		int iGold = iData1;
@@ -380,6 +387,12 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	// Gold per Turn
 	else if(eItem == TRADE_ITEM_GOLD_PER_TURN)
 	{
+		// no AI exploiting
+		if (this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
+		{
+			return false;
+		}
+
 		// Can't trade more GPT than you're making
 		int iGoldPerTurn = iData1;
 #ifdef AUI_YIELDS_APPLIED_AFTER_TURN_NOT_BEFORE
@@ -434,6 +447,12 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	// Resource
 	else if(eItem == TRADE_ITEM_RESOURCES)
 	{
+		// no AI exploiting
+		if (this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
+		{
+			return false;
+		}
+
 		ResourceTypes eResource = (ResourceTypes) iData1;
 		if(eResource != NO_RESOURCE)
 		{
@@ -533,6 +552,12 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	}
 	else if (eItem == TRADE_ITEM_CARD)
 	{
+		// no AI exploiting
+		if (this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
+		{
+			return false;
+		}
+
 		if (!bFinalizing) // finalizing passes in each existing trade item
 		{
 			for (TradedItemList::iterator it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
@@ -560,6 +585,12 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	}
 	else if (eItem == TRADE_ITEM_LUMP)
 	{
+		// no AI exploiting
+		if (this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
+		{
+			return false;
+		}
+
 		const int amountWant = iData2;
 		const int amountHave = pFromPlayer->getResourceCumulative((ResourceTypes)iData1);
 		return amountHave >= amountWant;
@@ -567,6 +598,12 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	// City
 	else if(eItem == TRADE_ITEM_CITIES)
 	{
+		// no AI exploiting
+		if (this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
+		{
+			return false;
+		}
+
 		CvCity* pCity = NULL;
 		CvPlot* pPlot = GC.getMap().plot(iData1, iData2);
 		if(pPlot != NULL)
@@ -601,11 +638,23 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	// Unit
 	else if(eItem == TRADE_ITEM_UNITS)
 	{
+		// no AI exploiting
+		if (this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
+		{
+			return false;
+		}
+
 		return false;
 	}
 	// Embassy
 	else if(eItem == TRADE_ITEM_ALLOW_EMBASSY)
 	{
+		// no AI exploiting
+		if (this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
+		{
+			return false;
+		}
+
 		// too few cities
 		if (pToPlayer->getNumCities() < 1)
 			return false;
@@ -691,6 +740,12 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	// Defensive Pact
 	else if(eItem == TRADE_ITEM_DEFENSIVE_PACT)
 	{
+		// no AI exploiting
+		if (this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
+		{
+			return false;
+		}
+
 		// Neither of us yet has the Tech for DP
 		if(!pFromTeam->isDefensivePactTradingAllowed() && !pToTeam->isDefensivePactTradingAllowed())
 			return false;
@@ -749,6 +804,12 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	// Research Agreement
 	else if(eItem == TRADE_ITEM_RESEARCH_AGREEMENT)
 	{
+		// no AI exploiting
+		if (this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
+		{
+			return false;
+		}
+
 		if(GC.getGame().isOption(GAMEOPTION_NO_SCIENCE))
 			return false;
 
@@ -781,6 +842,12 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	// Trade Agreement
 	else if(eItem == TRADE_ITEM_TRADE_AGREEMENT)
 	{
+		// no AI exploiting
+		if (this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
+		{
+			return false;
+		}
+
 		// Neither of us yet has the Tech for TA
 		if(!pFromTeam->IsTradeAgreementTradingAllowed() && !pToTeam->IsTradeAgreementTradingAllowed())
 			return false;
@@ -963,6 +1030,12 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	// Promise to Vote in upcoming league session
 	else if (eItem == TRADE_ITEM_VOTE_COMMITMENT)
 	{
+		// no AI exploiting
+		if (this->IsPeaceTreatyTrade(eToPlayer) || this->IsPeaceTreatyTrade(ePlayer))
+		{
+			return false;
+		}
+
 		// If we are at war, then we can't until we make peace
 		if(pFromTeam->isAtWar(eToTeam))
 			return false;
