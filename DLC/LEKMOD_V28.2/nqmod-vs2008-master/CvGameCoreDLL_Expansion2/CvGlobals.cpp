@@ -2544,7 +2544,7 @@ T100 CvGlobals::getBARB_RESPAWN_TIME_10000() const
 }
 T100 CvGlobals::getMIN_CS_STRENGTH_INFLUENCET100() const
 {
-	return 599;
+	return 899; // 8.99 so 9 works
 }
 T100 CvGlobals::getPercentTurnsDoneT10000()
 {
