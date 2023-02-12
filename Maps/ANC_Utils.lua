@@ -490,7 +490,7 @@ function GetGridPoints(radius)
 	return points;
 end
 ------------------------------------------------------------------------------
--- Skips xy and gives a line of points in the given direction
+-- Randomly switches the fromType to the toType with various rules
 ------------------------------------------------------------------------------
 function Mutate(plotTypes, maxX, maxY, 
 	idxsToMutate, minAdj, fromType,
@@ -501,27 +501,37 @@ function Mutate(plotTypes, maxX, maxY,
 		for y = 0, maxY - 1 do
 
 			local plotIdx = GetI(x,y,maxX);
-			if table.contains(idxsToMutate, plotIdx) then
-
+			if table.contains(idxsToMutate, plotIdx) then -- only mutate target indexes
 				if plotTypes[plotIdx] == fromType then -- if from type
 					local countAdjacentLand = 0;
+					local countSwitches = 0;
+					local wasLastLand = false;
 					local points = GetIndexesAround(x,y,maxX,maxY,1);
 					for k,index in pairs(points) do
-						if plotTypes[index] ~= fromType then -- if adjacent
-							countAdjacentLand = countAdjacentLand + 1;
-						end
 						if table.contains(toMutate, index) then -- invalid because adjacent tile will change
 							countAdjacentLand = 0;
 							break;
 						end
-					end
+						local bIsFromType = plotTypes[index] ~= fromType; -- if adjacent land
+						if bIsFromType then countAdjacentLand = countAdjacentLand + 1; end
 
-					local doMutate = false;
-					if (countAdjacentLand >= minAdj) then
-						doMutate = (Map.Rand(1000, "Mutate Chance") < mutateChance1000);
+						-- skip the first check since we don't know anything yet
+						if (k ~= 1 and (bIsFromType ~= wasLastLand)) then 
+							countSwitches = countSwitches + 1; 
+						end
+						wasLastLand = bIsFromType;
 					end
-					if doMutate then
-						table.insert(toMutate, plotIdx);
+					if (countAdjacentLand >= minAdj) then
+						local bWouldConnectUnconnectedLand = (countSwitches >= 3);
+						local canConnect = true;
+						if (bWouldConnectUnconnectedLand) then
+							canConnect = Map.Rand(1000,"PlotConjoin") < conjoinChance1000;
+						end
+
+						local doMutate = canConnect and (Map.Rand(1000, "Mutate") < mutateChance1000);
+						if doMutate then
+							table.insert(toMutate, plotIdx);
+						end
 					end
 				end
 			end

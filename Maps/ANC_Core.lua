@@ -13,7 +13,7 @@ include("ANC_Utils");
 function ANC_CreateArgs()
 	local ancArgs = {
 		spawnVariation = 0, -- [0,1] how much CAN spawn points for Major Civs be out of expected location?
-		spawnRangeMin = 5, -- the minimum tiles between civ spawn points
+		spawnRangeMin = 6, -- the minimum tiles between civ spawn points
 		shufflePositions = true, -- will player ID's always start in the same spots?
 
 		luxDensity = 1, -- [0,3] multiplier for how dense are luxuries
@@ -33,7 +33,8 @@ function ANC_Constructor(ancArgs)
 
 		plotResource = {}, -- ResourceTypes (Luxuries, Strategic, Bonus)		
 		plotResourceNum = {}, -- ResourceTypes (Luxuries, Strategic, Bonus)
-		plotIsSpawnLocked = {}, -- this plot should not be modified any more
+		plotIsLocked = {};
+		plotIsWithinSpawnDist = {}, -- this plot should not be modified any more
 
 		cfg = ancArgs,
 	};

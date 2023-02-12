@@ -52,15 +52,15 @@ function ANC_DoSpawnFor(this, x, y, maxX, maxY, playerId, isMinor)
 	if (this.cfg.spawnRangeMin < 3) then print("WARNING: spawnRangeMin was dangerously low!"); end
 	local indexes = GetIndexesAround(x, y, maxX, maxY, 0, this.cfg.spawnRangeMin);
 	for k,index in pairs(indexes) do
-		this.plotIsSpawnLocked[index] = true;
+		this.plotIsWithinSpawnDist[index] = true;
 	end
 end
 
 
 
 
-function ANC_AddSpawnThingy(index)
-
+function ANC_SetAll(this, index)
+	this.plotIsLocked[index] = true;
 end
 
 

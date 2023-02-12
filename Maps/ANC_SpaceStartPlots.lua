@@ -70,7 +70,7 @@ function ANC_SpaceStartPlots(this)
 			x,y = math.floor(maxX * haltonPointsX[haltonPoint]), math.floor(additionalYBounds + (maxY - 2 * additionalYBounds) * haltonPointsY[haltonPoint]);
 			local plotIdx = GetI(x, y, maxX);
 			-- found a valid plot?
-			if (not this.plotIsSpawnLocked[plotIdx]) then break; end
+			if (not this.plotIsWithinSpawnDist[plotIdx]) then break; end
 
 			if (attempts > 18) then print("WARNING: Map Too Small. Minor civ cant find spawn location."); end
 		end

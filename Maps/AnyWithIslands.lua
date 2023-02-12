@@ -645,7 +645,6 @@ function GeneratePlotTypes()
 				local iCenter = GetI(x,y,maxX);
 				if plotTypes[iCenter] == PlotTypes.PLOT_OCEAN then -- if water
 
-					local radius = 1;
 					local countSwitches = 0;
 					local wasLastLand = false;
 					local bHasAnyAdjacentLand = false;
@@ -702,7 +701,6 @@ function GeneratePlotTypes()
 				local iCenter = GetI(x,y,maxX);
 				if plotTypes[iCenter] == PlotTypes.PLOT_OCEAN then -- if water
 
-					local radius = 1;
 					local countAdjacentLand = 0;
 					local points = GetIndexesAround(x,y,maxX,maxY,1);
 					for k,index in pairs(points) do
