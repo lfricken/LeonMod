@@ -15,8 +15,9 @@ function ANC_Constructor()
 		plotTypes = {}, -- PlotTypes (PLOT_MOUNTAIN, PLOT_HILLS, PLOT_LAND, PLOT_OCEAN)
 		plotTerrain = {}, -- TerrainTypes (TERRAIN_GRASS  _PLAINS _DESERT _TUNDRA _SNOW _COAST _OCEAN _MOUNTAIN _HILL)
 		plotResource = {}, -- ResourceTypes (Luxuries, Strategic, Bonus)
-		plotIsLocked = {}, -- this plot should not be modified any more
+		plotResourceNum = {}, -- ResourceTypes (Luxuries, Strategic, Bonus)
 		plotFeature = {}, -- FeatureTypes (FEATURE_ICE _JUNGLE _MARSH _OASIS _FLOOD_PLAINS _FOREST _FALLOUT _NATURAL_WONDER)
+		plotIsLocked = {}, -- this plot should not be modified any more
 	};
 	ANC_SafeInitPlots(this);
 	return this;
@@ -32,7 +33,7 @@ function ANC_CreateMap(ancArgs)
 	ANC_SpaceStartPlots(this); -- spaces out initial spawn points and places basic initial spawn island and spawn points
 	--ANC_LandAndSea(this); -- creates more islands and grows existing ones -- mountains, land, hills, ocean
 	
-	--ANC_Climate(this); -- desert, tundra, snow, forest, jungle, plains, grassland
+	ANC_Climate(this); -- desert, tundra, snow, forest, jungle, plains, grassland
 	
 	-- Each body of water, area of mountains, or area of hills+flatlands is independently grouped and tagged.
 	Map.RecalculateAreas();
@@ -75,11 +76,13 @@ end
 -- avoid crashes by initializing the map plots to SOMETHING
 ------------------------------------------------------------------------------
 function ANC_SafeInitPlots(this)
-
+	-- PLOT_HILL TERRAIN_GRASS
 
 	local maxX, maxY = Map.GetGridSize();
-	this.plotTypes = table.fill(PlotTypes.PLOT_LAND, maxX * maxY);
-	this.plotTerrain = table.fill(TerrainTypes.TERRAIN_GRASS, maxX * maxY);
+	this.plotTypes = table.fill(PlotTypes.PLOT_OCEAN, maxX * maxY);
+	this.plotTerrain = table.fill(TerrainTypes.TERRAIN_OCEAN, maxX * maxY); -- never use TERRAIN_HILL?
+	this.plotResource = table.fill(-1, maxX * maxY);
+	this.plotResourceNum = table.fill(0, maxX * maxY);
 	this.plotFeature = table.fill(FeatureTypes.NO_FEATURE, maxX * maxY);
 
 	ANC_UpdatePlots(this);
@@ -94,9 +97,10 @@ function ANC_SafeInitPlots(this)
 end
 function ANC_UpdatePlots(this)
 	for i, plot in Plots() do
-		plot:SetPlotType(this.plotTypes[i + 1], false, true);
 		plot:SetTerrainType(this.plotTerrain[i + 1], false, true);
+		plot:SetPlotType(this.plotTypes[i + 1], false, true);
 		plot:SetFeatureType(this.plotFeature[i + 1], -1);
+		plot:SetResourceType(this.plotResource[i + 1], this.plotResourceNum[i + 1]);
 	end
 end
 

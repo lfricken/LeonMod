@@ -28,7 +28,8 @@ function ANC_SpaceStartPlots(this)
 		player:SetStartingPlot(start_plot);
 		local indexes = GetIndexesAround(x, y, maxX, maxY, 0, 1);
 		for k,index in pairs(indexes) do
-			--this.plotTypes[index] = PlotTypes.PLOT_HILLS;
+			this.plotTypes[index] = PlotTypes.PLOT_HILLS;
+			this.plotTerrain[index] = TerrainTypes.TERRAIN_PLAINS;
 		end
 	end
 
@@ -43,7 +44,8 @@ function ANC_SpaceStartPlots(this)
 			player:SetStartingPlot(start_plot);
 			local indexes = GetIndexesAround(x, y, maxX, maxY, 0, 1);
 			for k,index in pairs(indexes) do
-				--this.plotTypes[index] = PlotTypes.PLOT_HILLS;
+				this.plotTypes[index] = PlotTypes.PLOT_HILLS;
+				this.plotTerrain[index] = TerrainTypes.TERRAIN_GRASS;
 			end
 		end
 	end
