@@ -318,7 +318,7 @@ function GetCone2(xStart, yStart, maxX, maxY, dirLeft, radius)
 	local current = {xStart, yStart};
 	local currentSpanXy = {xStart, yStart};
 	local xys = {};
-	local dirSpan = AddDir(dirLeft, 2);
+	local dirSpan = AddDir(dirLeft, -2);
 	for left=1,radius do -- go left dir
 
 		for span=1,radius do -- go right dir
