@@ -65,6 +65,30 @@ function length(T)
 end
 
 ------------------------------------------------------------------------------
+function CopyAndShuffle(incoming_table)
+	-- Designed to operate on tables with no gaps. Does not affect original table.
+	local len = table.maxn(incoming_table);
+	local copy = {};
+	local shuffledVersion = {};
+	-- Make copy of table.
+	for loop = 1, len do
+		copy[loop] = incoming_table[loop];
+	end
+	-- One at a time, choose a random index from Copy to insert in to final table, then remove it from the copy.
+	local left_to_do = table.maxn(copy);
+	for loop = 1, len do
+		local random_index = 0;
+		random_index = 1 + Map.Rand(left_to_do, "CopyAndShuffle - Lua");
+		random_index = 1 + Map.Rand(left_to_do, "CopyAndShuffle - Lua");
+		random_index = 1 + Map.Rand(left_to_do, "CopyAndShuffle - Lua");
+		random_index = 1 + Map.Rand(left_to_do, "CopyAndShuffle - Lua");
+		table.insert(shuffledVersion, copy[random_index]);
+		table.remove(copy, random_index);
+		left_to_do = left_to_do - 1;
+	end
+	return shuffledVersion;
+end
+------------------------------------------------------------------------------
 -- Outputs the maps land/water in a lua readable format.
 ------------------------------------------------------------------------------
 function printMapToLua(plotTypes, maxX, maxY)

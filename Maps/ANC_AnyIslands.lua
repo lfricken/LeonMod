@@ -485,7 +485,7 @@ function GenerateMap()
 
 	Map.RandSeed(9999); -- helps see changes by guaranteeing the same map gets generated
 
-	args = {};
+	args = ANC_CreateArgs();
 	ANC_CreateMap(args);
 
 

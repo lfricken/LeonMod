@@ -8,16 +8,33 @@ include("ANC_Utils");
 
 
 ------------------------------------------------------------------------------
+-- Arguments for map generator
+------------------------------------------------------------------------------
+function ANC_CreateArgs()
+	local ancArgs = {
+		spawnVariation = 0, -- [0,1] how much CAN spawn points for Major Civs be off balance?
+		shufflePositions = true, -- will player ID's always start in the same spots?
+
+		luxDensity = 1, -- [0,3] multiplier for how dense are luxuries
+		stratDensity = 1, -- [0,3] multiplier for how dense are strategic resources
+		bonusDensity = 1, -- [0,3] multiplier for how dense are bonus resources
+	};
+	return ancArgs;
+end
+------------------------------------------------------------------------------
 -- Initialize the map variables
 ------------------------------------------------------------------------------
-function ANC_Constructor()
+function ANC_Constructor(ancArgs)
 	local this = {
 		plotTypes = {}, -- PlotTypes (PLOT_MOUNTAIN, PLOT_HILLS, PLOT_LAND, PLOT_OCEAN)
 		plotTerrain = {}, -- TerrainTypes (TERRAIN_GRASS  _PLAINS _DESERT _TUNDRA _SNOW _COAST _OCEAN _MOUNTAIN _HILL)
-		plotResource = {}, -- ResourceTypes (Luxuries, Strategic, Bonus)
-		plotResourceNum = {}, -- ResourceTypes (Luxuries, Strategic, Bonus)
 		plotFeature = {}, -- FeatureTypes (FEATURE_ICE _JUNGLE _MARSH _OASIS _FLOOD_PLAINS _FOREST _FALLOUT _NATURAL_WONDER)
-		plotIsLocked = {}, -- this plot should not be modified any more
+
+		plotResource = {}, -- ResourceTypes (Luxuries, Strategic, Bonus)		
+		plotResourceNum = {}, -- ResourceTypes (Luxuries, Strategic, Bonus)
+		plotIsSpawnLocked = {}, -- this plot should not be modified any more
+
+		cfg = ancArgs,
 	};
 	ANC_SafeInitPlots(this);
 	return this;
@@ -27,7 +44,7 @@ end
 ------------------------------------------------------------------------------
 function ANC_CreateMap(ancArgs)
 	print("CreateMap Begin");
-	this = ANC_Constructor();
+	this = ANC_Constructor(ancArgs);
 	
 	
 	ANC_SpaceStartPlots(this); -- spaces out initial spawn points and places basic initial spawn island and spawn points
@@ -81,9 +98,11 @@ function ANC_SafeInitPlots(this)
 	local maxX, maxY = Map.GetGridSize();
 	this.plotTypes = table.fill(PlotTypes.PLOT_OCEAN, maxX * maxY);
 	this.plotTerrain = table.fill(TerrainTypes.TERRAIN_OCEAN, maxX * maxY); -- never use TERRAIN_HILL?
+	this.plotFeature = table.fill(FeatureTypes.NO_FEATURE, maxX * maxY);
+
 	this.plotResource = table.fill(-1, maxX * maxY);
 	this.plotResourceNum = table.fill(0, maxX * maxY);
-	this.plotFeature = table.fill(FeatureTypes.NO_FEATURE, maxX * maxY);
+	this.plotIsSpawnLocked = table.fill(false, maxX * maxY);
 
 	ANC_UpdatePlots(this);
 	--[[for i, plot in Plots() do

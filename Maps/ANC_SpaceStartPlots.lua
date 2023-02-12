@@ -3,11 +3,16 @@
 include("HBMapmakerUtilities");
 include("ANC_Utils");
 
+
+------------------------------------------------------------------------------
+-- Determines where players spawn
+------------------------------------------------------------------------------
 function ANC_SpaceStartPlots(this)
 	print("ANC_SpaceStartPlots Begin");
 
 	local additionalYBounds = 10; -- avoid spawning within this distance of the edge
 	local maxX, maxY = Map.GetGridSize();
+	print("Dims: " .. maxX .. "," .. maxY);
 	--this.plotTypes = table.fill(PlotTypes.PLOT_OCEAN, maxX * maxY);
 
 	-- Determine number of civilizations and city states present in this game.
@@ -20,6 +25,9 @@ function ANC_SpaceStartPlots(this)
 	local haltonPointsY = halton(3, 600, 2 + Map.Rand(6,"Halton Rng"));
 
 	local spawnXy = getMajorCivSpawnPoints(iNumMajorCivs, maxX, maxY);
+	if (this.cfg.shufflePositions) then
+		spawnXy = CopyAndShuffle(spawnXy);
+	end
 
 	-- major civs
 	for i,pid in pairs(player_ID_list) do
@@ -38,9 +46,10 @@ function ANC_SpaceStartPlots(this)
 
 	-- minor civs
 	for i = GameDefines.MAX_MAJOR_CIVS, GameDefines.MAX_CIV_PLAYERS - 1 do
+		local haltonPoint = 5 + (i - GameDefines.MAX_MAJOR_CIVS); -- skip over first 4 halton points
 		local player = Players[i];
 		if player:IsEverAlive() then
-			local x,y = math.floor(maxX * haltonPointsX[i]), math.floor(additionalYBounds + (maxY - 2 * additionalYBounds) * haltonPointsY[i]);
+			local x,y = math.floor(maxX * haltonPointsX[haltonPoint]), math.floor(additionalYBounds + (maxY - 2 * additionalYBounds) * haltonPointsY[haltonPoint]);
 			print("Start Minor: " .. x .. ", " .. y);
 
 			local start_plot = Map.GetPlot(x, y);
@@ -102,7 +111,7 @@ function getMajorCivSpawnPoints(numMajorCivs, maxX, maxY)
 	if numMajorCivs == 12 then
 		spawnFloat,maxVariation = getFor12();
 	end
-	if numMajorCivs <= 16 then
+	if numMajorCivs > 12 and numMajorCivs <= 16 then
 		spawnFloat,maxVariation = getFor16();
 	end
 
