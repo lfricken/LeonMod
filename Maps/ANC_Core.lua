@@ -1,30 +1,38 @@
 
-
+-- Core mapgen file that calls into the rest of the ANC code
 
 include("ANC_LandAndSea");
 include("ANC_SpaceStartPlots");
 include("ANC_Climate");
+include("ANC_Utils");
 
 
+------------------------------------------------------------------------------
+-- Initialize the map variables
+------------------------------------------------------------------------------
 function ANC_Constructor()
 	local this = {
-		plotTypes = {},
+		plotTypes = {}, -- PlotTypes (PLOT_MOUNTAIN, PLOT_HILLS, PLOT_LAND, PLOT_OCEAN)
+		plotTerrain = {}, -- TerrainTypes (TERRAIN_GRASS  _PLAINS _DESERT _TUNDRA _SNOW _COAST _OCEAN _MOUNTAIN _HILL)
+		plotResource = {}, -- ResourceTypes (Luxuries, Strategic, Bonus)
+		plotIsLocked = {}, -- this plot should not be modified any more
+		plotFeature = {}, -- FeatureTypes (FEATURE_ICE _JUNGLE _MARSH _OASIS _FLOOD_PLAINS _FOREST _FALLOUT _NATURAL_WONDER)
 	};
+	ANC_SafeInitPlots(this);
 	return this;
 end
+------------------------------------------------------------------------------
+-- Entry point for creating this map type
+------------------------------------------------------------------------------
 function ANC_CreateMap(ancArgs)
 	print("CreateMap Begin");
 	this = ANC_Constructor();
-	ANC_SafeInitPlots(this);
 	
-	ANC_SpaceStartPlots(this);
-	--ANC_LandAndSea();
-	ANC_SetPlots(this.plotTypes);
 	
-	ANC_Climate(this);
-
-	-- Terrain covers climate: grassland, plains, desert, tundra, snow.
-	--GenerateTerrain();
+	ANC_SpaceStartPlots(this); -- spaces out initial spawn points and places basic initial spawn island and spawn points
+	--ANC_LandAndSea(this); -- creates more islands and grows existing ones -- mountains, land, hills, ocean
+	
+	--ANC_Climate(this); -- desert, tundra, snow, forest, jungle, plains, grassland
 	
 	-- Each body of water, area of mountains, or area of hills+flatlands is independently grouped and tagged.
 	Map.RecalculateAreas();
@@ -52,10 +60,10 @@ function ANC_CreateMap(ancArgs)
 	--StartPlotSystem();
 
 	-- Goodies depend on not colliding with resources or Natural Wonders, or being placed too near to start plots.
-	--AddGoodies();
+	--AddGoodies(this);
 
 	-- Continental artwork selection must wait until Areas are finalized, so it gets handled last.
-	--DetermineContinents();
+	DetermineContinents();
 
 
 
@@ -63,37 +71,62 @@ function ANC_CreateMap(ancArgs)
 
 	print("CreateMap End");
 end
-
-function ANC_SetPlots(plotTypes)
-	-- NOTE: Plots() is indexed from 0, the way the plots are indexed in C++
-	-- However, Lua tables are indexed from 1, and all incoming plot tables should be indexed this way.
-	-- So we add 1 to the Plots() index to find the matching plot data in plotTypes.
-	for i, plot in Plots() do
-		plot:SetPlotType(plotTypes[i + 1], false, false);
-	end
-end
+------------------------------------------------------------------------------
 -- avoid crashes by initializing the map plots to SOMETHING
+------------------------------------------------------------------------------
 function ANC_SafeInitPlots(this)
 
 
 	local maxX, maxY = Map.GetGridSize();
 	this.plotTypes = table.fill(PlotTypes.PLOT_LAND, maxX * maxY);
+	this.plotTerrain = table.fill(TerrainTypes.TERRAIN_GRASS, maxX * maxY);
+	this.plotFeature = table.fill(FeatureTypes.NO_FEATURE, maxX * maxY);
 
-
-	for i, plot in Plots() do
+	ANC_UpdatePlots(this);
+	--[[for i, plot in Plots() do
 		-- type
 		plot:SetPlotType(this.plotTypes[i + 1], false, false);
 		-- terrain
-		if(plot:IsWater()) then
-			if(plot:IsAdjacentToLand()) then
-				plot:SetTerrainType(TerrainTypes.TERRAIN_COAST, false, false);
-			else
-				plot:SetTerrainType(TerrainTypes.TERRAIN_OCEAN, false, false);
-			end
-		else
-			local grass = TerrainTypes.TERRAIN_GRASS;
-			plot:SetTerrainType(grass, false, false);
-		end
+		plot:SetPlotType(PlotTypes.PLOT_LAND, false, true);
+		plot:SetTerrainType(TerrainTypes.TERRAIN_GRASS, false, true);
+		plot:SetFeatureType(FeatureTypes.NO_FEATURE, -1);
+	end]]
+end
+function ANC_UpdatePlots(this)
+	for i, plot in Plots() do
+		plot:SetPlotType(this.plotTypes[i + 1], false, true);
+		plot:SetTerrainType(this.plotTerrain[i + 1], false, true);
+		plot:SetFeatureType(this.plotFeature[i + 1], -1);
 	end
 end
 
+function DetermineContinents()
+	print("Determining continents for art purposes (MapGenerator.Lua)");
+	-- Each plot has a continent art type. Mixing and matching these could look
+	-- extremely bad, but there is nothing technical to prevent it. The worst 
+	-- that will happen is that it can't find a blend and draws red checkerboards.
+	
+	-- Command for setting the art type for a plot is: <plot object>:SetContinentArtType(<art_set_number>)
+	
+	-- CONTINENTAL ART SETS
+	-- 0) Ocean
+	-- 1) America
+	-- 2) Asia
+	-- 3) Africa
+	-- 4) Europe
+	
+	-- Here is an example that sets all land in the world to use the European art set.
+	--[[
+	for i, plot in Plots() do
+		if plot:IsWater() then
+			plot:SetContinentArtType(0);
+		else
+			plot:SetContinentArtType(4);
+		end
+	end
+	]]--
+	
+	-- Default for this function operates in C++, but you can override by
+	-- replacing this method with your own and not calling the default stamper.
+	Map.DefaultContinentStamper();
+end

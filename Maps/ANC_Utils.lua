@@ -1,6 +1,20 @@
 
 include("HBMapmakerUtilities");
 
+
+
+------------------------------------------------------------------------------
+-- Writes the plot TYPES to C++.
+------------------------------------------------------------------------------
+function ANC_SetPlotTypes(plotTypes)
+	-- NOTE: Plots() is indexed from 0, the way the plots are indexed in C++
+	-- However, Lua tables are indexed from 1, and all incoming plot tables should be indexed this way.
+	-- So we add 1 to the Plots() index to find the matching plot data in plotTypes.
+	for i, plot in Plots() do
+		plot:SetPlotType(plotTypes[i + 1], false, false);
+	end
+end
+
 local _plots = {}; --memoize table of plots
 function Plots(sort)
 	local _indices = {};
