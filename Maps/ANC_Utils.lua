@@ -72,6 +72,12 @@ function table.removeElement(t, element)
 	end
 	return false;
 end
+function table.concat(t1,t2)
+    for i=1, #t2 do
+        t1[#t1+1] = t2[i];
+    end
+    return t1;
+end
 function wouldConnectLandmasses(set, key)
 	-- TODO
 end
@@ -487,8 +493,8 @@ end
 -- Skips xy and gives a line of points in the given direction
 ------------------------------------------------------------------------------
 function Mutate(plotTypes, maxX, maxY, 
-	idxsToMutate, minAdj, toType, 
-	fromType, mutateChance1000, conjoinChance1000)
+	idxsToMutate, minAdj, fromType,
+	 toType, mutateChance1000, conjoinChance1000)
 
 	local toMutate = {}; -- avoid growing an island multiple times in the same direction
 	for x = 0, maxX - 1 do

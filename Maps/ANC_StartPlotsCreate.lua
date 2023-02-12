@@ -30,13 +30,20 @@ function ANC_DoSpawnFor(this, x, y, maxX, maxY, playerId, isMinor)
 	local waterLineIdxs = GoLine({x, y}, randWaterDir, maxX, maxY, spawnHexRadius);
 
 
-	local toMutate = CopyAndShuffle(spawnIndexes);
+	local toMutate = CopyAndShuffle(waterCone);
 	for i,idx in pairs(waterLineIdxs) do
 		table.removeElement(toMutate, idx);
 	end
-	Mutate(this.plotTypes, maxX, maxY, 
-		toMutate, 1, PlotTypes.PLOT_OCEAN,
-		 PlotTypes.PLOT_LAND, 500, 0);
+	table.concat(toMutate, GoLine({x, y}, AddDir(randWaterDir, 1), maxX, maxY, spawnHexRadius));
+	table.concat(toMutate, GoLine({x, y}, AddDir(randWaterDir, -1), maxX, maxY, spawnHexRadius));
+
+	for i=1,7 do
+		local from, to = PlotTypes.PLOT_OCEAN, PlotTypes.PLOT_LAND;
+		if (i%2==0) then local temp = from; from = to; to = temp; end
+		Mutate(this.plotTypes, maxX, maxY, 
+			toMutate, 1, from,
+			to, 500, 0);
+	end
 
 	local L1, L2, L3 = {}, {}, {};
 
