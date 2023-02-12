@@ -2,6 +2,7 @@
 
 include("HBMapmakerUtilities");
 include("ANC_Utils");
+include("ANC_StartPlotsCreate");
 
 
 ------------------------------------------------------------------------------
@@ -10,63 +11,67 @@ include("ANC_Utils");
 function ANC_SpaceStartPlots(this)
 	print("ANC_SpaceStartPlots Begin");
 
-	local additionalYBounds = 10; -- avoid spawning within this distance of the edge
 	local maxX, maxY = Map.GetGridSize();
-	print("Dims: " .. maxX .. "," .. maxY);
+	--print("Map Dims: " .. maxX .. "," .. maxY);
 	--this.plotTypes = table.fill(PlotTypes.PLOT_OCEAN, maxX * maxY);
 
 	-- Determine number of civilizations and city states present in this game.
-	local iNumMajorCivs, iNumCityStates, player_ID_list, bTeamGame, teams_with_major_civs, number_civs_per_team = GetPlayerAndTeamInfo()
-	local totalStarting = iNumMajorCivs + iNumCityStates;
+	local iNumMajorCivs, iNumCityStates, player_ID_list, bTeamGame, teams_with_major_civs, number_civs_per_team 
+	local numMajorCivs, majorIds, numMinors, minorIds, isTeamGame, numCivsPerTeam, majorTeamIds = ANC_GetPlayerAndTeamInfo()
 
 
-
+	-- halton for minor civs
 	local haltonPointsX = halton(2, 600, 2 + Map.Rand(6,"Halton Rng"));
 	local haltonPointsY = halton(3, 600, 2 + Map.Rand(6,"Halton Rng"));
 
-	local spawnXy = getMajorCivSpawnPoints(iNumMajorCivs, maxX, maxY);
+	-- predetermined for major civs
+	local spawnXy = getMajorCivSpawnPoints(numMajorCivs, maxX, maxY);
 	if (this.cfg.shufflePositions) then
 		spawnXy = CopyAndShuffle(spawnXy);
 	end
 
 	-- major civs
-	for i,pid in pairs(player_ID_list) do
+	for idx,pid in pairs(majorIds) do
 		local player = Players[pid];
-		--local x,y = math.floor(maxX * haltonPointsX[i]), math.floor(additionalYBounds + (maxY - 2 * additionalYBounds) * haltonPointsY[i]);
-		local x,y = spawnXy[i][1], spawnXy[i][2];
-		print("Start Major: " .. x .. ", " .. y);
+		local x,y = spawnXy[idx][1], spawnXy[idx][2];
+		--print("Start Major: " .. x .. ", " .. y);
 		local start_plot = Map.GetPlot(x, y);
 		player:SetStartingPlot(start_plot);
-		local indexes = GetIndexesAround(x, y, maxX, maxY, 0, 1);
-		for k,index in pairs(indexes) do
-			this.plotTypes[index] = PlotTypes.PLOT_HILLS;
-			this.plotTerrain[index] = TerrainTypes.TERRAIN_PLAINS;
-		end
+
+		ANC_DoSpawnFor(this, x, y, maxX, maxY, pid, false);
 	end
 
 	-- minor civs
-	for i = GameDefines.MAX_MAJOR_CIVS, GameDefines.MAX_CIV_PLAYERS - 1 do
-		local haltonPoint = 5 + (i - GameDefines.MAX_MAJOR_CIVS); -- skip over first 4 halton points
-		local player = Players[i];
+	local haltonPoint = 0;
+	local additionalYBounds = 1; -- avoid spawning within this distance of the edge
+	for idx,pid in pairs(minorIds) do
+		local player = Players[pid];
 		if player:IsEverAlive() then
-			local x,y = math.floor(maxX * haltonPointsX[haltonPoint]), math.floor(additionalYBounds + (maxY - 2 * additionalYBounds) * haltonPointsY[haltonPoint]);
-			print("Start Minor: " .. x .. ", " .. y);
+
+			-- find valid start location
+			local x,y;
+			for attempts=1,20 do -- limit attempts to avoid an infinite loop
+				haltonPoint = haltonPoint + 1;
+				x,y = math.floor(maxX * haltonPointsX[haltonPoint]), math.floor(additionalYBounds + (maxY - 2 * additionalYBounds) * haltonPointsY[haltonPoint]);
+				local plotIdx = GetI(x, y, maxX);
+				-- found a valid plot?
+				if (not this.plotIsSpawnLocked[plotIdx]) then break; end
+
+				if (attempts > 18) then print("WARNING: Map Too Small. Minor civ cant find spawn location."); end
+			end
+
+			--print("Start Minor: " .. x .. ", " .. y);
 
 			local start_plot = Map.GetPlot(x, y);
 			player:SetStartingPlot(start_plot);
-			local indexes = GetIndexesAround(x, y, maxX, maxY, 0, 1);
-			for k,index in pairs(indexes) do
-				this.plotTypes[index] = PlotTypes.PLOT_HILLS;
-				this.plotTerrain[index] = TerrainTypes.TERRAIN_GRASS;
-			end
+
+			ANC_DoSpawnFor(this, x, y, maxX, maxY, pid, true);
 		end
 	end
 
 	--ANC_SetPlotTypes(this.plotTypes);
 	print("ANC_SpaceStartPlots End");
 end
-
-
 
 
 

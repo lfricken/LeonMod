@@ -63,7 +63,55 @@ function length(T)
 	for _ in pairs(T) do count = count + 1 end
 	return count
 end
+------------------------------------------------------------------------------
+-- returns numMajorCivs, majorIds, numMinors, minorIds, isTeamGame, numCivsPerTeam, majorTeamIds
+------------------------------------------------------------------------------
+function ANC_GetPlayerAndTeamInfo()
+	-- This function obtains Civ count, CS count, correct player IDs, and basic Team information.
+	local numMajorCivs, numMinors = 0, 0;
+	local majorIds, minorIds = {}, {};
+	local majorTeamIds = {};
 
+	for i = 0, GameDefines.MAX_MAJOR_CIVS - 1 do
+		local player = Players[i];
+		if player:IsEverAlive() then
+			numMajorCivs = numMajorCivs + 1;
+			table.insert(majorIds, i);
+		end
+	end
+	for i = GameDefines.MAX_MAJOR_CIVS, GameDefines.MAX_CIV_PLAYERS - 1 do
+		local player = Players[i];
+		if player:IsEverAlive() then
+			numMinors = numMinors + 1;
+			table.insert(minorIds, i);
+		end
+	end
+
+	local bTeamGame = false;
+	local iNumTeams = Game.CountCivTeamsEverAlive()
+	local iNumTeamsOfCivs = iNumTeams - numMinors;
+	if iNumTeamsOfCivs < numMajorCivs then
+		bTeamGame = true;
+	end
+
+	local numCivsPerTeam = table.fill(0, GameDefines.MAX_CIV_PLAYERS)
+	numCivsPerTeam[0] = 0;
+	for i = 0, GameDefines.MAX_MAJOR_CIVS - 1 do
+		local player = Players[i];
+		if player:IsEverAlive() then
+			local teamID = player:GetTeam()
+			numCivsPerTeam[teamID] = numCivsPerTeam[teamID] + 1;
+			local bCheckTeamList = TestMembership(majorTeamIds, teamID)
+			if bCheckTeamList == false then
+				table.insert(majorTeamIds, teamID)
+			end
+		end
+	end
+	
+	return numMajorCivs, majorIds, numMinors, minorIds, bTeamGame, numCivsPerTeam, majorTeamIds
+end
+------------------------------------------------------------------------------
+-- Returns a copy that has been randomly shuffled
 ------------------------------------------------------------------------------
 function CopyAndShuffle(incoming_table)
 	-- Designed to operate on tables with no gaps. Does not affect original table.
@@ -223,13 +271,18 @@ function GetI(x,y,maxX)
 	return y * maxX + x + 1;
 end
 
+local NumDirections = 6;
 local firstRingYIsEvenTABLE = {{0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 0}, {-1, 1}};
 local firstRingYIsOddTABLE = {{1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, 0}, {0, 1}};
+function RandDirection()
+	local maxExclusive = NumDirections;
+	return Map.Rand(maxExclusive);
+end
 ------------------------------------------------------------------------------
 -- Given an x,y and direction, returns the {x,y} of the next tile
 ------------------------------------------------------------------------------
 function dir(x, y, dir0Idx)
-	dir0Idx = dir0Idx % 6; -- only 6 directions!
+	dir0Idx = dir0Idx % NumDirections; -- only 6 directions!
 	local plot_adjustments;
 	if y / 2 > math.floor(y / 2) then
 		plot_adjustments = firstRingYIsOddTABLE[dir0Idx + 1]; -- +1 because lua tables are 1 indexed
@@ -252,7 +305,7 @@ function GetXyAround(xStart, yStart, radius)
 	end
 
 	local edgeLen = radius;
-	local perimeterLen = 6 * radius;
+	local perimeterLen = NumDirections * radius;
 	if (perimeterLen == 0) then perimeterLen = 1; end
 
 

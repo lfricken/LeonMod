@@ -449,29 +449,31 @@ function GetMapInitData(worldSize)
 	local LandSizeX = 28 + (Map.GetCustomOption(11) * 2);
 	local LandSizeY = 18 + (Map.GetCustomOption(12) * 2);
 
-	local worldsizes = {};
-
-	worldsizes = {
-
+	local worldsizes = {
 		[GameInfo.Worlds.WORLDSIZE_DUEL.ID] = {LandSizeX, LandSizeY}, -- 720
 		[GameInfo.Worlds.WORLDSIZE_TINY.ID] = {LandSizeX, LandSizeY}, -- 1664
 		[GameInfo.Worlds.WORLDSIZE_SMALL.ID] = {LandSizeX, LandSizeY}, -- 2480
 		[GameInfo.Worlds.WORLDSIZE_STANDARD.ID] = {LandSizeX, LandSizeY}, -- 3900
 		[GameInfo.Worlds.WORLDSIZE_LARGE.ID] = {LandSizeX, LandSizeY}, -- 6076
 		[GameInfo.Worlds.WORLDSIZE_HUGE.ID] = {LandSizeX, LandSizeY} -- 9424
-		}
+	};
 		
 	local grid_size = worldsizes[worldSize];
-	--
 	local world = GameInfo.Worlds[worldSize];
 	if (world ~= nil) then
 		return {
 			Width = grid_size[1],
 			Height = grid_size[2],
 			WrapX = true,
-		}; 
+		};
+	else
+		print("WARNING in GetMapInitData. Invalid dimension data.")
+		return {
+			Width = 90,
+			Height = 90,
+			WrapX = true,
+		};
 	end
-
 end
 
 ------------------------------------------------------------------------------
