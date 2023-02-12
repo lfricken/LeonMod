@@ -14,7 +14,7 @@ function GetMapScriptInfo()
 	--local world_age, temperature, rainfall, sea_level, resources = GetCoreMapOptions()
 	return {
 		Name = "Any Islands",
-		Description = "Customizable island generator.",
+		Description = "Customizable island generator. Plays best on a square map. ONLY supports up to 16 players.",
 		IsAdvancedMap = false,
 		IconIndex = 1,
 		SortIndex = 2,

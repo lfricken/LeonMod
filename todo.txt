@@ -34,6 +34,7 @@ do hidden antiquity sites still work at all? just redo antiquity logic
 
 
 Map
+	reveal horses and iron on turn 0 so you can see shit
 	DO
 	get rid of grid point logic
 	extract things to functions
