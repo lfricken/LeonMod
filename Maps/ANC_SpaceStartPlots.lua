@@ -30,6 +30,22 @@ function ANC_SpaceStartPlots(this)
 		spawnXy = CopyAndShuffle(spawnXy);
 	end
 
+
+	-- temp assign starts so the game doesn't crash later
+	-- if these aren't assigned, C++ crashes
+	Map.RecalculateAreas();
+	for idx,pid in pairs(majorIds) do
+		local temp_start_plot = Map.GetPlot(pid % 17, pid % 19);
+		local player = Players[pid];
+		player:SetStartingPlot(temp_start_plot);
+	end
+	for idx,pid in pairs(minorIds) do
+		local temp_start_plot = Map.GetPlot(pid % 17, pid % 19);
+		local player = Players[pid];
+		player:SetStartingPlot(temp_start_plot);
+	end
+
+
 	-- major civs
 	for idx,pid in pairs(majorIds) do
 		local player = Players[pid];
@@ -46,27 +62,25 @@ function ANC_SpaceStartPlots(this)
 	local additionalYBounds = 1; -- avoid spawning within this distance of the edge
 	for idx,pid in pairs(minorIds) do
 		local player = Players[pid];
-		if player:IsEverAlive() then
 
-			-- find valid start location
-			local x,y;
-			for attempts=1,20 do -- limit attempts to avoid an infinite loop
-				haltonPoint = haltonPoint + 1;
-				x,y = math.floor(maxX * haltonPointsX[haltonPoint]), math.floor(additionalYBounds + (maxY - 2 * additionalYBounds) * haltonPointsY[haltonPoint]);
-				local plotIdx = GetI(x, y, maxX);
-				-- found a valid plot?
-				if (not this.plotIsSpawnLocked[plotIdx]) then break; end
+		-- find valid start location
+		local x,y;
+		for attempts=1,20 do -- limit attempts to avoid an infinite loop
+			haltonPoint = haltonPoint + 1;
+			x,y = math.floor(maxX * haltonPointsX[haltonPoint]), math.floor(additionalYBounds + (maxY - 2 * additionalYBounds) * haltonPointsY[haltonPoint]);
+			local plotIdx = GetI(x, y, maxX);
+			-- found a valid plot?
+			if (not this.plotIsSpawnLocked[plotIdx]) then break; end
 
-				if (attempts > 18) then print("WARNING: Map Too Small. Minor civ cant find spawn location."); end
-			end
-
-			--print("Start Minor: " .. x .. ", " .. y);
-
-			local start_plot = Map.GetPlot(x, y);
-			player:SetStartingPlot(start_plot);
-
-			ANC_DoSpawnFor(this, x, y, maxX, maxY, pid, true);
+			if (attempts > 18) then print("WARNING: Map Too Small. Minor civ cant find spawn location."); end
 		end
+
+		--print("Start Minor: " .. x .. ", " .. y);
+
+		local start_plot = Map.GetPlot(x, y);
+		player:SetStartingPlot(start_plot);
+
+		ANC_DoSpawnFor(this, x, y, maxX, maxY, pid, true);
 	end
 
 	--ANC_SetPlotTypes(this.plotTypes);

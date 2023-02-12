@@ -274,9 +274,12 @@ end
 local NumDirections = 6;
 local firstRingYIsEvenTABLE = {{0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 0}, {-1, 1}};
 local firstRingYIsOddTABLE = {{1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, 0}, {0, 1}};
-function RandDirection()
+function RandDir()
 	local maxExclusive = NumDirections;
-	return Map.Rand(maxExclusive);
+	return Map.Rand(maxExclusive, "RandDir");
+end
+function AddDir(dir, deltaDir)
+	return (dir + deltaDir) % NumDirections;
 end
 ------------------------------------------------------------------------------
 -- Given an x,y and direction, returns the {x,y} of the next tile
@@ -292,6 +295,52 @@ function dir(x, y, dir0Idx)
 	local nextX = x + plot_adjustments[1];
 	local nextY = y + plot_adjustments[2];
 	return {nextX, nextY}
+end
+------------------------------------------------------------------------------
+-- Given an {xy} and direction, returns the {xy} of the next tile
+------------------------------------------------------------------------------
+function GoDir(xy, dir0Idx)
+	dir0Idx = dir0Idx % NumDirections; -- only 6 directions!
+	local plot_adjustments;
+	if xy[2] / 2 > math.floor(xy[2] / 2) then
+		plot_adjustments = firstRingYIsOddTABLE[dir0Idx + 1]; -- +1 because lua tables are 1 indexed
+	else
+		plot_adjustments = firstRingYIsEvenTABLE[dir0Idx + 1];
+	end
+	local nextX = xy[1] + plot_adjustments[1];
+	local nextY = xy[2] + plot_adjustments[2];
+	return {nextX, nextY}
+end
+------------------------------------------------------------------------------
+-- Creates a rhombus with the wide angle point at the start.
+------------------------------------------------------------------------------
+function GetCone2(xStart, yStart, maxX, maxY, dirLeft, radius)
+	local current = {xStart, yStart};
+	local currentSpanXy = {xStart, yStart};
+	local xys = {};
+	local dirSpan = AddDir(dirLeft, 2);
+	for left=1,radius do -- go left dir
+
+		for span=1,radius do -- go right dir
+			safeInsertIdx(xys, currentSpanXy, maxX, maxY);
+			currentSpanXy = GoDir(currentSpanXy, dirSpan);
+		end
+
+		current = GoDir(current, dirLeft);
+		currentSpanXy = current;
+	end
+
+	return xys;
+end
+------------------------------------------------------------------------------
+-- Does not insert into the table if the xy is out of bounds, corrects x coordinate
+------------------------------------------------------------------------------
+function safeInsertIdx(values, xy, maxX, maxY)
+	if (xy[2] >= 0 and xy[2] < maxY) then -- verify y bounds
+		local x = xy[1] % maxX; -- fix x bounds
+		local y = xy[2];
+		table.insert(values, GetI(x, y, maxX));
+	end
 end
 ------------------------------------------------------------------------------
 -- HEAVILY TESTED. radius 1 is 6 tiles surrounding x,y, radius 2 is the 12 tiles outside that
@@ -337,11 +386,7 @@ function GetIndexesAround(xCenter, yCenter, maxX, maxY, radiusMin, radiusMaxOpti
 	for r = radiusMin, radiusMaxOptional do -- each radius
 		local xys = GetXyAround(xCenter, yCenter, r); -- get all points
 		for k, xy in pairs(xys) do
-			if (xy[2] >= 0 and xy[2] < maxY) then
-				local x = xy[1] % maxX;
-				local y = xy[2];
-				table.insert(indexes, GetI(x, y, maxX));
-			end
+			safeInsertIdx(indexes, xy, maxX, maxY);
 		end
 	end
 	return indexes;

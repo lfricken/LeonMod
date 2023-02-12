@@ -4324,6 +4324,11 @@ void CvMinorCivAI::SetFriendshipWithMajorTimes100(PlayerTypes ePlayer, int iNum,
 
 void CvMinorCivAI::ChangeFriendshipWithMajorTimes100(PlayerTypes ePlayer, int iChange, bool bFromQuest)
 {
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
+	{
+		return;
+	}
+
 	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
 
@@ -4344,6 +4349,11 @@ void CvMinorCivAI::ChangeFriendshipWithMajorTimes100(PlayerTypes ePlayer, int iC
 }
 void CvMinorCivAI::ChangeFriendshipWithMajorTimes100Instant(PlayerTypes ePlayer, int iChangeT100, bool bFromQuest)
 {
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
+	{
+		return;
+	}
+
 	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
 
