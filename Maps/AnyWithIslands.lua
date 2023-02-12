@@ -24,7 +24,7 @@ function GetMapScriptInfo()
 		IconIndex = 1,
 		SortIndex = 2,
 		SupportsMultiplayer = true,
-	CustomOptions = {
+		CustomOptions = {
 			{
 				Name = "TXT_KEY_MAP_OPTION_WORLD_AGE", -- 1
 				Values = {
