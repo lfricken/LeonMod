@@ -32,10 +32,7 @@ Controls.ItemScrollPanel:ReprocessAnchoring();
 
 local bpWidth, bpHeight = Controls.BottomPanel:GetSizeVal();
 --bpHeight = bpHeight * heightRatio;
-print(heightOffset);
-print(bpHeight);
 bpHeight = bpHeight + heightOffset 
-print(bpHeight);
 
 Controls.BottomPanel:SetSizeVal(bpWidth, bpHeight);
 Controls.BottomPanel:ReprocessAnchoring();
@@ -170,7 +167,7 @@ function RefreshList()
 			itemInstance.ScienceVictory:SetHide(true);
         
 			for _, victoryControl in ipairs(ideology.VictoryTypes) do
-				print(victoryControl);
+				--print(victoryControl);
 				itemInstance[victoryControl]:SetHide(false);
 			end
 			
