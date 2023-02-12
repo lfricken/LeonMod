@@ -10940,11 +10940,16 @@ private:
 	std::vector<int> possibilities;
 	int idx;
 };
-void CvGame::onPlayerEnteredEra(PlayerTypes, EraTypes eEra)
+void CvGame::onPlayerEnteredEra(PlayerTypes e, EraTypes eEra)
 {
 	// first player entered
 	if (m_eraNumPlayersEntered[eEra] == 0)
 	{
+		if (eEra == 2) // if we entered the classical era, go back and enter the ancient era, why not?
+		{
+			onPlayerEnteredEra(e, (EraTypes)(eEra - 1));
+		}
+
 		// map genre > cards of that genre
 		std::vector<std::vector<CardsOfGenre>> eras;
 		for (int cardId = 0; cardId < GC.getNumPolicyInfos(); ++cardId)
