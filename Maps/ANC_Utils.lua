@@ -43,17 +43,35 @@ function Plots(sort)
 end
 
 function addToSet(set, key)
-	set[key] = true
+	set[key] = true;
 end
 
 function removeFromSet(set, key)
-	set[key] = nil
+	set[key] = nil;
 end
 
 function setContains(set, key)
-	return set[key] ~= nil
+	return set[key] ~= nil;
 end
-
+function table.contains(table, element)
+	for _, value in pairs(table) do
+		if value == element then
+			return true;
+		end
+	end
+	return false;
+end
+function table.removeElement(t, element)
+	local i = 1;
+	while i <= #t do
+		if t[i] == element then
+			table.remove(t, i);
+		else
+			i = i + 1;
+		end
+	end
+	return false;
+end
 function wouldConnectLandmasses(set, key)
 	-- TODO
 end
@@ -297,6 +315,17 @@ function dir(x, y, dir0Idx)
 	return {nextX, nextY}
 end
 ------------------------------------------------------------------------------
+-- Skips xy and gives a line of points in the given direction
+------------------------------------------------------------------------------
+function GoLine(xy, dir, maxX, maxY, radius)
+	local indexes = {};
+	for span=1,radius do
+		xy = GoDir(xy, dir);
+		safeInsertIdx(indexes, xy, maxX, maxY);
+	end
+	return indexes;
+end
+------------------------------------------------------------------------------
 -- Given an {xy} and direction, returns the {xy} of the next tile
 ------------------------------------------------------------------------------
 function GoDir(xy, dir0Idx)
@@ -317,12 +346,12 @@ end
 function GetCone2(xStart, yStart, maxX, maxY, dirLeft, radius)
 	local current = {xStart, yStart};
 	local currentSpanXy = {xStart, yStart};
-	local xys = {};
+	local indexes = {};
 	local dirSpan = AddDir(dirLeft, -2);
 	for left=1,radius do -- go left dir
 
 		for span=1,radius do -- go right dir
-			safeInsertIdx(xys, currentSpanXy, maxX, maxY);
+			safeInsertIdx(indexes, currentSpanXy, maxX, maxY);
 			currentSpanXy = GoDir(currentSpanXy, dirSpan);
 		end
 
@@ -330,10 +359,10 @@ function GetCone2(xStart, yStart, maxX, maxY, dirLeft, radius)
 		currentSpanXy = current;
 	end
 
-	return xys;
+	return indexes;
 end
 ------------------------------------------------------------------------------
--- Does not insert into the table if the xy is out of bounds, corrects x coordinate
+-- Does not insert into the table if the xy is out of bounds, corrects x coordinate, changes to index
 ------------------------------------------------------------------------------
 function safeInsertIdx(values, xy, maxX, maxY)
 	if (xy[2] >= 0 and xy[2] < maxY) then -- verify y bounds
@@ -381,7 +410,7 @@ end
 -- converts the output of getxyaround to indexes, does not include values outside maxXY bounds, auto wraps maxX coordinates
 ------------------------------------------------------------------------------
 function GetIndexesAround(xCenter, yCenter, maxX, maxY, radiusMin, radiusMaxOptional)
-	if radiusMaxOptional == nil then radiusMax = radiusMin; end -- default value
+	if radiusMaxOptional == nil then radiusMaxOptional = radiusMin; end -- default value
 	local indexes = {};
 	for r = radiusMin, radiusMaxOptional do -- each radius
 		local xys = GetXyAround(xCenter, yCenter, r); -- get all points
@@ -406,26 +435,26 @@ end
 -- local x,y = math.floor(iW * self.haltonPointsX[i]), math.floor(iH * self.haltonPointsY[i]);
 function halton(base, numToGen, rngAddition)
 	points = {};
-    local numerator, divisor = 0, 1;
-    local minToGen = 100 + rngAddition;
+	local numerator, divisor = 0, 1;
+	local minToGen = 100 + rngAddition;
 
-    for i = 0,minToGen+numToGen do
-        local range = divisor - numerator;
-        if range == 1 then -- find new divisor because we are the end of this range
-            numerator = 1;
-            divisor = divisor * base;
-        else
-            local shift = divisor / base;
-            while (range <= shift) do
-                shift = shift / base;
-            end
-            numerator = ((base + 1) * shift) - range;
-        end
-        if (i > minToGen) then
+	for i = 0,minToGen+numToGen do
+		local range = divisor - numerator;
+		if range == 1 then -- find new divisor because we are the end of this range
+			numerator = 1;
+			divisor = divisor * base;
+		else
+			local shift = divisor / base;
+			while (range <= shift) do
+				shift = shift / base;
+			end
+			numerator = ((base + 1) * shift) - range;
+		end
+		if (i > minToGen) then
 			table.insert(points, numerator / divisor);
 		end
-    end
-    return points;
+	end
+	return points;
 end
 ------------------------------------------------------------------------------
 -- given radius=2 will return
@@ -453,6 +482,49 @@ function GetGridPoints(radius)
 		until (offX > layer or offY < 0)
 	end
 	return points;
+end
+------------------------------------------------------------------------------
+-- Skips xy and gives a line of points in the given direction
+------------------------------------------------------------------------------
+function Mutate(plotTypes, maxX, maxY, 
+	idxsToMutate, minAdj, toType, 
+	fromType, mutateChance1000, conjoinChance1000)
+
+	local toMutate = {}; -- avoid growing an island multiple times in the same direction
+	for x = 0, maxX - 1 do
+		for y = 0, maxY - 1 do
+
+			local plotIdx = GetI(x,y,maxX);
+			if table.contains(idxsToMutate, plotIdx) then
+
+				if plotTypes[plotIdx] == fromType then -- if from type
+					local countAdjacentLand = 0;
+					local points = GetIndexesAround(x,y,maxX,maxY,1);
+					for k,index in pairs(points) do
+						if plotTypes[index] ~= fromType then -- if adjacent
+							countAdjacentLand = countAdjacentLand + 1;
+						end
+						if table.contains(toMutate, index) then -- invalid because adjacent tile will change
+							countAdjacentLand = 0;
+							break;
+						end
+					end
+
+					local doMutate = false;
+					if (countAdjacentLand >= minAdj) then
+						doMutate = (Map.Rand(1000, "Mutate Chance") < mutateChance1000);
+					end
+					if doMutate then
+						table.insert(toMutate, plotIdx);
+					end
+				end
+			end
+		end
+	end
+
+	for k,mutateIdx in pairs(toMutate) do
+		plotTypes[mutateIdx] = toType; -- make this one the target type
+	end
 end
 ------------------------------------------------------------------------------
 -- Randomly decides how big an island should be in land tiles
