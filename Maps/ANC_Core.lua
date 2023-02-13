@@ -7,6 +7,7 @@ include("ANC_Climate");
 include("ANC_Utils");
 
 
+ANC = {};
 ------------------------------------------------------------------------------
 -- Arguments for map generator
 ------------------------------------------------------------------------------
@@ -27,6 +28,7 @@ end
 ------------------------------------------------------------------------------
 function ANC_Constructor(ancArgs)
 	local this = {
+		Set = ANC.set,
 		plotTypes = {}, -- PlotTypes (PLOT_MOUNTAIN, PLOT_HILLS, PLOT_LAND, PLOT_OCEAN)
 		plotTerrain = {}, -- TerrainTypes (TERRAIN_GRASS  _PLAINS _DESERT _TUNDRA _SNOW _COAST _OCEAN _MOUNTAIN _HILL)
 		plotFeature = {}, -- FeatureTypes (FEATURE_ICE _JUNGLE _MARSH _OASIS _FLOOD_PLAINS _FOREST _FALLOUT _NATURAL_WONDER)
@@ -41,6 +43,27 @@ function ANC_Constructor(ancArgs)
 	ANC_SafeInitPlots(this);
 	return this;
 end
+function ANC.Set(idx, plotType, terrain, feature, resource, numres)
+
+	if (self.plotIsLocked[idx]) then print("WARNING ANC.Set PlotLocked: " .. debug.traceback()); return; end
+	if (plotType == nil) then print("WARNING ANC.Set call missing type: " .. debug.traceback()); return; end
+	if (terrain == nil) then print("WARNING ANC.Set missing terrain: " .. debug.traceback()); return; end
+
+	feature = feature or FeatureTypes.NO_FEATURE;
+	resource = resource or -1;
+	numRes = numRes or 0;
+
+	self.plotTypes[idx] = plotType;
+	self.plotTerrain[idx] = terrain;
+	self.plotFeature[idx] = feature;
+	self.plotResource[idx] = resource;
+	self.plotResourceNum[idx] = numres;
+	self.plotIsLocked[idx] = true;
+	-- a future call to ANC_UpdatePlots is expected
+	--local plot = Map.GetPlotByIndex(idx);
+	--plot:
+
+end
 ------------------------------------------------------------------------------
 -- Entry point for creating this map type
 ------------------------------------------------------------------------------
@@ -49,7 +72,8 @@ function ANC_CreateMap(ancArgs)
 	this = ANC_Constructor(ancArgs);
 	
 	
-	ANC_SpaceStartPlots(this); -- spaces out initial spawn points and places basic initial spawn island and spawn points
+	ANC_SetupStartPlots(this); -- creates all initial spawn locations and properties including terrain, resources
+
 	--ANC_LandAndSea(this); -- creates more islands and grows existing ones -- mountains, land, hills, ocean
 	
 	ANC_Climate(this); -- desert, tundra, snow, forest, jungle, plains, grassland

@@ -61,7 +61,7 @@ function table.contains(table, element)
 	end
 	return false;
 end
-function table.removeElement(t, element)
+function removeTableElement(t, element)
 	local i = 1;
 	while i <= #t do
 		if t[i] == element then
@@ -72,7 +72,7 @@ function table.removeElement(t, element)
 	end
 	return false;
 end
-function table.concat(t1,t2)
+function concatTable(t1,t2)
     for i=1, #t2 do
         t1[#t1+1] = t2[i];
     end

@@ -8,7 +8,7 @@ include("ANC_StartPlotsCreate");
 ------------------------------------------------------------------------------
 -- Determines where players spawn
 ------------------------------------------------------------------------------
-function ANC_SpaceStartPlots(this)
+function ANC_SetupStartPlots(this)
 	print("ANC_SpaceStartPlots Begin");
 
 	local maxX, maxY = Map.GetGridSize();
