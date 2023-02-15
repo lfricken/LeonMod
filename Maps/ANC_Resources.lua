@@ -14,36 +14,63 @@ end
 -- Generates all Resource Clumps. See createResourceClump and findClosestClumpedResource
 ------------------------------------------------------------------------------
 function createResourceClumps(this)
-	local mapXScaling = math.cos(math.rad(30)); -- hexagon packing means the 
+	local mapXScaling = math.cos(math.rad(30)); -- hexagon packing means the X shift for each point is at a 30 degree angle
 	--print("COSINE" .. mapXScaling);
-	-- redo the clump sizes so they fit more evenly
 	--print("Original Lux Diameter: " .. this.cfg.luxClumpDiameter);
-	local shiftDistance = this.cfg.luxClumpDiameter * mapXScaling;
-	local numClumpsX = math.floor(0.5 + (this.maxX / shiftDistance)); -- 60 / 11 > 5.45 > 5
-	local eachXShift = (this.maxX / numClumpsX);
+
+	-- redo the clump sizes so they fit more evenly
+	local xShiftDistance = this.cfg.luxClumpDiameter * mapXScaling;
+
+	-- how many clumps can we fit on the x dimension?
+	local numClumpsX = math.floor(0.5 + (this.maxX / xShiftDistance)); -- 60 / 11 > 5.45 > 5
+	local eachXShift = this.maxX / numClumpsX;
+
 	this.cfg.luxClumpDiameter = eachXShift / mapXScaling; -- 60 / 5 > 12 -- divide my map scaling since this was scaled by it initially
 	--print("New Lux Diameter: " .. this.cfg.luxClumpDiameter);
-	local numClumpsY = 1 + math.floor(0.5 + (this.maxY / this.cfg.luxClumpDiameter)); -- +1 because when we shift we'll need some overlap
-	local eachYShift = this.cfg.luxClumpDiameter;
 
-	for layer=1,1 do
-		for x=1,numClumpsX do
+	-- how many clumps can we fit on the y dimension?
+	local ensureTopOfMapHasClumpAlongEdge = 2; -- ensures the very top of the map gets a clump, just like the very bottom
+	local numClumpsY = math.floor(this.maxY / this.cfg.luxClumpDiameter);
+	local eachYShift = (this.maxY - ensureTopOfMapHasClumpAlongEdge) / numClumpsY;
+
+	-- we want to make sure to TRY to generate enough clumps so we extend past the map a bit
+	-- to avoid a situation where the edge of the map is missing a clump 1 would probably be enough, but why not 2?
+	local numClumpsSafety = 2;
+	for layer=1,2 do
+		for x=1,numClumpsX+numClumpsSafety do
 			local isEvenX = x % 2 == 0; -- every other column should be shifted up
-			for y=1,numClumpsY do
+			for y=1,numClumpsY+numClumpsSafety do
 				local realX = (x * eachXShift) - (eachXShift / 2);
 				local realY = (y * eachYShift) - (eachYShift / 2);
-				if isEvenX then realY = realY - (eachYShift / 2); end -- shift up
-				createResourceClump(this, layer, realX, realY, resource);
+
+				-- the second layer should be offset so the centers are at the triple junction of 3 hexes
+				if layer == 2 then realX = realX - (eachXShift / 2) * mapXScaling; realY = realY - eachYShift / 2; end
+				if isEvenX then realY = realY - (eachYShift / 2); end -- shift down so they follow a centered hex pattern
+				tryCreateResourceClump(this, layer, realX, realY, resource);
 			end
 		end
 	end
 end
 ------------------------------------------------------------------------------
+-- Does not create a clump if the clump would be out of bounds.
 -- Creates a resource clump entry, which is just an XY coordinate and a resource.
 -- Used later by tiles to determine which kind of resource it should have 
 ------------------------------------------------------------------------------
-function createResourceClump(this, layer, realX, realY, resource)
-	this:Set(GetI(realX, realY, this.maxX), PlotTypes.PLOT_LAND, TerrainTypes.TERRAIN_GRASS);
+function tryCreateResourceClump(this, layer, realX, realY, resource)
+	-- check bounds
+	realX = math.floor(realX);
+	realY = math.floor(realY);
+	if realX < 0 or realX >= this.maxX or realY < 0 or realY >= this.maxY then 
+		--print("skipped: " .. realX .. "," .. realY); 
+		return;
+	end
+
+	-- debugging
+	--if layer == 1 then
+	--	this:SetXY(realX, realY, PlotTypes.PLOT_LAND, TerrainTypes.TERRAIN_GRASS);
+	--else
+	--	this:SetXY(realX, realY, PlotTypes.PLOT_MOUNTAIN, TerrainTypes.TERRAIN_MOUNTAIN);
+	--end
 	--print("Clump: " .. realX .. "," .. realY);
 	local clump = {
 		x = realX,
@@ -64,6 +91,7 @@ end
 -- given an XY and a layer, gives the resource value for this layer
 ------------------------------------------------------------------------------
 function findClosestClumpedResource(this, layer, realX, realY)
+	local extraSafety = 2; -- we want to be sure we shift all the way past the x wrap of the map
 	local shiftDistance = this.cfg.luxClumpDiameter;
 	local layerClumps = this.resourceClumps[layer];
 	local closestDist = 999999;
@@ -74,7 +102,7 @@ function findClosestClumpedResource(this, layer, realX, realY)
 	-- distance as if it was adjacent. we don't need to do a shift of 0 because... why would we?
 	for shift = -1, 1, 2 do
 		for k,clump in ipairs(layerClumps) do
-			local dist = clump:distFrom(realX,realY, shift * shiftDistance, this.maxX, this.maxY);
+			local dist = clump:distFrom(realX,realY, (extraSafety * shift * shiftDistance), this.maxX, this.maxY);
 			if (dist < closestDist) then
 				closestDist = dist;
 				closestClump = clump;

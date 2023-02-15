@@ -85,6 +85,12 @@ function ANC:Set(idx, plotType, terrain, feature, resource, numres)
 
 end
 ------------------------------------------------------------------------------
+-- See ANC:Set
+------------------------------------------------------------------------------
+function ANC:SetXY(x, y, plotType, terrain, feature, resource, numres)
+	self:Set(GetI(x, y, self.maxX), plotType, terrain, feature, resource, numres)
+end
+------------------------------------------------------------------------------
 -- Entry point for creating this map type
 ------------------------------------------------------------------------------
 function ANC_CreateMap(ancArgs)
