@@ -42,7 +42,7 @@ function ANC_DoSpawnFor(this, x, y, maxX, maxY, playerId, isMinor)
 		local from, to = PlotTypes.PLOT_OCEAN, PlotTypes.PLOT_LAND;
 		local chance = 200;
 		if (i%2==0) then local temp = from; from = to; to = temp; chance = 1000 - chance; end
-		Mutate(this, from, to, 1, chance, 0, toMutate);
+		Mutate(this, from, to, toMutate);
 	end
 
 
@@ -50,7 +50,7 @@ function ANC_DoSpawnFor(this, x, y, maxX, maxY, playerId, isMinor)
 
 
 	local indexes;
-	
+
 	indexes = GetIndexesAround(x, y, maxX, maxY, 0, spawnHexRadius);
 	for k,index in pairs(indexes) do
 		this.plotIsLocked[index] = true;

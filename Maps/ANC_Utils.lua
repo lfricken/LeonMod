@@ -492,15 +492,26 @@ function GetGridPoints(radius)
 	end
 	return points;
 end
+
+function defaultMutate(bWouldConnect,numAdjacent)
+	local doMutate = false;
+	local minAdjacent = 1;
+	if (numAdjacent >= minAdjacent) then
+		local canConnect = true;
+		if (bWouldConnect) then
+			canConnect = false;--Map.Rand(1000,"PlotConjoin") < conjoinChance1000;
+		end
+
+		doMutate = canConnect and (Map.Rand(1000, "Mutate") < 500);
+	end
+	return doMutate;
+end
 ------------------------------------------------------------------------------
 -- Randomly switches the fromType to the toType with various rules
 ------------------------------------------------------------------------------
-function Mutate(this, fromType, toType, 
-	minAdj, mutateChance1000, conjoinChance1000, idxsToMutate)
+function Mutate(this, fromType, toType, idxsToMutate, mutateFunc)
 
-	minAdj = minAdj or 0;
-	mutateChance1000 = mutateChance1000 or 500;
-	conjoinChance1000 = conjoinChance1000 or 0;
+	mutateFunc = mutateFunc or defaultMutate;
 
 	local toMutate = {}; -- avoid growing an island multiple times in the same direction
 	for x = 0, this.maxX - 1 do
@@ -532,17 +543,12 @@ function Mutate(this, fromType, toType,
 						end
 						wasLastLand = bIsFromType;
 					end
-					if (countAdjacentLand >= minAdj) then
-						local bWouldConnectUnconnectedLand = (countSwitches >= 3);
-						local canConnect = true;
-						if (bWouldConnectUnconnectedLand) then
-							canConnect = Map.Rand(1000,"PlotConjoin") < conjoinChance1000;
-						end
+					
+					local bWouldConnectUnconnectedLand = (countSwitches >= 3);
 
-						local doMutate = canConnect and (Map.Rand(1000, "Mutate") < mutateChance1000);
-						if doMutate then
-							table.insert(toMutate, plotIdx);
-						end
+					local doMutate = mutateFunc(bWouldConnectUnconnectedLand, countAdjacentLand);
+					if doMutate then
+						table.insert(toMutate, plotIdx);
 					end
 				end
 			end
