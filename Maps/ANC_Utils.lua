@@ -54,7 +54,7 @@ function setContains(set, key)
 	return set[key] ~= nil;
 end
 function containsTableElement(table, element)
-	for _, value in ipairs(table) do
+	for _, value in pairs(table) do
 		if value == element then
 			return true;
 		end
@@ -84,7 +84,7 @@ end
 
 function length(T)
 	local count = 0
-	for _ in ipairs(T) do count = count + 1 end
+	for _ in pairs(T) do count = count + 1 end
 	return count
 end
 ------------------------------------------------------------------------------
@@ -189,7 +189,7 @@ function IsSingleIsland(plotTypes, x, y, maxX, maxY)
 	end
 
 	local points = GetIndexesAround(x,y,maxX,maxY,1);
-	for k,idx in ipairs(points) do
+	for k,idx in pairs(points) do
 		if (plotTypes[idx] ~= PlotTypes.PLOT_OCEAN) then
 			return false; -- adjacent tile was land, so skip
 		end
@@ -423,7 +423,7 @@ function GetIndexesAround(xCenter, yCenter, maxX, maxY, radiusMin, radiusMaxOpti
 	local indexes = {};
 	for r = radiusMin, radiusMaxOptional do -- each radius
 		local xys = GetXyAround(xCenter, yCenter, r); -- get all points
-		for k, xy in ipairs(xys) do
+		for k, xy in pairs(xys) do
 			safeInsertIdx(indexes, xy, maxX, maxY);
 		end
 	end
@@ -495,22 +495,30 @@ end
 ------------------------------------------------------------------------------
 -- Randomly switches the fromType to the toType with various rules
 ------------------------------------------------------------------------------
-function Mutate(this, maxX, maxY, 
-	idxsToMutate, minAdj, fromType,
-	 toType, mutateChance1000, conjoinChance1000)
+function Mutate(this, fromType, toType, 
+	minAdj, mutateChance1000, conjoinChance1000, idxsToMutate)
+
+	minAdj = minAdj or 0;
+	mutateChance1000 = mutateChance1000 or 500;
+	conjoinChance1000 = conjoinChance1000 or 0;
 
 	local toMutate = {}; -- avoid growing an island multiple times in the same direction
-	for x = 0, maxX - 1 do
-		for y = 0, maxY - 1 do
+	for x = 0, this.maxX - 1 do
+		for y = 0, this.maxY - 1 do
 
-			local plotIdx = GetI(x,y,maxX);
-			if containsTableElement(idxsToMutate, plotIdx) then -- only mutate target indexes
+			local plotIdx = GetI(x,y,this.maxX);
+			--if this.plotIsWithinSpawnDist[plotIdx] then
+				--print("spawn" .. y);
+			if this.plotIsLocked[plotIdx] then
+				--print("locked" .. y);
+			elseif idxsToMutate == nil or containsTableElement(idxsToMutate, plotIdx) then -- only mutate target indexes, or ALL
 				if this.plotTypes[plotIdx] == fromType then -- if from type
+					--print("mutating: " .. plotIdx);
 					local countAdjacentLand = 0;
 					local countSwitches = 0;
 					local wasLastLand = false;
-					local points = GetIndexesAround(x,y,maxX,maxY,1);
-					for k,index in ipairs(points) do
+					local points = GetIndexesAround(x, y, this.maxX, this.maxY, 1);
+					for k,index in pairs(points) do
 						if containsTableElement(toMutate, index) then -- invalid because adjacent tile will change
 							countAdjacentLand = 0;
 							break;
@@ -541,7 +549,7 @@ function Mutate(this, maxX, maxY,
 		end
 	end
 
-	for k,mutateIdx in ipairs(toMutate) do
+	for k,mutateIdx in pairs(toMutate) do
 		this.plotTypes[mutateIdx] = toType; -- make this one the target type
 	end
 end

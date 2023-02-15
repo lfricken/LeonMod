@@ -16,14 +16,14 @@ function ANC_DoSpawnFor(this, x, y, maxX, maxY, playerId, isMinor)
 
 	-- setup spawn land vs water
 	local spawnIndexes = GetIndexesAround(x, y, maxX, maxY, 0, spawnHexRadius);
-	for k,index in ipairs(spawnIndexes) do
+	for k,index in pairs(spawnIndexes) do
 		this.plotTypes[index] = PlotTypes.PLOT_LAND;
 	end
 
 	-- move a random direction, and carve out a cone to keep as water
 	local adjacentWater = dir(x,y,randWaterDir);
 	local waterCone = GetCone2(adjacentWater[1], adjacentWater[2], maxX, maxY, AddDir(randWaterDir, 1), spawnHexRadius);
-	for k,index in ipairs(waterCone) do
+	for k,index in pairs(waterCone) do
 		this.plotTypes[index] = PlotTypes.PLOT_OCEAN;
 	end
 	-- select a line of water tiles that leads away from the spawn to guarantee these stay as water
@@ -32,7 +32,7 @@ function ANC_DoSpawnFor(this, x, y, maxX, maxY, playerId, isMinor)
 	-- mutate water adjacent terrain
 	-- but avoid the line of water leading out of this hex area
 	local toMutate = CopyAndShuffle(waterCone);
-	for i,idx in ipairs(waterSafeLineIdxs) do
+	for i,idx in pairs(waterSafeLineIdxs) do
 		removeTableElement(toMutate, idx);
 	end
 	-- but include the adjacent terrain
@@ -42,22 +42,25 @@ function ANC_DoSpawnFor(this, x, y, maxX, maxY, playerId, isMinor)
 		local from, to = PlotTypes.PLOT_OCEAN, PlotTypes.PLOT_LAND;
 		local chance = 200;
 		if (i%2==0) then local temp = from; from = to; to = temp; chance = 1000 - chance; end
-		Mutate(this, maxX, maxY, 
-			toMutate, 1, from,
-			to, chance, 0);
+		Mutate(this, from, to, 1, chance, 0, toMutate);
 	end
 
 
 
 
 
+	local indexes;
 	
+	indexes = GetIndexesAround(x, y, maxX, maxY, 0, spawnHexRadius);
+	for k,index in pairs(indexes) do
+		this.plotIsLocked[index] = true;
+	end
 
 
 	-- finally, spawn lock all nearby tiles
 	if (this.cfg.spawnRangeMin < 3) then print("WARNING: spawnRangeMin was dangerously low!"); end
-	local indexes = GetIndexesAround(x, y, maxX, maxY, 0, this.cfg.spawnRangeMin);
-	for k,index in ipairs(indexes) do
+	indexes = GetIndexesAround(x, y, maxX, maxY, 0, spawnHexRadius);
+	for k,index in pairs(indexes) do
 		this.plotIsWithinSpawnDist[index] = true;
 	end
 

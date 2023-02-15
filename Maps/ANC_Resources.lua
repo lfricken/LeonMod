@@ -109,7 +109,7 @@ function findClosestClumpedResource(this, layer, realX, realY)
 	-- the idea is, we'll shift the x coordinates back and forth over the wrap edge so we can correctly calculate the
 	-- distance as if it was adjacent. we don't need to do a shift of 0 because... why would we?
 	for shift = -1, 1, 2 do
-		for k,clump in ipairs(layerClumps) do
+		for k,clump in pairs(layerClumps) do
 			local dist = clump:distFrom(realX,realY, (extraSafety * shift * shiftDistance), this.maxX, this.maxY);
 			if (dist < closestDist) then
 				closestDist = dist;
