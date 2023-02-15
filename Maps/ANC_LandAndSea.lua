@@ -16,7 +16,7 @@ function ANC_LandAndSea(this)
 	for i=1,10 do
 		local x,y = math.floor(maxX * haltonPointsX[i]), math.floor(maxY * haltonPointsY[i]);
 		local indexes = GetIndexesAround(x, y, maxX, maxY, 2, 3);
-		for k,index in pairs(indexes) do
+		for k,index in ipairs(indexes) do
 			print("adding land");
 			this.plotTypes[index] = PlotTypes.PLOT_HILLS;
 		end

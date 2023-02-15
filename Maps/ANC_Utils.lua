@@ -53,8 +53,8 @@ end
 function setContains(set, key)
 	return set[key] ~= nil;
 end
-function table.contains(table, element)
-	for _, value in pairs(table) do
+function containsTableElement(table, element)
+	for _, value in ipairs(table) do
 		if value == element then
 			return true;
 		end
@@ -84,7 +84,7 @@ end
 
 function length(T)
 	local count = 0
-	for _ in pairs(T) do count = count + 1 end
+	for _ in ipairs(T) do count = count + 1 end
 	return count
 end
 ------------------------------------------------------------------------------
@@ -189,7 +189,7 @@ function IsSingleIsland(plotTypes, x, y, maxX, maxY)
 	end
 
 	local points = GetIndexesAround(x,y,maxX,maxY,1);
-	for k,idx in pairs(points) do
+	for k,idx in ipairs(points) do
 		if (plotTypes[idx] ~= PlotTypes.PLOT_OCEAN) then
 			return false; -- adjacent tile was land, so skip
 		end
@@ -420,7 +420,7 @@ function GetIndexesAround(xCenter, yCenter, maxX, maxY, radiusMin, radiusMaxOpti
 	local indexes = {};
 	for r = radiusMin, radiusMaxOptional do -- each radius
 		local xys = GetXyAround(xCenter, yCenter, r); -- get all points
-		for k, xy in pairs(xys) do
+		for k, xy in ipairs(xys) do
 			safeInsertIdx(indexes, xy, maxX, maxY);
 		end
 	end
@@ -501,14 +501,14 @@ function Mutate(plotTypes, maxX, maxY,
 		for y = 0, maxY - 1 do
 
 			local plotIdx = GetI(x,y,maxX);
-			if table.contains(idxsToMutate, plotIdx) then -- only mutate target indexes
+			if containsTableElement(idxsToMutate, plotIdx) then -- only mutate target indexes
 				if plotTypes[plotIdx] == fromType then -- if from type
 					local countAdjacentLand = 0;
 					local countSwitches = 0;
 					local wasLastLand = false;
 					local points = GetIndexesAround(x,y,maxX,maxY,1);
-					for k,index in pairs(points) do
-						if table.contains(toMutate, index) then -- invalid because adjacent tile will change
+					for k,index in ipairs(points) do
+						if containsTableElement(toMutate, index) then -- invalid because adjacent tile will change
 							countAdjacentLand = 0;
 							break;
 						end
@@ -538,7 +538,7 @@ function Mutate(plotTypes, maxX, maxY,
 		end
 	end
 
-	for k,mutateIdx in pairs(toMutate) do
+	for k,mutateIdx in ipairs(toMutate) do
 		plotTypes[mutateIdx] = toType; -- make this one the target type
 	end
 end

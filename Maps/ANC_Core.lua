@@ -4,6 +4,7 @@
 include("ANC_LandAndSea");
 include("ANC_SpaceStartPlots");
 include("ANC_Climate");
+include("ANC_Resources");
 include("ANC_Utils");
 
 
@@ -20,6 +21,9 @@ function ANC_CreateArgs()
 		luxDensity = 1, -- [0,3] multiplier for how dense are luxuries
 		stratDensity = 1, -- [0,3] multiplier for how dense are strategic resources
 		bonusDensity = 1, -- [0,3] multiplier for how dense are bonus resources
+
+		luxClumpDiameter = 13, -- how large of an area will a particular resource appear in (this is recalculated slightly based on map size)
+		bonusClumpDiameter = 13, -- how large of an area will a particular resource appear in
 	};
 	return ancArgs;
 end
@@ -27,22 +31,38 @@ end
 -- Initialize the map variables
 ------------------------------------------------------------------------------
 function ANC_Constructor(ancArgs)
+	local maxX, maxY = Map.GetGridSize();
 	local this = {
 		Set = ANC.set,
+
+
+		resourceClumps = {}, -- given a lux meta index, returns a list of possible luxuries
+		bonusClumps = {}, -- given a lux meta index, returns a list of possible bonuses
+
+		plotToLuxMeta = {}, -- given a plot index, indexes into the luxMeta
+
 		plotTypes = {}, -- PlotTypes (PLOT_MOUNTAIN, PLOT_HILLS, PLOT_LAND, PLOT_OCEAN)
 		plotTerrain = {}, -- TerrainTypes (TERRAIN_GRASS  _PLAINS _DESERT _TUNDRA _SNOW _COAST _OCEAN _MOUNTAIN _HILL)
 		plotFeature = {}, -- FeatureTypes (FEATURE_ICE _JUNGLE _MARSH _OASIS _FLOOD_PLAINS _FOREST _FALLOUT _NATURAL_WONDER)
 
-		plotResource = {}, -- ResourceTypes (Luxuries, Strategic, Bonus)		
-		plotResourceNum = {}, -- ResourceTypes (Luxuries, Strategic, Bonus)
+		plotResource = {}, -- rNames (Luxuries, Strategic, Bonus)		
+		plotResourceNum = {}, -- rNames (Luxuries, Strategic, Bonus)
 		plotIsLocked = {};
 		plotIsWithinSpawnDist = {}, -- this plot should not be modified any more
 
+		maxX = maxX,
+		maxY = maxY,
+
 		cfg = ancArgs,
 	};
+	ANC_DoResources(this);
 	ANC_SafeInitPlots(this);
 	return this;
 end
+------------------------------------------------------------------------------
+-- PlotTypes (PLOT_MOUNTAIN, PLOT_HILLS, PLOT_LAND, PLOT_OCEAN)
+-- TerrainTypes (TERRAIN_GRASS  _PLAINS _DESERT _TUNDRA _SNOW _COAST _OCEAN _MOUNTAIN _HILL)
+------------------------------------------------------------------------------
 function ANC.Set(idx, plotType, terrain, feature, resource, numres)
 
 	if (self.plotIsLocked[idx]) then print("WARNING ANC.Set PlotLocked: " .. debug.traceback()); return; end
@@ -62,6 +82,7 @@ function ANC.Set(idx, plotType, terrain, feature, resource, numres)
 	-- a future call to ANC_UpdatePlots is expected
 	--local plot = Map.GetPlotByIndex(idx);
 	--plot:
+
 
 end
 ------------------------------------------------------------------------------

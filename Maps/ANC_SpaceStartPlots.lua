@@ -34,12 +34,12 @@ function ANC_SetupStartPlots(this)
 	-- temp assign starts so the game doesn't crash later
 	-- if these aren't assigned, C++ crashes
 	Map.RecalculateAreas();
-	for idx,pid in pairs(majorIds) do
+	for idx,pid in ipairs(majorIds) do
 		local temp_start_plot = Map.GetPlot(pid % 17, pid % 19);
 		local player = Players[pid];
 		player:SetStartingPlot(temp_start_plot);
 	end
-	for idx,pid in pairs(minorIds) do
+	for idx,pid in ipairs(minorIds) do
 		local temp_start_plot = Map.GetPlot(pid % 17, pid % 19);
 		local player = Players[pid];
 		player:SetStartingPlot(temp_start_plot);
@@ -47,7 +47,7 @@ function ANC_SetupStartPlots(this)
 
 
 	-- major civs
-	for idx,pid in pairs(majorIds) do
+	for idx,pid in ipairs(majorIds) do
 		local player = Players[pid];
 		local x,y = spawnXy[idx][1], spawnXy[idx][2];
 		--print("Start Major: " .. x .. ", " .. y);
@@ -60,7 +60,7 @@ function ANC_SetupStartPlots(this)
 	-- minor civs
 	local haltonPoint = 0;
 	local additionalYBounds = 1; -- avoid spawning within this distance of the edge
-	for idx,pid in pairs(minorIds) do
+	for idx,pid in ipairs(minorIds) do
 		local player = Players[pid];
 
 		-- find valid start location
@@ -136,7 +136,7 @@ function getMajorCivSpawnPoints(numMajorCivs, maxX, maxY)
 
 	-- scale up to world coordinates
 	local spawnXy = {};
-	for k,xy in pairs(spawnFloat) do
+	for k,xy in ipairs(spawnFloat) do
 		local coordinate = {math.floor(maxX * xy[1]), math.floor(maxY * xy[2])};
 		table.insert(spawnXy, coordinate);
 	end
