@@ -42,13 +42,19 @@ function ANC_DoSpawnFor(this, x, y, maxX, maxY, playerId, isMinor)
 		local from, to = PlotTypes.PLOT_OCEAN, PlotTypes.PLOT_LAND;
 		local chance = 200;
 		if (i%2==0) then local temp = from; from = to; to = temp; chance = 1000 - chance; end
-		Mutate(this.plotTypes, maxX, maxY, 
+		Mutate(this, maxX, maxY, 
 			toMutate, 1, from,
 			to, chance, 0);
 	end
 
 
-	-- spawn lock all nearby tiles
+
+
+
+	
+
+
+	-- finally, spawn lock all nearby tiles
 	if (this.cfg.spawnRangeMin < 3) then print("WARNING: spawnRangeMin was dangerously low!"); end
 	local indexes = GetIndexesAround(x, y, maxX, maxY, 0, this.cfg.spawnRangeMin);
 	for k,index in ipairs(indexes) do

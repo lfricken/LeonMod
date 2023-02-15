@@ -495,7 +495,7 @@ end
 ------------------------------------------------------------------------------
 -- Randomly switches the fromType to the toType with various rules
 ------------------------------------------------------------------------------
-function Mutate(plotTypes, maxX, maxY, 
+function Mutate(this, maxX, maxY, 
 	idxsToMutate, minAdj, fromType,
 	 toType, mutateChance1000, conjoinChance1000)
 
@@ -505,7 +505,7 @@ function Mutate(plotTypes, maxX, maxY,
 
 			local plotIdx = GetI(x,y,maxX);
 			if containsTableElement(idxsToMutate, plotIdx) then -- only mutate target indexes
-				if plotTypes[plotIdx] == fromType then -- if from type
+				if this.plotTypes[plotIdx] == fromType then -- if from type
 					local countAdjacentLand = 0;
 					local countSwitches = 0;
 					local wasLastLand = false;
@@ -515,7 +515,7 @@ function Mutate(plotTypes, maxX, maxY,
 							countAdjacentLand = 0;
 							break;
 						end
-						local bIsFromType = plotTypes[index] ~= fromType; -- if adjacent land
+						local bIsFromType = this.plotTypes[index] ~= fromType; -- if adjacent land
 						if bIsFromType then countAdjacentLand = countAdjacentLand + 1; end
 
 						-- skip the first check since we don't know anything yet
@@ -542,7 +542,7 @@ function Mutate(plotTypes, maxX, maxY,
 	end
 
 	for k,mutateIdx in ipairs(toMutate) do
-		plotTypes[mutateIdx] = toType; -- make this one the target type
+		this.plotTypes[mutateIdx] = toType; -- make this one the target type
 	end
 end
 ------------------------------------------------------------------------------

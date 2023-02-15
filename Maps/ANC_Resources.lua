@@ -5,10 +5,18 @@ include("ANC_Utils");
 ------------------------------------------------------------------------------
 -- Populates the world with resources and features.
 ------------------------------------------------------------------------------
-function ANC_DoResourcesAndFeatures(this)
+function ANC_DoSetupGoodies(this)
 	recordResourceInfo(this);
 	createResourceClumps(this);
-	populateWorldWithResources(this);
+end
+------------------------------------------------------------------------------
+-- populates the world with stuff that could be considered bonuses, such as:
+-- Bonus/Strategic Resources, Luxuries, Atolls, Lakes, Oasis, 
+-- Requires ANC_DoResourcesAndFeatures to have been called
+------------------------------------------------------------------------------
+function ANC_DoPopulateWorldWithGoodies(this)
+
+
 end
 ------------------------------------------------------------------------------
 -- Generates all Resource Clumps. See createResourceClump and findClosestClumpedResource
@@ -111,14 +119,6 @@ function findClosestClumpedResource(this, layer, realX, realY)
 	end
 	--print("closest: " .. closestDist);
 	return closestClump.clumpRes;
-end
-------------------------------------------------------------------------------
--- populates the world with stuff that could be considered bonuses, such as:
--- Bonus/Strategic Resources, Luxuries, Atolls, Lakes, Oasis, 
-------------------------------------------------------------------------------
-function populateWorldWithResources(this)
-
-
 end
 ------------------------------------------------------------------------------
 -- populate all resource info so we can reference it later

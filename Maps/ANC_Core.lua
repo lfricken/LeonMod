@@ -97,50 +97,19 @@ function ANC_CreateMap(ancArgs)
 	print("CreateMap Begin");
 	this = ANC_Constructor(ancArgs);
 	
+	ANC_DoSetupGoodies(this); -- first, because spawn point bonuses check this logic
 	
 	ANC_SetupStartPlots(this); -- creates all initial spawn locations and properties including terrain, resources
 
-	--ANC_LandAndSea(this); -- creates more islands and grows existing ones -- mountains, land, hills, ocean
+	ANC_LandAndSea(this); -- creates more islands and grows existing ones -- mountains, land, hills, ocean
 	
-	ANC_Climate(this); -- desert, tundra, snow, forest, jungle, plains, grassland
+	ANC_Climate(this); -- desert, tundra, snow, forest, jungle, plains, grassland, coast, rivers
 
-	ANC_DoResourcesAndFeatures(this);
+	ANC_DoPopulateWorldWithGoodies(this); -- (EXCEPT FOR SPAWN POINTS) add luxuries, bonuses, strategics, features (ice, oasis, atolls)
 	
 	ANC_UpdatePlots(this);
-	-- Each body of water, area of mountains, or area of hills+flatlands is independently grouped and tagged.
 	Map.RecalculateAreas();
-	
-	-- River generation is affected by plot types, originating from highlands and preferring to traverse lowlands.
-	--AddRivers();
-	
-	-- Lakes would interfere with rivers, causing them to stop and not reach the ocean, if placed any sooner.
-	--AddLakes();
-	
-	-- Features depend on plot types, terrain types, rivers and lakes to help determine their placement.
-	--AddFeatures();
-
-	-- Feature Ice is impassable and therefore requires another area recalculation.
-	Map.RecalculateAreas();
-	DetermineContinents();
-
-	-- Assign Starting Plots, Place Natural Wonders, and Distribute Resources.
-	-- This system was designed and programmed for Civ5 by Bob Thomas.
-	-- Starting plots are wholly dependent on all the previous elements being in place.
-	-- Natural Wonders are dependent on civ starts being in place, to keep them far enough away.
-	-- Resources are dependent on start locations, Natural Wonders, as well as plots, terrain, rivers, lakes and features.
-	--
-	-- This system relies on Area-based data and cannot tolerate an AreaID recalculation during its operations.
-	-- Due to plot changes from Natural Wonders and possibly other source, another recalculation is done as the final action of the system.
-	--StartPlotSystem();
-
-	-- Goodies depend on not colliding with resources or Natural Wonders, or being placed too near to start plots.
-	--AddGoodies(this);
-
-	-- Continental artwork selection must wait until Areas are finalized, so it gets handled last.
-
-
-
-	
+	DetermineContinents(); -- Continental artwork selection must wait until Areas are finalized, so it gets handled last.
 
 	print("CreateMap End");
 end

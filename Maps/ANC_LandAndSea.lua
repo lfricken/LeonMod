@@ -10,6 +10,8 @@ function ANC_LandAndSea(this)
 	-- generate using primary continent algorithm
 	local maxX, maxY = Map.GetGridSize();
 
+
+
 	--[[
 	local haltonPointsX = halton(2, 600, 2 + Map.Rand(6,"Halton Rng"));
 	local haltonPointsY = halton(3, 600, 2 + Map.Rand(6,"Halton Rng"));
@@ -22,5 +24,5 @@ function ANC_LandAndSea(this)
 		end
 	end]]
 
-	ANC_SetPlotTypes(this.plotTypes);
+	--ANC_SetPlotTypes(this.plotTypes);
 end
