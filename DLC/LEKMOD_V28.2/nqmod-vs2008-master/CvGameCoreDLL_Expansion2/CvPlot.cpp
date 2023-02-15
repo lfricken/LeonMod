@@ -6663,7 +6663,7 @@ ResourceTypes CvPlot::getNonObsoleteResourceType(TeamTypes eTeam) const
 
 
 //	--------------------------------------------------------------------------------
-void CvPlot::setResourceType(ResourceTypes eNewValue, int iResourceNum, bool bForMinorCivPlot)
+void CvPlot::setResourceType(ResourceTypes eNewValue, int iResourceNum, bool /*bForMinorCivPlot*/)
 {
 	if(m_eResourceType != eNewValue)
 	{

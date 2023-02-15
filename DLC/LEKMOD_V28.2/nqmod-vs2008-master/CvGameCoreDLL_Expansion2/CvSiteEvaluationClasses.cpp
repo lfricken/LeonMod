@@ -68,15 +68,18 @@ bool CvCitySiteEvaluator::CanFound(const CvPlot* pPlot, const CvPlayer* pPlayer,
 
 	if(GC.getGame().isFinalInitialized())
 	{
-#ifdef NQM_AI_GIMP_NO_BUILDING_SETTLERS
-		if (pPlayer && (pPlayer->isHuman() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE)) || (!pPlayer->isHuman() && GC.getGame().isOption("GAMEOPTION_AI_GIMP_NO_BUILDING_SETTLERS")))
-#else
-		if(GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer && pPlayer->isHuman())
-#endif
+		if (pPlayer != NULL)
 		{
-			if(pPlayer->getNumCities() > 0)
+#ifdef NQM_AI_GIMP_NO_BUILDING_SETTLERS
+			if (pPlayer != NULL && (pPlayer->isHuman() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE)) || (!pPlayer->isHuman() && GC.getGame().isOption("GAMEOPTION_AI_GIMP_NO_BUILDING_SETTLERS")))
+#else
+			if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer && pPlayer->isHuman())
+#endif
 			{
-				return false;
+				if (pPlayer->getNumCities() > 0)
+				{
+					return false;
+				}
 			}
 		}
 	}
@@ -94,7 +97,7 @@ bool CvCitySiteEvaluator::CanFound(const CvPlot* pPlot, const CvPlayer* pPlayer,
 		}
 	}
 
-	if(pPlayer)
+	if(pPlayer != NULL)
 	{
 		if(pPlot->isOwned() && (pPlot->getOwner() != pPlayer->GetID()))
 		{
@@ -187,12 +190,15 @@ bool CvCitySiteEvaluator::CanFound(const CvPlot* pPlot, const CvPlayer* pPlayer,
 
 
 	// cannot found next to non-barb enemy units
-	const vector<CvUnit*> enemyUnits = pPlot->GetAdjacentEnemyMilitaryUnits(pPlayer->getTeam(), DOMAIN_LAND);
-	for (int i = 0; i < (int)enemyUnits.size(); ++i)
+	if (pPlayer != NULL)
 	{
-		const CvUnit* enemyUnit = enemyUnits[i];
-		if (enemyUnit->getOwner() != BARBARIAN_PLAYER) // non barbarian enemy
-			return false;
+		const vector<CvUnit*> enemyUnits = pPlot->GetAdjacentEnemyMilitaryUnits(pPlayer->getTeam(), DOMAIN_LAND);
+		for (int i = 0; i < (int)enemyUnits.size(); ++i)
+		{
+			const CvUnit* enemyUnit = enemyUnits[i];
+			if (enemyUnit->getOwner() != BARBARIAN_PLAYER) // non barbarian enemy
+				return false;
+		}
 	}
 
 	return true;
