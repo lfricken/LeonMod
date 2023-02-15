@@ -292,6 +292,9 @@ end
 -- converts an x,y coordinate into an linear index
 ------------------------------------------------------------------------------
 function GetI(x,y,maxX)
+	x = math.floor(x);
+	y = math.floor(y);
+	maxX = math.floor(maxX);
 	return y * maxX + x + 1;
 end
 

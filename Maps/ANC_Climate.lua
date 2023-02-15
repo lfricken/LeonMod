@@ -21,6 +21,5 @@ function ANC_Climate(this)
 		end	
 	end]]
 
-	ANC_UpdatePlots(this);
 	print("ANC_Climate End");
 end

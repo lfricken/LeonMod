@@ -1,20 +1,28 @@
 
+include("ANC_Utils");
 
-function ANC_DoResources(this)
-	populateResourceInfo(this);
+
+------------------------------------------------------------------------------
+-- Populates the world with resources and features.
+------------------------------------------------------------------------------
+function ANC_DoResourcesAndFeatures(this)
+	recordResourceInfo(this);
 	createResourceClumps(this);
+	populateWorldWithResources(this);
 end
-
+------------------------------------------------------------------------------
+-- Generates all Resource Clumps. See createResourceClump and findClosestClumpedResource
+------------------------------------------------------------------------------
 function createResourceClumps(this)
 	local mapXScaling = math.cos(math.rad(30)); -- hexagon packing means the 
-	print("COSINE" .. mapXScaling);
+	--print("COSINE" .. mapXScaling);
 	-- redo the clump sizes so they fit more evenly
-	print("Original Lux Diameter: " .. this.cfg.luxClumpDiameter);
+	--print("Original Lux Diameter: " .. this.cfg.luxClumpDiameter);
 	local shiftDistance = this.cfg.luxClumpDiameter * mapXScaling;
 	local numClumpsX = math.floor(0.5 + (this.maxX / shiftDistance)); -- 60 / 11 > 5.45 > 5
 	local eachXShift = (this.maxX / numClumpsX);
 	this.cfg.luxClumpDiameter = eachXShift / mapXScaling; -- 60 / 5 > 12 -- divide my map scaling since this was scaled by it initially
-	print("New Lux Diameter: " .. this.cfg.luxClumpDiameter);
+	--print("New Lux Diameter: " .. this.cfg.luxClumpDiameter);
 	local numClumpsY = 1 + math.floor(0.5 + (this.maxY / this.cfg.luxClumpDiameter)); -- +1 because when we shift we'll need some overlap
 	local eachYShift = this.cfg.luxClumpDiameter;
 
@@ -30,12 +38,17 @@ function createResourceClumps(this)
 		end
 	end
 end
+------------------------------------------------------------------------------
+-- Creates a resource clump entry, which is just an XY coordinate and a resource.
+-- Used later by tiles to determine which kind of resource it should have 
+------------------------------------------------------------------------------
 function createResourceClump(this, layer, realX, realY, resource)
-	print("Clump: " .. realX .. "," .. realY);
+	this:Set(GetI(realX, realY, this.maxX), PlotTypes.PLOT_LAND, TerrainTypes.TERRAIN_GRASS);
+	--print("Clump: " .. realX .. "," .. realY);
 	local clump = {
 		x = realX,
 		y = realY,
-		res = resource,
+		clumpRes = resource,
 		distFrom = function (x1,y1, shift, maxX,maxY)
 			local x = ((self.x + shift) % maxX) - ((x1 + shift) % maxX);
 			local y = self.y - y1;
@@ -47,7 +60,10 @@ function createResourceClump(this, layer, realX, realY, resource)
 	local layerClumps = this.resourceClumps[layer];
 	table.insert(layerClumps, clump);
 end
-function findClosestClump(this, layer, realX, realY)
+------------------------------------------------------------------------------
+-- given an XY and a layer, gives the resource value for this layer
+------------------------------------------------------------------------------
+function findClosestClumpedResource(this, layer, realX, realY)
 	local shiftDistance = this.cfg.luxClumpDiameter;
 	local layerClumps = this.resourceClumps[layer];
 	local closestDist = 999999;
@@ -65,14 +81,21 @@ function findClosestClump(this, layer, realX, realY)
 			end
 		end
 	end
-	print("closest: " .. closestDist);
-	return closestClump;
+	--print("closest: " .. closestDist);
+	return closestClump.clumpRes;
 end
+------------------------------------------------------------------------------
+-- populates the world with stuff that could be considered bonuses, such as:
+-- Bonus/Strategic Resources, Luxuries, Atolls, Lakes, Oasis, 
+------------------------------------------------------------------------------
+function populateWorldWithResources(this)
 
+
+end
 ------------------------------------------------------------------------------
--- avoid crashes by initializing the map plots to SOMETHING
+-- populate all resource info so we can reference it later
 ------------------------------------------------------------------------------
-function populateResourceInfo(this)
+function recordResourceInfo(this)
 	this.strats = {};
 
 	this.bonusPolar = {};
@@ -89,7 +112,7 @@ function populateResourceInfo(this)
 
 		local rid = resource_data.ID;
 		local rName = resource_data.Type;
-		print("" .. rName .. ":" .. rid);
+		--print("Loaded Resource: " .. rName .. " : " .. rid);
 
 
 		-- Set up Strategic IDs
@@ -255,5 +278,4 @@ function populateResourceInfo(this)
 		end
 	end
 end
-
 

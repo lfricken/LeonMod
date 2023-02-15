@@ -12,8 +12,6 @@ function ANC_SetupStartPlots(this)
 	print("ANC_SpaceStartPlots Begin");
 
 	local maxX, maxY = Map.GetGridSize();
-	--print("Map Dims: " .. maxX .. "," .. maxY);
-	--this.plotTypes = table.fill(PlotTypes.PLOT_OCEAN, maxX * maxY);
 
 	-- Determine number of civilizations and city states present in this game.
 	local iNumMajorCivs, iNumCityStates, player_ID_list, bTeamGame, teams_with_major_civs, number_civs_per_team 

@@ -38,7 +38,7 @@ function ANC_DoSpawnFor(this, x, y, maxX, maxY, playerId, isMinor)
 	-- but include the adjacent terrain
 	concatTable(toMutate, GoLine({x, y}, AddDir(randWaterDir, 1), maxX, maxY, spawnHexRadius));
 	concatTable(toMutate, GoLine({x, y}, AddDir(randWaterDir, -1), maxX, maxY, spawnHexRadius));
-	for i=1,7 do
+	for i=1,7 do -- 7 attempts (random number)
 		local from, to = PlotTypes.PLOT_OCEAN, PlotTypes.PLOT_LAND;
 		local chance = 200;
 		if (i%2==0) then local temp = from; from = to; to = temp; chance = 1000 - chance; end
@@ -64,16 +64,6 @@ function ANC_DoSpawnFor(this, x, y, maxX, maxY, playerId, isMinor)
 
 
 end
-
-
-
-
-function ANC_SetAll(this, index)
-	this.plotIsLocked[index] = true;
-end
-
-
-
 
 
 

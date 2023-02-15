@@ -33,7 +33,7 @@ end
 function ANC_Constructor(ancArgs)
 	local maxX, maxY = Map.GetGridSize();
 	local this = {
-		Set = ANC.set,
+		Set = ANC.Set,
 
 
 		resourceClumps = {}, -- given a lux meta index, returns a list of possible luxuries
@@ -55,7 +55,6 @@ function ANC_Constructor(ancArgs)
 
 		cfg = ancArgs,
 	};
-	ANC_DoResources(this);
 	ANC_SafeInitPlots(this);
 	return this;
 end
@@ -63,7 +62,7 @@ end
 -- PlotTypes (PLOT_MOUNTAIN, PLOT_HILLS, PLOT_LAND, PLOT_OCEAN)
 -- TerrainTypes (TERRAIN_GRASS  _PLAINS _DESERT _TUNDRA _SNOW _COAST _OCEAN _MOUNTAIN _HILL)
 ------------------------------------------------------------------------------
-function ANC.Set(idx, plotType, terrain, feature, resource, numres)
+function ANC:Set(idx, plotType, terrain, feature, resource, numres)
 
 	if (self.plotIsLocked[idx]) then print("WARNING ANC.Set PlotLocked: " .. debug.traceback()); return; end
 	if (plotType == nil) then print("WARNING ANC.Set call missing type: " .. debug.traceback()); return; end
@@ -98,7 +97,10 @@ function ANC_CreateMap(ancArgs)
 	--ANC_LandAndSea(this); -- creates more islands and grows existing ones -- mountains, land, hills, ocean
 	
 	ANC_Climate(this); -- desert, tundra, snow, forest, jungle, plains, grassland
+
+	ANC_DoResourcesAndFeatures(this);
 	
+	ANC_UpdatePlots(this);
 	-- Each body of water, area of mountains, or area of hills+flatlands is independently grouped and tagged.
 	Map.RecalculateAreas();
 	
@@ -113,6 +115,7 @@ function ANC_CreateMap(ancArgs)
 
 	-- Feature Ice is impassable and therefore requires another area recalculation.
 	Map.RecalculateAreas();
+	DetermineContinents();
 
 	-- Assign Starting Plots, Place Natural Wonders, and Distribute Resources.
 	-- This system was designed and programmed for Civ5 by Bob Thomas.
@@ -128,7 +131,6 @@ function ANC_CreateMap(ancArgs)
 	--AddGoodies(this);
 
 	-- Continental artwork selection must wait until Areas are finalized, so it gets handled last.
-	DetermineContinents();
 
 
 
@@ -161,7 +163,11 @@ function ANC_SafeInitPlots(this)
 		plot:SetFeatureType(FeatureTypes.NO_FEATURE, -1);
 	end]]
 end
+------------------------------------------------------------------------------
+-- Sends ALL plot info to C++. Should only NEED to be called right at the end
+------------------------------------------------------------------------------
 function ANC_UpdatePlots(this)
+	print("ANC_UpdatePlots");
 	for i, plot in Plots() do
 		plot:SetTerrainType(this.plotTerrain[i + 1], false, true);
 		plot:SetPlotType(this.plotTypes[i + 1], false, true);
