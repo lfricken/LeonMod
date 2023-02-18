@@ -6,6 +6,7 @@ include("ANC_SpaceStartPlots");
 include("ANC_Climate");
 include("ANC_Resources");
 include("ANC_Utils");
+include("ANC_Rivers");
 
 
 ANC = {};
@@ -120,6 +121,9 @@ function ANC_CreateMap(ancArgs)
 	
 	ANC_UpdatePlots(this);
 	Map.RecalculateAreas();
+
+	ANC_AddRivers(this);
+
 	DetermineContinents(); -- Continental artwork selection must wait until Areas are finalized, so it gets handled last.
 
 	print("CreateMap End");
