@@ -14,7 +14,6 @@ function ANC_SetupStartPlots(this)
 	local maxX, maxY = Map.GetGridSize();
 
 	-- Determine number of civilizations and city states present in this game.
-	local iNumMajorCivs, iNumCityStates, player_ID_list, bTeamGame, teams_with_major_civs, number_civs_per_team 
 	local numMajorCivs, majorIds, numMinors, minorIds, isTeamGame, numCivsPerTeam, majorTeamIds = ANC_GetPlayerAndTeamInfo()
 
 
@@ -23,7 +22,7 @@ function ANC_SetupStartPlots(this)
 	local haltonPointsY = halton(3, 600, 2 + Map.Rand(6,"Halton Rng"));
 
 	-- predetermined for major civs
-	local spawnXy = getMajorCivSpawnPoints(numMajorCivs, maxX, maxY);
+	local spawnXy, _, _ = ANC_getMajorCivSpawnPoints(numMajorCivs, maxX, maxY);
 	if (this.cfg.shufflePositions) then
 		spawnXy = CopyAndShuffle(spawnXy);
 	end
@@ -84,52 +83,65 @@ function ANC_SetupStartPlots(this)
 	--ANC_SetPlotTypes(this.plotTypes);
 	print("ANC_SpaceStartPlots End");
 end
-
-
-
-
 ------------------------------------------------------------------------------
+-- Determines the XY size of the map
 ------------------------------------------------------------------------------
-function getMajorCivSpawnPoints(numMajorCivs, maxX, maxY)
+function ANC_calcMapSizeXy(numMajorCivs,numMinorCivs,ratio,tilesPerMajorCiv)
+	-- ratio 4, 2
+	local targetNumTiles = numMajorCivs * tilesPerMajorCiv;
+	local A = ratio[1] / ratio[2]; -- A = x / y ; 2
+	--A * x * x = targetNum
+	--x * x = targetNum / A
+	local base = math.floor(math.sqrt(targetNumTiles / A)); -- y = sqrt(targetNum / A)
+	local y = math.floor(0.5 + base);
+	local x = math.floor(0.5 + base * A);
+
+	return {x, y};
+end
+------------------------------------------------------------------------------
+-- returns
+-- xy coordinates of every major civ player
+------------------------------------------------------------------------------
+function ANC_getMajorCivSpawnPoints(numMajorCivs, maxX, maxY)
 	local spawnFloat = {}; -- floating points
 	if numMajorCivs == 1 then
-		spawnFloat,maxVariation = getFor1();
+		spawnFloat,maxVariation,shapeRatio = getFor1();
 	end
 	if numMajorCivs == 2 then
-		spawnFloat,maxVariation = getFor2();
+		spawnFloat,maxVariation,shapeRatio = getFor2();
 	end
 	if numMajorCivs == 3 then
-		spawnFloat,maxVariation = getFor3();
+		spawnFloat,maxVariation,shapeRatio = getFor3();
 	end
 	if numMajorCivs == 4 then
-		spawnFloat,maxVariation = getFor4();
+		spawnFloat,maxVariation,shapeRatio = getFor4();
 	end
 	if numMajorCivs == 5 then
-		spawnFloat,maxVariation = getFor5();
+		spawnFloat,maxVariation,shapeRatio = getFor5();
 	end
 	if numMajorCivs == 6 then
-		spawnFloat,maxVariation = getFor6();
+		spawnFloat,maxVariation,shapeRatio = getFor6();
 	end
 	if numMajorCivs == 7 then
-		spawnFloat,maxVariation = getFor7();
+		spawnFloat,maxVariation,shapeRatio = getFor7();
 	end
 	if numMajorCivs == 8 then
-		spawnFloat,maxVariation = getFor8();
+		spawnFloat,maxVariation,shapeRatio = getFor8();
 	end
 	if numMajorCivs == 9 then
-		spawnFloat,maxVariation = getFor9();
+		spawnFloat,maxVariation,shapeRatio = getFor9();
 	end
 	if numMajorCivs == 10 then
-		spawnFloat,maxVariation = getFor10();
+		spawnFloat,maxVariation,shapeRatio = getFor10();
 	end
 	if numMajorCivs == 11 then
-		spawnFloat,maxVariation = getFor12();
+		spawnFloat,maxVariation,shapeRatio = getFor12();
 	end
 	if numMajorCivs == 12 then
-		spawnFloat,maxVariation = getFor12();
+		spawnFloat,maxVariation,shapeRatio = getFor12();
 	end
 	if numMajorCivs > 12 and numMajorCivs <= 16 then
-		spawnFloat,maxVariation = getFor16();
+		spawnFloat,maxVariation,shapeRatio = getFor16();
 	end
 
 	-- scale up to world coordinates
@@ -138,7 +150,7 @@ function getMajorCivSpawnPoints(numMajorCivs, maxX, maxY)
 		local coordinate = {math.floor(maxX * xy[1]), math.floor(maxY * xy[2])};
 		table.insert(spawnXy, coordinate);
 	end
-	return spawnXy;
+	return spawnXy,maxVariation,shapeRatio;
 end
 ------------------------------------------------------------------------------
 -- 1,1 is far lower right corner, 0,0 is other far left top corner
@@ -148,7 +160,7 @@ function getFor1()
 	local f = {};
 	table.insert(f, {1/2, 1/2}); -- dead center
 	local maxVariation = {2/5, 2/5};
-	return f,maxVariation;
+	return f,maxVariation,{1,1};
 end
  -- REMEMBER! x wraps, these are equal distance accross X dimension, positive and negative
 function getFor2()
@@ -156,7 +168,7 @@ function getFor2()
 	table.insert(f, {1/4, 1/3}); -- opposite corners
 	table.insert(f, {3/4, 2/3});
 	local maxVariation = {2/5, 1/4};
-	return f,maxVariation;
+	return f,maxVariation,{1,1};
 end
 function getFor3()
 	local f = {};
@@ -164,7 +176,7 @@ function getFor3()
 	table.insert(f, {3/6, 1/2});
 	table.insert(f, {5/6, 1/2});
 	local maxVariation = {1/7, 1/3};
-	return f,maxVariation;
+	return f,maxVariation,{3,2};
 end
 function getFor4()
 	local f = {};
@@ -173,7 +185,7 @@ function getFor4()
 	table.insert(f, {5/8, 1/4});
 	table.insert(f, {7/8, 3/4});
 	local maxVariation = {1/9, 1/5};
-	return f,maxVariation;
+	return f,maxVariation,{1,1};
 end
 function getFor5()
 	local f = {};
@@ -184,7 +196,7 @@ function getFor5()
 
 	table.insert(f, {5/10, 2/4}); -- one in middle
 	local maxVariation = {2/11, 1/5};
-	return f,maxVariation;
+	return f,maxVariation,{4,4};
 end
 function getFor6()
 	local f = {};
@@ -196,7 +208,7 @@ function getFor6()
 	table.insert(f, {3/6, 3/4});
 	table.insert(f, {5/6, 3/4});
 	local maxVariation = {1/7, 1/5};
-	return f,maxVariation;
+	return f,maxVariation,{4,3};
 end
 function getFor7()
 	local f = {};
@@ -210,7 +222,7 @@ function getFor7()
 	table.insert(f, {5/8, top});
 	table.insert(f, {7/8, top});
 	local maxVariation = {1/9, 1/6};
-	return f,maxVariation;
+	return f,maxVariation,{1,1};
 end
 function getFor8()
 	local f = {};
@@ -226,7 +238,7 @@ function getFor8()
 	table.insert(f, {5/8, top});
 	table.insert(f, {7/8, top});
 	local maxVariation = {1/9, 1/5};
-	return f,maxVariation;
+	return f,maxVariation,{4,3};
 end
 function getFor9()
 	local f = {};
@@ -245,7 +257,7 @@ function getFor9()
 	table.insert(f, {3/6, top});
 	table.insert(f, {5/6, top});
 	local maxVariation = {1/7, 1/7};
-	return f,maxVariation;
+	return f,maxVariation,{1,1};
 end
 function getFor10()
 	local f = {};
@@ -266,7 +278,7 @@ function getFor10()
 	table.insert(f, {15/20, 2/4}); -- one in middle
 
 	local maxVariation = {2/22, 1/5};
-	return f,maxVariation;
+	return f,maxVariation,{3,2};
 end
 function getFor12()
 	local f = {};
@@ -290,7 +302,7 @@ function getFor12()
 	table.insert(f, {5/8, top});
 	table.insert(f, {7/8, top});
 	local maxVariation = {1/9, 1/7};
-	return f,maxVariation;
+	return f,maxVariation,{4,3};
 end
 function getFor16()
 	local f = {};
@@ -322,7 +334,7 @@ function getFor16()
 	table.insert(f, {7/div + offset, yPos});
 	
 	local maxVariation = {1/(div + 1), 1/7};
-	return f,maxVariation;
+	return f,maxVariation,{16,16};
 end
 
 

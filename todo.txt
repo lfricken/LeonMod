@@ -1,5 +1,5 @@
 
-
+spawn variation
 
 deal history screen is busted?
 do combat strength calculation tooltip serverside
@@ -34,6 +34,17 @@ do hidden antiquity sites still work at all? just redo antiquity logic
 
 
 Map
+
+	do hills, sand, snow, mountains
+	lock CS area to avoid land growth
+	random seed chooser
+	map land sea mutation
+	do bonus goodies and features
+	calculate coasts
+	rivers?
+
+	add goodie huts
+
 	reveal horses and iron on turn 0 so you can see shit
 	DO
 	get rid of grid point logic
