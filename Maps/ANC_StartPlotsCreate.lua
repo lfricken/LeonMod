@@ -42,7 +42,7 @@ function ANC_DoSpawnFor(this, x, y, maxX, maxY, playerId, isMinor)
 		local from, to = PlotTypes.PLOT_OCEAN, PlotTypes.PLOT_LAND;
 		local chance = 200;
 		if (i%2==0) then local temp = from; from = to; to = temp; chance = 1000 - chance; end
-		Mutate(this, from, to, toMutate);
+		Mutate(this.plotTypes, this, from, to, toMutate);
 	end
 
 

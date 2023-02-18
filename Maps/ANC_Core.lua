@@ -61,6 +61,17 @@ end
 ------------------------------------------------------------------------------
 -- PlotTypes (PLOT_MOUNTAIN, PLOT_HILLS, PLOT_LAND, PLOT_OCEAN)
 -- TerrainTypes (TERRAIN_GRASS  _PLAINS _DESERT _TUNDRA _SNOW _COAST _OCEAN _MOUNTAIN _HILL)
+-- 
+-- self.featureFloodPlains = FeatureTypes.FEATURE_FLOOD_PLAINS;
+-- self.featureIce = FeatureTypes.FEATURE_ICE;
+-- self.featureJungle = FeatureTypes.FEATURE_JUNGLE;
+-- self.featureForest = FeatureTypes.FEATURE_FOREST;
+-- self.featureOasis = FeatureTypes.FEATURE_OASIS;
+-- self.featureMarsh = FeatureTypes.FEATURE_MARSH;
+-- 
+-- self.terrainIce = TerrainTypes.TERRAIN_SNOW;
+-- self.terrainTundra = TerrainTypes.TERRAIN_TUNDRA;
+-- self.terrainPlains = TerrainTypes.TERRAIN_PLAINS;
 ------------------------------------------------------------------------------
 function ANC:Set(idx, plotType, terrain, feature, resource, numres)
 

@@ -297,6 +297,18 @@ function GetI(x,y,maxX)
 	maxX = math.floor(maxX);
 	return y * maxX + x + 1;
 end
+------------------------------------------------------------------------------
+-- given an index, converts to an XY coordinate
+------------------------------------------------------------------------------
+function GetXy(index,maxX)
+	return {index % maxX, math.floor(index / maxX)};
+end
+------------------------------------------------------------------------------
+-- normalizes the given xy
+------------------------------------------------------------------------------
+function GetXyScaled(xy,maxX,maxY)
+	return {xy[1] / maxX, xy[2] / maxY};
+end
 
 local NumDirections = 6;
 local firstRingYIsEvenTABLE = {{0, 1}, {1, 0}, {0, -1}, {-1, -1}, {-1, 0}, {-1, 1}};
@@ -509,7 +521,7 @@ end
 ------------------------------------------------------------------------------
 -- Randomly switches the fromType to the toType with various rules
 ------------------------------------------------------------------------------
-function Mutate(this, fromType, toType, idxsToMutate, mutateFunc)
+function Mutate(data, this, fromType, toType, idxsToMutate, mutateFunc)
 
 	mutateFunc = mutateFunc or defaultMutate;
 
@@ -523,30 +535,30 @@ function Mutate(this, fromType, toType, idxsToMutate, mutateFunc)
 			if this.plotIsLocked[plotIdx] then
 				--print("locked" .. y);
 			elseif idxsToMutate == nil or containsTableElement(idxsToMutate, plotIdx) then -- only mutate target indexes, or ALL
-				if this.plotTypes[plotIdx] == fromType then -- if from type
+				if fromType == nil or data[plotIdx] == fromType then -- if from type
 					--print("mutating: " .. plotIdx);
-					local countAdjacentLand = 0;
+					local countAdjacent = 0;
 					local countSwitches = 0;
-					local wasLastLand = false;
+					local wasLastToType = false; -- was the last tile the ToType?
 					local points = GetIndexesAround(x, y, this.maxX, this.maxY, 1);
 					for k,index in pairs(points) do
 						if containsTableElement(toMutate, index) then -- invalid because adjacent tile will change
-							countAdjacentLand = 0;
+							countAdjacent = 0;
 							break;
 						end
-						local bIsFromType = this.plotTypes[index] ~= fromType; -- if adjacent land
-						if bIsFromType then countAdjacentLand = countAdjacentLand + 1; end
+						local bIsToType = data[index] == toType; -- if adjacent land
+						if bIsToType then countAdjacent = countAdjacent + 1; end
 
 						-- skip the first check since we don't know anything yet
-						if (k ~= 1 and (bIsFromType ~= wasLastLand)) then 
+						if (k ~= 1 and (bIsToType ~= wasLastToType)) then 
 							countSwitches = countSwitches + 1; 
 						end
-						wasLastLand = bIsFromType;
+						wasLastToType = bIsToType;
 					end
 					
-					local bWouldConnectUnconnectedLand = (countSwitches >= 3);
+					local bWouldConnectPatches = (countSwitches >= 3);
 
-					local doMutate = mutateFunc(bWouldConnectUnconnectedLand, countAdjacentLand);
+					local doMutate = mutateFunc(bWouldConnectPatches, countAdjacent);
 					if doMutate then
 						table.insert(toMutate, plotIdx);
 					end
@@ -556,7 +568,7 @@ function Mutate(this, fromType, toType, idxsToMutate, mutateFunc)
 	end
 
 	for k,mutateIdx in pairs(toMutate) do
-		this.plotTypes[mutateIdx] = toType; -- make this one the target type
+		data[mutateIdx] = toType; -- make this one the target type
 	end
 end
 ------------------------------------------------------------------------------

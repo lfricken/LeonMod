@@ -5,6 +5,9 @@ include("ANC_Utils");
 include("ANC_StartPlotsCreate");
 
 
+local g_polarSpawnAvoidance = 4;
+
+
 ------------------------------------------------------------------------------
 -- Determines where players spawn
 ------------------------------------------------------------------------------
@@ -55,8 +58,14 @@ function ANC_SetupStartPlots(this)
 	end
 
 	-- minor civs
+	local yRange = maxY - 2 * g_polarSpawnAvoidance;
+	local scaleY = function(y)
+		return math.floor(y * yRange + g_polarSpawnAvoidance);
+	end
+	local scaleX = function(x)
+		return math.floor(x * maxX);
+	end
 	local haltonPoint = 0;
-	local additionalYBounds = 1; -- avoid spawning within this distance of the edge
 	for idx,pid in ipairs(minorIds) do
 		local player = Players[pid];
 
@@ -64,7 +73,7 @@ function ANC_SetupStartPlots(this)
 		local x,y;
 		for attempts=1,20 do -- limit attempts to avoid an infinite loop
 			haltonPoint = haltonPoint + 1;
-			x,y = math.floor(maxX * haltonPointsX[haltonPoint]), math.floor(additionalYBounds + (maxY - 2 * additionalYBounds) * haltonPointsY[haltonPoint]);
+			x,y = scaleX(haltonPointsX[haltonPoint]), scaleY(haltonPointsY[haltonPoint]);
 			local plotIdx = GetI(x, y, maxX);
 			-- found a valid plot?
 			if (not this.plotIsWithinSpawnDist[plotIdx]) then break; end

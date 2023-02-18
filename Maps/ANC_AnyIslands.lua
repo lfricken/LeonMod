@@ -1,18 +1,10 @@
-------------------------------------------------------------------------------
---	FILE:	 Lekmapv2.2.lua (Modified Pangaea_Plus.lua)
---	AUTHOR:  Original Bob Thomas, Changes HellBlazer, lek10, EnormousApplePie, Cirra, Meota
---	PURPOSE: Global map script - Simulates a Pan-Earth Supercontinent, with
---		   numerous tectonic island chains.
-------------------------------------------------------------------------------
---	Copyright (c) 2011 Firaxis Games, Inc. All rights reserved.
-------------------------------------------------------------------------------
+-- written by Nonchalant. No, ANC doesn't stand for anything. #FlashMX
 
 include("ANC_Core");
 include("ANC_SpaceStartPlots");
 
 ------------------------------------------------------------------------------
 function GetMapScriptInfo()
-	--local world_age, temperature, rainfall, sea_level, resources = GetCoreMapOptions()
 	return {
 		Name = "Any Islands",
 		Description = "Customizable island generator. Plays best on a square map. ONLY supports up to 16 players.",
@@ -21,9 +13,8 @@ function GetMapScriptInfo()
 		SortIndex = 2,
 		SupportsMultiplayer = true,
 		CustomOptions = {
-
 			{
-				Name = "TXT_KEY_MAP_OPTION_RESOURCES",	-- add setting for resources (13)
+				Name = "TXT_KEY_MAP_OPTION_RESOURCES",
 				Values = {
 					"1 -- Nearly Nothing",
 					"2",

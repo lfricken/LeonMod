@@ -41,23 +41,23 @@ end
 
 function growLand(this)
 	local from, to = PlotTypes.PLOT_OCEAN, PlotTypes.PLOT_LAND;
-	Mutate(this, from, to, nil, tendril);
+	Mutate(this.plotTypes, this, from, to, nil, tendril);
 end
 function fillLand(this)
 	local from, to = PlotTypes.PLOT_OCEAN, PlotTypes.PLOT_LAND;
-	Mutate(this, from, to, nil, fill);
+	Mutate(this.plotTypes, this, from, to, nil, fill);
 end
 function growWater(this)
 	local from, to = PlotTypes.PLOT_LAND, PlotTypes.PLOT_OCEAN;
-	Mutate(this, from, to, nil, tendril);
+	Mutate(this.plotTypes, this, from, to, nil, tendril);
 end
 function fillWater(this)
 	local from, to = PlotTypes.PLOT_LAND, PlotTypes.PLOT_OCEAN;
-	Mutate(this, from, to, nil, fill);
+	Mutate(this.plotTypes, this, from, to, nil, fill);
 end
 function expandWater(this)
 	local from, to = PlotTypes.PLOT_LAND, PlotTypes.PLOT_OCEAN;
-	Mutate(this, from, to, nil, expand);
+	Mutate(this.plotTypes, this, from, to, nil, expand);
 end
 
 
