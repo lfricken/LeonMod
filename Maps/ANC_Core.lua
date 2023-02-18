@@ -15,7 +15,7 @@ ANC = {};
 function ANC_CreateArgs()
 	local ancArgs = {
 		spawnVariation = 0, -- [0,1] how much CAN spawn points for Major Civs be out of expected location?
-		spawnRangeMin = 6, -- the minimum tiles between civ spawn points
+		spawnRangeMin = 7, -- the minimum tiles between civ spawn points
 		shufflePositions = true, -- will player ID's always start in the same spots?
 
 		luxDensity = 1, -- [0,3] multiplier for how dense are luxuries

@@ -505,6 +505,42 @@ function GetGridPoints(radius)
 	return points;
 end
 
+function ANC_expand(connectProbFactor)
+	return function(bWouldConnect,numAdjacent)
+		local connectProb = 1;
+		if (bWouldConnect) then
+			if connectProb == 0 then return false; end
+			connectProb = connectProbFactor;
+		end
+
+		if (numAdjacent <= 0 or numAdjacent > 6) then return false;
+		elseif (numAdjacent == 1) then return (Map.Rand(1000, "Mutate") < (300 * connectProb));
+		elseif (numAdjacent == 2) then return (Map.Rand(1000, "Mutate") < (400 * connectProb));
+		elseif (numAdjacent == 3) then return (Map.Rand(1000, "Mutate") < (500 * connectProb));
+		elseif (numAdjacent == 4) then return (Map.Rand(1000, "Mutate") < (600 * connectProb));
+		elseif (numAdjacent == 5) then return (Map.Rand(1000, "Mutate") < (700 * connectProb));
+		elseif (numAdjacent == 5) then return (Map.Rand(1000, "Mutate") < (800 * connectProb)); end
+		return false;
+	end
+end
+function ANC_grow(connectProbFactor)
+	return function(bWouldConnect,numAdjacent)
+		local connectProb = 1;
+		if (bWouldConnect) then
+			if connectProb == 0 then return false; end
+			connectProb = connectProbFactor;
+		end
+
+		if (numAdjacent <= 0 or numAdjacent > 6) then return false;
+		elseif (numAdjacent == 1) then return (Map.Rand(1000, "Mutate") < (400 * connectProb));
+		elseif (numAdjacent == 2) then return (Map.Rand(1000, "Mutate") < (400 * connectProb));
+		elseif (numAdjacent == 3) then return (Map.Rand(1000, "Mutate") < (400 * connectProb));
+		elseif (numAdjacent == 4) then return (Map.Rand(1000, "Mutate") < (400 * connectProb));
+		elseif (numAdjacent == 5) then return (Map.Rand(1000, "Mutate") < (400 * connectProb));
+		elseif (numAdjacent == 5) then return (Map.Rand(1000, "Mutate") < (400 * connectProb)); end
+		return false;
+	end
+end
 function defaultMutate(bWouldConnect,numAdjacent)
 	local doMutate = false;
 	local minAdjacent = 1;
@@ -521,7 +557,7 @@ end
 ------------------------------------------------------------------------------
 -- Randomly switches the fromType to the toType with various rules
 ------------------------------------------------------------------------------
-function Mutate(data, this, fromType, toType, idxsToMutate, mutateFunc)
+function Mutate(data, this, fromType, toType, idxsToMutate, mutateFunc, skipFunc)
 
 	mutateFunc = mutateFunc or defaultMutate;
 
@@ -534,6 +570,8 @@ function Mutate(data, this, fromType, toType, idxsToMutate, mutateFunc)
 				--print("spawn" .. y);
 			if this.plotIsLocked[plotIdx] then
 				--print("locked" .. y);
+			elseif skipFunc ~= nil and skipFunc(plotIdx) then
+				--print("not allowed" .. y);
 			elseif idxsToMutate == nil or containsTableElement(idxsToMutate, plotIdx) then -- only mutate target indexes, or ALL
 				if fromType == nil or data[plotIdx] == fromType then -- if from type
 					--print("mutating: " .. plotIdx);

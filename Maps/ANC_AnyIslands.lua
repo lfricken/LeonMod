@@ -6,26 +6,26 @@ include("ANC_SpaceStartPlots");
 ------------------------------------------------------------------------------
 function GetMapScriptInfo()
 	return {
-		Name = "Any Islands",
-		Description = "Customizable island generator. Plays best on a square map. ONLY supports up to 16 players.",
+		Name = "A Multiplayer Balance",
+		Description = "Balanced for NonChalant mod. Supports between 1 and 16 players.",
 		IsAdvancedMap = false,
 		IconIndex = 1,
 		SortIndex = 2,
 		SupportsMultiplayer = true,
 		CustomOptions = {
 			{
-				Name = "TXT_KEY_MAP_OPTION_RESOURCES",
+				Name = "Spawn Variation",
 				Values = {
-					"1 -- Nearly Nothing",
-					"2",
+					"0 -- Fair but predictable",
+					"1",
+					"2 -- Default",
 					"3",
 					"4",
-					"5 -- Default",
+					"5",
 					"6",
 					"7",
 					"8",
-					"9",
-					"10 -- Almost no normal tiles left",
+					"9 -- Unpredictable but unfair",
 				},
 
 				DefaultValue = 5,
@@ -35,17 +35,16 @@ function GetMapScriptInfo()
 	};
 end
 
-local g_tilesPerMajorCiv = 500;
+local g_tilesPerMajorCiv = 700;
 
 ------------------------------------------------------------------------------
 function GetMapInitData(worldSize)
 	-- calculate world size
 	local numMajorCivs, majorIds, numMinors, minorIds, isTeamGame, numCivsPerTeam, majorTeamIds = ANC_GetPlayerAndTeamInfo();
 	local _, _, ratio = ANC_getMajorCivSpawnPoints(numMajorCivs, 20, 20);
-	print(numMajorCivs);
 	--print("RATIO: " .. ratio[1] .. "," .. ratio[2]);
 	local grid_size = ANC_calcMapSizeXy(numMajorCivs, numMinors, ratio, g_tilesPerMajorCiv);
-	--print("NEWSIZE: " .. grid_size[1] .. "," .. grid_size[2]);
+	print("Size: " .. grid_size[1] .. "," .. grid_size[2]);
 
 
 	--local world = GameInfo.Worlds[worldSize];
@@ -56,7 +55,7 @@ function GetMapInitData(worldSize)
 			WrapX = true,
 		};
 	else
-		print("WARNING in GetMapInitData. Invalid dimension data.")
+		print("WARNING in ANC_AnyIslands.lua GetMapInitData. Invalid dimension data.")
 		return {
 			Width = 90,
 			Height = 90,

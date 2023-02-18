@@ -9,6 +9,7 @@ include("ANC_Utils");
 ------------------------------------------------------------------------------
 function ANC_DoSpawnFor(this, x, y, maxX, maxY, playerId, isMinor)
 
+	local waterLockSize = 3;
 	local spawnHexRadius = 4;
 	if (isMinor) then spawnHexRadius = 2; end -- we don't want minors taking up tons of space
 
@@ -52,13 +53,14 @@ function ANC_DoSpawnFor(this, x, y, maxX, maxY, playerId, isMinor)
 	local indexes;
 
 	-- lock nearby everything
-	indexes = GetIndexesAround(x, y, maxX, maxY, 0, spawnHexRadius);
+	local lockSize = spawnHexRadius;
+	if isMinor then lockSize = lockSize + 1; end
+	indexes = GetIndexesAround(x, y, maxX, maxY, 0, lockSize);
 	for k,index in pairs(indexes) do
 		this.plotIsLocked[index] = true;
 	end
 
 	-- lock nearby water, prevents land growth from putting the spawn point in a tiny inlet
-	local waterLockSize = 4;
 	local waterLock = adjacentWater;
 	for i=1,4 do
 		waterLock = dir(waterLock[1],waterLock[2],randWaterDir);
@@ -71,7 +73,7 @@ function ANC_DoSpawnFor(this, x, y, maxX, maxY, playerId, isMinor)
 
 	-- finally, spawn lock tiles to avoid people spawning too close
 	if (this.cfg.spawnRangeMin < 3) then print("WARNING: spawnRangeMin was dangerously low!"); end
-	indexes = GetIndexesAround(x, y, maxX, maxY, 0, spawnHexRadius);
+	indexes = GetIndexesAround(x, y, maxX, maxY, 0, this.cfg.spawnRangeMin);
 	for k,index in pairs(indexes) do
 		this.plotIsWithinSpawnDist[index] = true;
 	end
