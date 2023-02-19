@@ -365,11 +365,12 @@ function safeInsertIdx(values, xy, maxX, maxY)
 		table.insert(values, GetI(x, y, maxX));
 	end
 end
-function countAdjacent(this, data, xy, val)
+function ANC_countAdjacents(this, data, xy, val, expected)
+	if (expected == nil) then expected = true; end
 	local count = 0;
 	local points = GetIndexesAround(xy[1], xy[2], this.maxX, this.maxY, 1);
 	for k,index in pairs(points) do
-		if data[index] == val then
+		if expected == (data[index] == val) then
 			count = count + 1;
 		end
 	end
@@ -565,7 +566,7 @@ function ANC_ignoreLat(lat, maxX, maxY)
 	local topLat = (1 - lat);
 	return function(plotIdx)
 		local y = GetXyScaled(GetXy(plotIdx, maxX), maxX, maxY)[2];
-		return (y < lat) or (y > topLat);
+		return not ((y < lat) or (y > topLat));
 	end
 end
 function defaultMutate(bWouldConnect,numAdjacent)
@@ -584,7 +585,7 @@ end
 ------------------------------------------------------------------------------
 -- Randomly switches the fromType to the toType with various rules
 ------------------------------------------------------------------------------
-function Mutate(data, this, fromType, toType, idxsToMutate, mutateFunc, skipFunc)
+function Mutate(data, this, fromType, toType, idxsToMutate, mutateFunc, allowFunc)
 
 	mutateFunc = mutateFunc or defaultMutate;
 
@@ -593,13 +594,14 @@ function Mutate(data, this, fromType, toType, idxsToMutate, mutateFunc, skipFunc
 		for y = 0, this.maxY - 1 do
 
 			local plotIdx = GetI(x,y,this.maxX);
+			local allowed = true;
+			if allowFunc ~= nil then allowed = allowFunc(plotIdx); end
 			--if this.plotIsWithinSpawnDist[plotIdx] then
 				--print("spawn" .. y);
 			if this.plotIsLocked[plotIdx] then
 				--print("locked" .. y);
-			elseif skipFunc ~= nil and skipFunc(plotIdx) then
 				--print("not allowed" .. y);
-			elseif idxsToMutate == nil or containsTableElement(idxsToMutate, plotIdx) then -- only mutate target indexes, or ALL
+			elseif allowed and (idxsToMutate == nil or containsTableElement(idxsToMutate, plotIdx)) then -- only mutate target indexes, or ALL
 				if fromType == nil or data[plotIdx] == fromType then -- if from type
 					--print("mutating: " .. plotIdx);
 					local countAdjacent = 0;

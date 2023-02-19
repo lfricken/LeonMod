@@ -24,6 +24,18 @@ function tendril(bWouldConnect,numAdjacent)
 	elseif (numAdjacent >= 5) then return false; end
 	return false;
 end
+function tendrilMod(prob)
+	return function(bWouldConnect,numAdjacent)
+		if (bWouldConnect) then return false; end
+
+		if (numAdjacent == 1) then return (Map.Rand(1000, "Mutate") < prob * 800);
+		elseif (numAdjacent == 2) then return (Map.Rand(1000, "Mutate") < prob * 500);
+		elseif (numAdjacent == 3) then return (Map.Rand(1000, "Mutate") < prob * 300);
+		elseif (numAdjacent == 4) then return (Map.Rand(1000, "Mutate") < prob * 100);
+		elseif (numAdjacent >= 5) then return false; end
+		return false;
+	end
+end
 function expand(bWouldConnect,numAdjacent)
 	if (bWouldConnect) then return false; end
 
@@ -66,9 +78,11 @@ end
 
 function ANC_LandAndSea(this)
 
+	local isArableLand = function(idx) return this.plotTypes[idx] == PlotTypes.PLOT_LAND or this.plotTypes[idx] == PlotTypes.PLOT_HILLS; end
+
 	-- randomly throw some islands
 	for i, plot in ANC_Plots() do
-		if (this.plotTypes[i] == PlotTypes.PLOT_OCEAN and (Map.Rand(1000, "RandIsland") < 5)) then
+		if (not this.plotIsLocked[i] and this.plotTypes[i] == PlotTypes.PLOT_OCEAN and (Map.Rand(1000, "RandIsland") < 5)) then
 			this.plotTypes[i] = PlotTypes.PLOT_LAND;
 		end
 	end
@@ -95,5 +109,16 @@ function ANC_LandAndSea(this)
 	for i=1,1 do
 		local from, to = PlotTypes.PLOT_LAND, PlotTypes.PLOT_OCEAN;
 		Mutate(this.plotTypes, this, from, to, nil, swiss, ANC_ignoreLat(this.tundraLat, this.maxX, this.maxY));
+	end
+
+
+	for i, plot in ANC_Plots() do
+		if (not this.plotIsLocked[i] and isArableLand(i) and (Map.Rand(1000, "mountains") < 15)) then
+			this.plotTypes[i] = PlotTypes.PLOT_MOUNTAIN;
+		end
+	end
+	for i=1,2 do
+		local from, to = PlotTypes.PLOT_LAND, PlotTypes.PLOT_MOUNTAIN;
+		Mutate(this.plotTypes, this, from, to, nil, tendrilMod(0.2), isArableLand);
 	end
 end

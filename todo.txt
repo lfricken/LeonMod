@@ -34,25 +34,16 @@ do hidden antiquity sites still work at all? just redo antiquity logic
 
 
 Map
+	redo city state spawns - lock CS area to avoid land growth?
+	randomly conjoin at the end of land
 
-	(how to check valid?)
-	no jungle on sand
-	no marsh on hill
-	oasis
 
-	randomly conjoin at the end
-
-	redo city state spawns
-	guarantee water spawn better (see 6,9 botleft spawn is bugged)
-	rivers?
-	do flood plains oasis mountains ice
-	lock CS area to avoid land growth
+	do flood plains mountains
+	
 	do bonus goodies and features (avoid water bonuses on lakes)
 	
-	recalculate coasts
 	5 and 10 player is unfair, people should not spawn in middle
 
-	add goodie huts
 
 	reveal horses and iron on turn 0 so you can see shit
 	DO
