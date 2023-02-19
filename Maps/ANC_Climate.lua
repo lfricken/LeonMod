@@ -60,6 +60,7 @@ function ANC_Climate(this)
 		end	
 	end
 
+	-- randomize climate borders
 	for i=1,3 do
 		Mutate(this.plotTerrain, this, nil, TerrainTypes.TERRAIN_DESERT, nil, ANC_grow(1.0), isArableLand);
 		Mutate(this.plotTerrain, this, nil, TerrainTypes.TERRAIN_SNOW, nil, ANC_grow(0.5), isArableLand);
@@ -68,6 +69,7 @@ function ANC_Climate(this)
 		Mutate(this.plotTerrain, this, nil, TerrainTypes.TERRAIN_GRASS, nil, ANC_grow(0.5), isArableLand);
 	end
 
+	-- grow coast
 	for i=1,4 do
 		Mutate(this.plotTerrain, this, nil, TerrainTypes.TERRAIN_COAST, nil, ANC_grow(1.0, 100), isWater);
 	end
@@ -125,10 +127,17 @@ function ANC_Climate(this)
 		end
 	end
 
-
-
-
-	-- MOUNTAINS
+	-- throw some grassland/plains together
+	for i, plot in ANC_Plots() do
+		local switch = Map.Rand(1000, "flip") < 200;
+		if switch then
+			if this.plotTerrain[i] == TerrainTypes.TERRAIN_PLAINS  then
+				this.plotTerrain[i] = TerrainTypes.TERRAIN_GRASS;
+			elseif this.plotTerrain[i] == TerrainTypes.TERRAIN_GRASS then
+				this.plotTerrain[i] = TerrainTypes.TERRAIN_PLAINS;
+			end
+		end
+	end
 
 	print("ANC_Climate End");
 end
