@@ -157,6 +157,9 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 	const bool hasGemcutter = cityOrigin->GetCityBuildings()->HasBuildingClass(BuildingClass("BUILDINGCLASS_GEMCUTTER"));
 	const bool hasOilRefinery = cityOrigin->GetCityBuildings()->HasBuildingClass(BuildingClass("BUILDINGCLASS_REFINERY"));
 	const bool hasShipyard = cityOrigin->GetCityBuildings()->HasBuildingClass(BuildingClass("BUILDINGCLASS_SHIPYARD"));
+	int numExplorationPolicies = playerOrigin.HasPolicy("POLICY_EXPLORATION_CLOSER_1") || playerOrigin.HasPolicy("POLICY_EXPLORATION_CLOSER_2") || 
+		playerOrigin.HasPolicy("POLICY_EXPLORATION_CLOSER_3") || playerOrigin.HasPolicy("POLICY_EXPLORATION_CLOSER_4") || 
+		playerOrigin.HasPolicy("POLICY_EXPLORATION_CLOSER_5") || playerOrigin.HasPolicy("POLICY_EXPLORATION_CLOSER_6");
 
 	if (isInternal) // true if this is an internal trade route
 	{
@@ -203,6 +206,10 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 					yieldChange += 2;
 				if (eYieldType == YIELD_CULTURE && hasMerchantConfederacy)
 					yieldChange += 2;
+				if (eYieldType == YIELD_FOOD)
+					yieldChange += numExplorationPolicies;
+				if (eYieldType == YIELD_PRODUCTION)
+					yieldChange += numExplorationPolicies;
 			}
 			else // destination is another civ
 			{
@@ -212,6 +219,10 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 					yieldChange += 3;
 				if (eYieldType == YIELD_DIPLOMATIC_SUPPORT && hasSilkRoad)
 					yieldChange += 3;
+				if (eYieldType == YIELD_FOOD)
+					yieldChange += numExplorationPolicies;
+				if (eYieldType == YIELD_PRODUCTION)
+					yieldChange += numExplorationPolicies;
 			}
 
 			{ // POLICY_AESTHETICS +2C and +2T from External Routes
