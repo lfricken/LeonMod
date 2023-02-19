@@ -833,6 +833,25 @@ int CvPlot::getExtraYield
 					yieldChange += 1;
 			}
 
+			{// POLICY_LIBERTY_CLOSER_5 - +2 C to GP Tile Improvements
+				const bool hasLibertyCloser5 = player.HasPolicy("POLICY_LIBERTY_CLOSER_5");				
+				if (eYieldType == YIELD_CULTURE && hasLibertyCloser5 && isGreatTile)
+					yieldChange += 2;				
+			}
+
+			{// POLICY_COLLECTIVE_RULE - +3 C to Natural Wonders
+				const bool hasCollectiveRule = player.HasPolicy("POLICY_COLLECTIVE_RULE");
+				const bool isNaturalWonder = plot.HasAnyNaturalWonder();
+				if (eYieldType == YIELD_CULTURE && hasCollectiveRule && isNaturalWonder)
+					yieldChange += 3;
+			}
+
+			{// POLICY_REPRESENTATION - +1 C to Luxuries
+				const bool hasRepresentation = player.HasPolicy("POLICY_REPRESENTATION");
+				if (eYieldType == YIELD_CULTURE && hasRepresentation && hasLuxury)
+					yieldChange += 1;
+			}
+
 			
 			
 

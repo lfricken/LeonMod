@@ -44,7 +44,7 @@ string CvPlayer::GetCityCapCurrent_WithSourcesTooltip(int* sum) const
 		appendNewLine(&ss, sum, "Base", +3, true);
 	}
 	{ // liberty finisher
-		appendNewLine(&ss, sum, "from completing the Liberty Policy Tree", +1, player.HasPolicy("POLICY_LIBERTY_FINISHER"));
+		appendNewLine(&ss, sum, "from completing the Liberty Policy Tree", +1, player.HasPolicy("POLICY_LIBERTY_CLOSER_4"));
 	}
 	{ // 1 for 8 policies (free policies included)
 		appendNewLine(&ss, sum, "from 8 or more Social Policies", +1, player.GetNumPoliciesTotal() >= 8);
