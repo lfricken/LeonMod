@@ -852,6 +852,21 @@ int CvPlot::getExtraYield
 					yieldChange += 1;
 			}
 
+			{// POLICY_MILITARY_TRADITION - +1 PD to Strat
+				const bool hasMilitaryTradition = player.HasPolicy("POLICY_MILITARY_TRADITION");
+				if (eYieldType == YIELD_PRODUCTION && hasMilitaryTradition && hasStrategic)
+					yieldChange += 1;
+			}
+
+			{// POLICY_DISCIPLINE - +3 PD +3C to Citadels
+				const bool hasDiscipline = player.HasPolicy("POLICY_DISCIPLINE");
+				const bool isCitadel = plot.HasImprovement("IMPROVEMENT_CITADEL");
+				if (eYieldType == YIELD_PRODUCTION && hasDiscipline && isCitadel)
+					yieldChange += 3;
+				if (eYieldType == YIELD_CULTURE && hasDiscipline && isCitadel)
+					yieldChange += 3;
+			}
+
 			
 			
 

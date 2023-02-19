@@ -63,7 +63,7 @@ string CvPlayer::GetCityCapCurrent_WithSourcesTooltip(int* sum) const
 		// iron curtain +1
 		if (player.HasPolicy("POLICY_NEW_ORDER"))
 			maxConqueredBonus += 2;
-		if (player.HasPolicy("POLICY_HONOR_FINISHER"))
+		if (player.HasPolicy("POLICY_HONOR_CLOSER_4"))
 			maxConqueredBonus += 1;
 
 		stringstream desc;
