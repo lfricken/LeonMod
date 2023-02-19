@@ -54,6 +54,11 @@ function ANC_Constructor(ancArgs)
 		maxX = maxX,
 		maxY = maxY,
 
+		polarLat = 0.085;
+		tundraLat = 0.13;
+		temperateLat = 0.30;
+		tropicalLat = 0.46;
+
 		cfg = ancArgs,
 	};
 	ANC_SafeInitPlots(this);
@@ -120,7 +125,6 @@ function ANC_CreateMap(ancArgs)
 	ANC_DoPopulateWorldWithGoodies(this); -- (EXCEPT FOR SPAWN POINTS) add luxuries, bonuses, strategics, features (ice, oasis, atolls)
 	
 	ANC_UpdatePlots(this);
-	Map.RecalculateAreas();
 
 	ANC_AddRivers(this);
 
@@ -159,12 +163,13 @@ end
 ------------------------------------------------------------------------------
 function ANC_UpdatePlots(this)
 	print("ANC_UpdatePlots");
-	for i, plot in Plots() do
-		plot:SetTerrainType(this.plotTerrain[i + 1], false, true);
-		plot:SetPlotType(this.plotTypes[i + 1], false, true);
-		plot:SetFeatureType(this.plotFeature[i + 1], -1);
-		plot:SetResourceType(this.plotResource[i + 1], this.plotResourceNum[i + 1]);
+	for i, plot in ANC_Plots() do
+		plot:SetTerrainType(this.plotTerrain[i], false, true);
+		plot:SetPlotType(this.plotTypes[i], false, true);
+		plot:SetFeatureType(this.plotFeature[i], -1);
+		plot:SetResourceType(this.plotResource[i], this.plotResourceNum[i]);
 	end
+	Map.RecalculateAreas();
 end
 
 function DetermineContinents()

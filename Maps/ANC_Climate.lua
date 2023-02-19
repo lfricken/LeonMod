@@ -11,39 +11,41 @@ function ANC_Climate(this)
 
 	local maxX, maxY = this.maxX, this.maxY;
 
-	local polar = 0.085;
-	local tundra = 0.13;
-	local temperate = 0.30;
-	local tropical = 0.46;
 	--local desert = 0.44;
 
 
 	local isWater = function(idx) return this.plotTypes[idx] == PlotTypes.PLOT_OCEAN; end
+	local isNotWater = function(idx) return this.plotTypes[idx] ~= PlotTypes.PLOT_OCEAN; end
 
 	-- CLIMATE and HILLS
-	for i, plot in Plots() do
+	for i, plot in ANC_Plots() do
 		local xy = GetXy(i, maxX);
 		local xyScale = GetXyScaled(xy, maxX, maxY);
-		if not isWater(i) and not this.plotIsLocked[i] then
-			if Map.Rand(1000, "RandDir") < 380 then
-				this.plotTypes[i] = PlotTypes.PLOT_HILLS;
-			end
+		if not this.plotIsLocked[i] then
+			if isNotWater(i) then
+				if Map.Rand(1000, "RandDir") < 380 then
+					this.plotTypes[i] = PlotTypes.PLOT_HILLS;
+				end
 
-			local lat = xyScale[2];
-			if isLat(lat, polar) then
-				this.plotTerrain[i] = TerrainTypes.TERRAIN_SNOW;
-			elseif isLat(lat, tundra) then
-				this.plotTerrain[i] = TerrainTypes.TERRAIN_TUNDRA;
-			elseif isLat(lat, temperate) then
-				this.plotTerrain[i] = TerrainTypes.TERRAIN_GRASS;
-			elseif isLat(lat, tropical) then
-				this.plotTerrain[i] = TerrainTypes.TERRAIN_PLAINS;
-			else
-				this.plotTerrain[i] = TerrainTypes.TERRAIN_DESERT;
-			end
+				local lat = xyScale[2];
+				if isLat(lat, this.polarLat) then
+					this.plotTerrain[i] = TerrainTypes.TERRAIN_SNOW;
+				elseif isLat(lat, this.tundraLat) then
+					this.plotTerrain[i] = TerrainTypes.TERRAIN_TUNDRA;
+				elseif isLat(lat, this.temperateLat) then
+					this.plotTerrain[i] = TerrainTypes.TERRAIN_GRASS;
+				elseif isLat(lat, this.tropicalLat) then
+					this.plotTerrain[i] = TerrainTypes.TERRAIN_PLAINS;
+				else
+					this.plotTerrain[i] = TerrainTypes.TERRAIN_DESERT;
+				end
 
-		else
-
+			else -- is water
+				--this.plotTerrain[i] = TerrainTypes.TERRAIN_OCEAN;
+				local isLandAdjacent = 6 > countAdjacent(this, this.plotTypes, xy, PlotTypes.PLOT_OCEAN);
+				if (isLandAdjacent) then this.plotTerrain[i] = TerrainTypes.TERRAIN_COAST;
+				else this.plotTerrain[i] = TerrainTypes.TERRAIN_OCEAN; end
+			end	
 		end	
 	end
 
@@ -53,10 +55,10 @@ function ANC_Climate(this)
 		Mutate(this.plotTerrain, this, nil, TerrainTypes.TERRAIN_TUNDRA, nil, ANC_grow(0.5), isWater);
 		Mutate(this.plotTerrain, this, nil, TerrainTypes.TERRAIN_PLAINS, nil, ANC_grow(0.5), isWater);
 		Mutate(this.plotTerrain, this, nil, TerrainTypes.TERRAIN_GRASS, nil, ANC_grow(0.5), isWater);
+		--Mutate(this.plotTerrain, this, nil, TerrainTypes.TERRAIN_COAST, nil, ANC_grow(1.0, 0), isNotWater);
 	end
 
-
-	for i, plot in Plots() do
+	for i, plot in ANC_Plots() do
 		local xy = GetXy(i, maxX);
 		local xyScale = GetXyScaled(xy, maxX, maxY);
 		if not isWater(i) and not this.plotIsLocked[i] then

@@ -63,7 +63,7 @@ function ANC_DoSpawnFor(this, x, y, maxX, maxY, playerId, isMinor)
 	-- lock nearby water, prevents land growth from putting the spawn point in a tiny inlet
 	local waterLock = adjacentWater;
 	for i=1,4 do
-		waterLock = dir(waterLock[1],waterLock[2],randWaterDir);
+		waterLock = dir(waterLock[1], waterLock[2], randWaterDir);
 	end
 	indexes = GetIndexesAround(waterLock[1],waterLock[2], maxX, maxY, 0, waterLockSize);
 	for k,index in pairs(indexes) do

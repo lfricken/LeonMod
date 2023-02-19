@@ -10,36 +10,9 @@ function ANC_SetPlotTypes(plotTypes)
 	-- NOTE: Plots() is indexed from 0, the way the plots are indexed in C++
 	-- However, Lua tables are indexed from 1, and all incoming plot tables should be indexed this way.
 	-- So we add 1 to the Plots() index to find the matching plot data in plotTypes.
-	for i, plot in Plots() do
-		plot:SetPlotType(plotTypes[i + 1], false, false);
+	for i, plot in ANC_Plots() do
+		plot:SetPlotType(plotTypes[i], false, false);
 	end
-end
-
-local _plots = {}; --memoize table of plots
-function Plots(sort)
-	local _indices = {};
-	for i = 1, Map.GetNumPlots(), 1 do
-		_indices[i] = i - 1;
-	end	
-	
-	if(sort) then
-		sort(_indices);
-	end
-	
-	local cur = 0;
-	local it = function()
-		cur = cur + 1;
-		local index = _indices[cur];
-		local plot;
-		
-		if(index) then
-			plot = _plots[index] or Map.GetPlotByIndex(index);
-			_plots[index] = plot;
-		end
-		return index, plot;
-	end
-	
-	return it;
 end
 
 function addToSet(set, key)
@@ -295,13 +268,13 @@ function GetI(x,y,maxX)
 	x = math.floor(x);
 	y = math.floor(y);
 	maxX = math.floor(maxX);
-	return y * maxX + x + 1;
+	return (y * maxX + x) + 1;
 end
 ------------------------------------------------------------------------------
 -- given an index, converts to an XY coordinate
 ------------------------------------------------------------------------------
 function GetXy(index,maxX)
-	return {index % maxX, math.floor(index / maxX)};
+	return {(index - 1) % maxX, math.floor((index - 1) / maxX)};
 end
 ------------------------------------------------------------------------------
 -- normalizes the given xy
@@ -391,6 +364,52 @@ function safeInsertIdx(values, xy, maxX, maxY)
 		local y = xy[2];
 		table.insert(values, GetI(x, y, maxX));
 	end
+end
+function countAdjacent(this, data, xy, val)
+	local count = 0;
+	local points = GetIndexesAround(xy[1], xy[2], this.maxX, this.maxY, 1);
+	for k,index in pairs(points) do
+		if data[index] == val then
+			count = count + 1;
+		end
+	end
+	return count;
+end
+
+local _plots = {}; --memoize table of plots
+function PlotsBasic(sort)
+	local _indices = {};
+	for i = 1, Map.GetNumPlots(), 1 do
+		_indices[i] = i - 1;
+	end	
+	
+	if(sort) then
+		sort(_indices);
+	end
+	
+	local cur = 0;
+	local it = function()
+		cur = cur + 1;
+		local index = _indices[cur];
+		local plot;
+		
+		if(index) then
+			plot = _plots[index] or Map.GetPlotByIndex(index);
+			_plots[index] = plot;
+		end
+		return index, plot;
+	end
+	
+	return it;
+end
+function ANC_Plots(sort)	
+	subIt = PlotsBasic(sort);
+	local it = function()
+		local index, plot = subIt();
+		if index ~= nil then index = index + 1; end
+		return index, plot; -- add one for lua offset
+	end	
+	return it;
 end
 ------------------------------------------------------------------------------
 -- HEAVILY TESTED. radius 1 is 6 tiles surrounding x,y, radius 2 is the 12 tiles outside that
@@ -519,11 +538,12 @@ function ANC_expand(connectProbFactor)
 		elseif (numAdjacent == 3) then return (Map.Rand(1000, "Mutate") < (500 * connectProb));
 		elseif (numAdjacent == 4) then return (Map.Rand(1000, "Mutate") < (600 * connectProb));
 		elseif (numAdjacent == 5) then return (Map.Rand(1000, "Mutate") < (700 * connectProb));
-		elseif (numAdjacent == 5) then return (Map.Rand(1000, "Mutate") < (800 * connectProb)); end
+		elseif (numAdjacent == 6) then return (Map.Rand(1000, "Mutate") < (800 * connectProb)); end
 		return false;
 	end
 end
-function ANC_grow(connectProbFactor)
+function ANC_grow(connectProbFactor, growOdds)
+	growOdds = growOdds or 400;
 	return function(bWouldConnect,numAdjacent)
 		local connectProb = 1;
 		if (bWouldConnect) then
@@ -532,13 +552,20 @@ function ANC_grow(connectProbFactor)
 		end
 
 		if (numAdjacent <= 0 or numAdjacent > 6) then return false;
-		elseif (numAdjacent == 1) then return (Map.Rand(1000, "Mutate") < (400 * connectProb));
-		elseif (numAdjacent == 2) then return (Map.Rand(1000, "Mutate") < (400 * connectProb));
-		elseif (numAdjacent == 3) then return (Map.Rand(1000, "Mutate") < (400 * connectProb));
-		elseif (numAdjacent == 4) then return (Map.Rand(1000, "Mutate") < (400 * connectProb));
-		elseif (numAdjacent == 5) then return (Map.Rand(1000, "Mutate") < (400 * connectProb));
-		elseif (numAdjacent == 5) then return (Map.Rand(1000, "Mutate") < (400 * connectProb)); end
+		elseif (numAdjacent == 1) then return (Map.Rand(1000, "Mutate") < (growOdds * connectProb));
+		elseif (numAdjacent == 2) then return (Map.Rand(1000, "Mutate") < (growOdds * connectProb));
+		elseif (numAdjacent == 3) then return (Map.Rand(1000, "Mutate") < (growOdds * connectProb));
+		elseif (numAdjacent == 4) then return (Map.Rand(1000, "Mutate") < (growOdds * connectProb));
+		elseif (numAdjacent == 5) then return (Map.Rand(1000, "Mutate") < (growOdds * connectProb));
+		elseif (numAdjacent == 6) then return (Map.Rand(1000, "Mutate") < (growOdds * connectProb)); end
 		return false;
+	end
+end
+function ANC_ignoreLat(lat, maxX, maxY)
+	local topLat = (1 - lat);
+	return function(plotIdx)
+		local y = GetXyScaled(GetXy(plotIdx, maxX), maxX, maxY)[2];
+		return (y < lat) or (y > topLat);
 	end
 end
 function defaultMutate(bWouldConnect,numAdjacent)

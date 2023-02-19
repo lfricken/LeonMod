@@ -35,25 +35,22 @@ do hidden antiquity sites still work at all? just redo antiquity logic
 
 Map
 
-	smaller water reservation
-	perform more fill operations
-
 	(how to check valid?)
 	no jungle on sand
 	no marsh on hill
+	oasis
+
+	randomly conjoin at the end
 
 	redo city state spawns
 	guarantee water spawn better (see 6,9 botleft spawn is bugged)
 	rivers?
-	do mountains
-	do ice
-	randomly conjoin at the end
+	do flood plains oasis mountains ice
 	lock CS area to avoid land growth
-	random seed chooser
-	map land sea mutation
-	do bonus goodies and features
-	calculate coasts
-	5 player is unfair, people should not spawn in middle
+	do bonus goodies and features (avoid water bonuses on lakes)
+	
+	recalculate coasts
+	5 and 10 player is unfair, people should not spawn in middle
 
 	add goodie huts
 
