@@ -40,6 +40,7 @@ struct ProductionCostModifiers
 #endif
 
 class CvDatabaseUtility;
+class CvPlayer;
 
 //------------------------------------------------------------------------------
 // CvBaseInfo: New basic info adapter for game data.
@@ -514,7 +515,7 @@ public:
 
 	int getMaxGlobalInstances() const;
 	int getMaxTeamInstances() const;
-	int getMaxPlayerInstances() const;
+	int getMaxPlayerInstances(const CvPlayer* player) const;
 	int getMaxPlayerInstancesPercent() const;
 	int getExtraPlayerInstances() const;
 	int getDefaultBuildingIndex() const;

@@ -8487,7 +8487,7 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestV
 
 		if (isBuildingClassMaxedOut(eBuildingClass, (getBuildingClassMaking(eBuildingClass) + ((bContinue) ? -1 : 0)), true, false))
 		{
-			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_PLAYER_COUNT_MAX", "", "", kBuildingClass.getMaxPlayerInstances());
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_PLAYER_COUNT_MAX", "", "", kBuildingClass.getMaxPlayerInstances(this));
 			if (toolTipSink == NULL)
 				return false;
 		}
@@ -21322,9 +21322,9 @@ bool CvPlayer::isBuildingClassMaxedOut(BuildingClassTypes eIndex, int iExtra, bo
 
 	if (checkAbsolute && isNationalWonderClass(*pkBuildingClassInfo))
 	{
-		CvAssertMsg(getBuildingClassCount(eIndex) <= (pkBuildingClassInfo->getMaxPlayerInstances() + pkBuildingClassInfo->getExtraPlayerInstances()), "BuildingClassCount is expected to be less than or match the number of max player instances plus extra player instances");
+		CvAssertMsg(getBuildingClassCount(eIndex) <= (pkBuildingClassInfo->getMaxPlayerInstances(this) + pkBuildingClassInfo->getExtraPlayerInstances()), "BuildingClassCount is expected to be less than or match the number of max player instances plus extra player instances");
 
-		int allowed = pkBuildingClassInfo->getMaxPlayerInstances() + pkBuildingClassInfo->getExtraPlayerInstances();
+		int allowed = pkBuildingClassInfo->getMaxPlayerInstances(this) + pkBuildingClassInfo->getExtraPlayerInstances();
 		int have = getBuildingClassCount(eIndex) + iExtra;
 		if (have >= allowed)
 		{
@@ -21335,8 +21335,8 @@ bool CvPlayer::isBuildingClassMaxedOut(BuildingClassTypes eIndex, int iExtra, bo
 	if (checkPercent && allowedPercent != -1)
 	{
 		// +99 round up
-		int allowed = (((getNumCities() * allowedPercent) + 99) / 100) + pkBuildingClassInfo->getExtraPlayerInstances();
-		int have = getBuildingClassCount(eIndex) + iExtra;
+		int allowed = (((getNumCities() * allowedPercent) + 50) / 100) + pkBuildingClassInfo->getExtraPlayerInstances();
+		int have = getBuildingClassCount(eIndex) + iExtra + GetExtraBuildingsForClass(eIndex);
 		if (have >= allowed)
 		{
 			return true;

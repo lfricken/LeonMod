@@ -1441,6 +1441,7 @@ public:
 	int getFreeBuildingCount(BuildingTypes eIndex) const;
 	bool isBuildingFree(BuildingTypes eIndex) const;
 	void changeFreeBuildingCount(BuildingTypes eIndex, int iChange);
+	int GetExtraBuildingsForClass(BuildingClassTypes eClass) const;
 
 	int GetFreePromotionCount(PromotionTypes eIndex) const;
 	bool IsFreePromotion(PromotionTypes eIndex) const;

@@ -85,6 +85,13 @@ string CvPlayer::GetCityCapCurrent_WithSourcesTooltip(int* sum) const
 	return ss.str();
 }
 
+int CvPlayer::GetExtraBuildingsForClass(BuildingClassTypes eClass) const
+{
+	int total = 0;
+
+
+	return total;
+}
 
 int CvPlayer::GetMaxPoliciesForBranch(PolicyBranchTypes eBranch) const
 {
