@@ -88,8 +88,7 @@ string CvPlayer::GetCityCapCurrent_WithSourcesTooltip(int* sum) const
 int CvPlayer::GetExtraBuildingsForClass(BuildingClassTypes eClass) const
 {
 	int total = 0;
-
-
+		
 	return total;
 }
 
@@ -292,7 +291,7 @@ void CvPlayer::UpdateFreePolicies()
 	{
 		int numPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(5));
 		if (numPolicies >= 4)
-			UpdateHasPolicy("POLICY_AESTHETICS_CLOSER_4", true);
+			UpdateHasPolicy("POLICY_AESTHETICS_FINISHER", true);
 	}
 	{
 		int numPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(5));
