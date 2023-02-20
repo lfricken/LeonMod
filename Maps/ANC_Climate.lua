@@ -2,9 +2,6 @@
 
 include("ANC_Utils");
 
-function isLat(lat, latMin)
-	return lat < latMin or lat > (1 - latMin);
-end
 function probLat(lat, latMin)
 	local moreLat = math.max( 0, (1 / latMin) * (math.max(lat, 1 - lat) - ( 1 - latMin) ) );
 	return moreLat;
@@ -140,4 +137,15 @@ function ANC_Climate(this)
 	end
 
 	print("ANC_Climate End");
+end
+
+function ANC_FloodPlains(this)
+	for i, plot in ANC_Plots() do
+		-- flat desert with no other feature
+		local isNoFeature = this.plotFeature[i] == FeatureTypes.NO_FEATURE;
+		local isDesert = this.plotTerrain[i] == TerrainTypes.TERRAIN_DESERT;
+		if isNoFeature and isDesert and this.plotTypes[i] == PlotTypes.PLOT_LAND then
+			this.plotFeature[i] = FeatureTypes.FEATURE_FLOOD_PLAINS;
+		end
+	end
 end

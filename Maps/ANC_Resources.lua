@@ -15,7 +15,42 @@ end
 -- Requires ANC_DoResourcesAndFeatures to have been called
 ------------------------------------------------------------------------------
 function ANC_DoPopulateWorldWithGoodies(this)
+	local isArableWater = function(idx) return this.plotTerrain[idx] == TerrainTypes.TERRAIN_COAST; end
+	local isNotWater = function(idx) return this.plotTypes[idx] ~= PlotTypes.PLOT_OCEAN; end
+	local isArableLand = function(idx) return this.plotTypes[idx] == PlotTypes.PLOT_LAND or this.plotTypes[idx] == PlotTypes.PLOT_HILLS; end
 
+	-- halton for minor civs
+	local haltonPointsX = halton(2, 512, 0);
+	local haltonPointsY = halton(3, 512, 0);
+	local scaleX = function(x) return math.floor(x * 100); end
+	local scaleY = function(y) return math.floor(y * 100); end
+
+	for i=1,#haltonPointsX do
+		local xy = {scaleX(haltonPointsX[i]), scaleY(haltonPointsY[i])};
+		local plotIdx = GetI(xy[1], xy[2], this.maxX);
+		local hasFeature = this.plotFeature[plotIdx] ~= FeatureTypes.NO_FEATURE;
+		local hasAdjacentLuxes = ANC_countAdjacents(this, this.plotHasLux, xy, true) > 0;
+		local inBounds = xy[1] < this.maxX and xy[2] < this.maxY and not this.plotIsLocked[plotIdx];
+		if not hasFeature and not hasAdjacentLuxes and inBounds then
+			if isArableLand(plotIdx) then
+				local idx = 1 + (i % #this.luxPolar);
+				--print("resource" .. idx);
+				this.plotResource[plotIdx] = this.luxPolar[idx];
+				--print(this.plotResource[plotIdx]);
+				this.plotResourceNum[plotIdx] = 1;
+			elseif isArableWater(plotIdx) then
+				if (Map.Rand(1000,"Skip Water Lux") < 1000) then
+					local idx = 1 + ((i % 17) % #this.luxWater);
+					--print("resource2" .. idx);
+					this.plotResource[plotIdx] = this.luxWater[idx];
+					--print(this.plotResource[plotIdx]);
+					this.plotResourceNum[plotIdx] = 1;
+				end
+			end
+
+			this.plotHasLux[plotIdx] = true;
+		end
+	end
 
 end
 ------------------------------------------------------------------------------
@@ -54,7 +89,7 @@ function createResourceClumps(this)
 				-- the second layer should be offset so the centers are at the triple junction of 3 hexes
 				if layer == 2 then realX = realX - (eachXShift / 2) * mapXScaling; realY = realY - eachYShift / 2; end
 				if isEvenX then realY = realY - (eachYShift / 2); end -- shift down so they follow a centered hex pattern
-				tryCreateResourceClump(this, layer, realX, realY, resource);
+				tryCreateResourceClump(this, layer, realX, realY);
 			end
 		end
 	end
@@ -64,13 +99,25 @@ end
 -- Creates a resource clump entry, which is just an XY coordinate and a resource.
 -- Used later by tiles to determine which kind of resource it should have 
 ------------------------------------------------------------------------------
-function tryCreateResourceClump(this, layer, realX, realY, resource)
+function tryCreateResourceClump(this, layer, realX, realY)
 	-- check bounds
 	realX = math.floor(realX);
 	realY = math.floor(realY);
 	if realX < 0 or realX >= this.maxX or realY < 0 or realY >= this.maxY then 
 		--print("skipped: " .. realX .. "," .. realY); 
 		return;
+	end
+
+	local resource = 1;
+	local xyScaled = GetXyScaled({realX, realY}, this.maxX, this.maxY);
+	if (isLat(xyScaled[2], 0.25)) then -- polar?
+		local num = #this.luxPolar;
+		local randIdx = 1 + Map.Rand(num,"Rand Polar Lux");
+		resource = this.luxPolar[randIdx];
+	else
+		local num = #this.luxTropical;
+		local randIdx = 1 + Map.Rand(num,"Rand Tropical Lux");
+		resource = this.luxTropical[randIdx];
 	end
 
 	-- debugging
@@ -150,12 +197,14 @@ function recordResourceInfo(this)
 		elseif rName == "RESOURCE_HORSE" then
 			this.horse_ID = rid;
 			table.insert(this.strats, rid);
+
 		elseif rName == "RESOURCE_COAL" then
 			this.coal_ID = rid;
 			table.insert(this.strats, rid);
 		elseif rName == "RESOURCE_OIL" then
 			this.oil_ID = rid;
 			table.insert(this.strats, rid);
+
 		elseif rName == "RESOURCE_ALUMINUM" then
 			this.aluminum_ID = rid;
 			table.insert(this.strats, rid);
@@ -200,29 +249,39 @@ function recordResourceInfo(this)
 
 
 		-- Set up Luxury IDs
+		elseif rName == "RESOURCE_FUR" then
+			this.fur_ID = rid;
+			table.insert(this.luxPolar, rid);
 		elseif rName == "RESOURCE_LAPIS" then	-- MOD.Barathor: New
 			this.lapis_ID = rid;
 			table.insert(this.luxPolar, rid);
 		elseif rName == "RESOURCE_GOLD" then
 			this.gold_ID = rid;
+			table.insert(this.luxPolar, rid);
 		elseif rName == "RESOURCE_SILVER" then
 			this.silver_ID = rid;
+			table.insert(this.luxPolar, rid);
 		elseif rName == "RESOURCE_GEMS" then
 			this.gems_ID = rid;
+			table.insert(this.luxPolar, rid);
 		elseif rName == "RESOURCE_AMBER" then	-- MOD.Barathor: New
 			this.amber_ID = rid;
+			table.insert(this.luxPolar, rid);
 		elseif rName == "RESOURCE_JADE" then		-- MOD.Barathor: New
 			this.jade_ID = rid;
+			table.insert(this.luxPolar, rid);
 		elseif rName == "RESOURCE_COPPER" then
 			this.copper_ID = rid;
+			table.insert(this.luxPolar, rid);
 		elseif rName == "RESOURCE_SALT" then
 			this.salt_ID = rid;
-		elseif rName == "RESOURCE_FUR" then
-			this.fur_ID = rid;
+			table.insert(this.luxPolar, rid);
 		elseif rName == "RESOURCE_MARBLE" then
 			this.marble_ID = rid;
+			table.insert(this.luxPolar, rid);
 		elseif rName == "RESOURCE_OBSIDIAN" then	-- MOD.HungryForFood: New
 			this.obsidian_ID = rid;
+			table.insert(this.luxPolar, rid);
 
 
 		elseif rName == "RESOURCE_WHALE" then
@@ -244,38 +303,55 @@ function recordResourceInfo(this)
 			table.insert(this.luxTropical, rid);
 		elseif rName == "RESOURCE_SILK" then
 			this.silk_ID = rid;
+			table.insert(this.luxTropical, rid);
 		elseif rName == "RESOURCE_DYE" then
 			this.dye_ID = rid;
+			table.insert(this.luxTropical, rid);
 		elseif rName == "RESOURCE_SPICES" then
 			this.spices_ID = rid;
+			table.insert(this.luxTropical, rid);
 		elseif rName == "RESOURCE_SUGAR" then
 			this.sugar_ID = rid;
+			table.insert(this.luxTropical, rid);
 		elseif rName == "RESOURCE_COTTON" then
 			this.cotton_ID = rid;
+			table.insert(this.luxTropical, rid);
 		elseif rName == "RESOURCE_WINE" then
 			this.wine_ID = rid;
+			table.insert(this.luxTropical, rid);
 		elseif rName == "RESOURCE_INCENSE" then
 			this.incense_ID = rid;
+			table.insert(this.luxTropical, rid);
 		elseif rName == "RESOURCE_CITRUS" then
 			this.citrus_ID = rid;
+			table.insert(this.luxTropical, rid);
 		elseif rName == "RESOURCE_TRUFFLES" then
 			this.truffles_ID = rid;
+			table.insert(this.luxTropical, rid);
 		elseif rName == "RESOURCE_COCOA" then
 			this.cocoa_ID = rid;
+			table.insert(this.luxTropical, rid);
 		elseif rName == "RESOURCE_COFFEE" then	-- MOD.Barathor: New
 			this.coffee_ID = rid;
+			table.insert(this.luxTropical, rid);
 		elseif rName == "RESOURCE_TEA" then		-- MOD.Barathor: New
 			this.tea_ID = rid;
+			table.insert(this.luxTropical, rid);
 		elseif rName == "RESOURCE_TOBACCO" then	-- MOD.Barathor: New
 			this.tobacco_ID = rid;
+			table.insert(this.luxTropical, rid);
 		elseif rName == "RESOURCE_OLIVE" then	-- MOD.Barathor: New
 			this.olives_ID = rid;
+			table.insert(this.luxTropical, rid);
 		elseif rName == "RESOURCE_PERFUME" then	-- MOD.Barathor: New
 			this.perfume_ID = rid;
+			table.insert(this.luxTropical, rid);
 		elseif rName == "RESOURCE_COCONUT" then	-- MOD.HungryForFood: New
 			this.coconut_ID = rid;
+			table.insert(this.luxTropical, rid);
 		elseif rName == "RESOURCE_RUBBER" then	-- MOD.HungryForFood: New
 			this.rubber_ID = rid;
+			table.insert(this.luxTropical, rid);
 
 
 

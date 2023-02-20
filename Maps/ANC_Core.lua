@@ -49,6 +49,7 @@ function ANC_Constructor(ancArgs)
 		plotResource = {}, -- rNames (Luxuries, Strategic, Bonus)		
 		plotResourceNum = {}, -- rNames (Luxuries, Strategic, Bonus)
 		plotIsLocked = {};
+		plotHasLux = {};
 		plotIsWithinSpawnDist = {}, -- this plot should not be modified any more
 
 		maxX = maxX,
@@ -127,7 +128,11 @@ function ANC_CreateMap(ancArgs)
 	ANC_UpdatePlots(this);
 
 	ANC_AddRivers(this);
+	ANC_FloodPlains(this);
 
+
+
+	ANC_UpdatePlots(this);
 	DetermineContinents(); -- Continental artwork selection must wait until Areas are finalized, so it gets handled last.
 
 	print("CreateMap End");
@@ -146,6 +151,7 @@ function ANC_SafeInitPlots(this)
 	this.plotResource = table.fill(-1, maxX * maxY);
 	this.plotResourceNum = table.fill(0, maxX * maxY);
 	this.plotIsLocked = table.fill(false, maxX * maxY);
+	this.plotHasLux = table.fill(false, maxX * maxY);
 	this.plotIsWithinSpawnDist = table.fill(false, maxX * maxY);
 
 	ANC_UpdatePlots(this);

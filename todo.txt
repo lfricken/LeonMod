@@ -34,18 +34,18 @@ do hidden antiquity sites still work at all? just redo antiquity logic
 
 
 Map
+
+
+	flood plains after rivers
+	luxuries
+	bonus goodies and features (avoid water bonuses on lakes)
+
+	
 	redo city state spawns - lock CS area to avoid land growth?
 	randomly conjoin at the end of land
-
-
-	do flood plains mountains
-	
-	do bonus goodies and features (avoid water bonuses on lakes)
-	
 	5 and 10 player is unfair, people should not spawn in middle
 
 
-	reveal horses and iron on turn 0 so you can see shit
 	DO
 	get rid of grid point logic
 	extract things to functions
