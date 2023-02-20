@@ -838,17 +838,21 @@ int CvPlot::getExtraYield
 				const bool isNaturalWonder = plot.HasAnyNaturalWonder();
 				if (eYieldType == YIELD_CULTURE && hasCollectiveRule && isNaturalWonder)
 					yieldChange += 3;
-			}
+			}			
 
-			{// POLICY_REPRESENTATION - +1 C to Luxuries
-				const bool hasRepresentation = player.HasPolicy("POLICY_REPRESENTATION");
-				if (eYieldType == YIELD_CULTURE && hasRepresentation && hasLuxury)
-					yieldChange += 1;
-			}
-
-			{// POLICY_MILITARY_TRADITION - +1 PD to Strat
+			{// POLICY_MILITARY_TRADITION - +1 PD to Horse, Iron, Stone, Hardwood
 				const bool hasMilitaryTradition = player.HasPolicy("POLICY_MILITARY_TRADITION");
-				if (eYieldType == YIELD_PRODUCTION && hasMilitaryTradition && hasStrategic)
+				const bool isHorse = plot.HasResource("RESOURCE_HORSE");
+				const bool isIron = plot.HasResource("RESOURCE_IRON");
+				const bool isStone = plot.HasResource("RESOURCE_STONE");
+				const bool isHardood = plot.HasResource("RESOURCE_HARDWOOD");
+				if (eYieldType == YIELD_PRODUCTION && hasMilitaryTradition && isHorse)
+					yieldChange += 1;
+				if (eYieldType == YIELD_PRODUCTION && hasMilitaryTradition && isIron)
+					yieldChange += 1;
+				if (eYieldType == YIELD_PRODUCTION && hasMilitaryTradition && isStone)
+					yieldChange += 1;
+				if (eYieldType == YIELD_PRODUCTION && hasMilitaryTradition && isHardood)
 					yieldChange += 1;
 			}
 
