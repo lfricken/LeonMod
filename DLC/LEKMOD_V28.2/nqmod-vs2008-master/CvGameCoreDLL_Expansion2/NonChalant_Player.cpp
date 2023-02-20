@@ -98,7 +98,33 @@ int CvPlayer::GetMaxPoliciesForBranch(PolicyBranchTypes eBranch) const
 	const CvPlayer& player = *this;
 	int total = 3;
 
-
+	const bool hasNationalCollege = player.HasWonder(BuildingClass("BUILDINGCLASS_NATIONAL_COLLEGE"));
+	const bool hasNationalEpic = player.HasWonder(BuildingClass("BUILDINGCLASS_NATIONAL_EPIC"));
+	const bool hasHeroicEpic = player.HasWonder(BuildingClass("BUILDINGCLASS_HEROIC_EPIC"));
+	const bool hasGrandTemple = player.HasWonder(BuildingClass("BUILDINGCLASS_GRAND_TEMPLE"));
+	const bool hasThisMakesNoSense = player.HasWonder(BuildingClass("BUILDINGCLASS_CIRCUS_MAXIMUS"));
+	const bool hasHermitage = player.HasWonder(BuildingClass("BUILDINGCLASS_HERMITAGE"));
+	const bool hasIronworks = player.HasWonder(BuildingClass("BUILDINGCLASS_IRONWORKS"));
+	const bool hasEastIndia = player.HasWonder(BuildingClass("BUILDINGCLASS_NATIONAL_TREASURY"));	
+	const bool hasOxfordUniversity = player.HasWonder(BuildingClass("BUILDINGCLASS_OXFORD_UNIVERSITY"));
+	if (hasNationalCollege && eBranch == PolicyBranchTypes(0))
+		total += 1;
+	if (hasNationalEpic && eBranch == PolicyBranchTypes(1))
+		total += 1;
+	if (hasHeroicEpic && eBranch == PolicyBranchTypes(2))
+		total += 1;
+	if (hasGrandTemple && eBranch == PolicyBranchTypes(3))
+		total += 1;
+	if (hasThisMakesNoSense && eBranch == PolicyBranchTypes(4))
+		total += 1;
+	if (hasHermitage && eBranch == PolicyBranchTypes(5))
+		total += 1;
+	if (hasIronworks && eBranch == PolicyBranchTypes(6))
+		total += 1;
+	if (hasEastIndia && eBranch == PolicyBranchTypes(7))
+		total += 1;
+	if (hasOxfordUniversity && eBranch == PolicyBranchTypes(8))
+		total += 1;
 
 	return total;
 }
