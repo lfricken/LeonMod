@@ -475,6 +475,9 @@ function UpdateDisplay()
 			-- Update tooltips
 			thisButton:SetToolTipString(strToolTip);
 			
+			thisButton:SetHide( true );
+			thisButton:SetDisabled( true );
+			
 			-- If the player doesn't have the era prereq, then dim out the branch
 			if (bEraLock) then
 				thisDisabledBox:SetHide(false);
