@@ -3690,7 +3690,13 @@ bool CvPlayerPolicies::CanAdoptPolicy(PolicyTypes eIndex, bool bIgnoreCost) cons
 		}
 	}
 
-	PolicyBranchTypes eBranch = (PolicyBranchTypes) pkPolicyEntry->GetPolicyBranchType();
+	const PolicyBranchTypes eBranch = (PolicyBranchTypes) pkPolicyEntry->GetPolicyBranchType();
+	const int numPoliciesInBranch = GetNumPoliciesOwnedInBranch(eBranch);
+	if (numPoliciesInBranch >= m_pPlayer->GetMaxPoliciesForBranch(eBranch))
+	{
+		return false;
+	}
+
 
 	// If it doesn't have a branch, it's a freebie that comes WITH the branch, so we can't pick it manually
 	if(eBranch == NO_POLICY_BRANCH_TYPE)
