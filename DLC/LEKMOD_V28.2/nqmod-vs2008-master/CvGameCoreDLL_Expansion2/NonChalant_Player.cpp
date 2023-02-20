@@ -18,9 +18,9 @@ void addColoredValue(stringstream& s, bool isGreen, const long value, const stri
 }
 
 // will construct a string
-void appendNewLine(stringstream* ss, int* numCitiesAllowed, 
+void appendNewLine(stringstream* ss, int* numCitiesAllowed,
 	// The description of where the numToAdd amount came from.
-	string desc, 
+	string desc,
 	// The number of additional cities the player could add.
 	int numToAdd,
 	bool isUnlocked)
@@ -48,7 +48,7 @@ string CvPlayer::GetCityCapCurrent_WithSourcesTooltip(int* sum) const
 	}
 	{ // 1 for 8 policies (free policies included)
 		appendNewLine(&ss, sum, "from 8 or more Social Policies", +1, player.GetNumPoliciesTotal() >= 8);
-	}	
+	}
 	{ // 1 for every other era, first unlock in classical
 		// ancient era is id 0, classical is id 1...
 		appendNewLine(&ss, sum, "from the {TXT_KEY_ERA_1}", +1, player.GetCurrentEra() >= 1); // {} evaluates to Classical Era
@@ -85,3 +85,49 @@ string CvPlayer::GetCityCapCurrent_WithSourcesTooltip(int* sum) const
 	return ss.str();
 }
 
+
+int CvPlayer::GetMaxPoliciesForBranch(PolicyBranchTypes eBranch) const
+{
+	const CvPlayer& player = *this;
+	int total = 3;
+
+
+
+	return total;
+}
+void CvPlayer::UpdateFreePolicies()
+{
+	CvPlayer& player = *this;
+
+	// automatically give player finisher once they max out a branch
+	for (int i = 0; i < GC.getNumPolicyBranchInfos(); ++i)
+	{
+		const PolicyBranchTypes eBranch = (PolicyBranchTypes)i;
+		const CvPolicyBranchEntry* pInfo = GC.getPolicyBranchInfo(eBranch);
+		if (pInfo != NULL)
+		{
+			const int numHave = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(eBranch);
+			const int numNeeded = player.GetMaxPoliciesForBranch(eBranch);
+			const PolicyTypes eFinisher = (PolicyTypes)pInfo->GetFreeFinishingPolicy();
+			const CvPolicyEntry* policyInfo = GC.getPolicyInfo(eFinisher);
+			const bool doesGetPolicy = numHave >= numNeeded;
+			if (policyInfo != NULL)
+				UpdateHasPolicy(policyInfo->GetType(), doesGetPolicy);
+		}
+	}
+
+
+	// EXAMPLE 1
+	// If you want to possibly remove the policy if the CONDITIONAL fails
+	//{
+	//	const bool playerDeservesPolicy = CONDITIONAL;
+	//	UpdateHasPolicy("POLICY_NAME", playerDeservesPolicy);
+	//}
+	//
+	// EXAMPLE 2
+	// If you want to reward it, and never remove it even if CONDITIONAL fails
+	//if (CONDITIONAL)
+	//{
+	//	UpdateHasPolicy("POLICY_NAME", true);
+	//}
+}

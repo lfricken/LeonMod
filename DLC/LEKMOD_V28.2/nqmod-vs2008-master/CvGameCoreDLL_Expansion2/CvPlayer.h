@@ -1670,6 +1670,11 @@ public:
 	void ChangeNumPolicies(int iValue);
 	int GetNumGreatPeople() const;
 	void ChangeNumGreatPeople(int iValue);
+
+	// this player can only adopt THIS many policies in this branch
+	int GetMaxPoliciesForBranch(PolicyBranchTypes eBranch) const;
+	// called when the players policies change
+	void UpdateFreePolicies();
 	// End New Victory Stuff
 
 	void DoAdoptedGreatPersonCityStatePolicy();
@@ -1859,6 +1864,9 @@ public:
 	TradingCardTypes CardsGetRandomValid(bool avoidDuplicates = true) const;
 	// called when state information about a card changes (add, remove, visible, etc.)
 	virtual void CardsOnChanged();
+	// does not do anything if newVal does not change
+	// returns 0 if no change, -1 if lost, +1 if gained
+	int UpdateHasPolicy(string policyName, bool newVal);
 	// DO NOT CALL, should only be called from net handler
 	void CardsActivate(int cardIdx);
 	// DO NOT CALL, should only be called from net handler
