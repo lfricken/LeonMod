@@ -6127,7 +6127,7 @@ int CvReligionAI::ScoreBeliefAtCity(const CvBeliefEntry* pEntry, const CvCity* p
 				}
 			}
 
-			if(pkBuildingClassInfo->getMaxPlayerInstances() == 1)
+			if(pkBuildingClassInfo->getMaxPlayerInstances(this->m_pPlayer) == 1)
 			{
 				iTempValue /= 2;
 			}

@@ -1744,9 +1744,12 @@ int CvBuildingClassInfo::getMaxTeamInstances() const
 	return m_iMaxTeamInstances;
 }
 //------------------------------------------------------------------------------
-int CvBuildingClassInfo::getMaxPlayerInstances() const
+int CvBuildingClassInfo::getMaxPlayerInstances(const CvPlayer* player) const
 {
-	return m_iMaxPlayerInstances;
+	int extra = 0;
+	if (player != NULL)
+		extra = player->GetExtraBuildingsForClass((BuildingClassTypes)GetID());
+	return m_iMaxPlayerInstances + extra;
 }
 int CvBuildingClassInfo::getMaxPlayerInstancesPercent() const
 {

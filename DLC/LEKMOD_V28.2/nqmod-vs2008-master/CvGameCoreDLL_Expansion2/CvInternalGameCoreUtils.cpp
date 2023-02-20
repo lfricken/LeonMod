@@ -22,7 +22,7 @@ bool isTeamWonderClass(const CvBuildingClassInfo& kBuildingClass)
 //------------------------------------------------------------------------------
 bool isNationalWonderClass(const CvBuildingClassInfo& kBuildingClass)
 {
-	return kBuildingClass.getMaxPlayerInstances() != -1;
+	return kBuildingClass.getMaxPlayerInstances(NULL) != -1;
 }
 //------------------------------------------------------------------------------
 bool isLimitedWonderClass(const CvBuildingClassInfo& kBuildingClass)
@@ -50,7 +50,7 @@ int limitedWonderClassLimit(const CvBuildingClassInfo& kBuildingClass)
 		bIsLimited = true;
 	}
 
-	iMax = kBuildingClass.getMaxPlayerInstances();
+	iMax = kBuildingClass.getMaxPlayerInstances(NULL);
 	if(iMax != -1)
 	{
 		iCount += iMax;
