@@ -22,9 +22,10 @@ function ANC_DoPopulateWorldWithGoodies(this)
 	-- halton for minor civs
 	local haltonPointsX = halton(2, 512, 0);
 	local haltonPointsY = halton(3, 512, 0);
-	local scaleX = function(x) return math.floor(x * 100); end
-	local scaleY = function(y) return math.floor(y * 100); end
+	local scaleX = function(x) return math.floor(x * 90); end
+	local scaleY = function(y) return math.floor(y * 90); end
 
+	local count = 0;
 	for i=1,#haltonPointsX do
 		local xy = {scaleX(haltonPointsX[i]), scaleY(haltonPointsY[i])};
 		local plotIdx = GetI(xy[1], xy[2], this.maxX);
@@ -35,7 +36,10 @@ function ANC_DoPopulateWorldWithGoodies(this)
 			if isArableLand(plotIdx) then
 				local idx = 1 + (i % #this.luxPolar);
 				--print("resource" .. idx);
-				this.plotResource[plotIdx] = this.luxPolar[idx];
+				local layer = 1;
+				if Map.Rand(100,"Res layer 2?") < 50 then layer = 2; end
+				local resource = findClosestClumpedResource(this, layer, xy); -- this.luxPolar[idx];
+				this.plotResource[plotIdx] = resource;
 				--print(this.plotResource[plotIdx]);
 				this.plotResourceNum[plotIdx] = 1;
 			elseif isArableWater(plotIdx) then
@@ -47,10 +51,12 @@ function ANC_DoPopulateWorldWithGoodies(this)
 					this.plotResourceNum[plotIdx] = 1;
 				end
 			end
-
+			count = count + 1;
 			this.plotHasLux[plotIdx] = true;
 		end
 	end
+
+	print("Total Luxes: " .. count);
 
 end
 ------------------------------------------------------------------------------
@@ -79,6 +85,8 @@ function createResourceClumps(this)
 	-- we want to make sure to TRY to generate enough clumps so we extend past the map a bit
 	-- to avoid a situation where the edge of the map is missing a clump 1 would probably be enough, but why not 2?
 	local numClumpsSafety = 2;
+	-- resIdx ensures that we don't accidentally use the same resource right next to ourselves
+	local resIdx = {Map.Rand(30,"Rand Lux Start"), Map.Rand(40,"Rand Lux Start")};
 	for layer=1,2 do
 		for x=1,numClumpsX+numClumpsSafety do
 			local isEvenX = x % 2 == 0; -- every other column should be shifted up
@@ -89,7 +97,7 @@ function createResourceClumps(this)
 				-- the second layer should be offset so the centers are at the triple junction of 3 hexes
 				if layer == 2 then realX = realX - (eachXShift / 2) * mapXScaling; realY = realY - eachYShift / 2; end
 				if isEvenX then realY = realY - (eachYShift / 2); end -- shift down so they follow a centered hex pattern
-				tryCreateResourceClump(this, layer, realX, realY);
+				tryCreateResourceClump(resIdx, this, layer, realX, realY);
 			end
 		end
 	end
@@ -99,7 +107,7 @@ end
 -- Creates a resource clump entry, which is just an XY coordinate and a resource.
 -- Used later by tiles to determine which kind of resource it should have 
 ------------------------------------------------------------------------------
-function tryCreateResourceClump(this, layer, realX, realY)
+function tryCreateResourceClump(resIdx, this, layer, realX, realY)
 	-- check bounds
 	realX = math.floor(realX);
 	realY = math.floor(realY);
@@ -112,12 +120,16 @@ function tryCreateResourceClump(this, layer, realX, realY)
 	local xyScaled = GetXyScaled({realX, realY}, this.maxX, this.maxY);
 	if (isLat(xyScaled[2], 0.25)) then -- polar?
 		local num = #this.luxPolar;
-		local randIdx = 1 + Map.Rand(num,"Rand Polar Lux");
-		resource = this.luxPolar[randIdx];
+		--local randIdx = 1 + Map.Rand(num,"Rand Polar Lux");
+		local resourceIndex = (resIdx[1] % num) + 1;
+		resource = this.luxPolar[resourceIndex];
+		resIdx[1] = resIdx[1] + 1;
 	else
 		local num = #this.luxTropical;
-		local randIdx = 1 + Map.Rand(num,"Rand Tropical Lux");
-		resource = this.luxTropical[randIdx];
+		--local randIdx = 1 + Map.Rand(num,"Rand Tropical Lux");
+		local resourceIndex = (resIdx[2] % num) + 1;
+		resource = this.luxTropical[resourceIndex];
+		resIdx[2] = resIdx[2] + 1;
 	end
 
 	-- debugging
@@ -131,11 +143,11 @@ function tryCreateResourceClump(this, layer, realX, realY)
 		x = realX,
 		y = realY,
 		clumpRes = resource,
-		distFrom = function (x1,y1, shift, maxX,maxY)
+		distFrom = function(self, x1,y1, shift, maxX,maxY)
 			local x = ((self.x + shift) % maxX) - ((x1 + shift) % maxX);
 			local y = self.y - y1;
 			return math.sqrt(x*x + y*y);
-		end
+		end,
 	};
 
 	if (this.resourceClumps[layer] == nil) then this.resourceClumps[layer] = {}; end -- populate layer with empty array
@@ -145,7 +157,7 @@ end
 ------------------------------------------------------------------------------
 -- given an XY and a layer, gives the resource value for this layer
 ------------------------------------------------------------------------------
-function findClosestClumpedResource(this, layer, realX, realY)
+function findClosestClumpedResource(this, layer, xy)
 	local extraSafety = 2; -- we want to be sure we shift all the way past the x wrap of the map
 	local shiftDistance = this.cfg.luxClumpDiameter;
 	local layerClumps = this.resourceClumps[layer];
@@ -157,7 +169,7 @@ function findClosestClumpedResource(this, layer, realX, realY)
 	-- distance as if it was adjacent. we don't need to do a shift of 0 because... why would we?
 	for shift = -1, 1, 2 do
 		for k,clump in pairs(layerClumps) do
-			local dist = clump:distFrom(realX,realY, (extraSafety * shift * shiftDistance), this.maxX, this.maxY);
+			local dist = clump:distFrom(xy[1],xy[2], (extraSafety * shift * shiftDistance), this.maxX, this.maxY);
 			if (dist < closestDist) then
 				closestDist = dist;
 				closestClump = clump;

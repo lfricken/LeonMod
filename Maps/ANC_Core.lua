@@ -23,7 +23,7 @@ function ANC_CreateArgs()
 		stratDensity = 1, -- [0,3] multiplier for how dense are strategic resources
 		bonusDensity = 1, -- [0,3] multiplier for how dense are bonus resources
 
-		luxClumpDiameter = 13, -- how large of an area will a particular resource appear in (this is recalculated slightly based on map size)
+		luxClumpDiameter = 19, -- how large of an area will a particular resource appear in (this is recalculated slightly based on map size)
 		bonusClumpDiameter = 13, -- how large of an area will a particular resource appear in
 	};
 	return ancArgs;
