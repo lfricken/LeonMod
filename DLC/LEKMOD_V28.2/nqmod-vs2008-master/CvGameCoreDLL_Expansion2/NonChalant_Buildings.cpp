@@ -159,7 +159,7 @@ int CvPlayer::GetExtraYieldForBuilding
 
 		{// POLICY_PIETY_CLOSER - +1FH Capital.
 			int numPietyClosers = player.HasPolicy("POLICY_PIETY_CLOSER_1") || player.HasPolicy("POLICY_PIETY_CLOSER_2") ||
-				player.HasPolicy("POLICY_PIETY_CLOSER_3") || player.HasPolicy("POLICY_PIETY_CLOSER_4") ||
+				player.HasPolicy("POLICY_PIETY_CLOSER_3") || player.HasPolicy("POLICY_PIETY_FINISHER") ||
 				player.HasPolicy("POLICY_PIETY_CLOSER_5") || player.HasPolicy("POLICY_PIETY_CLOSER_6");
 			const bool isCityCenterBuilding = eBuildingClass == BuildingClass("BUILDINGCLASS_CITY_CENTER");			
 			if (eYieldType == YIELD_FAITH && !isPercentMod && isCityCenterBuilding && isCapital)
@@ -751,7 +751,7 @@ BuildingAddType CvPlayer::ShouldHaveBuilding(const CvPlayer& rPlayer, const CvCi
 		const bool isCityCenterBuilding = eBuildingClass == BuildingClass("BUILDINGCLASS_CITY_CENTER");
 		if (isCityCenterBuilding)		
 				return ADD;			
-	}
+	}	
 
 	return INDIFFERENT;
 }

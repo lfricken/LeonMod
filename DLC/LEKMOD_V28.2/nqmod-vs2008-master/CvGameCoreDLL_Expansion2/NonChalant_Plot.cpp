@@ -228,13 +228,7 @@ int CvPlot::getExtraYield
 					const bool hasSpaceFlightPioneers = player.HasPolicy("POLICY_SPACEFLIGHT_PIONEERS");
 					if (eYieldType == YIELD_SCIENTIFIC_INSIGHT && hasSpaceFlightPioneers) // && isCityCenter
 						yieldChange += 1;
-				}
-
-				{// POLICY_ORGANIZED_RELIGION gives +1C for every 3 Followers in Holy city if you have adopted a religion				
-					const bool hasOrganizedReligion = player.HasPolicy("POLICY_ORGANIZED_RELIGION");
-					if (eYieldType == YIELD_CULTURE && hasOrganizedReligion && isHolyCity) // && isCityCenter
-						yieldChange += (numFollowersLocal / 3);
-				}
+				}				
 
 				{// BUILDINGCLASS_BOROBUDUR - 1 FH per city
 					const bool hasBorobudur = player.HasWonder(BuildingClass("BUILDINGCLASS_BOROBUDUR"));
@@ -865,6 +859,14 @@ int CvPlot::getExtraYield
 					yieldChange += 3;
 				if (eYieldType == YIELD_CULTURE && hasDiscipline && isCitadel)
 					yieldChange += 3;
+			}
+
+			{// POLICY_MANDATE_OF_HEAVEN - +1C, +1Fh to Luxuries
+				const bool hasMandateOfHeaven = player.HasPolicy("POLICY_MANDATE_OF_HEAVEN");
+				if (eYieldType == YIELD_CULTURE && hasMandateOfHeaven && hasLuxury)
+					yieldChange += 1;
+				if (eYieldType == YIELD_FAITH && hasMandateOfHeaven && hasLuxury)
+					yieldChange += 1;
 			}
 
 			
