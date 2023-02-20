@@ -1,4 +1,5 @@
 
+nerf faith calculation
 allow trading votes without tech or diplomats (diplomats still do stuff)
 deal history screen is busted?
 disallow per turn with cards

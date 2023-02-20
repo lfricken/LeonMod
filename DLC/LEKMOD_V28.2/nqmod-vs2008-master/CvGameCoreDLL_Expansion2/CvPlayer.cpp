@@ -7258,7 +7258,7 @@ bool CvPlayer::canReceiveGoody(CvPlot*, GoodyTypes, CvUnit*) const
 
 
 
-const int t100 = (100 * 100);
+const int t10000 = (100 * 100);
 // random number
 int rand(int maxExclusive, const CvPlot* pPlot)
 {
@@ -7275,52 +7275,52 @@ int varyByPercent(int original, const CvPlot* pPlot)
 // Food a goody hut gives
 int hutFood(const CvPlot* pPlot)
 {
-	int value = (2 * (7 * t100 + GC.onePerOnlineSpeedTurnT10000()));
+	int value = (2 * (7 * t10000 + GC.onePerOnlineSpeedTurnT10000()));
 	value *= GC.adjustForSpeedT100(YIELD_FOOD);
 	value /= 100;
-	return varyByPercent(value, pPlot) / (100 * 100);
+	return varyByPercent(value, pPlot) / t10000;
 }
 // Production a goody hut gives
 int hutProduction(const CvPlot* pPlot)
 {
-	int valueT10000 = (2 * (7 * t100 + GC.onePerOnlineSpeedTurnT10000()));
+	int valueT10000 = (2 * (7 * t10000 + GC.onePerOnlineSpeedTurnT10000()));
 	valueT10000 *= GC.adjustForSpeedT100(YIELD_PRODUCTION);
 	valueT10000 /= 100;
-	return varyByPercent(valueT10000, pPlot) / (100 * 100);
+	return varyByPercent(valueT10000, pPlot) / t10000;
 }
 // Gold a goody hut gives
 int hutGold(const CvPlot* pPlot)
 {
-	T100 valueT10000 = (2 * (60 * t100 + GC.onePerOnlineSpeedTurnT10000()));
+	T100 valueT10000 = (2 * (60 * t10000 + GC.onePerOnlineSpeedTurnT10000()));
 	valueT10000 *= GC.adjustForSpeedT100(YIELD_GOLD);
 	valueT10000 /= 100;
-	return varyByPercent(valueT10000, pPlot) / (100 * 100);
+	return varyByPercent(valueT10000, pPlot) / t10000;
 }
 // Science a goody hut gives
 int hutScience(const CvPlot* pPlot)
 {
-	T100 valueT10000 = (2 * (20 * t100 + GC.onePerOnlineSpeedTurnT10000()));
+	T100 valueT10000 = (2 * (20 * t10000 + GC.onePerOnlineSpeedTurnT10000()));
 	valueT10000 *= GC.adjustForSpeedT100(YIELD_SCIENCE);
 	valueT10000 /= 100;
-	return varyByPercent(valueT10000, pPlot) / (100 * 100);
+	return varyByPercent(valueT10000, pPlot) / t10000;
 }
 // Culture a goody hut gives
 int hutCulture(const CvPlot* pPlot)
 {
-	T100 valueT10000 = (2 * (10 * t100 + GC.onePerOnlineSpeedTurnT10000()));
+	T100 valueT10000 = (2 * (10 * t10000 + GC.onePerOnlineSpeedTurnT10000()));
 	valueT10000 *= 2;
 	valueT10000 /= 3;
 	valueT10000 *= GC.adjustForSpeedT100(YIELD_CULTURE);
 	valueT10000 /= 100;
-	return varyByPercent(valueT10000, pPlot) / (100 * 100);
+	return varyByPercent(valueT10000, pPlot) / t10000;
 }
 // Culture a goody hut gives
 int hutFaith(const CvPlot* pPlot)
 {
-	T100 valueT10000 = 2 * (15 * t100 + GC.onePerOnlineSpeedTurnT10000());
+	T100 valueT10000 = 1 * (14 * t10000 + GC.onePerOnlineSpeedTurnT10000() / 5);
 	valueT10000 *= GC.adjustForSpeedT100(YIELD_FAITH);
 	valueT10000 /= 100;
-	return varyByPercent(valueT10000, pPlot) / (100 * 100);
+	return varyByPercent(valueT10000, pPlot) / t10000;
 }
 // Map radius a goody hut gives
 int hutMapRadius(const CvPlot* pPlot)
@@ -7328,7 +7328,7 @@ int hutMapRadius(const CvPlot* pPlot)
 	int baseRadius = 9; // starts with this much radius
 	int turnsPerRadius = 12; // on average, will grant 1 more radius every 20 turns on online speed
 	int randValue = GC.getGame().getJonRandNum(turnsPerRadius + 1, "Goody Hut Map", pPlot, 35); // [1-20]
-	int bonusRadius = ((GC.onePerOnlineSpeedTurnT10000() / t100) + randValue) / turnsPerRadius;
+	int bonusRadius = ((GC.onePerOnlineSpeedTurnT10000() / t10000) + randValue) / turnsPerRadius;
 	int value = baseRadius + bonusRadius;
 	return value;
 }
