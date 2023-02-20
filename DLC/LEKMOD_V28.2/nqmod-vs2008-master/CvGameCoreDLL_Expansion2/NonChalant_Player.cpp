@@ -107,23 +107,247 @@ void CvPlayer::UpdateFreePolicies()
 	CvPlayer& player = *this;
 
 	// automatically give player finisher once they max out a branch
-	for (int i = 0; i < GC.getNumPolicyBranchInfos(); ++i)
+	//for (int i = 0; i < GC.getNumPolicyBranchInfos(); ++i)
+	//{
+	//	const PolicyBranchTypes eBranch = (PolicyBranchTypes)i;
+	//	const CvPolicyBranchEntry* pInfo = GC.getPolicyBranchInfo(eBranch);
+	//	if (pInfo != NULL)
+	//	{
+	//		const int numHave = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(eBranch);
+	//		const int numNeeded = player.GetMaxPoliciesForBranch(eBranch);
+	//		const PolicyTypes eFinisher = (PolicyTypes)pInfo->GetFreeFinishingPolicy();
+	//		const CvPolicyEntry* policyInfo = GC.getPolicyInfo(eFinisher);
+	//		const bool doesGetPolicy = numHave >= numNeeded;
+	//		if (policyInfo != NULL)
+	//			UpdateHasPolicy(policyInfo->GetType(), doesGetPolicy);
+	//	}
+	//}
+
 	{
-		const PolicyBranchTypes eBranch = (PolicyBranchTypes)i;
-		const CvPolicyBranchEntry* pInfo = GC.getPolicyBranchInfo(eBranch);
-		if (pInfo != NULL)
-		{
-			const int numHave = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(eBranch);
-			const int numNeeded = player.GetMaxPoliciesForBranch(eBranch);
-			const PolicyTypes eFinisher = (PolicyTypes)pInfo->GetFreeFinishingPolicy();
-			const CvPolicyEntry* policyInfo = GC.getPolicyInfo(eFinisher);
-			const bool doesGetPolicy = numHave >= numNeeded;
-			if (policyInfo != NULL)
-				UpdateHasPolicy(policyInfo->GetType(), doesGetPolicy);
-		}
+		int numPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(0));
+		if (numPolicies >= 1)
+			UpdateHasPolicy("POLICY_TRADITION_CLOSER_1",true);
 	}
-
-
+	{
+		int numPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(0));
+		if (numPolicies >= 2)
+			UpdateHasPolicy("POLICY_TRADITION_CLOSER_2", true);
+	}
+	{
+		int numPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(0));
+		if (numPolicies >= 3)
+			UpdateHasPolicy("POLICY_TRADITION_CLOSER_3", true);
+	}
+	{
+		int numPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(0));
+		if (numPolicies >= 4)
+			UpdateHasPolicy("POLICY_TRADITION_CLOSER_4", true);
+	}
+	{
+		int numPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(0));
+		if (numPolicies >= 5)
+			UpdateHasPolicy("POLICY_TRADITION_CLOSER_5", true);
+	}
+	{
+		int numPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(1));
+		if (numPolicies >= 1)
+			UpdateHasPolicy("POLICY_LIBERTY_CLOSER_1", true);
+	}
+	{
+		int numPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(1));
+		if (numPolicies >= 2)
+			UpdateHasPolicy("POLICY_LIBERTY_CLOSER_2", true);
+	}
+	{
+		int numPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(1));
+		if (numPolicies >= 3)
+			UpdateHasPolicy("POLICY_LIBERTY_CLOSER_3", true);
+	}
+	{
+		int numPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(1));
+		if (numPolicies >= 4)
+			UpdateHasPolicy("POLICY_LIBERTY_CLOSER_4", true);
+	}
+	{
+		int numPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(1));
+		if (numPolicies >= 5)
+			UpdateHasPolicy("POLICY_LIBERTY_CLOSER_5", true);
+	}
+	{
+		int numPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(2));
+		if (numPolicies >= 1)
+			UpdateHasPolicy("POLICY_HONOR_CLOSER_1", true);
+	}
+	{
+		int numPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(2));
+		if (numPolicies >= 2)
+			UpdateHasPolicy("POLICY_HONOR_CLOSER_2", true);
+	}
+	{
+		int numPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(2));
+		if (numPolicies >= 3)
+			UpdateHasPolicy("POLICY_HONOR_CLOSER_3", true);
+	}
+	{
+		int numPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(2));
+		if (numPolicies >= 4)
+			UpdateHasPolicy("POLICY_HONOR_CLOSER_4", true);
+	}
+	{
+		int numPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(2));
+		if (numPolicies >= 5)
+			UpdateHasPolicy("POLICY_HONOR_CLOSER_5", true);
+	}
+	{
+		int numPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(3));
+		if (numPolicies >= 1)
+			UpdateHasPolicy("POLICY_PIETY_CLOSER_1", true);
+	}
+	{
+		int numPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(3));
+		if (numPolicies >= 2)
+			UpdateHasPolicy("POLICY_PIETY_CLOSER_2", true);
+	}
+	{
+		int numPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(3));
+		if (numPolicies >= 3)
+			UpdateHasPolicy("POLICY_PIETY_CLOSER_3", true);
+	}
+	{
+		int numPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(3));
+		if (numPolicies >= 4)
+			UpdateHasPolicy("POLICY_PIETY_FINISHER", true);
+	}
+	{
+		int numPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(3));
+		if (numPolicies >= 5)
+			UpdateHasPolicy("POLICY_PIETY_CLOSER_5", true);
+	}
+	{
+		int numPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(4));
+		if (numPolicies >= 1)
+			UpdateHasPolicy("POLICY_PATRONAGE_CLOSER_1", true);
+	}
+	{
+		int numPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(4));
+		if (numPolicies >= 2)
+			UpdateHasPolicy("POLICY_PATRONAGE_CLOSER_2", true);
+	}
+	{
+		int numPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(4));
+		if (numPolicies >= 3)
+			UpdateHasPolicy("POLICY_PATRONAGE_CLOSER_3", true);
+	}
+	{
+		int numPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(4));
+		if (numPolicies >= 4)
+			UpdateHasPolicy("POLICY_PATRONAGE_CLOSER_4", true);
+	}
+	{
+		int numPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(4));
+		if (numPolicies >= 5)
+			UpdateHasPolicy("POLICY_PATRONAGE_CLOSER_5", true);
+	}
+	{
+		int numPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(5));
+		if (numPolicies >= 1)
+			UpdateHasPolicy("POLICY_AESTHETICS_CLOSER_1", true);
+	}
+	{
+		int numPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(5));
+		if (numPolicies >= 2)
+			UpdateHasPolicy("POLICY_AESTHETICS_CLOSER_2", true);
+	}
+	{
+		int numPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(5));
+		if (numPolicies >= 3)
+			UpdateHasPolicy("POLICY_AESTHETICS_CLOSER_3", true);
+	}
+	{
+		int numPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(5));
+		if (numPolicies >= 4)
+			UpdateHasPolicy("POLICY_AESTHETICS_CLOSER_4", true);
+	}
+	{
+		int numPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(5));
+		if (numPolicies >= 5)
+			UpdateHasPolicy("POLICY_AESTHETICS_CLOSER_5", true);
+	}
+	{
+		int numPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(6));
+		if (numPolicies >= 1)
+			UpdateHasPolicy("POLICY_COMMERCE_CLOSER_1", true);
+	}
+	{
+		int numPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(6));
+		if (numPolicies >= 2)
+			UpdateHasPolicy("POLICY_COMMERCE_CLOSER_2", true);
+	}
+	{
+		int numPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(6));
+		if (numPolicies >= 3)
+			UpdateHasPolicy("POLICY_COMMERCE_CLOSER_3", true);
+	}
+	{
+		int numPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(6));
+		if (numPolicies >= 4)
+			UpdateHasPolicy("POLICY_COMMERCE_CLOSER_4", true);
+	}
+	{
+		int numPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(6));
+		if (numPolicies >= 5)
+			UpdateHasPolicy("POLICY_COMMERCE_CLOSER_5", true);
+	}
+	{
+		int numPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(7));
+		if (numPolicies >= 1)
+			UpdateHasPolicy("POLICY_EXPLORATION_CLOSER_1", true);
+	}
+	{
+		int numPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(7));
+		if (numPolicies >= 2)
+			UpdateHasPolicy("POLICY_EXPLORATION_CLOSER_2", true);
+	}
+	{
+		int numPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(7));
+		if (numPolicies >= 3)
+			UpdateHasPolicy("POLICY_EXPLORATION_CLOSER_3", true);
+	}
+	{
+		int numPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(7));
+		if (numPolicies >= 4)
+			UpdateHasPolicy("POLICY_EXPLORATION_CLOSER_4", true);
+	}
+	{
+		int numPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(7));
+		if (numPolicies >= 5)
+			UpdateHasPolicy("POLICY_EXPLORATION_CLOSER_5", true);
+	}
+	{
+		int numPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(8));
+		if (numPolicies >= 1)
+			UpdateHasPolicy("POLICY_RATIONALISM_CLOSER_1", true);
+	}
+	{
+		int numPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(8));
+		if (numPolicies >= 2)
+			UpdateHasPolicy("POLICY_RATIONALISM_CLOSER_2", true);
+	}
+	{
+		int numPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(8));
+		if (numPolicies >= 3)
+			UpdateHasPolicy("POLICY_RATIONALISM_CLOSER_3", true);
+	}
+	{
+		int numPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(8));
+		if (numPolicies >= 4)
+			UpdateHasPolicy("POLICY_RATIONALISM_CLOSER_4", true);
+	}
+	{
+		int numPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(8));
+		if (numPolicies >= 5)
+			UpdateHasPolicy("POLICY_RATIONALISM_CLOSER_5", true);
+	}
 	// EXAMPLE 1
 	// If you want to possibly remove the policy if the CONDITIONAL fails
 	//{
