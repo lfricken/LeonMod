@@ -318,6 +318,32 @@ int CvPlot::getExtraYield
 				const bool isOasis = plot.HasFeature("FEATURE_OASIS");
 				if (eYieldType == YIELD_TOURISM && hasBeliefSacredWaters && (isLake || hasAnyAtoll || isOasis))
 					yieldChange += 1;
+			}			
+
+			{// BELIEF_GODDESS_HUNT - gives 1FH to Camps with Luxuries. 
+				const bool hasBeliefGoddessHunt = city.HasBelief("BELIEF_GODDESS_HUNT");
+				const bool hasCamp = plot.HasImprovement("IMPROVEMENT_CAMP");
+				if (eYieldType == YIELD_FAITH && hasBeliefGoddessHunt && hasLuxury && hasCamp)
+					yieldChange += 1;
+			}
+
+			{// BELIEF_STONE_CIRCLES - gives 1FH, +1G to Quarries with Luxuries. 
+				const bool hasBeliefStoneCircles = city.HasBelief("BELIEF_STONE_CIRCLES");
+				const bool hasQuarry = plot.HasImprovement("IMPROVEMENT_QUARRY");
+				const bool hasRockHewn = plot.HasImprovement("IMPROVEMENT_ROCK_HEWN");
+				if (eYieldType == YIELD_FAITH && hasBeliefStoneCircles && hasLuxury && (hasQuarry || hasRockHewn))
+					yieldChange += 1;
+				if (eYieldType == YIELD_GOLD && hasBeliefStoneCircles && hasLuxury && (hasQuarry || hasRockHewn))
+					yieldChange += 1;
+			}
+
+			{// BELIEF_SPIRITUALS - gives +2C +2FH to Holy Sites. +2FH to all other GP Tiles 
+				const bool hasBeliefSpirituals = city.HasBelief("BELIEF_SPIRITUALS");
+				const bool hasholysite = plot.HasImprovement("IMPROVEMENT_HOLY_SITE");				
+				if (eYieldType == YIELD_FAITH && hasBeliefSpirituals && isGreatTile)
+					yieldChange += 3;
+				if (eYieldType == YIELD_CULTURE && hasBeliefSpirituals && hasholysite)
+					yieldChange += 2;
 			}
 
 			{// Policy_Cutural Exchange - gives 1 tourism to great person tile improvements. 

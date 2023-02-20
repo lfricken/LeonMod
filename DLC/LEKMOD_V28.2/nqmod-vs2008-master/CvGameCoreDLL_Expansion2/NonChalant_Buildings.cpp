@@ -621,9 +621,9 @@ BuildingAddType CvPlayer::ShouldHaveBuilding(const CvPlayer& rPlayer, const CvCi
 		const bool isJarliq = eBuildingClass == BuildingClass("BUILDINGCLASS_COURTHOUSE");
 		if (isJarliq)
 		{
-			const bool isFrance = rPlayer.IsCiv("CIVILIZATION_FRANCE");
+			const bool isRussia = rPlayer.IsCiv("CIVILIZATION_RUSSIA");
 			const bool hasPhilosophy = rPlayer.HasTech("TECH_PHILOSOPHY");
-			if (isFrance && hasPhilosophy)
+			if (isRussia && hasPhilosophy)
 				return ADD;
 			else
 				return REMOVE;
