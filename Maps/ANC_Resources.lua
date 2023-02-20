@@ -20,43 +20,91 @@ function ANC_DoPopulateWorldWithGoodies(this)
 	local isArableLand = function(idx) return this.plotTypes[idx] == PlotTypes.PLOT_LAND or this.plotTypes[idx] == PlotTypes.PLOT_HILLS; end
 
 	-- halton for minor civs
-	local haltonPointsX = halton(2, 512, 0);
-	local haltonPointsY = halton(3, 512, 0);
-	local scaleX = function(x) return math.floor(x * 90); end
-	local scaleY = function(y) return math.floor(y * 90); end
+	local haltonPointsX = halton(2, 2048, 0);
+	local haltonPointsY = halton(3, 2048, 0);
+	local scaleX = function(x) return math.floor(x * 180); end
+	local scaleY = function(y) return math.floor(y * 180); end
 
+	-- luxuries
 	local count = 0;
 	for i=1,#haltonPointsX do
 		local xy = {scaleX(haltonPointsX[i]), scaleY(haltonPointsY[i])};
-		local plotIdx = GetI(xy[1], xy[2], this.maxX);
-		local hasFeature = this.plotFeature[plotIdx] ~= FeatureTypes.NO_FEATURE;
-		local hasAdjacentLuxes = ANC_countAdjacents(this, this.plotHasLux, xy, true) > 0;
-		local inBounds = xy[1] < this.maxX and xy[2] < this.maxY and not this.plotIsLocked[plotIdx];
-		if not hasFeature and not hasAdjacentLuxes and inBounds then
-			if isArableLand(plotIdx) then
-				local idx = 1 + (i % #this.luxPolar);
-				--print("resource" .. idx);
-				local layer = 1;
-				if Map.Rand(100,"Res layer 2?") < 50 then layer = 2; end
-				local resource = findClosestClumpedResource(this, layer, xy); -- this.luxPolar[idx];
-				this.plotResource[plotIdx] = resource;
-				--print(this.plotResource[plotIdx]);
-				this.plotResourceNum[plotIdx] = 1;
-			elseif isArableWater(plotIdx) then
-				if (Map.Rand(1000,"Skip Water Lux") < 1000) then
-					local idx = 1 + ((i % 17) % #this.luxWater);
-					--print("resource2" .. idx);
-					this.plotResource[plotIdx] = this.luxWater[idx];
+		local inBounds = xy[1] < this.maxX and xy[2] < this.maxY;
+		if inBounds then
+			local plotIdx = GetI(xy[1], xy[2], this.maxX);
+			local hasFeature = this.plotFeature[plotIdx] ~= FeatureTypes.NO_FEATURE;
+			local hasRes = this.plotResourceNum[plotIdx] > 0;
+			local hasAdjacentLuxes = ANC_countAdjacents(this, this.plotHasLux, xy, true) > 0;
+			local isNotLocked = not this.plotIsLocked[plotIdx];
+			if isNotLocked and not hasRes and not hasFeature and not hasAdjacentLuxes then
+				if isArableLand(plotIdx) then
+					local idx = 1 + (i % #this.luxPolar);
+					--print("resource" .. idx);
+					local layer = 1;
+					if Map.Rand(100,"Res layer 2?") < 50 then layer = 2; end
+					local resource = findClosestClumpedResource(this, layer, xy); -- this.luxPolar[idx];
+					this.plotResource[plotIdx] = resource;
 					--print(this.plotResource[plotIdx]);
 					this.plotResourceNum[plotIdx] = 1;
+					count = count + 1;
+					this.plotHasLux[plotIdx] = true;
+
+				elseif isArableWater(plotIdx) then
+					if (Map.Rand(1000,"Skip Water Lux") < 1000) then
+						local idx = 1 + Map.Rand(#this.luxWater,"Rand Water Lux"); -- 1 + ((i % 17) % #this.luxWater);
+						--print("resource2" .. idx);
+						this.plotResource[plotIdx] = this.luxWater[idx];
+						--print(this.plotResource[plotIdx]);
+						this.plotResourceNum[plotIdx] = 1;
+						count = count + 1;
+						this.plotHasLux[plotIdx] = true;
+					end
 				end
 			end
-			count = count + 1;
-			this.plotHasLux[plotIdx] = true;
 		end
 	end
-
 	print("Total Luxes: " .. count);
+
+
+	local haltonPointsX = halton(2, 2048, 0);
+	local haltonPointsY = halton(3, 2048, 0);
+	local scaleX = function(x) return math.floor(x * 140); end
+	local scaleY = function(y) return math.floor(y * 140); end
+	-- bonuses
+	local count = 0;
+	for i=1,#haltonPointsX do
+		local xy = {scaleY(haltonPointsY[i]), scaleX(haltonPointsX[i])};
+		local inBounds = xy[1] < this.maxX and xy[2] < this.maxY;
+		if inBounds then
+			local plotIdx = GetI(xy[1], xy[2], this.maxX);
+			local hasFeature = this.plotFeature[plotIdx] ~= FeatureTypes.NO_FEATURE;
+			local hasRes = this.plotResourceNum[plotIdx] > 0;
+			--local hasAdjacentLuxes = ANC_countAdjacents(this, this.plotHasLux, xy, true) > 0;
+			local isNotLocked = not this.plotIsLocked[plotIdx];
+			if isNotLocked and not hasRes and not hasFeature then
+				local xyScaled = GetXyScaled(xy, this.maxX, this.maxY);
+				if isArableLand(plotIdx) then
+					local bonuses = this.bonusTropical;
+					if isLat(xyScaled[2], 0.25) then bonuses = this.bonusPolar; end
+					local idx = 1 + Map.Rand(#bonuses,"Rand Land Bonus");
+					this.plotResource[plotIdx] = bonuses[idx];
+					this.plotResourceNum[plotIdx] = 1;
+					count = count + 1;
+					--this.plotHasBonus[plotIdx] = true;
+
+				--[[elseif isArableWater(plotIdx) then
+					if (Map.Rand(1000,"Skip Water Lux") < 1000) then
+						local idx = 1 + Map.Rand(#this.luxWater,"Rand Water Lux"); -- 1 + ((i % 17) % #this.luxWater);
+						--print("resource2" .. idx);
+						this.plotResource[plotIdx] = this.luxWater[idx];
+						--print(this.plotResource[plotIdx]);
+						this.plotResourceNum[plotIdx] = 1;
+					end]]
+				end
+			end
+		end
+	end
+	print("Total Bonus: " .. count);
 
 end
 ------------------------------------------------------------------------------
@@ -86,7 +134,7 @@ function createResourceClumps(this)
 	-- to avoid a situation where the edge of the map is missing a clump 1 would probably be enough, but why not 2?
 	local numClumpsSafety = 2;
 	-- resIdx ensures that we don't accidentally use the same resource right next to ourselves
-	local resIdx = {Map.Rand(30,"Rand Lux Start"), Map.Rand(40,"Rand Lux Start")};
+	local resIdx = {Map.Rand(30,"Rand Lux Start Tropical"), Map.Rand(40,"Rand Lux Start Polar")};
 	for layer=1,2 do
 		for x=1,numClumpsX+numClumpsSafety do
 			local isEvenX = x % 2 == 0; -- every other column should be shifted up

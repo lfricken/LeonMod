@@ -151,8 +151,10 @@ function ANC_SafeInitPlots(this)
 	this.plotResource = table.fill(-1, maxX * maxY);
 	this.plotResourceNum = table.fill(0, maxX * maxY);
 	this.plotIsLocked = table.fill(false, maxX * maxY);
-	this.plotHasLux = table.fill(false, maxX * maxY);
 	this.plotIsWithinSpawnDist = table.fill(false, maxX * maxY);
+
+	this.plotHasLux = table.fill(false, maxX * maxY);
+	--this.plotHasBonus = table.fill(false, maxX * maxY);
 
 	ANC_UpdatePlots(this);
 	--[[for i, plot in Plots() do
