@@ -1226,6 +1226,8 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 	m_competitionT100.clear();
 	m_competitionT100.resize(NUM_HAMMERCOMPETITION_TYPES, 0);
 
+	ResetHasBuildingClassCache();
+
 	m_aOptions.clear();
 
 	m_strReligionKey = "";
@@ -10391,15 +10393,34 @@ int CvPlayer::greatAdmiralThreshold() const
 
 	return std::max(1, iThreshold);
 }
+const char NoCacheVal = 37;
+void CvPlayer::ResetHasBuildingClassCache() const
+{
+	m_cache_hasBuildingClass.clear();
+	m_cache_hasBuildingClass.resize(GC.getNumBuildingClassInfos());
+	for (int i = 0; i < m_cache_hasBuildingClass.size(); ++i)
+		m_cache_hasBuildingClass[i] = NoCacheVal;
+}
 bool CvPlayer::HasWonder(BuildingClassTypes eBuildingClass) const
 {
-	int iLoop = 0;
-	for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	bool result;
+	if (m_cache_hasBuildingClass[eBuildingClass] != NoCacheVal)
+		result = (bool)m_cache_hasBuildingClass[eBuildingClass];
+	else
 	{
-		if (pLoopCity->HasBuildingClass(eBuildingClass))
-			return true;
+		result = false;
+		int iLoop = 0;
+		for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		{
+			if (pLoopCity->HasBuildingClass(eBuildingClass))
+			{
+				result = true;
+				break;
+			}
+		}
+		m_cache_hasBuildingClass[eBuildingClass] = (char)result;
 	}
-	return false;
+	return result;
 }
 int CvPlayer::getSpecialistYieldTotal(const CvCity* pCity, const SpecialistTypes eSpecialist, const YieldTypes eYield, const bool isPercentMod) const
 {
@@ -14240,15 +14261,9 @@ int CvPlayer::GetNumPoliciesTotal() const
 }
 
 
-bool CvPlayer::HasPolicy(const string name) const
+bool CvPlayer::HasPolicy(const PolicyTypes ePolicy) const
 {
-	const CvPolicyXMLEntries* pAllPolicies = GC.GetGamePolicies();
-	if (pAllPolicies != NULL)
-	{
-		const PolicyTypes ePolicy = pAllPolicies->Policy(name);
-		return GetPlayerPolicies()->HasPolicy(ePolicy);
-	}
-	return false;
+	return GetPlayerPolicies()->HasPolicy(ePolicy);
 }
 T100 CvPlayer::GetPolicyRebatePercentT100(const PolicyTypes ePolicy, const bool isBranch) const
 {
@@ -14265,50 +14280,13 @@ int CvPlayer::GetPolicyRebate(const PolicyTypes ePolicy, const bool isBranch) co
 
 	return rebateCultureT100 / 100;
 }
-bool CvPlayer::HasTech(const string name) const
+bool CvPlayer::HasTech(const TechTypes name) const
 {
-	// do sanity check to make sure this thing exists
-	bool found = false;
-	for (int i = 0; i < GC.getNumTechInfos(); ++i)
-	{
-		const CvTechEntry* pInfo = GC.getTechInfo((TechTypes)i);
-		if (pInfo != NULL && pInfo->GetType() == name)
-		{
-			found = true;
-			break;
-		}
-	}
-	if (!found)
-	{
-		stringstream ss;
-		ss << name << " was not a valid tech to call HasTech with.";
-		throw new std::exception(ss.str().c_str());
-	}
-
-	const TechTypes e = GC.GetGameTechs()->Tech(name);
-	return GET_TEAM(getTeam()).GetTeamTechs()->HasTech(e);
+	return GET_TEAM(getTeam()).GetTeamTechs()->HasTech(name);
 }
-bool CvPlayer::IsCiv(const string name) const
+bool CvPlayer::IsCiv(const CivilizationTypes id) const
 {
-	// do sanity check to make sure this thing exists
-	bool found = false;
-	for (int i = 0; i < GC.getNumCivilizationInfos(); ++i)
-	{
-		const CvCivilizationInfo* pInfo = GC.getCivilizationInfo((CivilizationTypes)i);
-		if (pInfo != NULL && pInfo->GetType() == name)
-		{
-			found = true;
-			break;
-		}
-	}
-	if (!found)
-	{
-		stringstream ss;
-		ss << name << " was not a valid tech to call IsCiv with.";
-		throw new std::exception(ss.str().c_str());
-	}
-
-	return this->getCivilizationInfo().GetType() == name;
+	return this->getCivilizationInfo().GetID() == id;
 }
 
 //	--------------------------------------------------------------------------------

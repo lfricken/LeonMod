@@ -92,6 +92,7 @@ public:
 	bool IsCivilization(CivilizationTypes iCivilizationType) const;
 	bool HasAnyNaturalWonder() const;
 	bool HasNaturalWonder(FeatureTypes iFeatureType) const;
+	// RESOURCE_DEER, RESOURCE_IRON, etc.
 	bool HasResource(ResourceTypes iResourceType) const;
 
 
@@ -104,18 +105,15 @@ public:
 	bool HasRoute(RouteTypes iRouteType) const;
 	// type TERRAIN_ and press Ctrl+Space for options
 	bool HasTerrain(TerrainTypes iTerrainType) const;
-	// "RESOURCE_DEER", "RESOURCE_IRON", etc.
-	bool HasResource(const string name) const;
 	// "RESOURCECLASS_BONUS": Wheat, Cow, Sheep, Deer, Banana, Fish, Stone, Bison, Hardwood, Maize, 
 	// "RESOURCECLASS_LUXURY": Obvious
 	// "RESOURCECLASS_RUSH": Iron, Horses, Artifact, Hidden Artifact
 	// "RESOURCECLASS_MODERN": Coal, Oil, Aluminum, Uranium, Slaves
 	bool HasResourceClass(const string name) const;
-	// "IMPROVEMENT_MINE", "IMPROVEMENT_CITY_RUINS", etc.
-	bool HasImprovement(const string name) const;
 
 	bool IsFeatureLake() const;
 	bool IsFeatureRiver() const;
+	// IMPROVEMENT_MINE, IMPROVEMENT_CITY_RUINS, etc.
 	bool HasImprovement(ImprovementTypes iImprovementType) const;
 	bool HasPlotType(PlotTypes iPlotType) const;
 	bool IsAdjacentToFeature(FeatureTypes iFeatureType) const;
