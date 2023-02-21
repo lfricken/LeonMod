@@ -175,11 +175,19 @@ int CvPlayer::GetExtraYieldForBuilding
 				yieldChange += numAestheticsClosers;
 		}
 
-		{// POLICY_AESTHETICS_CLOSER_3 - +1 Golden Age Point per Policy Capital.
+		{// POLICY_AESTHETICS_CLOSER_3 - +2 Golden Age Point World and National Wonder Capital. 
 			const bool hasAestheticsCloser = player.HasPolicy("POLICY_AESTHETICS_CLOSER_3");
 			const bool isCityCenterBuilding = eBuildingClass == BuildingClass("BUILDINGCLASS_CITY_CENTER");
-			int numPolicies = player.GetNumPoliciesTotal();
+			int numWonders = (player.GetNumWonders() + player.getNumNationalWonders());
 			if (eYieldType == YIELD_GOLDEN && !isPercentMod && isCityCenterBuilding && hasAestheticsCloser && isCapital)
+				yieldChange += (numWonders * 2);
+		}
+
+		{// POLICY_LEGALISM - +2 Golden Age Point per per Policy Capital.
+			const bool hasLegalism = player.HasPolicy("POLICY_LEGALISM");
+			const bool isCityCenterBuilding = eBuildingClass == BuildingClass("BUILDINGCLASS_CITY_CENTER");
+			int numPolicies = player.GetNumPoliciesTotal();
+			if (eYieldType == YIELD_GOLDEN && !isPercentMod && isCityCenterBuilding && hasLegalism && isCapital)
 				yieldChange += (numPolicies * 2);
 		}
 
@@ -767,6 +775,18 @@ BuildingAddType CvPlayer::ShouldHaveBuilding(const CvPlayer& rPlayer, const CvCi
 		{
 			const bool hasAesthetics5 = rPlayer.HasPolicy("POLICY_AESTHETICS_CLOSER_5");
 			if (hasAesthetics5 && isYourCapital)
+				return ADD;
+			else
+				return REMOVE;
+		}
+	}
+
+	{// POLICY_LEGALISM free BUILDINGCLASS_POLICY_LEGALISM_GP_GENERATION in Capital
+		const bool isLegalismBuilding = eBuildingClass == BuildingClass("BUILDINGCLASS_POLICY_LEGALISM_GP_GENERATION");
+		if (isLegalismBuilding)
+		{
+			const bool hasLegalism = rPlayer.HasPolicy("POLICY_LEGALISM");
+			if (hasLegalism && isYourCapital)
 				return ADD;
 			else
 				return REMOVE;

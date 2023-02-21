@@ -859,6 +859,12 @@ int CvPlot::getExtraYield
 					yieldChange += 2;				
 			}
 
+			{// POLICY_TRADITION_CLOSER_5 - +2 FD to GP Tile Improvements
+				const bool hasTraditionCloser5 = player.HasPolicy("POLICY_TRADITION_CLOSER_5");
+				if (eYieldType == YIELD_FOOD && hasTraditionCloser5 && isGreatTile)
+					yieldChange += 2;
+			}
+
 			{// POLICY_COLLECTIVE_RULE - +3 C to Natural Wonders
 				const bool hasCollectiveRule = player.HasPolicy("POLICY_COLLECTIVE_RULE");
 				const bool isNaturalWonder = plot.HasAnyNaturalWonder();
@@ -866,20 +872,16 @@ int CvPlot::getExtraYield
 					yieldChange += 3;
 			}			
 
-			{// POLICY_MILITARY_TRADITION - +1 PD to Horse, Iron, Stone, Hardwood
-				const bool hasMilitaryTradition = player.HasPolicy("POLICY_MILITARY_TRADITION");
-				const bool isHorse = plot.HasResource("RESOURCE_HORSE");
+			{// POLICY_MILITARY_TRADITION - +1 PD to improved Iron, Stone, Hardwood
+				const bool hasMilitaryTradition = player.HasPolicy("POLICY_MILITARY_TRADITION");				
 				const bool isIron = plot.HasResource("RESOURCE_IRON");
 				const bool isStone = plot.HasResource("RESOURCE_STONE");
 				const bool isHardood = plot.HasResource("RESOURCE_HARDWOOD");
-				if (eYieldType == YIELD_PRODUCTION && hasMilitaryTradition && isHorse)
-					yieldChange += 1;
-				if (eYieldType == YIELD_PRODUCTION && hasMilitaryTradition && isIron)
-					yieldChange += 1;
-				if (eYieldType == YIELD_PRODUCTION && hasMilitaryTradition && isStone)
-					yieldChange += 1;
-				if (eYieldType == YIELD_PRODUCTION && hasMilitaryTradition && isHardood)
-					yieldChange += 1;
+				const bool isMine = plot.HasImprovement("IMPROVEMENT_MINE");
+				const bool isQuarry = plot.HasImprovement("IMPROVEMENT_QUARRY");
+				const bool isLumbermill = plot.HasImprovement("IMPROVEMENT_LUMBERMILL");
+				if (eYieldType == YIELD_PRODUCTION && hasMilitaryTradition && (isIron || isStone || isHardood) && (isMine || isQuarry || isLumbermill))
+					yieldChange += 1;				
 			}
 
 			{// POLICY_DISCIPLINE - +3 PD +3C to Citadels
@@ -891,11 +893,29 @@ int CvPlot::getExtraYield
 					yieldChange += 3;
 			}
 
-			{// POLICY_MANDATE_OF_HEAVEN - +1C, +1Fh to Luxuries
-				const bool hasMandateOfHeaven = player.HasPolicy("POLICY_MANDATE_OF_HEAVEN");
-				if (eYieldType == YIELD_CULTURE && hasMandateOfHeaven && hasLuxury)
-					yieldChange += 1;
+			{// POLICY_MANDATE_OF_HEAVEN - +1FH to Luxuries
+				const bool hasMandateOfHeaven = player.HasPolicy("POLICY_MANDATE_OF_HEAVEN");				
 				if (eYieldType == YIELD_FAITH && hasMandateOfHeaven && hasLuxury)
+					yieldChange += 1;
+			}
+
+			{// POLICY_LANDED_ELITE - +1FD to improved Wheat, Maize, Bananas
+				const bool hasLandedElite = player.HasPolicy("POLICY_LANDED_ELITE");
+				const bool isFarm = plot.HasImprovement("IMPROVEMENT_FARM");
+				const bool isPlantation = plot.HasImprovement("IMPROVEMENT_PLANTATION");
+				const bool isWheat = plot.HasResource("RESOURCE_WHEAT");
+				const bool isMaize = plot.HasResource("RESOURCE_MAIZE");
+				const bool isBanana = plot.HasResource("RESOURCE_BANANA");
+				if (eYieldType == YIELD_FOOD && hasLandedElite && (isFarm || isPlantation) && (isWheat || isMaize || isBanana))
+					yieldChange += 1;				
+			}
+
+			{// POLICY_OLIGARCHY - +1FD to improved Deer, Bison
+				const bool hasOligachy = player.HasPolicy("POLICY_OLIGARCHY");
+				const bool isCamp = plot.HasImprovement("IMPROVEMENT_CAMP");				
+				const bool isDeer = plot.HasResource("RESOURCE_DEER");
+				const bool isBison = plot.HasResource("RESOURCE_BISON");				
+				if (eYieldType == YIELD_FOOD && hasOligachy && isCamp && (isDeer || isBison))
 					yieldChange += 1;
 			}
 

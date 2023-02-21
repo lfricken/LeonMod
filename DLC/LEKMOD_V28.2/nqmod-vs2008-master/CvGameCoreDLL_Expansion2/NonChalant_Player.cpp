@@ -87,8 +87,31 @@ string CvPlayer::GetCityCapCurrent_WithSourcesTooltip(int* sum) const
 
 int CvPlayer::GetExtraBuildingsForClass(BuildingClassTypes eClass) const
 {
+	const CvPlayer& player = *this; 
 	int total = 0;
-		
+	
+	// Landed Elite +1 Granary Supply
+	const bool hasLandedElite = player.HasPolicy("POLICY_LANDED_ELITE");	
+	if (hasLandedElite && eClass == BuildingClassTypes(32))
+		total += 1;
+
+	// Oligarchy +1 Hunters Haven Supply
+	const bool hasOligachy = player.HasPolicy("POLICY_OLIGARCHY");
+	if (hasOligachy && eClass == BuildingClassTypes(254))
+		total += 1;
+
+	// Representation +1 Stable Supply
+	const bool hasRepresentation = player.HasPolicy("POLICY_REPRESENTATION");
+	if (hasRepresentation && eClass == BuildingClassTypes(2))
+		total += 1;
+
+	// Military Tradition +1 Stoneworks, Forge Supply
+	const bool hasMilitaryTradidion = player.HasPolicy("POLICY_MILITARY_TRADITION");
+	if (hasMilitaryTradidion && eClass == BuildingClassTypes(84))
+		total += 1;
+	if (hasMilitaryTradidion && eClass == BuildingClassTypes(5))
+		total += 1;
+
 	return total;
 }
 
