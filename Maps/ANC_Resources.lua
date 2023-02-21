@@ -25,6 +25,23 @@ function ANC_DoPopulateWorldWithGoodies(this)
 	local scaleX = function(x) return math.floor(x * 180); end
 	local scaleY = function(y) return math.floor(y * 180); end
 
+	local applyData = function(plotIdx, val)
+		if val[2] ~= nil then this.plotTypes[plotIdx] = val[2]; end
+		if val[3] ~= nil then this.plotTerrain[plotIdx] = val[3]; end
+		if val[4] ~= nil then this.plotFeature[plotIdx] = val[4]; end
+
+		if val[1] ~= nil then
+			this.plotResource[plotIdx] = val[1];
+			local calcRes = val[5];
+			if calcRes ~= nil then
+				this.plotResourceNum[plotIdx] = calcRes();
+			else
+				this.plotResourceNum[plotIdx] = 1;
+			end
+		end
+		
+	end
+
 	-- luxuries
 	local count = 0;
 	for i=1,#haltonPointsX do
@@ -42,10 +59,8 @@ function ANC_DoPopulateWorldWithGoodies(this)
 					--print("resource" .. idx);
 					local layer = 1;
 					if Map.Rand(100,"Res layer 2?") < 50 then layer = 2; end
-					local resource = findClosestClumpedResource(this, layer, xy); -- this.luxPolar[idx];
-					this.plotResource[plotIdx] = resource;
-					--print(this.plotResource[plotIdx]);
-					this.plotResourceNum[plotIdx] = 1;
+					local resourceInfo = findClosestClumpedResource(this, layer, xy); -- this.luxPolar[idx];
+					applyData(plotIdx, resourceInfo);
 					count = count + 1;
 					this.plotHasLux[plotIdx] = true;
 
@@ -87,19 +102,20 @@ function ANC_DoPopulateWorldWithGoodies(this)
 					local bonuses = this.bonusTropical;
 					if isLat(xyScaled[2], 0.25) then bonuses = this.bonusPolar; end
 					local idx = 1 + Map.Rand(#bonuses,"Rand Land Bonus");
-					this.plotResource[plotIdx] = bonuses[idx];
-					this.plotResourceNum[plotIdx] = 1;
+					local resourceInfo = bonuses[idx];
+					applyData(plotIdx, resourceInfo);
 					count = count + 1;
 					--this.plotHasBonus[plotIdx] = true;
 
-				--[[elseif isArableWater(plotIdx) then
+				elseif isArableWater(plotIdx) then
 					if (Map.Rand(1000,"Skip Water Lux") < 1000) then
-						local idx = 1 + Map.Rand(#this.luxWater,"Rand Water Lux"); -- 1 + ((i % 17) % #this.luxWater);
-						--print("resource2" .. idx);
-						this.plotResource[plotIdx] = this.luxWater[idx];
-						--print(this.plotResource[plotIdx]);
+						print("water bonus");
+						local idx = 1 + Map.Rand(#this.bonusWater,"Rand Water Bonus");
+						local resourceInfo = this.bonusWater[idx];
+						applyData(plotIdx, resourceInfo);
 						this.plotResourceNum[plotIdx] = 1;
-					end]]
+						count = count + 1;
+					end
 				end
 			end
 		end
@@ -243,6 +259,15 @@ function recordResourceInfo(this)
 
 	this.luxWater = {};
 
+
+
+	table.insert(this.bonusWater, {-1, nil, nil, 17});
+	table.insert(this.bonusWater, {-1, nil, nil, 26});
+	table.insert(this.bonusWater, {-1, nil, nil, 27});
+	table.insert(this.bonusWater, {-1, nil, nil, 28});
+	table.insert(this.bonusWater, {-1, nil, nil, 29});
+
+
 	for resource_data in GameInfo.Resources() do
 
 		local rid = resource_data.ID;
@@ -253,95 +278,60 @@ function recordResourceInfo(this)
 		-- Set up Strategic IDs
 		if rName == "RESOURCE_IRON" then
 			this.iron_ID = rid;
-			table.insert(this.strats, rid);
+			table.insert(this.strats, {rid, PlotTypes.PLOT_HILLS, nil, nil});
 		elseif rName == "RESOURCE_HORSE" then
 			this.horse_ID = rid;
-			table.insert(this.strats, rid);
+			table.insert(this.strats, {rid, PlotTypes.PLOT_LAND, nil, FeatureTypes.NO_FEATURE});
 
 		elseif rName == "RESOURCE_COAL" then
 			this.coal_ID = rid;
-			table.insert(this.strats, rid);
+			table.insert(this.strats, {rid, PlotTypes.PLOT_HILLS, nil, nil});
 		elseif rName == "RESOURCE_OIL" then
 			this.oil_ID = rid;
-			table.insert(this.strats, rid);
+			table.insert(this.strats, {rid, PlotTypes.PLOT_LAND, nil, nil});
 
 		elseif rName == "RESOURCE_ALUMINUM" then
 			this.aluminum_ID = rid;
-			table.insert(this.strats, rid);
+			table.insert(this.strats, {rid, PlotTypes.PLOT_HILLS, nil, nil});
 		elseif rName == "RESOURCE_URANIUM" then
 			this.uranium_ID = rid;
-			table.insert(this.strats, rid);
+			table.insert(this.strats, {rid, PlotTypes.PLOT_HILLS, nil, nil});
 
 
 		-- Set up Bonus IDs
 		elseif rName == "RESOURCE_STONE" then
 			this.stone_ID = rid;
-			table.insert(this.bonusPolar, rid);
+			table.insert(this.bonusPolar, {rid, PlotTypes.PLOT_LAND, nil, FeatureTypes.NO_FEATURE});
 		elseif rName == "RESOURCE_HARDWOOD" then	-- MOD.HungryForFood: New
 			this.hardwood_ID = rid;
-			table.insert(this.bonusPolar, rid);
+			table.insert(this.bonusPolar, {rid, nil, nil, FeatureTypes.FEATURE_FOREST});
 		elseif rName == "RESOURCE_DEER" then
 			this.deer_ID = rid;
-			table.insert(this.bonusPolar, rid);
+			table.insert(this.bonusPolar, {rid, nil, nil, FeatureTypes.FEATURE_FOREST});
 		elseif rName == "RESOURCE_BISON" then
 			this.bison_ID = rid;
-			table.insert(this.bonusPolar, rid);
+			table.insert(this.bonusPolar, {rid, PlotTypes.PLOT_LAND, nil, FeatureTypes.NO_FEATURE});
 
 		elseif rName == "RESOURCE_FISH" then
 			this.fish_ID = rid;
-			table.insert(this.bonusWater, rid);
+			table.insert(this.bonusWater, {rid, nil, nil, FeatureTypes.NO_FEATURE});
 
 		elseif rName == "RESOURCE_SHEEP" then
 			this.sheep_ID = rid;
-			table.insert(this.bonusTropical, rid);
+			table.insert(this.bonusTropical, {rid, PlotTypes.PLOT_HILLS, TerrainTypes.TERRAIN_GRASS, FeatureTypes.NO_FEATURE});
 		elseif rName == "RESOURCE_WHEAT" then
 			this.wheat_ID = rid;
-			table.insert(this.bonusTropical, rid);
+			table.insert(this.bonusTropical, {rid, PlotTypes.PLOT_LAND, TerrainTypes.TERRAIN_PLAINS, FeatureTypes.NO_FEATURE});
 		elseif rName == "RESOURCE_COW" then -- cattle
 			this.cow_ID = rid;
-			table.insert(this.bonusTropical, rid);
+			table.insert(this.bonusTropical, {rid, PlotTypes.PLOT_LAND, TerrainTypes.TERRAIN_PLAINS, FeatureTypes.NO_FEATURE});
 		elseif rName == "RESOURCE_MAIZE" then	-- MOD.HungryForFood: New
 			this.maize_ID = rid;
-			table.insert(this.bonusTropical, rid);
+			table.insert(this.bonusTropical, {rid, PlotTypes.PLOT_LAND, TerrainTypes.TERRAIN_PLAINS, FeatureTypes.NO_FEATURE});
 		elseif rName == "RESOURCE_BANANA" then
 			this.banana_ID = rid;
-			table.insert(this.bonusTropical, rid);
+			table.insert(this.bonusTropical, {rid, nil, TerrainTypes.TERRAIN_PLAINS, FeatureTypes.FEATURE_JUNGLE});
 
-
-		-- Set up Luxury IDs
-		elseif rName == "RESOURCE_FUR" then
-			this.fur_ID = rid;
-			table.insert(this.luxPolar, rid);
-		elseif rName == "RESOURCE_LAPIS" then	-- MOD.Barathor: New
-			this.lapis_ID = rid;
-			table.insert(this.luxPolar, rid);
-		elseif rName == "RESOURCE_GOLD" then
-			this.gold_ID = rid;
-			table.insert(this.luxPolar, rid);
-		elseif rName == "RESOURCE_SILVER" then
-			this.silver_ID = rid;
-			table.insert(this.luxPolar, rid);
-		elseif rName == "RESOURCE_GEMS" then
-			this.gems_ID = rid;
-			table.insert(this.luxPolar, rid);
-		elseif rName == "RESOURCE_AMBER" then	-- MOD.Barathor: New
-			this.amber_ID = rid;
-			table.insert(this.luxPolar, rid);
-		elseif rName == "RESOURCE_JADE" then		-- MOD.Barathor: New
-			this.jade_ID = rid;
-			table.insert(this.luxPolar, rid);
-		elseif rName == "RESOURCE_COPPER" then
-			this.copper_ID = rid;
-			table.insert(this.luxPolar, rid);
-		elseif rName == "RESOURCE_SALT" then
-			this.salt_ID = rid;
-			table.insert(this.luxPolar, rid);
-		elseif rName == "RESOURCE_MARBLE" then
-			this.marble_ID = rid;
-			table.insert(this.luxPolar, rid);
-		elseif rName == "RESOURCE_OBSIDIAN" then	-- MOD.HungryForFood: New
-			this.obsidian_ID = rid;
-			table.insert(this.luxPolar, rid);
 
 
 		elseif rName == "RESOURCE_WHALE" then
@@ -350,73 +340,108 @@ function recordResourceInfo(this)
 		elseif rName == "RESOURCE_CRAB" then
 			this.crab_ID = rid;
 			table.insert(this.luxWater, rid);
-		elseif rName == "RESOURCE_CORAL" then	-- MOD.Barathor: New
+		elseif rName == "RESOURCE_CORAL" then
 			this.coral_ID = rid;
 			table.insert(this.luxWater, rid);
 		elseif rName == "RESOURCE_PEARLS" then
 			this.pearls_ID = rid;
 			table.insert(this.luxWater, rid);
 
+		-- Set up Luxury IDs
+		elseif rName == "RESOURCE_FUR" then
+			this.fur_ID = rid;
+			table.insert(this.luxPolar, {rid, nil, nil, FeatureTypes.FEATURE_FOREST});
+		elseif rName == "RESOURCE_LAPIS" then	-- MOD.Barathor: New
+			this.lapis_ID = rid;
+			table.insert(this.luxPolar, {rid, PlotTypes.PLOT_HILLS, nil, nil});
+		elseif rName == "RESOURCE_GOLD" then
+			this.gold_ID = rid;
+			table.insert(this.luxPolar, {rid, PlotTypes.PLOT_HILLS, nil, nil});
+		elseif rName == "RESOURCE_SILVER" then
+			this.silver_ID = rid;
+			table.insert(this.luxPolar, {rid, PlotTypes.PLOT_HILLS, nil, nil});
+		elseif rName == "RESOURCE_GEMS" then
+			this.gems_ID = rid;
+			table.insert(this.luxPolar, {rid, PlotTypes.PLOT_HILLS, nil, nil});
+		elseif rName == "RESOURCE_AMBER" then	-- MOD.Barathor: New
+			this.amber_ID = rid;
+			table.insert(this.luxPolar, {rid, PlotTypes.PLOT_HILLS, nil, FeatureTypes.FEATURE_FOREST});
+		elseif rName == "RESOURCE_JADE" then		-- MOD.Barathor: New
+			this.jade_ID = rid;
+			table.insert(this.luxPolar, {rid, PlotTypes.PLOT_HILLS, nil, nil});
+		elseif rName == "RESOURCE_COPPER" then
+			this.copper_ID = rid;
+			table.insert(this.luxPolar, {rid, PlotTypes.PLOT_HILLS, nil, nil});
+		elseif rName == "RESOURCE_SALT" then
+			this.salt_ID = rid;
+			table.insert(this.luxPolar, {rid, PlotTypes.PLOT_HILLS, nil, nil});
+		elseif rName == "RESOURCE_MARBLE" then
+			this.marble_ID = rid;
+			table.insert(this.luxPolar, {rid, PlotTypes.PLOT_LAND, nil, FeatureTypes.NO_FEATURE});
+		elseif rName == "RESOURCE_OBSIDIAN" then	-- MOD.HungryForFood: New
+			this.obsidian_ID = rid;
+			table.insert(this.luxPolar, {rid, PlotTypes.PLOT_LAND, nil, FeatureTypes.NO_FEATURE});
+
 
 		elseif rName == "RESOURCE_IVORY" then
 			this.ivory_ID = rid;
-			table.insert(this.luxTropical, rid);
+			table.insert(this.luxTropical, {rid, PlotTypes.PLOT_LAND, TerrainTypes.TERRAIN_PLAINS, FeatureTypes.NO_FEATURE});
 		elseif rName == "RESOURCE_SILK" then
 			this.silk_ID = rid;
-			table.insert(this.luxTropical, rid);
+			table.insert(this.luxTropical, {rid, PlotTypes.PLOT_LAND, TerrainTypes.TERRAIN_PLAINS, FeatureTypes.NO_FEATURE});
 		elseif rName == "RESOURCE_DYE" then
 			this.dye_ID = rid;
-			table.insert(this.luxTropical, rid);
+			table.insert(this.luxTropical, {rid, nil, nil, nil});
 		elseif rName == "RESOURCE_SPICES" then
 			this.spices_ID = rid;
-			table.insert(this.luxTropical, rid);
+			table.insert(this.luxTropical, {rid, nil, nil, nil});
 		elseif rName == "RESOURCE_SUGAR" then
 			this.sugar_ID = rid;
-			table.insert(this.luxTropical, rid);
+			table.insert(this.luxTropical, {rid, PlotTypes.PLOT_LAND, nil, nil});
 		elseif rName == "RESOURCE_COTTON" then
 			this.cotton_ID = rid;
-			table.insert(this.luxTropical, rid);
+			table.insert(this.luxTropical, {rid, PlotTypes.PLOT_LAND, nil, nil});
 		elseif rName == "RESOURCE_WINE" then
 			this.wine_ID = rid;
-			table.insert(this.luxTropical, rid);
+			table.insert(this.luxTropical, {rid, PlotTypes.PLOT_LAND, nil, nil});
 		elseif rName == "RESOURCE_INCENSE" then
 			this.incense_ID = rid;
-			table.insert(this.luxTropical, rid);
+			table.insert(this.luxTropical, {rid, PlotTypes.PLOT_LAND, nil, FeatureTypes.NO_FEATURE});
 		elseif rName == "RESOURCE_CITRUS" then
 			this.citrus_ID = rid;
-			table.insert(this.luxTropical, rid);
+			table.insert(this.luxTropical, {rid, nil, nil, FeatureTypes.FEATURE_JUNGLE});
 		elseif rName == "RESOURCE_TRUFFLES" then
 			this.truffles_ID = rid;
-			table.insert(this.luxTropical, rid);
+			table.insert(this.luxTropical, {rid, nil, TerrainTypes.TERRAIN_PLAINS, nil});
 		elseif rName == "RESOURCE_COCOA" then
 			this.cocoa_ID = rid;
-			table.insert(this.luxTropical, rid);
+			table.insert(this.luxTropical, {rid, nil, nil, FeatureTypes.FEATURE_JUNGLE});
 		elseif rName == "RESOURCE_COFFEE" then	-- MOD.Barathor: New
 			this.coffee_ID = rid;
-			table.insert(this.luxTropical, rid);
+			table.insert(this.luxTropical, {rid, nil, nil, FeatureTypes.FEATURE_JUNGLE});
 		elseif rName == "RESOURCE_TEA" then		-- MOD.Barathor: New
 			this.tea_ID = rid;
-			table.insert(this.luxTropical, rid);
+			table.insert(this.luxTropical, {rid, PlotTypes.PLOT_LAND, nil, FeatureTypes.NO_FEATURE});
 		elseif rName == "RESOURCE_TOBACCO" then	-- MOD.Barathor: New
 			this.tobacco_ID = rid;
-			table.insert(this.luxTropical, rid);
+			table.insert(this.luxTropical, {rid, PlotTypes.PLOT_LAND, nil, FeatureTypes.NO_FEATURE});
 		elseif rName == "RESOURCE_OLIVE" then	-- MOD.Barathor: New
 			this.olives_ID = rid;
-			table.insert(this.luxTropical, rid);
+			table.insert(this.luxTropical, {rid, PlotTypes.PLOT_LAND, nil, nil});
 		elseif rName == "RESOURCE_PERFUME" then	-- MOD.Barathor: New
 			this.perfume_ID = rid;
-			table.insert(this.luxTropical, rid);
+			table.insert(this.luxTropical, {rid, PlotTypes.PLOT_LAND, nil, FeatureTypes.NO_FEATURE});
 		elseif rName == "RESOURCE_COCONUT" then	-- MOD.HungryForFood: New
 			this.coconut_ID = rid;
-			table.insert(this.luxTropical, rid);
+			table.insert(this.luxTropical, {rid, nil, nil, FeatureTypes.FEATURE_JUNGLE});
 		elseif rName == "RESOURCE_RUBBER" then	-- MOD.HungryForFood: New
 			this.rubber_ID = rid;
-			table.insert(this.luxTropical, rid);
+			table.insert(this.luxTropical, {rid, nil, nil, FeatureTypes.FEATURE_JUNGLE});
 
 
 
 
-		-- NOT USED
+		--[[ NOT USED
 		elseif rName == "RESOURCE_PLATINUM" then	-- MOD.HungryForFood: New
 			this.platinum_ID = rid;
 		elseif rName == "RESOURCE_POPPY" then	-- MOD.HungryForFood: New
@@ -438,7 +463,7 @@ function recordResourceInfo(this)
 		elseif rName == "RESOURCE_SULFUR" then	-- MOD.HungryForFood: New
 			this.sulfur_ID = rid;
 		elseif rName == "RESOURCE_TITANIUM" then	-- MOD.HungryForFood: New
-			this.titanium_ID = rid;
+			this.titanium_ID = rid;]]
 		end
 	end
 end

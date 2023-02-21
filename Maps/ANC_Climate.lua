@@ -147,7 +147,7 @@ function ANC_FloodPlains(this)
 		local isNoFeature = this.plotFeature[i] == FeatureTypes.NO_FEATURE;
 		local hasRes = this.plotResourceNum[i] > 0;
 		local isDesert = this.plotTerrain[i] == TerrainTypes.TERRAIN_DESERT;
-		if not hasRes and isNoFeature and isDesert and this.plotTypes[i] == PlotTypes.PLOT_LAND then
+		if plot:IsRiver() and not hasRes and isNoFeature and isDesert and this.plotTypes[i] == PlotTypes.PLOT_LAND then
 			this.plotFeature[i] = FeatureTypes.FEATURE_FLOOD_PLAINS;
 		end
 	end

@@ -128,6 +128,9 @@ function ANC_CreateMap(ancArgs)
 	ANC_UpdatePlots(this);
 
 	ANC_AddRivers(this);
+
+
+	--ANC_UpdatePlots(this); -- flood plains need to check for rivers
 	ANC_FloodPlains(this);
 
 
