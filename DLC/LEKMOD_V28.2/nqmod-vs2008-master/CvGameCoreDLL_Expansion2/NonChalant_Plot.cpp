@@ -274,11 +274,11 @@ int CvPlot::getExtraYield
 
 			{// POLICY_NEW_DEAL - GP Tile +2 Atoll Yields, +2 Tourism from Natural Wonders
 				const bool hasNewDeal = player.HasPolicy("POLICY_NEW_DEAL");
-				const bool isAtoll = plot.HasFeature("FEATURE_ATOLL");
-				const bool isAtollCulture = plot.HasFeature("FEATURE_ATOLL_CULTURE");
-				const bool isAtollProduction = plot.HasFeature("FEATURE_ATOLL_PRODUCTION");
-				const bool isAtollGold = plot.HasFeature("FEATURE_ATOLL_GOLD");
-				const bool isAtollScience = plot.HasFeature("FEATURE_ATOLL_SCIENCE");
+				const bool isAtoll = plot.HasFeature(FEATURE_ATOLL);
+				const bool isAtollCulture = plot.HasFeature(FEATURE_ATOLL_CULTURE);
+				const bool isAtollProduction = plot.HasFeature(FEATURE_ATOLL_PRODUCTION);
+				const bool isAtollGold = plot.HasFeature(FEATURE_ATOLL_GOLD);
+				const bool isAtollScience = plot.HasFeature(FEATURE_ATOLL_SCIENCE);
 				const bool isNaturalWonder = plot.HasAnyNaturalWonder();
 				if (eYieldType == YIELD_TOURISM && hasNewDeal && isNaturalWonder)
 					yieldChange += 2;
@@ -321,7 +321,7 @@ int CvPlot::getExtraYield
 			{// BELIEF_SACRED_WATERS - gives one tourism from lake and atoll tiles. Could change to lake and oasis in future if Atolls seems too good. Features don't work right now though. 
 				const bool hasBeliefSacredWaters = city.HasBelief("BELIEF_SACRED_WATERS");
 				const bool isLake = plot.isLake();
-				const bool isOasis = plot.HasFeature("FEATURE_OASIS");
+				const bool isOasis = plot.HasFeature(FEATURE_OASIS);
 				if (eYieldType == YIELD_TOURISM && hasBeliefSacredWaters && (isLake || hasAnyAtoll || isOasis))
 					yieldChange += 1;
 			}
@@ -389,7 +389,7 @@ int CvPlot::getExtraYield
 				const bool hasCommerceFinisher = player.HasPolicy("POLICY_COMMERCE_FINISHER");
 				const bool isFarm = plot.HasImprovement("IMPROVEMENT_FARM");
 				const bool isMine = plot.HasImprovement("IMPROVEMENT_MINE");
-				const bool isFloodPlains = plot.HasFeature("FEATURE_FLOOD_PLAINS");
+				const bool isFloodPlains = plot.HasFeature(FEATURE_FLOOD_PLAINS);
 				if (eYieldType == YIELD_FOOD && hasCommerceFinisher && isFarm && noResource && !isFloodPlains)
 					yieldChange += 1;
 				if (eYieldType == YIELD_PRODUCTION && hasCommerceFinisher && isMine && noResource)
@@ -397,7 +397,7 @@ int CvPlot::getExtraYield
 			}
 
 			{// IMPROVEMENT_POLDER - gives +2 Food to Marsh.
-				const bool isMarsh = plot.HasFeature("FEATURE_MARSH");
+				const bool isMarsh = plot.HasFeature(FEATURE_MARSH);
 				const bool isPolder = plot.HasImprovement("IMPROVEMENT_POLDER");
 				if (eYieldType == YIELD_FOOD && isMarsh && isPolder)
 					yieldChange += 2;
@@ -433,11 +433,11 @@ int CvPlot::getExtraYield
 			}
 
 			{// CIVILIZATION_INDONESIA - +1 to Atolls +2G from Coastal Luxes After Sailing
-				const bool isAtoll = plot.HasFeature("FEATURE_ATOLL");
-				const bool isAtollCulture = plot.HasFeature("FEATURE_ATOLL_CULTURE");
-				const bool isAtollProduction = plot.HasFeature("FEATURE_ATOLL_PRODUCTION");
-				const bool isAtollGold = plot.HasFeature("FEATURE_ATOLL_GOLD");
-				const bool isAtollScience = plot.HasFeature("FEATURE_ATOLL_SCIENCE");
+				const bool isAtoll = plot.HasFeature(FEATURE_ATOLL);
+				const bool isAtollCulture = plot.HasFeature(FEATURE_ATOLL_CULTURE);
+				const bool isAtollProduction = plot.HasFeature(FEATURE_ATOLL_PRODUCTION);
+				const bool isAtollGold = plot.HasFeature(FEATURE_ATOLL_GOLD);
+				const bool isAtollScience = plot.HasFeature(FEATURE_ATOLL_SCIENCE);
 				const bool isCoastalLuxury = (plot.HasResource("RESOURCE_CRAB") || plot.HasResource("RESOURCE_WHALE") || plot.HasResource("RESOURCE_PEARLS")
 					|| plot.HasResource("RESOURCE_CORAL"));
 				const bool isIndonesia = player.IsCiv("CIVILIZATION_INDONESIA");
@@ -499,7 +499,7 @@ int CvPlot::getExtraYield
 				const bool hasWheat = plot.HasResource("RESOURCE_WHEAT");
 				const bool isMiddleEast = player.IsCiv("CIVILIZATION_UC_TURKEY");
 				const bool hasPottery = player.HasTech("TECH_POTTERY");				
-				const bool isOasis = plot.HasFeature("FEATURE_OASIS");
+				const bool isOasis = plot.HasFeature(FEATURE_OASIS);
 				if (eYieldType == YIELD_PRODUCTION && isMiddleEast && hasPottery && (hasWheat || isOasis))
 					yieldChange += 1;
 				if (eYieldType == YIELD_GOLD && isMiddleEast && hasPottery && (hasWheat || isOasis))
@@ -687,7 +687,7 @@ int CvPlot::getExtraYield
 
 			{// CARD_ANCIENT_RESOURCES_INUITS - +2PD to Whales.
 				const bool hasBedouinsCard = player.HasPolicy("POLICY_CARD_ANCIENT_RESOURCES_BEDOUINS_PASSIVE");
-				const bool isOases = plot.HasFeature("FEATURE_OASIS");
+				const bool isOases = plot.HasFeature(FEATURE_OASIS);
 				if (eYieldType == YIELD_FOOD && hasBedouinsCard && isOases)
 					yieldChange += 1;
 			}

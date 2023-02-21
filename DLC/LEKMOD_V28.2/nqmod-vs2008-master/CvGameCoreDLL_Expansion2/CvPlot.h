@@ -98,8 +98,6 @@ public:
 
 	// type FEATURE_ and press Ctrl+Space for options
 	bool HasFeature(FeatureTypes iFeatureType) const;
-	// "FEATURE_ATOLL_SCIENCE" etc
-	bool HasFeature(const string name) const;
 	bool HasAnyAtoll() const;
 
 	// type ROUTE_ and press Ctrl+Space for options
@@ -487,12 +485,7 @@ public:
 	}
 	FeatureTypes getFeatureType() const
 	{
-#ifdef AUI_WARNING_FIXES
-		int f = m_eFeatureType;
-#else
-		char f = m_eFeatureType;
-#endif
-		return (FeatureTypes)f;
+		return (FeatureTypes)m_eFeatureType.get();
 	}
 	bool isImpassable()     const
 	{

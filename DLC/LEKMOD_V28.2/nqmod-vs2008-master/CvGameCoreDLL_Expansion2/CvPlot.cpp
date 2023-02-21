@@ -1010,28 +1010,17 @@ bool CvPlot::IsCivilization(CivilizationTypes iCivilizationType) const
 
 bool CvPlot::HasFeature(FeatureTypes iFeatureType) const
 {
-	if (iFeatureType == (FeatureTypes)GC.getInfoTypeForString("FEATURE_LAKE")) {
-		return IsFeatureLake();
-	}
-	else if (iFeatureType == (FeatureTypes)GC.getInfoTypeForString("FEATURE_RIVER")) {
-		return IsFeatureRiver();
-	}
-
-	return (getFeatureType() == iFeatureType);
-}
-bool CvPlot::HasFeature(const string name) const
-{
-	return HasFeature(GC.Feature(name));
+	return getFeatureType() == iFeatureType;
 }
 bool CvPlot::HasAnyAtoll() const
 {
 	return 
 	(
-		HasFeature("FEATURE_ATOLL") ||
-		HasFeature("FEATURE_ATOLL_GOLD") ||
-		HasFeature("FEATURE_ATOLL_PRODUCTION") ||
-		HasFeature("FEATURE_ATOLL_CULTURE") ||
-		HasFeature("FEATURE_ATOLL_SCIENCE")
+		HasFeature(FEATURE_ATOLL) ||
+		HasFeature(FEATURE_ATOLL_GOLD) ||
+		HasFeature(FEATURE_ATOLL_PRODUCTION) ||
+		HasFeature(FEATURE_ATOLL_CULTURE) ||
+		HasFeature(FEATURE_ATOLL_SCIENCE)
 	);
 }
 
