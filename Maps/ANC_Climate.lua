@@ -84,16 +84,18 @@ function ANC_Climate(this)
 
 
 				elseif this.plotTerrain[i] == TerrainTypes.TERRAIN_TUNDRA then
-
+					if Map.Rand(1000, "tundra forest") < 180 then
+						this.plotFeature[i] = FeatureTypes.FEATURE_FOREST;
+					end
 
 				elseif this.plotTerrain[i] == TerrainTypes.TERRAIN_GRASS then
-					if Map.Rand(1000, "forest") < 230 then
+					if Map.Rand(1000, "forest") < 180 then
 						this.plotFeature[i] = FeatureTypes.FEATURE_FOREST;
 					end
 
 
 				elseif this.plotTerrain[i] == TerrainTypes.TERRAIN_PLAINS then
-					if Map.Rand(1000, "jungle") < 300 then
+					if Map.Rand(1000, "jungle") < 250 then
 						this.plotFeature[i] = FeatureTypes.FEATURE_JUNGLE;
 					elseif Map.Rand(1000, "marsh") < 30 then
 						this.plotTypes[i] = PlotTypes.PLOT_LAND;
@@ -143,7 +145,7 @@ function ANC_FloodPlains(this)
 	for i, plot in ANC_Plots() do
 		-- flat desert with no other feature
 		local isNoFeature = this.plotFeature[i] == FeatureTypes.NO_FEATURE;
-		local hasRes = this.plotResourceNum[plotIdx] > 0;
+		local hasRes = this.plotResourceNum[i] > 0;
 		local isDesert = this.plotTerrain[i] == TerrainTypes.TERRAIN_DESERT;
 		if not hasRes and isNoFeature and isDesert and this.plotTypes[i] == PlotTypes.PLOT_LAND then
 			this.plotFeature[i] = FeatureTypes.FEATURE_FLOOD_PLAINS;

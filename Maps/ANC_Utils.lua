@@ -261,6 +261,9 @@ function RandomIsland(plotTypes,x,y,maxX,numLandTiles,oceanChance)
 
 end
 
+function isLat(lat, latMin)
+	return lat < latMin or lat > (1 - latMin);
+end
 ------------------------------------------------------------------------------
 -- converts an x,y coordinate into an linear index
 ------------------------------------------------------------------------------
@@ -477,7 +480,7 @@ end
 function halton(base, numToGen, rngAddition)
 	points = {};
 	local numerator, divisor = 0, 1;
-	local minToGen = 0 + rngAddition;
+	local minToGen = 100 + rngAddition;
 
 	for i = 0,minToGen+numToGen do
 		local range = divisor - numerator;
@@ -568,9 +571,6 @@ function ANC_ignoreLat(lat, maxX, maxY)
 		local y = GetXyScaled(GetXy(plotIdx, maxX), maxX, maxY)[2];
 		return not ((y < lat) or (y > topLat));
 	end
-end
-function isLat(lat, latMin)
-	return lat < latMin or lat > (1 - latMin);
 end
 function defaultMutate(bWouldConnect,numAdjacent)
 	local doMutate = false;
