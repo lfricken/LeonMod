@@ -110,7 +110,7 @@ int CvPlot::getExtraYield
 			//player.HasTech("TECH_POTTERY");
 
 
-			const bool isGreatTile = plot.HasImprovement("IMPROVEMENT_ACADEMY") ||
+			const bool isGreatTile = plot.HasImprovement(IMPROVEMENT_ACADEMY) ||
 				plot.HasImprovement("IMPROVEMENT_CUSTOMS_HOUSE") ||
 				plot.HasImprovement("IMPROVEMENT_MANUFACTORY") ||
 				plot.HasImprovement("IMPROVEMENT_HOLY_SITE") ||
@@ -125,7 +125,7 @@ int CvPlot::getExtraYield
 			{ // BEGIN isCityCenter
 
 				{// POLICY_CONSULATES - gives +3C to the Palace for each City-State Ally
-					const bool hasConsulates = player.HasPolicy("POLICY_CONSULATES");
+					const bool hasConsulates = player.HasPolicy(POLICY_CONSULATES);
 					if (eYieldType == YIELD_CULTURE && hasConsulates && isCapital) // && isCityCenter
 						yieldChange += (numCityStateAllies * 3);
 				}
@@ -410,10 +410,10 @@ int CvPlot::getExtraYield
 			}
 
 			{// CIVILIZATION_MC_SCOTLAND - 1 FD 1 PD from Cattle, Sheep, After Trapping
-				const bool hasCattle = plot.HasResource("RESOURCE_COW");
+				const bool hasCattle = plot.HasResource(RESOURCE_COW);
 				const bool hasSheep = plot.HasResource("RESOURCE_SHEEP");
-				const bool isEngland = player.IsCiv("CIVILIZATION_MC_SCOTLAND");
-				const bool hasTrapping = player.HasTech("TECH_TRAPPING");
+				const bool isEngland = player.IsCiv(CIVILIZATION_MC_SCOTLAND);
+				const bool hasTrapping = player.HasTech(TECH_TRAPPING);
 				if (eYieldType == YIELD_FOOD && isEngland && hasTrapping && (hasCattle || hasSheep))
 					yieldChange += 1;
 				if (eYieldType == YIELD_PRODUCTION && isEngland && hasTrapping && (hasCattle || hasSheep))

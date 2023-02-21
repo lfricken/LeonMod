@@ -1225,6 +1225,8 @@ enum FeatureTypes
 enum ResourceTypes						
 {
 	NO_RESOURCE = -1,
+
+	RESOURCE_COW = 7,
 };
 
 enum ResourceClassTypes			
@@ -1244,6 +1246,8 @@ enum ResourceUsageTypes
 enum ImprovementTypes			
 {
 	NO_IMPROVEMENT = -1,
+
+	IMPROVEMENT_ACADEMY = 16,
 };
 
 enum ImprovementUsageTypes
@@ -1297,6 +1301,8 @@ enum EraTypes
 enum CivilizationTypes		
 {
 	NO_CIVILIZATION = -1,
+
+	CIVILIZATION_MC_SCOTLAND = 5,
 };
 
 enum MinorCivTypes
@@ -1785,6 +1791,8 @@ enum PromotionTypes
 enum TechTypes						
 {
 	NO_TECH = -1,
+
+	TECH_TRAPPING = 8,
 };
 
 enum SpecialistTypes			
@@ -1821,6 +1829,10 @@ enum CultureTypes
 enum PolicyTypes						
 {
 	NO_POLICY = -1,
+
+
+	POLICY_CONSULATES = 26,
+
 };
 
 enum PolicyBranchTypes
