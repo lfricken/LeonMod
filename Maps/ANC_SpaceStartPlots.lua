@@ -51,10 +51,73 @@ function ANC_DoSpawnFor(this, x, y, maxX, maxY, playerId, isMinor)
 	end
 
 
-
-
-
 	local indexes;
+
+	-- rand luxuries
+	local lux1 = this:getRandLux();
+	local lux2;
+	for i=1,10 do
+		lux2 = this:getRandLux();
+		if (lux2[1] ~= lux1[1]) then break; end
+	end
+	-- rand bonuses
+	local bon1 = this:getRandBonus();
+	local bon2;
+	for i=1,10 do
+		bon2 = this:getRandBonus();
+		if (bon2[1] ~= bon1[1]) then break; end
+	end
+
+	-- things to add
+	local toAdd1 = {};
+	local toAdd2 = {};
+	local toAdd3 = {};
+	table.insert(toAdd1, lux2);
+	table.insert(toAdd1, bon1);
+
+	table.insert(toAdd2, lux1);
+	table.insert(toAdd2, lux2);
+	table.insert(toAdd2, bon2);
+
+	table.insert(toAdd3, lux2);
+	table.insert(toAdd3, bon2);
+	table.insert(toAdd3, bon1);
+
+
+	local toAddAll = {};
+	table.insert(toAddAll, {toAdd1, GetIndexesAroundRand(x, y, maxX, maxY, 1)});
+	table.insert(toAddAll, {toAdd2, GetIndexesAroundRand(x, y, maxX, maxY, 2)});
+	table.insert(toAddAll, {toAdd3, GetIndexesAroundRand(x, y, maxX, maxY, 3)});
+
+	
+	for k0,addInfo in pairs(toAddAll) do
+		local toAdd = addInfo[1];
+		local indexes = addInfo[2];
+		for k1,resInfo in pairs(toAdd) do
+			for k2,plotIdx in pairs(indexes) do
+				local isWaterRes = resInfo[2] == PlotTypes.PLOT_OCEAN;
+				if not this.plotIsLocked[plotIdx] then
+					if isWaterRes and this.plotTypes[plotIdx] == PlotTypes.PLOT_OCEAN then
+						this:applyData(plotIdx, resInfo);
+						break;
+					elseif not isWaterRes and this.plotTypes[plotIdx] ~= PlotTypes.PLOT_OCEAN then
+						this:applyData(plotIdx, resInfo);
+						break;
+					end
+				end
+			end
+		end
+	end
+
+
+	-- finally, spawn lock tiles to avoid people spawning too close
+	if (this.cfg.spawnRangeMin < 3) then print("WARNING: spawnRangeMin was dangerously low!"); end
+	indexes = GetIndexesAround(x, y, maxX, maxY, 0, this.cfg.spawnRangeMin);
+	for k,index in pairs(indexes) do
+		this.plotIsWithinSpawnDist[index] = true;
+	end
+
+
 
 	-- lock nearby everything
 	local lockSize = spawnHexRadius;
@@ -62,13 +125,6 @@ function ANC_DoSpawnFor(this, x, y, maxX, maxY, playerId, isMinor)
 	indexes = GetIndexesAround(x, y, maxX, maxY, 0, lockSize);
 	for k,index in pairs(indexes) do
 		this.plotIsLocked[index] = true;
-
-		-- it's important to set a valid terrain type or future sets get glitched
-		if this.plotTypes[index] == PlotTypes.PLOT_LAND then
-			this.plotTerrain[index] = TerrainTypes.TERRAIN_GRASS;
-		else
-			this.plotTerrain[index] = TerrainTypes.TERRAIN_COAST;
-		end
 	end
 
 	-- lock nearby water, prevents land growth from putting the spawn point in a tiny inlet
@@ -79,21 +135,12 @@ function ANC_DoSpawnFor(this, x, y, maxX, maxY, playerId, isMinor)
 	indexes = GetIndexesAround(waterLock[1],waterLock[2], maxX, maxY, 0, waterLockSize);
 	for k,index in pairs(indexes) do
 		this.plotIsLocked[index] = true;
-
 		-- it's important to set a valid terrain type or future sets get glitched
 		if this.plotTypes[index] == PlotTypes.PLOT_LAND then
 			this.plotTerrain[index] = TerrainTypes.TERRAIN_GRASS;
 		else
 			this.plotTerrain[index] = TerrainTypes.TERRAIN_OCEAN;
 		end
-	end
-
-
-	-- finally, spawn lock tiles to avoid people spawning too close
-	if (this.cfg.spawnRangeMin < 3) then print("WARNING: spawnRangeMin was dangerously low!"); end
-	indexes = GetIndexesAround(x, y, maxX, maxY, 0, this.cfg.spawnRangeMin);
-	for k,index in pairs(indexes) do
-		this.plotIsWithinSpawnDist[index] = true;
 	end
 
 

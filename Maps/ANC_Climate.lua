@@ -129,7 +129,7 @@ function ANC_Climate(this)
 	-- throw some grassland/plains together
 	for i, plot in ANC_Plots() do
 		local switch = Map.Rand(1000, "flip") < 200;
-		if switch then
+		if not this.plotIsLocked[i] and switch then
 			if this.plotTerrain[i] == TerrainTypes.TERRAIN_PLAINS  then
 				this.plotTerrain[i] = TerrainTypes.TERRAIN_GRASS;
 			elseif this.plotTerrain[i] == TerrainTypes.TERRAIN_GRASS then

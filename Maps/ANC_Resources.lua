@@ -25,23 +25,6 @@ function ANC_DoPopulateWorldWithGoodies(this)
 	local scaleX = function(x) return math.floor(x * 180); end
 	local scaleY = function(y) return math.floor(y * 180); end
 
-	local applyData = function(plotIdx, val)
-		if val[2] ~= nil then this.plotTypes[plotIdx] = val[2]; end
-		if val[3] ~= nil then this.plotTerrain[plotIdx] = val[3]; end
-		if val[4] ~= nil then this.plotFeature[plotIdx] = val[4]; end
-
-		if val[1] ~= nil then
-			this.plotResource[plotIdx] = val[1];
-			local calcRes = val[5];
-			if calcRes ~= nil then
-				this.plotResourceNum[plotIdx] = calcRes();
-			else
-				this.plotResourceNum[plotIdx] = 1;
-			end
-		end
-		
-	end
-
 	-- luxuries
 	local count = 0;
 	for i=1,#haltonPointsX do
@@ -60,7 +43,7 @@ function ANC_DoPopulateWorldWithGoodies(this)
 					local layer = 1;
 					if Map.Rand(100,"Res layer 2?") < 50 then layer = 2; end
 					local resourceInfo = findClosestClumpedResource(this, layer, xy); -- this.luxPolar[idx];
-					applyData(plotIdx, resourceInfo);
+					this:applyData(plotIdx, resourceInfo);
 					count = count + 1;
 					this.plotHasLux[plotIdx] = true;
 
@@ -68,9 +51,8 @@ function ANC_DoPopulateWorldWithGoodies(this)
 					if (Map.Rand(1000,"Skip Water Lux") < 1000) then
 						local idx = 1 + Map.Rand(#this.luxWater,"Rand Water Lux"); -- 1 + ((i % 17) % #this.luxWater);
 						--print("resource2" .. idx);
-						this.plotResource[plotIdx] = this.luxWater[idx];
-						--print(this.plotResource[plotIdx]);
-						this.plotResourceNum[plotIdx] = 1;
+						local resourceInfo = this.luxWater[idx];
+						this:applyData(plotIdx, resourceInfo);
 						count = count + 1;
 						this.plotHasLux[plotIdx] = true;
 					end
@@ -103,17 +85,15 @@ function ANC_DoPopulateWorldWithGoodies(this)
 					if isLat(xyScaled[2], 0.25) then bonuses = this.bonusPolar; end
 					local idx = 1 + Map.Rand(#bonuses,"Rand Land Bonus");
 					local resourceInfo = bonuses[idx];
-					applyData(plotIdx, resourceInfo);
+					this:applyData(plotIdx, resourceInfo);
 					count = count + 1;
-					--this.plotHasBonus[plotIdx] = true;
 
 				elseif isArableWater(plotIdx) then
 					if (Map.Rand(1000,"Skip Water Lux") < 1000) then
-						print("water bonus");
+						--print("water bonus");
 						local idx = 1 + Map.Rand(#this.bonusWater,"Rand Water Bonus");
 						local resourceInfo = this.bonusWater[idx];
-						applyData(plotIdx, resourceInfo);
-						this.plotResourceNum[plotIdx] = 1;
+						this:applyData(plotIdx, resourceInfo);
 						count = count + 1;
 					end
 				end
@@ -247,6 +227,53 @@ end
 -- populate all resource info so we can reference it later
 ------------------------------------------------------------------------------
 function recordResourceInfo(this)
+
+	this.getRandLux = function(self)
+		local sum = #self.luxPolar + #self.luxTropical + #self.luxWater;
+		local rand = 1 + Map.Rand(sum, "rand lux");
+		local data;
+		if (rand <= #self.luxPolar) then
+			data = self.luxPolar[rand];
+		elseif (rand <= #self.luxPolar + #self.luxTropical) then
+			data = self.luxTropical[rand - #self.luxPolar];
+		else
+			data = self.luxWater[rand - #self.luxPolar - #self.luxTropical];
+		end
+		return data;
+	end
+	this.getRandBonus = function(self)
+		local sum = #self.bonusPolar + #self.bonusTropical + #self.bonusWater;
+		local rand = 1 + Map.Rand(sum, "rand lux");
+		local data;
+		if (rand <= #self.bonusPolar) then
+			data = self.bonusPolar[rand];
+		elseif (rand <= #self.bonusPolar + #self.bonusTropical) then
+			data = self.bonusTropical[rand - #self.bonusPolar];
+		else
+			data = self.bonusWater[rand - #self.bonusPolar - #self.bonusTropical];
+		end
+		return data;
+	end
+	this.applyData = function(self, plotIdx, val)
+		self.plotIsLocked[plotIdx] = true;
+		if val[2] ~= nil then self.plotTypes[plotIdx] = val[2]; end
+		if val[3] ~= nil then self.plotTerrain[plotIdx] = val[3]; end
+		if val[4] ~= nil then self.plotFeature[plotIdx] = val[4]; end
+
+		if val[1] ~= nil then
+			self.plotResource[plotIdx] = val[1];
+			local calcRes = val[5];
+			if calcRes ~= nil then
+				self.plotResourceNum[plotIdx] = calcRes();
+			else
+				self.plotResourceNum[plotIdx] = 1;
+			end
+		else
+			print("applyData had nil val: " .. val[1]);
+		end
+	end
+
+
 	this.strats = {};
 
 	this.bonusPolar = {};
@@ -260,12 +287,12 @@ function recordResourceInfo(this)
 	this.luxWater = {};
 
 
-
-	table.insert(this.bonusWater, {-1, nil, nil, 17});
-	table.insert(this.bonusWater, {-1, nil, nil, 26});
-	table.insert(this.bonusWater, {-1, nil, nil, 27});
-	table.insert(this.bonusWater, {-1, nil, nil, 28});
-	table.insert(this.bonusWater, {-1, nil, nil, 29});
+	-- atoll types
+	table.insert(this.bonusWater, {-1, PlotTypes.PLOT_OCEAN, TerrainTypes.TERRAIN_COAST, 17});
+	table.insert(this.bonusWater, {-1, PlotTypes.PLOT_OCEAN, TerrainTypes.TERRAIN_COAST, 26});
+	table.insert(this.bonusWater, {-1, PlotTypes.PLOT_OCEAN, TerrainTypes.TERRAIN_COAST, 27});
+	table.insert(this.bonusWater, {-1, PlotTypes.PLOT_OCEAN, TerrainTypes.TERRAIN_COAST, 28});
+	table.insert(this.bonusWater, {-1, PlotTypes.PLOT_OCEAN, TerrainTypes.TERRAIN_COAST, 29});
 
 
 	for resource_data in GameInfo.Resources() do
@@ -314,7 +341,7 @@ function recordResourceInfo(this)
 
 		elseif rName == "RESOURCE_FISH" then
 			this.fish_ID = rid;
-			table.insert(this.bonusWater, {rid, nil, nil, FeatureTypes.NO_FEATURE});
+			table.insert(this.bonusWater, {rid, PlotTypes.PLOT_OCEAN, TerrainTypes.TERRAIN_COAST, FeatureTypes.NO_FEATURE});
 
 		elseif rName == "RESOURCE_SHEEP" then
 			this.sheep_ID = rid;
@@ -336,16 +363,16 @@ function recordResourceInfo(this)
 
 		elseif rName == "RESOURCE_WHALE" then
 			this.whale_ID = rid;
-			table.insert(this.luxWater, rid);
+			table.insert(this.luxWater, {rid, PlotTypes.PLOT_OCEAN, TerrainTypes.TERRAIN_COAST, nil});
 		elseif rName == "RESOURCE_CRAB" then
 			this.crab_ID = rid;
-			table.insert(this.luxWater, rid);
+			table.insert(this.luxWater, {rid, PlotTypes.PLOT_OCEAN, TerrainTypes.TERRAIN_COAST, nil});
 		elseif rName == "RESOURCE_CORAL" then
 			this.coral_ID = rid;
-			table.insert(this.luxWater, rid);
+			table.insert(this.luxWater, {rid, PlotTypes.PLOT_OCEAN, TerrainTypes.TERRAIN_COAST, nil});
 		elseif rName == "RESOURCE_PEARLS" then
 			this.pearls_ID = rid;
-			table.insert(this.luxWater, rid);
+			table.insert(this.luxWater, {rid, PlotTypes.PLOT_OCEAN, TerrainTypes.TERRAIN_COAST, nil});
 
 		-- Set up Luxury IDs
 		elseif rName == "RESOURCE_FUR" then

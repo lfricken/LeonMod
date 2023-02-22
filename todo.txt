@@ -35,6 +35,8 @@ do hidden antiquity sites still work at all? just redo antiquity logic
 
 Map
 
+	spawn points
+	strategic, more fish?
 
 	flood plains after rivers
 	luxuries
