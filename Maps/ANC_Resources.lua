@@ -1,7 +1,26 @@
 
 include("ANC_Utils");
 
-
+local resVariation = 2;
+local base = 4;
+function calcRes(self)
+	local id = self[1];
+	if id == 0 then
+		return base + Map.Rand(resVariation, "iron");
+	elseif id == 1 then
+		return base + Map.Rand(resVariation, "horses");
+	elseif id == 2 then
+		return base + Map.Rand(resVariation, "coal");
+	elseif id == 3 then
+		return base + Map.Rand(resVariation, "oil");
+	elseif id == 4 then
+		return base + Map.Rand(resVariation, "aluminum");
+	elseif id == 5 then
+		return base + Map.Rand(resVariation, "uranium");
+	else
+		return base + Map.Rand(resVariation, "UNKNOWN RESOURCE");
+	end
+end
 ------------------------------------------------------------------------------
 -- Populates the world with resources and features.
 ------------------------------------------------------------------------------
@@ -29,7 +48,7 @@ function ANC_DoPopulateWorldWithGoodies(this)
 	local count = 0;
 	for i=1,#haltonPointsX do
 		local xy = {scaleX(haltonPointsX[i]), scaleY(haltonPointsY[i])};
-		local inBounds = xy[1] < this.maxX and xy[2] < this.maxY;
+		local inBounds = xy[1] >= 0 and xy[1] < this.maxX and xy[2] >= 0 and xy[2] < this.maxY;
 		if inBounds then
 			local plotIdx = GetI(xy[1], xy[2], this.maxX);
 			local hasFeature = this.plotFeature[plotIdx] ~= FeatureTypes.NO_FEATURE;
@@ -63,15 +82,17 @@ function ANC_DoPopulateWorldWithGoodies(this)
 	print("Total Luxes: " .. count);
 
 
+	local randOffsetX = Map.Rand(4, "res offset1");
+	local randOffsetY = Map.Rand(4, "res offset2");
 	local haltonPointsX = halton(2, 2048, 0);
 	local haltonPointsY = halton(3, 2048, 0);
-	local scaleX = function(x) return math.floor(x * 140); end
-	local scaleY = function(y) return math.floor(y * 140); end
+	local scaleX = function(x) return math.floor(x * 140) - randOffsetX; end
+	local scaleY = function(y) return math.floor(y * 140) - randOffsetY; end
 	-- bonuses
 	local count = 0;
 	for i=1,#haltonPointsX do
 		local xy = {scaleY(haltonPointsY[i]), scaleX(haltonPointsX[i])};
-		local inBounds = xy[1] < this.maxX and xy[2] < this.maxY;
+		local inBounds = xy[1] >= 0 and xy[1] < this.maxX and xy[2] >= 0 and xy[2] < this.maxY;
 		if inBounds then
 			local plotIdx = GetI(xy[1], xy[2], this.maxX);
 			local hasFeature = this.plotFeature[plotIdx] ~= FeatureTypes.NO_FEATURE;
@@ -89,7 +110,7 @@ function ANC_DoPopulateWorldWithGoodies(this)
 					count = count + 1;
 
 				elseif isArableWater(plotIdx) then
-					if (Map.Rand(1000,"Skip Water Lux") < 1000) then
+					if (Map.Rand(1000,"Skip Water Bonus") < 500) then
 						--print("water bonus");
 						local idx = 1 + Map.Rand(#this.bonusWater,"Rand Water Bonus");
 						local resourceInfo = this.bonusWater[idx];
@@ -101,6 +122,46 @@ function ANC_DoPopulateWorldWithGoodies(this)
 		end
 	end
 	print("Total Bonus: " .. count);
+
+	local randOffsetX = Map.Rand(4, "res offset3");
+	local randOffsetY = Map.Rand(4, "res offset4");
+	local haltonPointsX = halton(17, 4096, Map.Rand(60, "RandStratHaltonStartX"));
+	local haltonPointsY = halton(19, 4096, Map.Rand(60, "RandStratHaltonStartY"));
+	local scaleX = function(x) return math.floor(x * 150) - randOffsetX; end
+	local scaleY = function(y) return math.floor(y * 150) - randOffsetY; end
+	-- bonuses
+	local count = 0;
+	for i=1,#haltonPointsX do
+		local xy = {scaleY(haltonPointsY[i]), scaleX(haltonPointsX[i])};
+		local inBounds = xy[1] >= 0 and xy[1] < this.maxX and xy[2] >= 0 and xy[2] < this.maxY;
+		if inBounds then
+			local plotIdx = GetI(xy[1], xy[2], this.maxX);
+			local hasFeature = this.plotFeature[plotIdx] ~= FeatureTypes.NO_FEATURE;
+			local hasRes = this.plotResourceNum[plotIdx] > 0;
+			--local hasAdjacentLuxes = ANC_countAdjacents(this, this.plotHasLux, xy, true) > 0;
+			local isNotLocked = not this.plotIsLocked[plotIdx];
+			if isNotLocked and not hasRes and not hasFeature then
+				local xyScaled = GetXyScaled(xy, this.maxX, this.maxY);
+				if isArableLand(plotIdx) then
+					local bonuses = this.strats;
+					local idx = 1 + Map.Rand(#bonuses,"Rand Land Strat");
+					local resourceInfo = bonuses[idx];
+					this:applyData(plotIdx, resourceInfo);
+					count = count + 1;
+
+				--[[elseif isArableWater(plotIdx) then
+					if (Map.Rand(1000,"Skip Water Lux") < 1000) then
+						--print("water bonus");
+						local idx = 1 + Map.Rand(#this.bonusWater,"Rand Water Bonus");
+						local resourceInfo = this.bonusWater[idx];
+						this:applyData(plotIdx, resourceInfo);
+						count = count + 1;
+					end]]
+				end
+			end
+		end
+	end
+	print("Total Strat: " .. count);
 
 end
 ------------------------------------------------------------------------------
@@ -262,9 +323,9 @@ function recordResourceInfo(this)
 
 		if val[1] ~= nil then
 			self.plotResource[plotIdx] = val[1];
-			local calcRes = val[5];
-			if calcRes ~= nil then
-				self.plotResourceNum[plotIdx] = calcRes();
+			local calcNumRes = val[5];
+			if calcNumRes ~= nil then
+				self.plotResourceNum[plotIdx] = calcNumRes(val);
 			else
 				self.plotResourceNum[plotIdx] = 1;
 			end
@@ -304,25 +365,25 @@ function recordResourceInfo(this)
 
 		-- Set up Strategic IDs
 		if rName == "RESOURCE_IRON" then
-			this.iron_ID = rid;
-			table.insert(this.strats, {rid, PlotTypes.PLOT_HILLS, nil, nil});
+			this.iron_ID = {rid, PlotTypes.PLOT_HILLS, nil, nil, calcRes};
+			table.insert(this.strats, this.iron_ID);
 		elseif rName == "RESOURCE_HORSE" then
-			this.horse_ID = rid;
-			table.insert(this.strats, {rid, PlotTypes.PLOT_LAND, nil, FeatureTypes.NO_FEATURE});
+			this.horse_ID = {rid, PlotTypes.PLOT_LAND, nil, FeatureTypes.NO_FEATURE, calcRes};
+			table.insert(this.strats, this.horse_ID);
 
 		elseif rName == "RESOURCE_COAL" then
-			this.coal_ID = rid;
-			table.insert(this.strats, {rid, PlotTypes.PLOT_HILLS, nil, nil});
+			this.coal_ID = {rid, PlotTypes.PLOT_HILLS, nil, nil, calcRes};
+			table.insert(this.strats, this.coal_ID);
 		elseif rName == "RESOURCE_OIL" then
-			this.oil_ID = rid;
-			table.insert(this.strats, {rid, PlotTypes.PLOT_LAND, nil, nil});
+			this.oil_ID = {rid, PlotTypes.PLOT_LAND, nil, nil, calcRes};
+			table.insert(this.strats, this.oil_ID);
 
 		elseif rName == "RESOURCE_ALUMINUM" then
-			this.aluminum_ID = rid;
-			table.insert(this.strats, {rid, PlotTypes.PLOT_HILLS, nil, nil});
+			this.aluminum_ID = {rid, PlotTypes.PLOT_HILLS, nil, nil, calcRes};
+			table.insert(this.strats, this.aluminum_ID);
 		elseif rName == "RESOURCE_URANIUM" then
-			this.uranium_ID = rid;
-			table.insert(this.strats, {rid, PlotTypes.PLOT_HILLS, nil, nil});
+			this.uranium_ID = {rid, PlotTypes.PLOT_HILLS, nil, nil, calcRes};
+			table.insert(this.strats, this.uranium_ID);
 
 
 		-- Set up Bonus IDs
@@ -342,6 +403,8 @@ function recordResourceInfo(this)
 		elseif rName == "RESOURCE_FISH" then
 			this.fish_ID = rid;
 			table.insert(this.bonusWater, {rid, PlotTypes.PLOT_OCEAN, TerrainTypes.TERRAIN_COAST, FeatureTypes.NO_FEATURE});
+			table.insert(this.bonusWater, {rid, PlotTypes.PLOT_OCEAN, TerrainTypes.TERRAIN_COAST, FeatureTypes.NO_FEATURE});
+			-- double amount of fish
 
 		elseif rName == "RESOURCE_SHEEP" then
 			this.sheep_ID = rid;
@@ -395,7 +458,7 @@ function recordResourceInfo(this)
 			table.insert(this.luxPolar, {rid, PlotTypes.PLOT_HILLS, nil, FeatureTypes.FEATURE_FOREST});
 		elseif rName == "RESOURCE_JADE" then		-- MOD.Barathor: New
 			this.jade_ID = rid;
-			table.insert(this.luxPolar, {rid, PlotTypes.PLOT_HILLS, nil, nil});
+			table.insert(this.luxPolar, {rid, PlotTypes.PLOT_HILLS, nil, FeatureTypes.FEATURE_FOREST});
 		elseif rName == "RESOURCE_COPPER" then
 			this.copper_ID = rid;
 			table.insert(this.luxPolar, {rid, PlotTypes.PLOT_HILLS, nil, nil});
@@ -445,7 +508,7 @@ function recordResourceInfo(this)
 			table.insert(this.luxTropical, {rid, nil, nil, FeatureTypes.FEATURE_JUNGLE});
 		elseif rName == "RESOURCE_COFFEE" then	-- MOD.Barathor: New
 			this.coffee_ID = rid;
-			table.insert(this.luxTropical, {rid, nil, nil, FeatureTypes.FEATURE_JUNGLE});
+			table.insert(this.luxTropical, {rid, nil, nil, FeatureTypes.NO_FEATURE});
 		elseif rName == "RESOURCE_TEA" then		-- MOD.Barathor: New
 			this.tea_ID = rid;
 			table.insert(this.luxTropical, {rid, PlotTypes.PLOT_LAND, nil, FeatureTypes.NO_FEATURE});

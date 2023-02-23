@@ -175,8 +175,8 @@ end
 function ANC_UpdatePlots(this)
 	print("ANC_UpdatePlots");
 	for i, plot in ANC_Plots() do
-		plot:SetTerrainType(this.plotTerrain[i], false, true);
 		plot:SetPlotType(this.plotTypes[i], false, true);
+		plot:SetTerrainType(this.plotTerrain[i], false, true);
 		plot:SetFeatureType(this.plotFeature[i], -1);
 		plot:SetResourceType(this.plotResource[i], this.plotResourceNum[i]);
 	end

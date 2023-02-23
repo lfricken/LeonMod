@@ -82,7 +82,7 @@ function ANC_LandAndSea(this)
 
 	-- randomly throw some islands
 	for i, plot in ANC_Plots() do
-		if (not this.plotIsLocked[i] and this.plotTypes[i] == PlotTypes.PLOT_OCEAN and (Map.Rand(1000, "RandIsland") < 5)) then
+		if (not this.plotIsLocked[i] and this.plotTypes[i] == PlotTypes.PLOT_OCEAN and (Map.Rand(1000, "RandIsland") < 1)) then
 			this.plotTypes[i] = PlotTypes.PLOT_LAND;
 		end
 	end

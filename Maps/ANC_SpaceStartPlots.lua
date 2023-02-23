@@ -20,19 +20,19 @@ function ANC_DoSpawnFor(this, x, y, maxX, maxY, playerId, isMinor)
 	local randWaterDir = RandDir();
 
 	-- setup spawn land vs water
-	local spawnIndexes = GetIndexesAround(x, y, maxX, maxY, 0, spawnHexRadius);
-	for k,index in pairs(spawnIndexes) do
-		this.plotTypes[index] = PlotTypes.PLOT_LAND;
+	local spawnIndexes = GetIndexesAround(x, y, maxX, maxY, 0, spawnHexRadius + 1);
+	for k,plotIdx in pairs(spawnIndexes) do
+		this.plotTypes[plotIdx] = PlotTypes.PLOT_LAND;
 	end
 
 	-- move a random direction, and carve out a cone to keep as water
 	local adjacentWater = dir(x,y,randWaterDir);
-	local waterCone = GetCone2(adjacentWater[1], adjacentWater[2], maxX, maxY, AddDir(randWaterDir, 1), spawnHexRadius);
-	for k,index in pairs(waterCone) do
-		this.plotTypes[index] = PlotTypes.PLOT_OCEAN;
+	local waterCone = GetCone2(adjacentWater[1], adjacentWater[2], maxX, maxY, AddDir(randWaterDir, 1), spawnHexRadius + 1);
+	for k,plotIdx in pairs(waterCone) do
+		this.plotTypes[plotIdx] = PlotTypes.PLOT_OCEAN;
 	end
 	-- select a line of water tiles that leads away from the spawn to guarantee these stay as water
-	local waterSafeLineIdxs = GoLine({x, y}, randWaterDir, maxX, maxY, spawnHexRadius);
+	local waterSafeLineIdxs = GoLine({x, y}, randWaterDir, maxX, maxY, spawnHexRadius + 1);
 
 	-- mutate water adjacent terrain
 	-- but avoid the line of water leading out of this hex area
@@ -43,15 +43,46 @@ function ANC_DoSpawnFor(this, x, y, maxX, maxY, playerId, isMinor)
 	-- but include the adjacent terrain
 	concatTable(toMutate, GoLine({x, y}, AddDir(randWaterDir, 1), maxX, maxY, spawnHexRadius));
 	concatTable(toMutate, GoLine({x, y}, AddDir(randWaterDir, -1), maxX, maxY, spawnHexRadius));
-	for i=1,7 do -- 7 attempts (random number)
+	for i=1,2 do -- JUST 2 attempts, with more, the spawn might not have enough water
 		local from, to = PlotTypes.PLOT_OCEAN, PlotTypes.PLOT_LAND;
 		local chance = 200;
 		if (i%2==0) then local temp = from; from = to; to = temp; chance = 1000 - chance; end
-		Mutate(this.plotTypes, this, from, to, toMutate);
+		--Mutate(this.plotTypes, this, from, to, toMutate);
 	end
 
 
+
+
 	local indexes;
+
+	-- lock nearby everything
+	local lockSize = spawnHexRadius;
+	if isMinor then lockSize = lockSize + 1; end
+	indexes = GetIndexesAround(x, y, maxX, maxY, 0, lockSize);
+	for k,plotIdx in pairs(indexes) do
+		--this.plotIsLocked[plotIdx] = true;
+		if this.plotTypes[plotIdx] == PlotTypes.PLOT_LAND then
+			this.plotTerrain[plotIdx] = TerrainTypes.TERRAIN_GRASS;
+		else
+			this.plotTerrain[plotIdx] = TerrainTypes.TERRAIN_OCEAN;
+		end
+	end
+
+	-- lock nearby water, prevents land growth from putting the spawn point in a tiny inlet
+	local waterLock = adjacentWater;
+	for i=1,4 do
+		waterLock = dir(waterLock[1], waterLock[2], randWaterDir);
+	end
+	indexes = GetIndexesAround(waterLock[1],waterLock[2], maxX, maxY, 0, waterLockSize);
+	for k,plotIdx in pairs(indexes) do
+		this.plotIsLocked[plotIdx] = true;
+		-- it's important to set a valid terrain type or future sets get glitched
+		if this.plotTypes[plotIdx] == PlotTypes.PLOT_LAND then
+			this.plotTerrain[plotIdx] = TerrainTypes.TERRAIN_GRASS;
+		else
+			this.plotTerrain[plotIdx] = TerrainTypes.TERRAIN_OCEAN;
+		end
+	end
 
 	-- rand luxuries
 	local lux1 = this:getRandLux();
@@ -60,34 +91,33 @@ function ANC_DoSpawnFor(this, x, y, maxX, maxY, playerId, isMinor)
 		lux2 = this:getRandLux();
 		if (lux2[1] ~= lux1[1]) then break; end
 	end
-	-- rand bonuses
-	local bon1 = this:getRandBonus();
-	local bon2;
-	for i=1,10 do
-		bon2 = this:getRandBonus();
-		if (bon2[1] ~= bon1[1]) then break; end
-	end
 
 	-- things to add
 	local toAdd1 = {};
 	local toAdd2 = {};
 	local toAdd3 = {};
 	table.insert(toAdd1, lux2);
-	table.insert(toAdd1, bon1);
+	table.insert(toAdd1, this:getRandBonus());
+	table.insert(toAdd1, this.iron_ID);
 
 	table.insert(toAdd2, lux1);
 	table.insert(toAdd2, lux2);
-	table.insert(toAdd2, bon2);
+	table.insert(toAdd2, this:getRandBonus());
+	table.insert(toAdd2, this.horse_ID);
+	table.insert(toAdd2, this.coal_ID);
+	table.insert(toAdd2, this.oil_ID);
 
 	table.insert(toAdd3, lux2);
-	table.insert(toAdd3, bon2);
-	table.insert(toAdd3, bon1);
+	table.insert(toAdd3, this:getRandBonus());
+	table.insert(toAdd3, this:getRandBonus());
+	table.insert(toAdd3, this.aluminum_ID);
+	table.insert(toAdd3, this.uranium_ID);
 
 
 	local toAddAll = {};
 	table.insert(toAddAll, {toAdd1, GetIndexesAroundRand(x, y, maxX, maxY, 1)});
 	table.insert(toAddAll, {toAdd2, GetIndexesAroundRand(x, y, maxX, maxY, 2)});
-	table.insert(toAddAll, {toAdd3, GetIndexesAroundRand(x, y, maxX, maxY, 3)});
+	table.insert(toAddAll, {toAdd3, GetIndexesAroundRand(x, y, maxX, maxY, 3)}); -- up to cityWorkRadius
 
 	
 	for k0,addInfo in pairs(toAddAll) do
@@ -109,38 +139,49 @@ function ANC_DoSpawnFor(this, x, y, maxX, maxY, playerId, isMinor)
 		end
 	end
 
+	local cityWorkRadius = 3;
+	local numHills = 0;
+	local numFlat = 0;
+	indexes = GetIndexesAround(x, y, maxX, maxY, 0, cityWorkRadius);
+	for k,plotIdx in pairs(indexes) do
+		if this.plotTypes[plotIdx] == PlotTypes.PLOT_HILLS then
+			numHills = numHills + 1;
+		elseif this.plotTypes[plotIdx] == PlotTypes.PLOT_LAND then
+			numFlat = numFlat + 1;
+		end
+	end
+	print ("i: " .. #indexes);
+	print ("h: " .. numHills);
+	print ("f: " .. numFlat);
+	local numHillsNeeded = math.floor((numFlat - numHills) / 3); -- divide by 3 means it will be close to 50 50, 2 would be perfect
+	print ("needed: " .. numHillsNeeded);
+	indexes = GetIndexesAroundRand(x, y, maxX, maxY, 0, cityWorkRadius);
+	for k,plotIdx in pairs(indexes) do
+		if not this.plotIsLocked[plotIdx] then
+			if numHillsNeeded > 0 then
+				this.plotTypes[plotIdx] = PlotTypes.PLOT_HILLS;
+				numHillsNeeded = numHillsNeeded - 1;
+			elseif numHillsNeeded < 0 then
+				this.plotTypes[plotIdx] = PlotTypes.PLOT_LAND;
+				numHillsNeeded = numHillsNeeded + 1;
+			end -- or if 0, do nothing!
+		end
+	end
+	print ("needed: " .. numHillsNeeded);
+
+
+	-- lock them all
+	indexes = GetIndexesAround(x, y, maxX, maxY, 0, lockSize);
+	for k,plotIdx in pairs(indexes) do
+		this.plotIsLocked[plotIdx] = true;
+	end
+
 
 	-- finally, spawn lock tiles to avoid people spawning too close
 	if (this.cfg.spawnRangeMin < 3) then print("WARNING: spawnRangeMin was dangerously low!"); end
 	indexes = GetIndexesAround(x, y, maxX, maxY, 0, this.cfg.spawnRangeMin);
-	for k,index in pairs(indexes) do
-		this.plotIsWithinSpawnDist[index] = true;
-	end
-
-
-
-	-- lock nearby everything
-	local lockSize = spawnHexRadius;
-	if isMinor then lockSize = lockSize + 1; end
-	indexes = GetIndexesAround(x, y, maxX, maxY, 0, lockSize);
-	for k,index in pairs(indexes) do
-		this.plotIsLocked[index] = true;
-	end
-
-	-- lock nearby water, prevents land growth from putting the spawn point in a tiny inlet
-	local waterLock = adjacentWater;
-	for i=1,4 do
-		waterLock = dir(waterLock[1], waterLock[2], randWaterDir);
-	end
-	indexes = GetIndexesAround(waterLock[1],waterLock[2], maxX, maxY, 0, waterLockSize);
-	for k,index in pairs(indexes) do
-		this.plotIsLocked[index] = true;
-		-- it's important to set a valid terrain type or future sets get glitched
-		if this.plotTypes[index] == PlotTypes.PLOT_LAND then
-			this.plotTerrain[index] = TerrainTypes.TERRAIN_GRASS;
-		else
-			this.plotTerrain[index] = TerrainTypes.TERRAIN_OCEAN;
-		end
+	for k,plotIdx in pairs(indexes) do
+		this.plotIsWithinSpawnDist[plotIdx] = true;
 	end
 
 
