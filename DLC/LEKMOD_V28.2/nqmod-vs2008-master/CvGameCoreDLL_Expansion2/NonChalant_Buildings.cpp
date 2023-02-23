@@ -583,18 +583,7 @@ BuildingAddType CvPlayer::ShouldHaveBuilding(const CvPlayer& rPlayer, const CvCi
 				return REMOVE;
 		}
 	}
-
-	{// POLICY_CARAVANS gives BUILDING_SILK_ROAD_TRADE_ROUTE to Capital
-		const bool isSilkRoadBuilding = eBuildingClass == BuildingClass("BUILDING_SILK_ROAD_TRADE_ROUTE");
-		if (isSilkRoadBuilding)
-		{
-			const bool hasSilkRoad = rPlayer.HasPolicy("POLICY_CARAVANS");
-			if (isYourCapital && hasSilkRoad)
-				return ADD;
-			else
-				return REMOVE;
-		}
-	}
+	
 
 	{// POLICY_FREE_THOUGHT gives BUILDING_FREE_THOUGHT_TRADE_ROUTE to Capital
 		const bool isFreeThoughtBuilding = eBuildingClass == BuildingClass("BUILDINGCLASS_FREE_THOUGHT_TRADE_ROUTE");
@@ -857,11 +846,11 @@ int CvPlayer::getSpecialistYieldHardcoded(const CvCity* pCity, const SpecialistT
 	// logic that does not reference the city
 
 
-	{// POLICY_TRADITION_FINISHER gives +1G +1PD to Engineer Specialists
-		const bool hasTraditionFinisher = player.HasPolicy("POLICY_TRADITION_FINISHER");
-		if (eYield == YIELD_GOLD && hasTraditionFinisher && isEngineer)
+	{// POLICY_TRADE_UNIONS gives +1G +1PD to Engineer Specialists
+		const bool hasTradeUnions = player.HasPolicy("POLICY_TRADE_UNIONS");
+		if (eYield == YIELD_GOLD && hasTradeUnions && isEngineer)
 			change += 1;
-		if (eYield == YIELD_PRODUCTION && hasTraditionFinisher && isEngineer)
+		if (eYield == YIELD_PRODUCTION && hasTradeUnions && isEngineer)
 			change += 1;
 	}
 
@@ -890,9 +879,7 @@ int CvPlayer::getSpecialistYieldHardcoded(const CvCity* pCity, const SpecialistT
 	}
 
 	{// POLICY_ENTREPRENEURSHIP gives +1PD +1G 1C to Merchant Specialists
-		const bool hasEntreprenuership = player.HasPolicy("POLICY_ENTREPRENEURSHIP");
-		if (eYield == YIELD_PRODUCTION && hasEntreprenuership && isMerchant)
-			change += 1;
+		const bool hasEntreprenuership = player.HasPolicy("POLICY_ENTREPRENEURSHIP");		
 		if (eYield == YIELD_GOLD && hasEntreprenuership && isMerchant)
 			change += 1;
 		if (eYield == YIELD_CULTURE && hasEntreprenuership && isMerchant)

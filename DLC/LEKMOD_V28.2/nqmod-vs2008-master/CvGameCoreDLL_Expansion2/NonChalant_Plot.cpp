@@ -405,14 +405,10 @@ int CvPlot::getExtraYield
 					yieldChange += 2;
 			}
 
-			{// POLICY_COMMERCE_FINISHER gives +1PD to mines withour resources, and +1FD to Farms without Resources or Flood Plains				
-				const bool hasCommerceFinisher = player.HasPolicy("POLICY_COMMERCE_FINISHER");
-				const bool isFarm = plot.HasImprovement("IMPROVEMENT_FARM");
+			{// POLICY_CARAVANS gives +1PD to mines without resources				
+				const bool hasCaravans = player.HasPolicy("POLICY_CARAVANS");
 				const bool isMine = plot.HasImprovement("IMPROVEMENT_MINE");
-				const bool isFloodPlains = plot.HasFeature("FEATURE_FLOOD_PLAINS");
-				if (eYieldType == YIELD_FOOD && hasCommerceFinisher && isFarm && noResource && !isFloodPlains)
-					yieldChange += 1;
-				if (eYieldType == YIELD_PRODUCTION && hasCommerceFinisher && isMine && noResource)
+				if (eYieldType == YIELD_PRODUCTION && hasCaravans && isMine && noResource)
 					yieldChange += 1;				
 			}
 

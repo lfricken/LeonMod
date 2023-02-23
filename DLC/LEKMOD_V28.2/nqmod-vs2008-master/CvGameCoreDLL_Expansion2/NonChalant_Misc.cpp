@@ -218,12 +218,6 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 			}
 			else // destination is another civ
 			{
-				if (eYieldType == YIELD_FOOD && hasSilkRoad)
-					yieldChange += 3;
-				if (eYieldType == YIELD_PRODUCTION && hasSilkRoad)
-					yieldChange += 3;
-				if (eYieldType == YIELD_DIPLOMATIC_SUPPORT && hasSilkRoad)
-					yieldChange += 3;
 				if (eYieldType == YIELD_FOOD)
 					yieldChange += numExplorationPolicies;
 				if (eYieldType == YIELD_PRODUCTION)
