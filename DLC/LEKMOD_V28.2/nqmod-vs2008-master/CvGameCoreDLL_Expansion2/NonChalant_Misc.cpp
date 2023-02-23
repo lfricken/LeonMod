@@ -160,6 +160,9 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 	int numExplorationPolicies = playerOrigin.HasPolicy("POLICY_EXPLORATION_CLOSER_1") || playerOrigin.HasPolicy("POLICY_EXPLORATION_CLOSER_2") || 
 		playerOrigin.HasPolicy("POLICY_EXPLORATION_CLOSER_3") || playerOrigin.HasPolicy("POLICY_EXPLORATION_CLOSER_4") || 
 		playerOrigin.HasPolicy("POLICY_EXPLORATION_CLOSER_5") || playerOrigin.HasPolicy("POLICY_EXPLORATION_CLOSER_6");
+	int numCommercePolicies = playerOrigin.HasPolicy("POLICY_COMMERCE_CLOSER_1") || playerOrigin.HasPolicy("POLICY_COMMERCE_CLOSER_2") ||
+		playerOrigin.HasPolicy("POLICY_COMMERCE_CLOSER_3") || playerOrigin.HasPolicy("POLICY_COMMERCE_FINISHER") ||
+		playerOrigin.HasPolicy("POLICY_COMMERCE_CLOSER_5") || playerOrigin.HasPolicy("POLICY_COMMERCE_CLOSER_6");
 	const bool hasTheocrary = playerOrigin.HasPolicy("POLICY_THEOCRACY");
 
 	if (isInternal) // true if this is an internal trade route
@@ -193,6 +196,8 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 				yieldChange += 2;
 			if (eYieldType == YIELD_FAITH && hasTheocrary)
 				yieldChange += 2;
+			if (eYieldType == YIELD_GOLD)
+				yieldChange += (numCommercePolicies * 3);
 		}
 	}
 	else

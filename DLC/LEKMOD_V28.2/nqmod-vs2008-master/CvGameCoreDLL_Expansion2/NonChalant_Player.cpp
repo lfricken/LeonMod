@@ -339,7 +339,12 @@ void CvPlayer::UpdateFreePolicies()
 	{
 		int numPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(6));
 		if (numPolicies >= 4)
-			UpdateHasPolicy("POLICY_COMMERCE_CLOSER_4", true);
+			UpdateHasPolicy("POLICY_COMMERCE_FINISHER", true);
+	}
+	{
+		int numPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(6));
+		if (numPolicies >= 4)
+			UpdateHasPolicy("POLICY_TRADITION_FINISHER", true);
 	}
 	{
 		int numPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(6));
