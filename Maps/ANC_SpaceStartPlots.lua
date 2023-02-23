@@ -47,7 +47,7 @@ function ANC_DoSpawnFor(this, x, y, maxX, maxY, playerId, isMinor)
 		local from, to = PlotTypes.PLOT_OCEAN, PlotTypes.PLOT_LAND;
 		local chance = 200;
 		if (i%2==0) then local temp = from; from = to; to = temp; chance = 1000 - chance; end
-		--Mutate(this.plotTypes, this, from, to, toMutate);
+		Mutate(this.plotTypes, this, from, to, toMutate);
 	end
 
 
@@ -55,28 +55,11 @@ function ANC_DoSpawnFor(this, x, y, maxX, maxY, playerId, isMinor)
 
 	local indexes;
 
-	-- lock nearby everything
+	-- set terrain types
 	local lockSize = spawnHexRadius;
 	if isMinor then lockSize = lockSize + 1; end
 	indexes = GetIndexesAround(x, y, maxX, maxY, 0, lockSize);
 	for k,plotIdx in pairs(indexes) do
-		--this.plotIsLocked[plotIdx] = true;
-		if this.plotTypes[plotIdx] == PlotTypes.PLOT_LAND then
-			this.plotTerrain[plotIdx] = TerrainTypes.TERRAIN_GRASS;
-		else
-			this.plotTerrain[plotIdx] = TerrainTypes.TERRAIN_OCEAN;
-		end
-	end
-
-	-- lock nearby water, prevents land growth from putting the spawn point in a tiny inlet
-	local waterLock = adjacentWater;
-	for i=1,4 do
-		waterLock = dir(waterLock[1], waterLock[2], randWaterDir);
-	end
-	indexes = GetIndexesAround(waterLock[1],waterLock[2], maxX, maxY, 0, waterLockSize);
-	for k,plotIdx in pairs(indexes) do
-		this.plotIsLocked[plotIdx] = true;
-		-- it's important to set a valid terrain type or future sets get glitched
 		if this.plotTypes[plotIdx] == PlotTypes.PLOT_LAND then
 			this.plotTerrain[plotIdx] = TerrainTypes.TERRAIN_GRASS;
 		else
@@ -101,6 +84,7 @@ function ANC_DoSpawnFor(this, x, y, maxX, maxY, playerId, isMinor)
 	table.insert(toAdd1, this.iron_ID);
 
 	table.insert(toAdd2, lux1);
+
 	table.insert(toAdd2, lux2);
 	table.insert(toAdd2, this:getRandBonus());
 	table.insert(toAdd2, this.horse_ID);
@@ -124,17 +108,25 @@ function ANC_DoSpawnFor(this, x, y, maxX, maxY, playerId, isMinor)
 		local toAdd = addInfo[1];
 		local indexes = addInfo[2];
 		for k1,resInfo in pairs(toAdd) do
+			local didPlace = false;
 			for k2,plotIdx in pairs(indexes) do
 				local isWaterRes = resInfo[2] == PlotTypes.PLOT_OCEAN;
 				if not this.plotIsLocked[plotIdx] then
 					if isWaterRes and this.plotTypes[plotIdx] == PlotTypes.PLOT_OCEAN then
+						--print("lands " .. plotIdx .. " " .. resInfo[1] or "." .. " " .. resInfo[4] or ".")
 						this:applyData(plotIdx, resInfo);
+						didPlace = true;
 						break;
 					elseif not isWaterRes and this.plotTypes[plotIdx] ~= PlotTypes.PLOT_OCEAN then
+						--print("water " .. plotIdx .. " " .. resInfo[1] or "." .. " " .. resInfo[4] or ".")
 						this:applyData(plotIdx, resInfo);
+						didPlace = true;
 						break;
 					end
 				end
+			end
+			if not didPlace then
+				print("WARNING Spawn Placement Failed: " .. (resInfo[1] or ".") .. " " .. (resInfo[2] or ".") .. " " .. (resInfo[3] or ".") .. " " ..(resInfo[4] or "."));
 			end
 		end
 	end
@@ -150,11 +142,8 @@ function ANC_DoSpawnFor(this, x, y, maxX, maxY, playerId, isMinor)
 			numFlat = numFlat + 1;
 		end
 	end
-	print ("i: " .. #indexes);
-	print ("h: " .. numHills);
-	print ("f: " .. numFlat);
+
 	local numHillsNeeded = math.floor((numFlat - numHills) / 3); -- divide by 3 means it will be close to 50 50, 2 would be perfect
-	print ("needed: " .. numHillsNeeded);
 	indexes = GetIndexesAroundRand(x, y, maxX, maxY, 0, cityWorkRadius);
 	for k,plotIdx in pairs(indexes) do
 		if not this.plotIsLocked[plotIdx] then
@@ -167,8 +156,22 @@ function ANC_DoSpawnFor(this, x, y, maxX, maxY, playerId, isMinor)
 			end -- or if 0, do nothing!
 		end
 	end
-	print ("needed: " .. numHillsNeeded);
 
+
+
+	-- lock nearby water, prevents land growth from putting the spawn point in a tiny inlet
+	local waterLock = adjacentWater;
+	for i=1,4 do
+		waterLock = dir(waterLock[1], waterLock[2], randWaterDir);
+	end
+	indexes = GetIndexesAround(waterLock[1],waterLock[2], maxX, maxY, 0, waterLockSize);
+	for k,plotIdx in pairs(indexes) do
+		this.plotIsLocked[plotIdx] = true;
+		-- it's important to set a valid terrain type or future sets get glitched
+		if this.plotTypes[plotIdx] == PlotTypes.PLOT_OCEAN then
+			this.plotTerrain[plotIdx] = TerrainTypes.TERRAIN_OCEAN;
+		end
+	end
 
 	-- lock them all
 	indexes = GetIndexesAround(x, y, maxX, maxY, 0, lockSize);

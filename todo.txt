@@ -30,11 +30,11 @@ antiquity card needs to only be activatable after
 do hidden antiquity sites still work at all? just redo antiquity logic
 
 
-
+[523689.437] DBG: false CvGame.cpp:5897 Please send Jon this with your last 5 autosaves and what changelist # you're playing. Could not find diplomacy response. Leader - LEADER_MACEDON, Response - RESPONSE_FIRST_GREETING
 
 
 Map
-
+	fix adjacency checks with edge of map
 	spawn points
 	strategic, more fish?
 
