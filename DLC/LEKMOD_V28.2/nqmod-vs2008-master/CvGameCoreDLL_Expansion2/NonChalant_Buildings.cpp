@@ -782,6 +782,30 @@ BuildingAddType CvPlayer::ShouldHaveBuilding(const CvPlayer& rPlayer, const CvCi
 		}
 	}
 
+	{// POLICY_EXPLORATION_CLOSER_2 free in Capital
+		const bool isExplorationBuilding2 = eBuildingClass == BuildingClass("BUILDINGCLASS_POLICY_EXPLORATION_CLOSER_2");
+		if (isExplorationBuilding2)
+		{
+			const bool hasExploration2 = rPlayer.HasPolicy("POLICY_EXPLORATION_CLOSER_2");
+			if (hasExploration2 && isYourCapital)
+				return ADD;
+			else
+				return REMOVE;
+		}
+	}
+
+	{// POLICY_EXPLORATION_CLOSER_5 free in Capital
+		const bool isExplorationBuilding5 = eBuildingClass == BuildingClass("BUILDINGCLASS_POLICY_EXPLORATION_CLOSER_5");
+		if (isExplorationBuilding5)
+		{
+			const bool hasExploration5 = rPlayer.HasPolicy("POLICY_EXPLORATION_CLOSER_5");
+			if (hasExploration5 && isYourCapital)
+				return ADD;
+			else
+				return REMOVE;
+		}
+	}
+
 	return INDIFFERENT;
 }
 int CvPlayer::getSpecialistGpp(const CvCity* pCity, const SpecialistTypes eSpecialist, const SpecialistTypes eGppType, const bool) const
