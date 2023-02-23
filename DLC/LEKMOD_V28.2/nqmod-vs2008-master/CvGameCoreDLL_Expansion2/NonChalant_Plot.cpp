@@ -865,11 +865,11 @@ int CvPlot::getExtraYield
 					yieldChange += 2;
 			}
 
-			{// POLICY_COLLECTIVE_RULE - +3 C to Natural Wonders
+			{// POLICY_COLLECTIVE_RULE - +2 C to Natural Wonders
 				const bool hasCollectiveRule = player.HasPolicy("POLICY_COLLECTIVE_RULE");
 				const bool isNaturalWonder = plot.HasAnyNaturalWonder();
 				if (eYieldType == YIELD_CULTURE && hasCollectiveRule && isNaturalWonder)
-					yieldChange += 3;
+					yieldChange += 2;
 			}			
 
 			{// POLICY_MILITARY_TRADITION - +1 PD to improved Iron, Stone, Hardwood
