@@ -419,6 +419,36 @@ int CvPlot::getExtraYield
 					yieldChange += 2;
 			}
 
+			{// POLICY_NAVAL_TRADITION - gives +1 PD and +1G to Coast
+				const bool hasNavalTradition = player.HasPolicy("POLICY_NAVAL_TRADITION");
+				const bool isCoast = plot.HasTerrain(TERRAIN_COAST) || plot.HasTerrain(TERRAIN_OCEAN);
+				const bool isPolder = plot.HasImprovement("IMPROVEMENT_POLDER");
+				const bool isAyer = plot.HasImprovement("IMPROVEMENT_AYER");
+				const bool isDryDock = plot.HasImprovement("IMPROVEMENT_DOCK") || plot.HasImprovement("IMPROVEMENT_CHILE_DOCK");
+				if (eYieldType == YIELD_PRODUCTION && hasNavalTradition && isCoast && !hasLuxury && !isPolder && !isAyer && !isDryDock)
+					yieldChange += 1;
+				if (eYieldType == YIELD_GOLD && hasNavalTradition && isCoast && !hasLuxury && !isPolder && !isAyer && !isDryDock)
+					yieldChange += 1;				
+			}
+
+			{// POLICY_NAVIGATION_SCHOOL gives +1FD to farms without resources				
+				const bool hasNaigationSchool = player.HasPolicy("POLICY_NAVIGATION_SCHOOL");
+				const bool isFarm = plot.HasImprovement("IMPROVEMENT_FARM");
+				const bool isFloodPlains = plot.HasFeature("FEATURE_FLOOD_PLAINS");
+				if (eYieldType == YIELD_FOOD && hasNaigationSchool && isFarm && noResource && !isFloodPlains)
+					yieldChange += 1;				
+			}
+
+			{// POLICY_TREASURE_FLEETS gives +2PD +2C to Coal and Oil				
+				const bool hasTreasureFleets = player.HasPolicy("POLICY_TREASURE_FLEETS");
+				const bool isCoal = plot.HasResource("RESOURCE_COAL");
+				const bool isOil = plot.HasResource("RESOURCE_OIL");			
+				if (eYieldType == YIELD_PRODUCTION && hasTreasureFleets && (isCoal || isOil))
+					yieldChange += 2;
+				if (eYieldType == YIELD_CULTURE && hasTreasureFleets && (isCoal || isOil))
+					yieldChange += 2;
+			}
+
 			{// BUILDINGCLASS_PORCELAIN_TOWER - 3SC per Lucury
 				const bool hasPorcelinTower = player.HasWonder(BuildingClass("BUILDINGCLASS_PORCELAIN_TOWER"));
 				if (eYieldType == YIELD_SCIENCE && hasPorcelinTower && hasLuxury)

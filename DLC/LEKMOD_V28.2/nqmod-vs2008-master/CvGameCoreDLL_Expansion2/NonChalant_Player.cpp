@@ -44,7 +44,7 @@ string CvPlayer::GetCityCapCurrent_WithSourcesTooltip(int* sum) const
 		appendNewLine(&ss, sum, "Base", +3, true);
 	}
 	{ // liberty finisher
-		appendNewLine(&ss, sum, "from completing the Liberty Policy Tree", +1, player.HasPolicy("POLICY_LIBERTY_CLOSER_4"));
+		appendNewLine(&ss, sum, "from adopting 4 policies in the Liberty branch", +1, player.HasPolicy("POLICY_LIBERTY_CLOSER_4"));
 	}
 	{ // 1 for 8 policies (free policies included)
 		appendNewLine(&ss, sum, "from 8 or more Social Policies", +1, player.GetNumPoliciesTotal() >= 8);
@@ -69,6 +69,9 @@ string CvPlayer::GetCityCapCurrent_WithSourcesTooltip(int* sum) const
 		stringstream desc;
 		desc << "from 1 per Conquered City (max bonus of " << maxConqueredBonus << ")";
 		appendNewLine(&ss, sum, desc.str(), min(maxConqueredBonus, numConquered), numConquered > 0);
+	}
+	{ // colonialism +1
+		appendNewLine(&ss, sum, "from the Colonialism Policy", +1, player.HasPolicy("POLICY_MERCHANT_NAVY"));
 	}
 	{ // iron curtain +2
 		appendNewLine(&ss, sum, "from the Iron Curtain Tenet", +2, player.HasPolicy("POLICY_IRON_CURTAIN"));
