@@ -25,6 +25,9 @@ function ANC_Climate(this)
 		local xyScale = GetXyScaled(xy, maxX, maxY);
 		local lat = xyScale[2];
 		if not this.plotIsLocked[i] then
+			-- mountain plot types should get the same terrain as their surrounding plots
+			-- because our terrain growth will grow out from it, and infect tiles an innapropriate lattitudes
+			-- and a mountain needs a valid underlying terrain that ISNT TERRAIN_MOUNTAIN
 			if isArableLand(i) or this.plotTypes[i] == PlotTypes.PLOT_MOUNTAIN then
 				if this.plotTypes[i] ~= PlotTypes.PLOT_MOUNTAIN and Map.Rand(1000, "hills") < 380 then
 					this.plotTypes[i] = PlotTypes.PLOT_HILLS;
