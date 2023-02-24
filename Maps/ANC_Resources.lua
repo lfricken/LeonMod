@@ -132,8 +132,8 @@ function ANC_DoPopulateWorldWithGoodies(this)
 	local randOffsetY = Map.Rand(4, "res offset4");
 	local haltonPointsX = halton(17, 4096, Map.Rand(60, "RandStratHaltonStartX"));
 	local haltonPointsY = halton(19, 4096, Map.Rand(60, "RandStratHaltonStartY"));
-	local scaleX = function(x) return math.floor(x * 150) - randOffsetX; end
-	local scaleY = function(y) return math.floor(y * 150) - randOffsetY; end
+	local scaleX = function(x) return math.floor(x * 170) - randOffsetX; end
+	local scaleY = function(y) return math.floor(y * 170) - randOffsetY; end
 	local supportsWater = function(resInfo) return this.oil_ID[1] == resInfo[1]; end
 	-- bonuses
 	local count = 0;
@@ -388,7 +388,7 @@ function recordResourceInfo(this)
 			this.aluminum_ID = {rid, PlotTypes.PLOT_HILLS, nil, nil, calcRes};
 			table.insert(this.strats, this.aluminum_ID);
 		elseif rName == "RESOURCE_URANIUM" then
-			this.uranium_ID = {rid, PlotTypes.PLOT_HILLS, nil, nil, calcRes, 0.5};
+			this.uranium_ID = {rid, PlotTypes.PLOT_HILLS, nil, nil, calcRes, 1.0};
 			table.insert(this.strats, this.uranium_ID);
 
 

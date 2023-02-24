@@ -46,12 +46,6 @@ function expand(bWouldConnect,numAdjacent)
 	elseif (numAdjacent >= 5) then return (Map.Rand(1000, "Mutate") < 500); end
 	return false;
 end
-function swiss(bWouldConnect,numAdjacent)
-	if (bWouldConnect) then return false; end
-
-	if (numAdjacent == 0) then return (Map.Rand(1000, "swiss") < 25); end
-	return false;
-end
 
 
 function growLand(this)
@@ -104,13 +98,9 @@ function ANC_LandAndSea(this)
 		expandWater(this);
 	end
 
-	-- lakes
-	for i=1,1 do
-		local from, to = PlotTypes.PLOT_LAND, PlotTypes.PLOT_OCEAN;
-		Mutate(this.plotTypes, this, from, to, nil, swiss, ANC_ignoreLat(this.tundraLat, this.maxX, this.maxY));
-	end
+	-- do NOT do lakes yet to avoid putting resources in them
 
-
+	-- mountains
 	for i, plot in ANC_Plots() do
 		if (not this.plotIsLocked[i] and isArableLand(i) and (Map.Rand(1000, "mountains") < 15)) then
 			this.plotTypes[i] = PlotTypes.PLOT_MOUNTAIN;
