@@ -5,17 +5,16 @@ include("ANC_Utils");
 include("ANC_StartPlotsCreate");
 
 
-local g_polarSpawnAvoidance = 4;
+local g_polarSpawnAvoidance = 8;
 
 
 ------------------------------------------------------------------------------
 -- Populates the players spawn points with terrain and goodies, then locks the tiles
 ------------------------------------------------------------------------------
-function ANC_DoSpawnFor(this, x, y, maxX, maxY, playerId, isMinor)
+function ANC_DoSpawnFor(this, x, y, maxX, maxY, playerId)
 
 	local waterLockSize = 3;
 	local spawnHexRadius = 3;
-	if (isMinor) then spawnHexRadius = 2; end -- we don't want minors taking up tons of space
 
 	local randWaterDir = RandDir();
 
@@ -57,7 +56,6 @@ function ANC_DoSpawnFor(this, x, y, maxX, maxY, playerId, isMinor)
 
 	-- set terrain types
 	local lockSize = spawnHexRadius;
-	if isMinor then lockSize = lockSize + 1; end
 	indexes = GetIndexesAround(x, y, maxX, maxY, 0, lockSize);
 	for k,plotIdx in pairs(indexes) do
 		if this.plotTypes[plotIdx] == PlotTypes.PLOT_LAND then
@@ -187,21 +185,45 @@ function ANC_DoSpawnFor(this, x, y, maxX, maxY, playerId, isMinor)
 	end
 
 
+	flagAsSpawnPoint(this, {x, y});
+end
+------------------------------------------------------------------------------
+-- Mark the nearby spawn points so we dont spawn too close
+------------------------------------------------------------------------------
+function flagAsSpawnPoint(this, xy)
 	-- finally, spawn lock tiles to avoid people spawning too close
 	if (this.cfg.spawnRangeMin < 3) then print("WARNING: spawnRangeMin was dangerously low!"); end
-	indexes = GetIndexesAround(x, y, maxX, maxY, 0, this.cfg.spawnRangeMin);
+	local indexes = GetIndexesAround(xy[1], xy[2], this.maxX, this.maxY, 0, this.cfg.spawnRangeMin);
 	for k,plotIdx in pairs(indexes) do
 		this.plotIsWithinSpawnDist[plotIdx] = true;
 	end
+end
+------------------------------------------------------------------------------
+-- Place minor civs
+------------------------------------------------------------------------------
+function ANC_DoMinorSpawns(this)
+	local numMajorCivs, majorIds, numMinors, minorIds, isTeamGame, numCivsPerTeam, majorTeamIds = ANC_GetPlayerAndTeamInfo();
+	-- halton for minor civs
+	local haltonPointsX = halton(2, 600, 2 + Map.Rand(6,"Halton Rng"));
+	local haltonPointsY = halton(3, 600, 2 + Map.Rand(6,"Halton Rng"));
 
 
-
-	-- add goodies to spawn tiles
-
-	local L1, L2, L3 = {}, {}, {};
-
-
-
+	-- minor civs
+	local yRange = this.maxY - 2 * g_polarSpawnAvoidance;
+	local scaleY = function(y)
+		return math.floor(y * yRange + g_polarSpawnAvoidance);
+	end
+	local scaleX = function(x)
+		return math.floor(x * this.maxX);
+	end
+	for idx,pid in ipairs(minorIds) do
+		local player = Players[pid];
+		local x,y = scaleX(haltonPointsX[pid]), scaleY(haltonPointsY[pid]);
+		local xy = findCsSpawnNear(this, x, y);
+		local start_plot = Map.GetPlot(xy[1], xy[2]);
+		player:SetStartingPlot(start_plot);
+		flagAsSpawnPoint(this, xy);
+	end
 
 end
 ------------------------------------------------------------------------------
@@ -213,7 +235,7 @@ function ANC_SetupStartPlots(this)
 	local maxX, maxY = Map.GetGridSize();
 
 	-- Determine number of civilizations and city states present in this game.
-	local numMajorCivs, majorIds, numMinors, minorIds, isTeamGame, numCivsPerTeam, majorTeamIds = ANC_GetPlayerAndTeamInfo()
+	local numMajorCivs, majorIds, numMinors, minorIds, isTeamGame, numCivsPerTeam, majorTeamIds = ANC_GetPlayerAndTeamInfo();
 
 
 	-- halton for minor civs
@@ -250,43 +272,56 @@ function ANC_SetupStartPlots(this)
 		local start_plot = Map.GetPlot(x, y);
 		player:SetStartingPlot(start_plot);
 
-		ANC_DoSpawnFor(this, x, y, maxX, maxY, pid, false);
-	end
-
-	-- minor civs
-	local yRange = maxY - 2 * g_polarSpawnAvoidance;
-	local scaleY = function(y)
-		return math.floor(y * yRange + g_polarSpawnAvoidance);
-	end
-	local scaleX = function(x)
-		return math.floor(x * maxX);
-	end
-	local haltonPoint = 0;
-	for idx,pid in ipairs(minorIds) do
-		local player = Players[pid];
-
-		-- find valid start location
-		local x,y;
-		for attempts=1,20 do -- limit attempts to avoid an infinite loop
-			haltonPoint = haltonPoint + 1;
-			x,y = scaleX(haltonPointsX[haltonPoint]), scaleY(haltonPointsY[haltonPoint]);
-			local plotIdx = GetI(x, y, maxX);
-			-- found a valid plot?
-			if (not this.plotIsWithinSpawnDist[plotIdx]) then break; end
-
-			if (attempts > 18) then print("WARNING: Map Too Small. Minor civ cant find spawn location."); end
-		end
-
-		--print("Start Minor: " .. x .. ", " .. y);
-
-		local start_plot = Map.GetPlot(x, y);
-		player:SetStartingPlot(start_plot);
-
-		ANC_DoSpawnFor(this, x, y, maxX, maxY, pid, true);
+		ANC_DoSpawnFor(this, x, y, maxX, maxY, pid);
 	end
 
 	--ANC_SetPlotTypes(this.plotTypes);
 	print("ANC_SpaceStartPlots End");
+end
+-------------------------------------------------
+-- Finds a valid spawn location for 
+-------------------------------------------------
+function findCsSpawnNear(this, x, y)
+	for r = 0, 40 do
+		local points = GetIndexesAroundRand(x, y, this.maxX, this.maxY, r);
+		for k,index in pairs(points) do
+			local xy = GetXy(index, this.maxX);
+			if isValidForCs(this, xy) then
+				return xy;
+			end
+		end
+	end
+	print("ERROR NO CS SPAWN POINT FOUND");
+	return nil;
+end
+-------------------------------------------------
+-- True if this xy is a valid spawn location for a city state
+-------------------------------------------------
+function isValidForCs(this, xy)
+	-- bounds
+	if not (xy[1] > 1 and xy[1] < this.maxX-1 and xy[2] > 1 and xy[2] < this.maxY-1) then return false; end
+
+	local plotIdx = GetI(xy[1], xy[2], this.maxX);
+	local isLand = this.plotTypes[plotIdx] == PlotTypes.PLOT_LAND or this.plotTypes[plotIdx] == PlotTypes.PLOT_HILLS;
+	local hasFeatures = this.plotFeature[plotIdx] ~= FeatureTypes.NO_FEATURE;
+	-- require land
+	if not isLand or hasFeatures then return false; end
+	-- spawn distances
+	if this.plotIsWithinSpawnDist[plotIdx] then return false; end
+
+
+	local isSurroundedByLand = true;
+	local adjacents = GetIndexesAround(xy[1], xy[2], this.maxX, this.maxY, 1);
+	for k,adjIdx in pairs(adjacents) do
+		if this.plotTypes[adjIdx] == PlotTypes.PLOT_OCEAN then
+			isSurroundedByLand = false;
+			break;
+		end
+	end
+	-- require water adjacent
+	if isSurroundedByLand then return false; end
+
+	return true;
 end
 ------------------------------------------------------------------------------
 -- Determines the XY size of the map

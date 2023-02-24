@@ -131,7 +131,7 @@ function ANC_CreateMap(ancArgs)
 		local points = GetIndexesAround(xy[1], xy[2], this.maxX, this.maxY, 1);
 		local isSurroundedByLand = true;
 		for k,adjIdx in pairs(points) do
-			if this.plotTypes[i] == PlotTypes.PLOT_OCEAN then
+			if this.plotTypes[adjIdx] == PlotTypes.PLOT_OCEAN then
 				isSurroundedByLand = false;
 				break;
 			end
@@ -155,6 +155,7 @@ function ANC_CreateMap(ancArgs)
 
 
 	ANC_UpdatePlots(this);
+	ANC_DoMinorSpawns(this);
 	DetermineContinents(); -- Continental artwork selection must wait until Areas are finalized, so it gets handled last.
 
 	print("CreateMap End");
