@@ -185,7 +185,7 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 				yieldChange += 1;
 			if (eYieldType == YIELD_PRODUCTION && hasOilRefinery)
 				yieldChange += 3;
-			{ // POLICY_FREE_THOUGHT +6SC +2FD from Internal Trade Routes
+			{ // POLICY_FREE_THOUGHT +6SC +2FD from Trade Routes
 				const bool hasFreeThought = playerOrigin.HasPolicy("POLICY_FREE_THOUGHT");
 				if (eYieldType == YIELD_FOOD && hasFreeThought)
 					yieldChange += 2;
@@ -220,6 +220,13 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 					yieldChange += numExplorationPolicies;
 				if (eYieldType == YIELD_FAITH && hasTheocrary)
 					yieldChange += 2;
+				{ // POLICY_FREE_THOUGHT +6SC +2FD from Trade Routes
+					const bool hasFreeThought = playerOrigin.HasPolicy("POLICY_FREE_THOUGHT");
+					if (eYieldType == YIELD_FOOD && hasFreeThought)
+						yieldChange += 2;
+					if (eYieldType == YIELD_SCIENCE && hasFreeThought)
+						yieldChange += 6;
+				}
 			}
 			else // destination is another civ
 			{
@@ -230,19 +237,14 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 				if (eYieldType == YIELD_FAITH && hasTheocrary)
 					yieldChange += 2;
 			}
+			
 
-			{ // POLICY_AESTHETICS +2C and +2T from External Routes
-				const bool hasAestheticsOpener = playerOrigin.HasPolicy("POLICY_AESTHETICS");
-				if (eYieldType == YIELD_CULTURE && hasAestheticsOpener)
-					yieldChange += 2;
-				if (eYieldType == YIELD_TOURISM && hasAestheticsOpener)
-					yieldChange += 2;
-			}
-
-			{ // POLICY_FREE_THOUGHT +1 Insight from External Routes
+			{ // POLICY_FREE_THOUGHT +6SC +2FD from Trade Routes
 				const bool hasFreeThought = playerOrigin.HasPolicy("POLICY_FREE_THOUGHT");
-				if (eYieldType == YIELD_SCIENTIFIC_INSIGHT && hasFreeThought)
-					yieldChange += 1;
+				if (eYieldType == YIELD_FOOD && hasFreeThought)
+					yieldChange += 2;
+				if (eYieldType == YIELD_SCIENCE && hasFreeThought)
+					yieldChange += 6;
 			}
 
 			{ // diplomatic support from trade route buildings

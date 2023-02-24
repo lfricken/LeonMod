@@ -365,6 +365,23 @@ int CvPlot::getExtraYield
 					yieldChange += 2;
 			}
 
+			{ // POLICY_HUMANISM - gives 3SC Aluminum 1 Insight Uranium 
+				const bool hasHumansim = player.HasPolicy("POLICY_HUMANISM");				
+				const bool isAluminum = plot.HasResource("RESOURCE_ALUMINUM");
+				const bool isUranium = plot.HasResource("RESOURCE_URANIUM");
+				if (eYieldType == YIELD_SCIENCE && hasHumansim && isAluminum)
+					yieldChange += 3;
+				if (eYieldType == YIELD_SCIENTIFIC_INSIGHT && hasHumansim && isUranium)
+					yieldChange += 1;
+			}
+
+			{ // POLICY_SECULARISM - gives 3SC Aluminum 1 Insight Uranium 
+				const bool hasHumansim = player.HasPolicy("POLICY_SECULARISM");
+				const bool isSubmarineVolcano = plot.HasFeature("FEATURE_ATOLL_SCIENCE");			
+				if (eYieldType == YIELD_SCIENTIFIC_INSIGHT && hasHumansim && isSubmarineVolcano)
+					yieldChange += 1;
+			}
+
 			{// POLICY_NEW_ORDER - gives +3 tourism, culture, diplo points, gold to citadels
 				const bool hasNewOrder = player.HasPolicy("POLICY_NEW_ORDER");
 				const bool isCitadel = plot.HasImprovement("IMPROVEMENT_CITADEL");

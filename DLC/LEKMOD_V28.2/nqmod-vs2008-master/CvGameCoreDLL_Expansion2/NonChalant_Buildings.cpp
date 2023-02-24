@@ -407,15 +407,7 @@ int CvPlayer::GetExtraYieldForBuilding
 			yieldChange += 1;
 		if (eYieldType == YIELD_CULTURE && !isPercentMod && isPrussia && isPrussia && (isWalls || isCastle || isArsenal || isMilitaryBase))
 			yieldChange += 1;
-	}
-
-	{// POLICY_SOVEREIGNTY grants +1Insight for every 2 Research Labs
-		const bool hasSovereignty = player.HasPolicy("POLICY_SOVEREIGNTY"); 
-		const bool isPalace = eBuildingClass == BuildingClass("BUILDINGCLASS_PALACE");		
-		int numResearchLab = player.countNumBuildingClasses(BuildingClassTypes(45));
-		if (eYieldType == YIELD_SCIENTIFIC_INSIGHT && !isPercentMod && hasSovereignty && isPalace)
-			yieldChange += numResearchLab / 2;
-	}
+	}	
 
 	{// CARD_ANCIENT_BUILDINGS_DRUIDS_PASSIVE grants +1C +1PD to Walls, Castles, Arsenals, and Military Bases to Prussia
 		const bool hasDruidsCard = player.HasPolicy("POLICY_CARD_ANCIENT_BUILDINGS_DRUIDS_PASSIVE");
