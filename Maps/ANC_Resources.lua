@@ -1,24 +1,32 @@
 
 include("ANC_Utils");
 
+local waterLuxFraction = 1.0;
+local waterBonusFraction = 0.7;
+local waterStratFraction = 0.2;
+
 local resVariation = 2;
 local base = 4;
 function calcRes(self)
 	local id = self[1];
 	if id == 0 then
-		return base + Map.Rand(resVariation, "iron");
+		return base + Map.Rand(resVariation + 1, "iron");
 	elseif id == 1 then
-		return base + Map.Rand(resVariation, "horses");
+		return base + Map.Rand(resVariation + 1, "horses");
 	elseif id == 2 then
-		return base + Map.Rand(resVariation, "coal");
+		return base + Map.Rand(resVariation + 1, "coal");
 	elseif id == 3 then
-		return base + Map.Rand(resVariation, "oil");
+		return base + Map.Rand(resVariation + 1, "oil");
 	elseif id == 4 then
-		return base + Map.Rand(resVariation, "aluminum");
+		return base + Map.Rand(resVariation + 1, "aluminum");
 	elseif id == 5 then
-		return base + Map.Rand(resVariation, "uranium");
+		if Map.Rand(resVariation + 1, "uranium") < 600 then
+			return base + Map.Rand(resVariation + 1, "uranium");
+		else
+			return 0;
+		end
 	else
-		return base + Map.Rand(resVariation, "UNKNOWN RESOURCE");
+		return base + Map.Rand(resVariation + 1, "UNKNOWN RESOURCE");
 	end
 end
 ------------------------------------------------------------------------------
@@ -67,7 +75,7 @@ function ANC_DoPopulateWorldWithGoodies(this)
 					this.plotHasLux[plotIdx] = true;
 
 				elseif isArableWater(plotIdx) then
-					if (Map.Rand(1000,"Skip Water Lux") < 1000) then
+					if (Map.Rand(1000,"Skip Water Lux") < (1000 * waterLuxFraction)) then
 						local idx = 1 + Map.Rand(#this.luxWater,"Rand Water Lux"); -- 1 + ((i % 17) % #this.luxWater);
 						--print("resource2" .. idx);
 						local resourceInfo = this.luxWater[idx];
@@ -110,7 +118,7 @@ function ANC_DoPopulateWorldWithGoodies(this)
 					count = count + 1;
 
 				elseif isArableWater(plotIdx) then
-					if (Map.Rand(1000,"Skip Water Bonus") < 500) then
+					if (Map.Rand(1000,"Skip Water Bonus") < (1000 * waterBonusFraction)) then
 						--print("water bonus");
 						local idx = 1 + Map.Rand(#this.bonusWater,"Rand Water Bonus");
 						local resourceInfo = this.bonusWater[idx];
@@ -149,14 +157,11 @@ function ANC_DoPopulateWorldWithGoodies(this)
 					this:applyData(plotIdx, resourceInfo);
 					count = count + 1;
 
-				--[[elseif isArableWater(plotIdx) then
-					if (Map.Rand(1000,"Skip Water Lux") < 1000) then
-						--print("water bonus");
-						local idx = 1 + Map.Rand(#this.bonusWater,"Rand Water Bonus");
-						local resourceInfo = this.bonusWater[idx];
-						this:applyData(plotIdx, resourceInfo);
+				elseif isArableWater(plotIdx) then
+					if (Map.Rand(1000,"Skip Water Strat") < (1000 * waterStratFraction)) then
+						this:applyData(plotIdx, this.oil_ID);
 						count = count + 1;
-					end]]
+					end
 				end
 			end
 		end
@@ -487,31 +492,31 @@ function recordResourceInfo(this)
 			table.insert(this.luxTropical, {rid, nil, nil, nil});
 		elseif rName == "RESOURCE_SUGAR" then
 			this.sugar_ID = rid;
-			table.insert(this.luxTropical, {rid, PlotTypes.PLOT_LAND, nil, nil});
+			table.insert(this.luxTropical, {rid, PlotTypes.PLOT_LAND, TerrainTypes.TERRAIN_PLAINS, nil});
 		elseif rName == "RESOURCE_COTTON" then
 			this.cotton_ID = rid;
-			table.insert(this.luxTropical, {rid, PlotTypes.PLOT_LAND, nil, nil});
+			table.insert(this.luxTropical, {rid, PlotTypes.PLOT_LAND, TerrainTypes.TERRAIN_PLAINS, nil});
 		elseif rName == "RESOURCE_WINE" then
 			this.wine_ID = rid;
-			table.insert(this.luxTropical, {rid, PlotTypes.PLOT_LAND, nil, nil});
+			table.insert(this.luxTropical, {rid, PlotTypes.PLOT_LAND, TerrainTypes.TERRAIN_PLAINS, nil});
 		elseif rName == "RESOURCE_INCENSE" then
 			this.incense_ID = rid;
-			table.insert(this.luxTropical, {rid, PlotTypes.PLOT_LAND, nil, FeatureTypes.NO_FEATURE});
+			table.insert(this.luxTropical, {rid, PlotTypes.PLOT_LAND, TerrainTypes.TERRAIN_PLAINS, FeatureTypes.NO_FEATURE});
 		elseif rName == "RESOURCE_CITRUS" then
 			this.citrus_ID = rid;
-			table.insert(this.luxTropical, {rid, nil, nil, FeatureTypes.FEATURE_JUNGLE});
+			table.insert(this.luxTropical, {rid, nil, TerrainTypes.TERRAIN_PLAINS, FeatureTypes.FEATURE_JUNGLE});
 		elseif rName == "RESOURCE_TRUFFLES" then
 			this.truffles_ID = rid;
 			table.insert(this.luxTropical, {rid, nil, TerrainTypes.TERRAIN_PLAINS, nil});
 		elseif rName == "RESOURCE_COCOA" then
 			this.cocoa_ID = rid;
-			table.insert(this.luxTropical, {rid, nil, nil, FeatureTypes.FEATURE_JUNGLE});
+			table.insert(this.luxTropical, {rid, nil, TerrainTypes.TERRAIN_PLAINS, FeatureTypes.FEATURE_JUNGLE});
 		elseif rName == "RESOURCE_COFFEE" then	-- MOD.Barathor: New
 			this.coffee_ID = rid;
-			table.insert(this.luxTropical, {rid, nil, nil, FeatureTypes.NO_FEATURE});
+			table.insert(this.luxTropical, {rid, nil, TerrainTypes.TERRAIN_PLAINS, FeatureTypes.NO_FEATURE});
 		elseif rName == "RESOURCE_TEA" then		-- MOD.Barathor: New
 			this.tea_ID = rid;
-			table.insert(this.luxTropical, {rid, PlotTypes.PLOT_LAND, nil, FeatureTypes.NO_FEATURE});
+			table.insert(this.luxTropical, {rid, PlotTypes.PLOT_LAND, TerrainTypes.TERRAIN_PLAINS, FeatureTypes.NO_FEATURE});
 		elseif rName == "RESOURCE_TOBACCO" then	-- MOD.Barathor: New
 			this.tobacco_ID = rid;
 			table.insert(this.luxTropical, {rid, PlotTypes.PLOT_LAND, nil, FeatureTypes.NO_FEATURE});

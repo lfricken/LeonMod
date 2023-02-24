@@ -34,7 +34,10 @@ do hidden antiquity sites still work at all? just redo antiquity logic
 
 
 Map
-	fix adjacency checks with edge of map
+	mountains
+	city states
+
+
 	spawn points
 	strategic, more fish?
 

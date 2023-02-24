@@ -125,6 +125,8 @@ function ANC_CreateMap(ancArgs)
 
 	ANC_DoPopulateWorldWithGoodies(this); -- (EXCEPT FOR SPAWN POINTS) add luxuries, bonuses, strategics, features (ice, oasis, atolls)
 	
+
+
 	ANC_UpdatePlots(this);
 
 	ANC_AddRivers(this);
@@ -133,7 +135,13 @@ function ANC_CreateMap(ancArgs)
 	--ANC_UpdatePlots(this); -- flood plains need to check for rivers
 	ANC_FloodPlains(this);
 
-
+	--[[ Mountains
+	for i, plot in ANC_Plots() do
+		if not this.plotIsLocked[i] and this.plotFeature[i] == FeatureTypes.NO_FEATURE and this.plotResourceNum[i] < 1 and this.plotTypes[i] ~= PlotTypes.PLOT_OCEAN then
+			this.plotTypes[i] = PlotTypes.MOUNTAIN;
+			this.plotTerrain[i] = TerrainTypes.TERRAIN_MOUNTAIN;
+		end
+	end]]
 
 	ANC_UpdatePlots(this);
 	DetermineContinents(); -- Continental artwork selection must wait until Areas are finalized, so it gets handled last.

@@ -20,7 +20,7 @@ function ANC_DoSpawnFor(this, x, y, maxX, maxY, playerId, isMinor)
 	local randWaterDir = RandDir();
 
 	-- setup spawn land vs water
-	local spawnIndexes = GetIndexesAround(x, y, maxX, maxY, 0, spawnHexRadius + 1);
+	local spawnIndexes = GetIndexesAround(x, y, maxX, maxY, 0, spawnHexRadius + 2);
 	for k,plotIdx in pairs(spawnIndexes) do
 		this.plotTypes[plotIdx] = PlotTypes.PLOT_LAND;
 	end
@@ -126,7 +126,14 @@ function ANC_DoSpawnFor(this, x, y, maxX, maxY, playerId, isMinor)
 				end
 			end
 			if not didPlace then
+				-- bump this to a later ring
+				local nextRing = k0 + 1;
+				if (nextRing < 4) then
+				table.insert(toAddAll[nextRing], resInfo);
 				print("WARNING Spawn Placement Failed: " .. (resInfo[1] or ".") .. " " .. (resInfo[2] or ".") .. " " .. (resInfo[3] or ".") .. " " ..(resInfo[4] or "."));
+				else
+					print("WARNING FAILURE Spawn Placement: " .. (resInfo[1] or ".") .. " " .. (resInfo[2] or ".") .. " " .. (resInfo[3] or ".") .. " " ..(resInfo[4] or "."));
+				end
 			end
 		end
 	end
