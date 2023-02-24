@@ -44,7 +44,7 @@ string CvPlayer::GetCityCapCurrent_WithSourcesTooltip(int* sum) const
 		appendNewLine(&ss, sum, "Base", +3, true);
 	}
 	{ // liberty finisher
-		appendNewLine(&ss, sum, "from completing the Liberty Policy Tree", +1, player.HasPolicy("POLICY_LIBERTY_FINISHER"));
+		appendNewLine(&ss, sum, "from completing the Liberty Policy Tree", +1, player.HasPolicy(POLICY_LIBERTY_FINISHER));
 	}
 	{ // 1 for 8 policies (free policies included)
 		appendNewLine(&ss, sum, "from 8 or more Social Policies", +1, player.GetNumPoliciesTotal() >= 8);
@@ -61,9 +61,9 @@ string CvPlayer::GetCityCapCurrent_WithSourcesTooltip(int* sum) const
 		const int numConquered = CountNumCities(ConqueredCities);
 		int maxConqueredBonus = 2;
 		// iron curtain +1
-		if (player.HasPolicy("POLICY_NEW_ORDER"))
+		if (player.HasPolicy(POLICY_NEW_ORDER))
 			maxConqueredBonus += 2;
-		if (player.HasPolicy("POLICY_HONOR_FINISHER"))
+		if (player.HasPolicy(POLICY_HONOR_FINISHER))
 			maxConqueredBonus += 1;
 
 		stringstream desc;
@@ -71,7 +71,7 @@ string CvPlayer::GetCityCapCurrent_WithSourcesTooltip(int* sum) const
 		appendNewLine(&ss, sum, desc.str(), min(maxConqueredBonus, numConquered), numConquered > 0);
 	}
 	{ // iron curtain +2
-		appendNewLine(&ss, sum, "from the Iron Curtain Tenet", +2, player.HasPolicy("POLICY_IRON_CURTAIN"));
+		appendNewLine(&ss, sum, "from the Iron Curtain Tenet", +2, player.HasPolicy(POLICY_IRON_CURTAIN));
 	}
 
 	//{ // wonder

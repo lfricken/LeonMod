@@ -10,7 +10,7 @@ void PlaceRandomSpy(CvPlayer* pPlayer)
 }
 int DeerPlots(const CvPlot& p)
 {
-	if (p.HasResource("RESOURCE_DEER"))
+	if (p.HasResource(RESOURCE_DEER))
 		return 1;
 	else
 		return 0;
@@ -31,7 +31,7 @@ int DesertTiles(const CvPlot& p)
 }
 int StonePlots(const CvPlot& p)
 {
-	if (p.HasResource("RESOURCE_STONE"))
+	if (p.HasResource(RESOURCE_STONE))
 		return 1;
 	else
 		return 0;
