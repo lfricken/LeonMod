@@ -139,7 +139,6 @@ function ANC_CreateMap(ancArgs)
 	for i, plot in ANC_Plots() do
 		if not this.plotIsLocked[i] and this.plotFeature[i] == FeatureTypes.NO_FEATURE and this.plotResourceNum[i] < 1 and this.plotTypes[i] ~= PlotTypes.PLOT_OCEAN then
 			this.plotTypes[i] = PlotTypes.MOUNTAIN;
-			this.plotTerrain[i] = TerrainTypes.TERRAIN_MOUNTAIN;
 		end
 	end]]
 
@@ -156,7 +155,7 @@ function ANC_SafeInitPlots(this)
 
 	local maxX, maxY = Map.GetGridSize();
 	this.plotTypes = table.fill(PlotTypes.PLOT_OCEAN, maxX * maxY);
-	this.plotTerrain = table.fill(TerrainTypes.TERRAIN_OCEAN, maxX * maxY); -- never use TERRAIN_HILL?
+	this.plotTerrain = table.fill(TerrainTypes.TERRAIN_OCEAN, maxX * maxY); -- never use TERRAIN_HILL? never use TERRAIN_MOUNTAIN
 	this.plotFeature = table.fill(FeatureTypes.NO_FEATURE, maxX * maxY);
 
 	this.plotResource = table.fill(-1, maxX * maxY);
@@ -167,7 +166,7 @@ function ANC_SafeInitPlots(this)
 	this.plotHasLux = table.fill(false, maxX * maxY);
 	--this.plotHasBonus = table.fill(false, maxX * maxY);
 
-	ANC_UpdatePlots(this);
+	--ANC_UpdatePlots(this);
 	--[[for i, plot in Plots() do
 		-- type
 		plot:SetPlotType(this.plotTypes[i + 1], false, false);

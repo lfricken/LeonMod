@@ -107,17 +107,17 @@ function ANC_LandAndSea(this)
 	-- lakes
 	for i=1,1 do
 		local from, to = PlotTypes.PLOT_LAND, PlotTypes.PLOT_OCEAN;
-		--Mutate(this.plotTypes, this, from, to, nil, swiss, ANC_ignoreLat(this.tundraLat, this.maxX, this.maxY));
+		Mutate(this.plotTypes, this, from, to, nil, swiss, ANC_ignoreLat(this.tundraLat, this.maxX, this.maxY));
 	end
 
---[[
+
 	for i, plot in ANC_Plots() do
 		if (not this.plotIsLocked[i] and isArableLand(i) and (Map.Rand(1000, "mountains") < 15)) then
 			this.plotTypes[i] = PlotTypes.PLOT_MOUNTAIN;
 		end
-	end]]
-	--[[for i=1,2 do
+	end
+	for i=1,2 do
 		local from, to = PlotTypes.PLOT_LAND, PlotTypes.PLOT_MOUNTAIN;
 		Mutate(this.plotTypes, this, from, to, nil, tendrilMod(0.2), isArableLand);
-	end]]
+	end
 end

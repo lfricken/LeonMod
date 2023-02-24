@@ -3,7 +3,7 @@ include("ANC_Utils");
 
 local waterLuxFraction = 1.0;
 local waterBonusFraction = 0.7;
-local waterStratFraction = 0.2;
+local waterStratFraction = 0.9;
 
 local resVariation = 2;
 local base = 4;
@@ -20,11 +20,7 @@ function calcRes(self)
 	elseif id == 4 then
 		return base + Map.Rand(resVariation + 1, "aluminum");
 	elseif id == 5 then
-		if Map.Rand(resVariation + 1, "uranium") < 600 then
-			return base + Map.Rand(resVariation + 1, "uranium");
-		else
-			return 0;
-		end
+		return base + Map.Rand(resVariation + 1, "uranium");
 	else
 		return base + Map.Rand(resVariation + 1, "UNKNOWN RESOURCE");
 	end
@@ -131,36 +127,41 @@ function ANC_DoPopulateWorldWithGoodies(this)
 	end
 	print("Total Bonus: " .. count);
 
+
 	local randOffsetX = Map.Rand(4, "res offset3");
 	local randOffsetY = Map.Rand(4, "res offset4");
 	local haltonPointsX = halton(17, 4096, Map.Rand(60, "RandStratHaltonStartX"));
 	local haltonPointsY = halton(19, 4096, Map.Rand(60, "RandStratHaltonStartY"));
 	local scaleX = function(x) return math.floor(x * 150) - randOffsetX; end
 	local scaleY = function(y) return math.floor(y * 150) - randOffsetY; end
+	local supportsWater = function(resInfo) return this.oil_ID[1] == resInfo[1]; end
 	-- bonuses
 	local count = 0;
-	for i=1,#haltonPointsX do
-		local xy = {scaleY(haltonPointsY[i]), scaleX(haltonPointsX[i])};
-		local inBounds = xy[1] >= 0 and xy[1] < this.maxX and xy[2] >= 0 and xy[2] < this.maxY;
-		if inBounds then
-			local plotIdx = GetI(xy[1], xy[2], this.maxX);
-			local hasFeature = this.plotFeature[plotIdx] ~= FeatureTypes.NO_FEATURE;
-			local hasRes = this.plotResourceNum[plotIdx] > 0;
-			--local hasAdjacentLuxes = ANC_countAdjacents(this, this.plotHasLux, xy, true) > 0;
-			local isNotLocked = not this.plotIsLocked[plotIdx];
-			if isNotLocked and not hasRes and not hasFeature then
-				local xyScaled = GetXyScaled(xy, this.maxX, this.maxY);
-				if isArableLand(plotIdx) then
-					local bonuses = this.strats;
-					local idx = 1 + Map.Rand(#bonuses,"Rand Land Strat");
-					local resourceInfo = bonuses[idx];
-					this:applyData(plotIdx, resourceInfo);
-					count = count + 1;
+	for resIdx=1,#this.strats do
+		local resourceInfo = this.strats[resIdx];
+		local scale = 1.0 / (resourceInfo[6] or 1.0);
 
-				elseif isArableWater(plotIdx) then
-					if (Map.Rand(1000,"Skip Water Strat") < (1000 * waterStratFraction)) then
-						this:applyData(plotIdx, this.oil_ID);
-						count = count + 1;
+		for i=1,#haltonPointsX do
+			if ((resIdx + i) % #this.strats) == 0 then
+				local xy = {scale * scaleY(haltonPointsY[i]), scale * scaleX(haltonPointsX[i])};
+				local inBounds = xy[1] >= 0 and xy[1] < this.maxX and xy[2] >= 0 and xy[2] < this.maxY;
+				if inBounds then
+					local plotIdx = GetI(xy[1], xy[2], this.maxX);
+					local hasFeature = this.plotFeature[plotIdx] ~= FeatureTypes.NO_FEATURE;
+					local hasRes = this.plotResourceNum[plotIdx] > 0;
+					local isNotLocked = not this.plotIsLocked[plotIdx];
+					if isNotLocked and not hasRes and not hasFeature then
+						local xyScaled = GetXyScaled(xy, this.maxX, this.maxY);
+						if isArableLand(plotIdx) then
+							this:applyData(plotIdx, resourceInfo);
+							count = count + 1;
+
+						elseif isArableWater(plotIdx) and supportsWater(resourceInfo) then
+							if (Map.Rand(1000,"Skip Water Strat") < (1000 * waterStratFraction)) then
+								this:applyData(plotIdx, resourceInfo);
+								count = count + 1;
+							end
+						end
 					end
 				end
 			end
@@ -387,7 +388,7 @@ function recordResourceInfo(this)
 			this.aluminum_ID = {rid, PlotTypes.PLOT_HILLS, nil, nil, calcRes};
 			table.insert(this.strats, this.aluminum_ID);
 		elseif rName == "RESOURCE_URANIUM" then
-			this.uranium_ID = {rid, PlotTypes.PLOT_HILLS, nil, nil, calcRes};
+			this.uranium_ID = {rid, PlotTypes.PLOT_HILLS, nil, nil, calcRes, 0.5};
 			table.insert(this.strats, this.uranium_ID);
 
 

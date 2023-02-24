@@ -25,8 +25,8 @@ function ANC_Climate(this)
 		local xyScale = GetXyScaled(xy, maxX, maxY);
 		local lat = xyScale[2];
 		if not this.plotIsLocked[i] then
-			if isArableLand(i) then
-				if Map.Rand(1000, "hills") < 380 then
+			if isArableLand(i) or this.plotTypes[i] == PlotTypes.PLOT_MOUNTAIN then
+				if this.plotTypes[i] ~= PlotTypes.PLOT_MOUNTAIN and Map.Rand(1000, "hills") < 380 then
 					this.plotTypes[i] = PlotTypes.PLOT_HILLS;
 				end
 
@@ -51,8 +51,7 @@ function ANC_Climate(this)
 
 
 			else -- mountain
-				this.plotTerrain[i] = TerrainTypes.TERRAIN_MOUNTAIN;
-
+				--DO NOT USE this.plotTerrain[i] = TerrainTypes.TERRAIN_MOUNTAIN; -- NEVER use terrain_mountain, it causes glitches
 			end	
 		end	
 	end
