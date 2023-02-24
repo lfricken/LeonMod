@@ -200,13 +200,13 @@ int CvPlayer::GetExtraYieldForBuilding
 				yieldChange += numCommerceClosers * 5;			
 		}
 
-		{// POLICY_RATIONALISM_CLOSER - +3%SC all Cities
+		{// POLICY_RATIONALISM_CLOSER - +4%SC all Cities
 			int numRationalismClosers = player.HasPolicy("POLICY_RATIONALISM_CLOSER_1") || player.HasPolicy("POLICY_RATIONALISM_CLOSER_2") ||
-				player.HasPolicy("POLICY_RATIONALISM_CLOSER_3") || player.HasPolicy("POLICY_RATIONALISM_CLOSER_4") ||
+				player.HasPolicy("POLICY_RATIONALISM_CLOSER_3") || player.HasPolicy("POLICY_RATIONALISM_FINISHER") ||
 				player.HasPolicy("POLICY_RATIONALISM_CLOSER_5") || player.HasPolicy("POLICY_RATIONALISM_CLOSER_6");
 			const bool isCityCenterBuilding = eBuildingClass == BuildingClass("BUILDINGCLASS_CITY_CENTER");
 			if (eYieldType == YIELD_SCIENCE && isPercentMod && isCityCenterBuilding)
-				yieldChange += numRationalismClosers * 3;
+				yieldChange += numRationalismClosers * 4;
 		}
 
 	}
@@ -593,8 +593,8 @@ BuildingAddType CvPlayer::ShouldHaveBuilding(const CvPlayer& rPlayer, const CvCi
 		const bool isFreePopBuilding = eBuildingClass == BuildingClass("BUILDINGCLASS_RATIONALISM_FINISHER_FREE_POP");
 		if (isFreePopBuilding)
 		{
-			const bool hasRationalismFinisher = rPlayer.HasPolicy("POLICY_RATIONALISM_FINISHER");
-			if (isYourCapital && hasRationalismFinisher)
+			const bool hasRationalismFinisher3 = rPlayer.HasPolicy("POLICY_RATIONALISM_CLOSER_3");
+			if (isYourCapital && hasRationalismFinisher3)
 				return ADD;
 			else
 				return REMOVE;
