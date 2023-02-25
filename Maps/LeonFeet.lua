@@ -6,7 +6,7 @@ include("HBMapmakerUtilities");
 FeatureGenerator = {};
 ------------------------------------------------------------------------------
 function FeatureGenerator.Create(args)
-	print("leon feet");
+	--print("leon feet");
 	--[[ Civ4's truncated "Climate" setting has been abandoned. Civ5 has returned to 
 	Civ3-style map options for World Age, Temperature, and Rainfall. Control over the 
 	terrain has been removed from the XML.  - Bob Thomas, March 2010  ]]--
@@ -321,7 +321,7 @@ function mod(a,b)
 end
 ------------------------------------------------------------------------------
 function FeatureGenerator:AddAtolls()
-	print("AddAtolls")
+	--print("AddAtolls")
 	local direction_types = {
 		DirectionTypes.DIRECTION_NORTHEAST,
 		DirectionTypes.DIRECTION_EAST,
@@ -364,7 +364,7 @@ function FeatureGenerator:AddAtolls()
 
 				if Map.Rand(1000, "Atoll Chance") < oddsPerTile then
 					local randIdx = 1 + Map.Rand(table.getn(possibleAtolls), "atoll random");
-					print("AddAtolls +1"..randIdx);
+					--print("AddAtolls +1"..randIdx);
 					plot:SetFeatureType(possibleAtolls[randIdx], -1);
 				end
 			until true

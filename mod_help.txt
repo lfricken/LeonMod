@@ -1,0 +1,10 @@
+
+
+
+To add icons, images, and models, see commit 11d08a276c0b3c6f2c752e8a449fe9fc1c3449dc
+
+
+(use gimp) and export image
+dds files should be in the format of RGBA8 with compression BC1 / DXT1
+
+

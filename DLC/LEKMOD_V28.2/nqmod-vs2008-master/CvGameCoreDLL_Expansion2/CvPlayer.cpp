@@ -6233,7 +6233,7 @@ int CvPlayer::GetDiplomaticInfluenceNeeded() const
 	const int truncate = 10;
 	const int amountNeeded = ((influenceNeededT100 / 100) / truncate) * truncate;
 
-	return max(10, amountNeeded); // prevent glitches with 0 city states
+	return max(1000, amountNeeded); // prevent glitches with 0 city states
 }
 //	--------------------------------------------------------------------------------
 void CvPlayer::GetScientificInfluencePerTurn(int* influenceThisTurn) const

@@ -311,15 +311,15 @@ function UpdateGPT()
     
     local iTotalUnits = pPlayer:GetNumUnits();
     
-	print("Total Units - " .. iTotalUnits);
+	--print("Total Units - " .. iTotalUnits);
     local iMaintenanceFreeUnits = pPlayer:GetNumMaintenanceFreeUnits(DomainTypes.NO_DOMAIN, false);
     
     
-	print("Maint Free Units - " .. iMaintenanceFreeUnits);
+	--print("Maint Free Units - " .. iMaintenanceFreeUnits);
     
     local iPaidUnits = iTotalUnits - iMaintenanceFreeUnits;
     
-    print("Paid Units - " .. iPaidUnits);
+    --print("Paid Units - " .. iPaidUnits);
     
     local fCostPer = Locale.ToNumber( iTotalUnitMaintenance / iPaidUnits , "#.##" );
     

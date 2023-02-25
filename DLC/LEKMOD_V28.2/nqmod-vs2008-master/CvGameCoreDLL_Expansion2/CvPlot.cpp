@@ -6657,7 +6657,7 @@ ResourceTypes CvPlot::getNonObsoleteResourceType(TeamTypes eTeam) const
 
 
 //	--------------------------------------------------------------------------------
-void CvPlot::setResourceType(ResourceTypes eNewValue, int iResourceNum, bool bForMinorCivPlot)
+void CvPlot::setResourceType(ResourceTypes eNewValue, int iResourceNum, bool /*bForMinorCivPlot*/)
 {
 	if(m_eResourceType != eNewValue)
 	{
@@ -6668,11 +6668,12 @@ void CvPlot::setResourceType(ResourceTypes eNewValue, int iResourceNum, bool bFo
 			{
 				if (pkResourceInfo->isOnlyMinorCivs())
 				{
-					if (!bForMinorCivPlot)
-					{
-						CvAssertMsg(false, "Tried to place a city-state unique luxury when not allowed.  PLEASE send Anton your save game, settings, and version!");
-						return;
-					}
+					// dumb, map scripts can do whatever the fuck they want
+					//if (!bForMinorCivPlot)
+					//{
+					//	CvAssertMsg(false, "Tried to place a city-state unique luxury when not allowed.  PLEASE send Anton your save game, settings, and version!");
+					//	return;
+					//}
 				}
 			}
 		}

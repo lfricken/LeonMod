@@ -150,7 +150,7 @@ function RedoTabs()
 	g_Tabs = {};
 	local pid = g_localPlayer;
 	local pLocal = Players[pid];
-	for pid=0,16,1 do
+	for pid=0,GameDefines.MAX_MAJOR_CIVS do
 		local pPlayer = Players[pid];
 		if (pPlayer:IsAlive()) then
 			local instTab = {};

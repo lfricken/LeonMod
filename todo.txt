@@ -1,64 +1,57 @@
 
-nerf faith calculation
-allow trading votes without tech or diplomats (diplomats still do stuff)
-deal history screen is busted?
-disallow per turn with cards
-remove ai threaten situation where you can get all their stuff (and readd lump gold trading)
-road gold cost 1/4th gold > 1 turn to build, substantial trade route bonus
-capped cities limit of 2 + the benefits
-start with warrior and scout?
-disable attack button of ranged unit
-decouple victory point options from engine building
-missing - cultural influence, scientific insight
-usage of strategic resources too low
+spawn variation
 
+deal history screen is busted?
+do combat strength calculation tooltip serverside
+policy start % odds to shake up early game
+
+
+
+
+substantial trade route bonus if connected via roads
+road 1/gold, railroad 1/2 gold (hard because shit programming)
+india has bonuses to cattle, production got reduced (visual glitch where improvement) (hard to fix, need to do generify calculations)
+reorder game options - auto check the good ones, see the default button
+
+
+
+
+double cost and output of cultural influence buildings
+usage of strategic resources too low
+no ancient era cards? No good way to hand them out (combine with classical)
+decouple victory point options from engine building
 wonder descriptions need to say whether they have a card
 caravansary harbor mutually exclusive
-no early city state allies
-no culture per policy
-cards?
-tamils getting 30% of culture? (because they have 16 policies)
-we made city conquering way too powerful, now you can go past city limits
-scientist competion glitched?
-trade menu nullification check on cards is bugged
-do should have building check when a building gets built
-india has bonuses to cattle, production got reduced (visual glitch where improvement)
-find and fix ;; or WHITESPACE;
+no early city state allies somehow?
 
-reorder game options
-auto check the good ones, see the default button
 
-kendall card gltiches
+
 antiquity card needs to only be activatable after
-do hidden antiquity sites still work at all?
-
-do combat strength calculation tooltip serverside
-auto delete cards
-policy start % odds
+do hidden antiquity sites still work at all? just redo antiquity logic
 
 
-
-trading
-	TEST
-	verify building limit
-	verify punish buildings
-	verify units are penalized
-	verify building/unit build permission should check the shortage variable
-	verify log resource gainz
-
-	DO
-
-Trading Cards
-	TEST
-	card from ancient ruin
-	gen cards each era
-	fix ai trade value estimate
-
+[523689.437] DBG: false CvGame.cpp:5897 Please send Jon this with your last 5 autosaves and what changelist # you're playing. Could not find diplomacy response. Leader - LEADER_MACEDON, Response - RESPONSE_FIRST_GREETING
 
 
 Map
-	goody huts
-	natural wonders
+	higher variance spawn points
+
+
+	city states
+
+
+	spawn points
+	strategic, more fish?
+
+	flood plains after rivers
+	luxuries
+	bonus goodies and features (avoid water bonuses on lakes)
+
+	
+	redo city state spawns - lock CS area to avoid land growth?
+	randomly conjoin at the end of land
+	5 and 10 player is unfair, people should not spawn in middle
+
 
 	DO
 	get rid of grid point logic
@@ -81,67 +74,6 @@ C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization V\Assets\
 
 
 
-end turn
-increase score
-end turn
-increase score
-end turn
-increase score
-end turn
-increase score
-end turn
-increase score
-
-
-
-try packet dropper
-try network latency
-UDP 1200 (used for friends service)
-UDP 27000 to 27015 inclusive
-TCP 27020 to 27039 inclusive
-
-tcp.port <= 27039 and tcp.port >= 27020 
-udp.srcport >= 27000 and udp.srcport <= 27015 or udp.dstport >= 27000 and udp.dstport <= 27015
-(tcp.srcport >= 27020 and tcp.srcport <= 27040) or (tcp.dstport >= 27020 and tcp.dstport <= 27040)
-
-
-tile vp icons are broken
-chaos theory
-competition tie no winner
-barbarians luck nerf? (no take settlers)
-workboats like workers
-diversify benefits from sea resources like atolls are diversified
-culture tree benefit giving too much to caer and brazil wood camp
-
-
-
-ip.src==153.33.155.188 or ip.dst==153.33.155.188
-[239157.515] Net RECV (0p, 1c) : size=1200: Message chunk 1 of 2 for type 110
-[239157.515] Net RECV (0p, 1c) : size=890: Message chunk, 0 remaining
-[239157.515] Net RECV (0) :NetPlayerSyncCheck(Player=30), ArchiveDataSize=2054
-[239157.515] Net RECV (0) :NetPlayerSyncCheck(Player=31), ArchiveDataSize=54
-[239157.515] Net RECV (0) :NetPlayerSyncCheck(Player=32), ArchiveDataSize=54
-[239157.515] Net RECV (0) :NetPlayerSyncCheck(Player=33), ArchiveDataSize=54
-[239157.515] Net RECV (0) :NetPlayerSyncCheck(Player=34), ArchiveDataSize=70
-[239157.515] Net RECV (0) :NetPlayerSyncCheck(Player=35), ArchiveDataSize=62
-[239157.515] Net RECV (0) :NetPlayerSyncCheck(Player=36), ArchiveDataSize=70
-[239157.515] Net RECV (0) :NetPlayerSyncCheck(Player=37), ArchiveDataSize=54
-[239157.515] Net RECV (0) :NetPlayerSyncCheck(Player=63), ArchiveDataSize=494
-[239157.515] DBG: Variable Out Of Sync : CvPlayer::m_iNumMilitaryUnits
-
-Game Turn : 63
-[239157.515] DBG: Variable Out Of Sync : CvPlayer::m_paiUnitClassCount
-[239157.515] Net RECV (0) :NetRandomNumberGeneratorSyncCheck(Player=0, RandomNumberGenerator(seed=51017430)
-[239157.515] Net SEND (0, 1): size=36: NetForceResync : m_targetPlayers (  )
-[239157.515] Net RECV (0) :NetLoopBarrierComplete(Player=0, count=1 / 2)
-[239157.515] Net RECV (1) :NetForceResync : m_targetPlayers (  )
-[239160.625] Net RECV (0p, 1c) : size=1200: Message chunk 1 of 1222 for type 121
-[239160.625] Net RECV (0p, 1c) : size=1200: Message chunk, 1220 remaining
-[239160.687] Net RECV (0p, 1c) : size=1200: Message chunk, 1219 remaining
-[239160.687] Net RECV (0p, 1c) : size=1200: Message chunk, 1218 remaining
-[239160.718] Net RECV (0p, 1c) : size=1200: Message chunk, 1217 remaining
-
-
 
 
 
@@ -156,7 +88,7 @@ fix city health after AI capture
 ship passable makes a city coastal
 coast spawns always?
 fix city state quest
-no city attack for 15 turns
+no city attack for 15 turns after founding
 
 
 uprisings ideology (without unhappiness)
@@ -191,10 +123,6 @@ gatling and machine gun range
 future tech military advantage
 
 
-Air Base Improvement (Great General?)
-Aircraft rebase range display
-Aircraft retreat
-Aircraft rebase extra dist damage
 
 
 
