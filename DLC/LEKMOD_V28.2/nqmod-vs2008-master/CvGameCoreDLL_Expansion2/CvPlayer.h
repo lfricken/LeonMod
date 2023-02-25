@@ -378,6 +378,7 @@ public:
 	int greatGeneralThreshold() const;
 	int greatAdmiralThreshold() const;
 
+	void ResetHasBuildingClassCache() const;
 	// true if this player currently has the given wonder in any city they own
 	bool HasWonder(BuildingClassTypes eBuildingClass) const;
 
@@ -1772,15 +1773,15 @@ public:
 	int CvPlayer::GetNumPoliciesTotal() const;
 	// true if this player has this policy
 	// includes ideology
-	bool HasPolicy(const string name) const;
+	bool HasPolicy(const PolicyTypes ePolicy) const;
 	// how much culture should be given back?
 	T100 GetPolicyRebatePercentT100(const PolicyTypes ePolicy, const bool isBranch) const;
 	// how much culture should be given back?
 	int GetPolicyRebate(const PolicyTypes ePolicy, const bool isBranch) const;
 	// true if this player has a tech
-	bool HasTech(const string name) const;
+	bool HasTech(const TechTypes name) const;
 	// Are they a particular civilization?
-	bool IsCiv(const string name) const;
+	bool IsCiv(const CivilizationTypes id) const;
 	CvMinorCivAI* GetMinorCivAI() const;
 	CvDealAI* GetDealAI() const;
 	CvBuilderTaskingAI* GetBuilderTaskingAI() const;
@@ -2357,6 +2358,7 @@ protected:
 
 	std::vector<CvString> m_ReplayDataSets;
 	std::vector< TurnData > m_ReplayDataSetValues;
+	mutable std::vector<char> m_cache_hasBuildingClass;
 
 	void doResearch();
 	void doWarnings();

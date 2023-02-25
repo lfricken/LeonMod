@@ -92,32 +92,28 @@ public:
 	bool IsCivilization(CivilizationTypes iCivilizationType) const;
 	bool HasAnyNaturalWonder() const;
 	bool HasNaturalWonder(FeatureTypes iFeatureType) const;
+	// RESOURCE_DEER, RESOURCE_IRON, etc.
 	bool HasResource(ResourceTypes iResourceType) const;
 
 
 
 	// type FEATURE_ and press Ctrl+Space for options
 	bool HasFeature(FeatureTypes iFeatureType) const;
-	// "FEATURE_ATOLL_SCIENCE" etc
-	bool HasFeature(const string name) const;
 	bool HasAnyAtoll() const;
 
 	// type ROUTE_ and press Ctrl+Space for options
 	bool HasRoute(RouteTypes iRouteType) const;
 	// type TERRAIN_ and press Ctrl+Space for options
 	bool HasTerrain(TerrainTypes iTerrainType) const;
-	// "RESOURCE_DEER", "RESOURCE_IRON", etc.
-	bool HasResource(const string name) const;
 	// "RESOURCECLASS_BONUS": Wheat, Cow, Sheep, Deer, Banana, Fish, Stone, Bison, Hardwood, Maize, 
 	// "RESOURCECLASS_LUXURY": Obvious
 	// "RESOURCECLASS_RUSH": Iron, Horses, Artifact, Hidden Artifact
 	// "RESOURCECLASS_MODERN": Coal, Oil, Aluminum, Uranium, Slaves
 	bool HasResourceClass(const string name) const;
-	// "IMPROVEMENT_MINE", "IMPROVEMENT_CITY_RUINS", etc.
-	bool HasImprovement(const string name) const;
 
 	bool IsFeatureLake() const;
 	bool IsFeatureRiver() const;
+	// IMPROVEMENT_MINE, IMPROVEMENT_CITY_RUINS, etc.
 	bool HasImprovement(ImprovementTypes iImprovementType) const;
 	bool HasPlotType(PlotTypes iPlotType) const;
 	bool IsAdjacentToFeature(FeatureTypes iFeatureType) const;
@@ -134,6 +130,11 @@ public:
 
 	CvPlot();
 	~CvPlot();
+
+
+	void ResetYieldCache_Policies();
+	void ResetYieldCache_Tech();
+	void ResetYieldCache_All();
 
 	void init(int iX, int iY);
 	void uninit();
@@ -487,12 +488,7 @@ public:
 	}
 	FeatureTypes getFeatureType() const
 	{
-#ifdef AUI_WARNING_FIXES
-		int f = m_eFeatureType;
-#else
-		char f = m_eFeatureType;
-#endif
-		return (FeatureTypes)f;
+		return (FeatureTypes)m_eFeatureType.get();
 	}
 	bool isImpassable()     const
 	{
@@ -651,7 +647,32 @@ public:
 		// type of route (road, railroad, none)
 		const RouteTypes eRouteType,
 		// owning player
-		const PlayerTypes tileOwner
+		const PlayerTypes tileOwner,
+		const bool allowCached = false
+	);
+	int getExtraYield_TechChanged
+	(
+		// type of yield we are considering
+		const YieldTypes eYieldType,
+		// type of improvement
+		const ImprovementTypes eImprovement,
+		// type of route (road, railroad, none)
+		const RouteTypes eRouteType,
+		// owning player
+		const PlayerTypes tileOwner,
+		const bool allowCached = false
+	);
+	int getExtraYield_PoliciesChanged
+	(
+		// type of yield we are considering
+		const YieldTypes eYieldType,
+		// type of improvement
+		const ImprovementTypes eImprovement,
+		// type of route (road, railroad, none)
+		const RouteTypes eRouteType,
+		// owning player
+		const PlayerTypes tileOwner,
+		const bool allowCached = false
 	);
 
 	bool hasYield() const;
@@ -899,6 +920,11 @@ protected:
 	int m_ePlotType;
 	int m_eTerrainType;
 #else
+	static const int InvalidCacheVal = -99999;
+	// indexed on yieldtype
+	mutable std::vector<int> m_cachedExtraYields_Policies;
+	// indexed on yieldtype
+	mutable std::vector<int> m_cachedExtraYields_Tech;
 	short m_iX;
 	short m_iY;
 	char /*PlayerTypes*/  m_eOwner;

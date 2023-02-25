@@ -4539,7 +4539,7 @@ _Ret_maybenull_ CvPolicyEntry* CvGlobals::getPolicyInfo(PolicyTypes ePolicyNum)
 #else
 CvPolicyEntry* CvGlobals::getPolicyInfo(PolicyTypes ePolicyNum)
 {
-	if (ePolicyNum < 0 || ePolicyNum >= GC.getNumPolicyInfos())
+	if (ePolicyNum == NO_POLICY || ePolicyNum < 0 || ePolicyNum >= GC.getNumPolicyInfos())
 		return NULL;
 	CvAssert(ePolicyNum > -1);
 	CvAssert(ePolicyNum < GC.getNumPolicyInfos());

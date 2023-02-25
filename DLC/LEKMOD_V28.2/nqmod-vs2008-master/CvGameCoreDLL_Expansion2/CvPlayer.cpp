@@ -1226,6 +1226,8 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 	m_competitionT100.clear();
 	m_competitionT100.resize(NUM_HAMMERCOMPETITION_TYPES, 0);
 
+	ResetHasBuildingClassCache();
+
 	m_aOptions.clear();
 
 	m_strReligionKey = "";
@@ -6119,7 +6121,7 @@ int CvPlayer::GetNumScienceImprovements() const
 		const CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
 		if (pLoopPlot->getOwner() != m_eID)
 			continue;
-		if (pLoopPlot->HasImprovement("IMPROVEMENT_ACADEMY"))
+		if (pLoopPlot->HasImprovement(IMPROVEMENT_ACADEMY))
 			iCount++;
 	}
 
@@ -7258,7 +7260,7 @@ bool CvPlayer::canReceiveGoody(CvPlot*, GoodyTypes, CvUnit*) const
 
 
 
-const int t10000 = (100 * 100);
+const int t100 = (100 * 100);
 // random number
 int rand(int maxExclusive, const CvPlot* pPlot)
 {
@@ -7275,52 +7277,52 @@ int varyByPercent(int original, const CvPlot* pPlot)
 // Food a goody hut gives
 int hutFood(const CvPlot* pPlot)
 {
-	int value = (2 * (7 * t10000 + GC.onePerOnlineSpeedTurnT10000()));
+	int value = (2 * (7 * t100 + GC.onePerOnlineSpeedTurnT10000()));
 	value *= GC.adjustForSpeedT100(YIELD_FOOD);
 	value /= 100;
-	return varyByPercent(value, pPlot) / t10000;
+	return varyByPercent(value, pPlot) / (100 * 100);
 }
 // Production a goody hut gives
 int hutProduction(const CvPlot* pPlot)
 {
-	int valueT10000 = (2 * (7 * t10000 + GC.onePerOnlineSpeedTurnT10000()));
+	int valueT10000 = (2 * (7 * t100 + GC.onePerOnlineSpeedTurnT10000()));
 	valueT10000 *= GC.adjustForSpeedT100(YIELD_PRODUCTION);
 	valueT10000 /= 100;
-	return varyByPercent(valueT10000, pPlot) / t10000;
+	return varyByPercent(valueT10000, pPlot) / (100 * 100);
 }
 // Gold a goody hut gives
 int hutGold(const CvPlot* pPlot)
 {
-	T100 valueT10000 = (2 * (60 * t10000 + GC.onePerOnlineSpeedTurnT10000()));
+	T100 valueT10000 = (2 * (60 * t100 + GC.onePerOnlineSpeedTurnT10000()));
 	valueT10000 *= GC.adjustForSpeedT100(YIELD_GOLD);
 	valueT10000 /= 100;
-	return varyByPercent(valueT10000, pPlot) / t10000;
+	return varyByPercent(valueT10000, pPlot) / (100 * 100);
 }
 // Science a goody hut gives
 int hutScience(const CvPlot* pPlot)
 {
-	T100 valueT10000 = (2 * (20 * t10000 + GC.onePerOnlineSpeedTurnT10000()));
+	T100 valueT10000 = (2 * (20 * t100 + GC.onePerOnlineSpeedTurnT10000()));
 	valueT10000 *= GC.adjustForSpeedT100(YIELD_SCIENCE);
 	valueT10000 /= 100;
-	return varyByPercent(valueT10000, pPlot) / t10000;
+	return varyByPercent(valueT10000, pPlot) / (100 * 100);
 }
 // Culture a goody hut gives
 int hutCulture(const CvPlot* pPlot)
 {
-	T100 valueT10000 = (2 * (10 * t10000 + GC.onePerOnlineSpeedTurnT10000()));
+	T100 valueT10000 = (2 * (10 * t100 + GC.onePerOnlineSpeedTurnT10000()));
 	valueT10000 *= 2;
 	valueT10000 /= 3;
 	valueT10000 *= GC.adjustForSpeedT100(YIELD_CULTURE);
 	valueT10000 /= 100;
-	return varyByPercent(valueT10000, pPlot) / t10000;
+	return varyByPercent(valueT10000, pPlot) / (100 * 100);
 }
 // Culture a goody hut gives
 int hutFaith(const CvPlot* pPlot)
 {
-	T100 valueT10000 = 1 * (14 * t10000 + GC.onePerOnlineSpeedTurnT10000() / 5);
+	T100 valueT10000 = 2 * (15 * t100 + GC.onePerOnlineSpeedTurnT10000());
 	valueT10000 *= GC.adjustForSpeedT100(YIELD_FAITH);
 	valueT10000 /= 100;
-	return varyByPercent(valueT10000, pPlot) / t10000;
+	return varyByPercent(valueT10000, pPlot) / (100 * 100);
 }
 // Map radius a goody hut gives
 int hutMapRadius(const CvPlot* pPlot)
@@ -7328,7 +7330,7 @@ int hutMapRadius(const CvPlot* pPlot)
 	int baseRadius = 9; // starts with this much radius
 	int turnsPerRadius = 12; // on average, will grant 1 more radius every 20 turns on online speed
 	int randValue = GC.getGame().getJonRandNum(turnsPerRadius + 1, "Goody Hut Map", pPlot, 35); // [1-20]
-	int bonusRadius = ((GC.onePerOnlineSpeedTurnT10000() / t10000) + randValue) / turnsPerRadius;
+	int bonusRadius = ((GC.onePerOnlineSpeedTurnT10000() / t100) + randValue) / turnsPerRadius;
 	int value = baseRadius + bonusRadius;
 	return value;
 }
@@ -8487,7 +8489,7 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestV
 
 		if (isBuildingClassMaxedOut(eBuildingClass, (getBuildingClassMaking(eBuildingClass) + ((bContinue) ? -1 : 0)), true, false))
 		{
-			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_PLAYER_COUNT_MAX", "", "", kBuildingClass.getMaxPlayerInstances(this));
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_PLAYER_COUNT_MAX", "", "", kBuildingClass.getMaxPlayerInstances());
 			if (toolTipSink == NULL)
 				return false;
 		}
@@ -10391,15 +10393,34 @@ int CvPlayer::greatAdmiralThreshold() const
 
 	return std::max(1, iThreshold);
 }
+const char NoCacheVal = 37;
+void CvPlayer::ResetHasBuildingClassCache() const
+{
+	m_cache_hasBuildingClass.clear();
+	m_cache_hasBuildingClass.resize(GC.getNumBuildingClassInfos());
+	for (int i = 0; i < (int)m_cache_hasBuildingClass.size(); ++i)
+		m_cache_hasBuildingClass[i] = NoCacheVal;
+}
 bool CvPlayer::HasWonder(BuildingClassTypes eBuildingClass) const
 {
-	int iLoop = 0;
-	for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	bool result;
+	if (m_cache_hasBuildingClass[eBuildingClass] != NoCacheVal)
+		result = (bool)m_cache_hasBuildingClass[eBuildingClass];
+	else
 	{
-		if (pLoopCity->HasBuildingClass(eBuildingClass))
-			return true;
+		result = false;
+		int iLoop = 0;
+		for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		{
+			if (pLoopCity->HasBuildingClass(eBuildingClass))
+			{
+				result = true;
+				break;
+			}
+		}
+		m_cache_hasBuildingClass[eBuildingClass] = (char)result;
 	}
-	return false;
+	return result;
 }
 int CvPlayer::getSpecialistYieldTotal(const CvCity* pCity, const SpecialistTypes eSpecialist, const YieldTypes eYield, const bool isPercentMod) const
 {
@@ -14240,15 +14261,9 @@ int CvPlayer::GetNumPoliciesTotal() const
 }
 
 
-bool CvPlayer::HasPolicy(const string name) const
+bool CvPlayer::HasPolicy(const PolicyTypes ePolicy) const
 {
-	const CvPolicyXMLEntries* pAllPolicies = GC.GetGamePolicies();
-	if (pAllPolicies != NULL)
-	{
-		const PolicyTypes ePolicy = pAllPolicies->Policy(name);
-		return GetPlayerPolicies()->HasPolicy(ePolicy);
-	}
-	return false;
+	return GetPlayerPolicies()->HasPolicy(ePolicy);
 }
 T100 CvPlayer::GetPolicyRebatePercentT100(const PolicyTypes ePolicy, const bool isBranch) const
 {
@@ -14265,50 +14280,13 @@ int CvPlayer::GetPolicyRebate(const PolicyTypes ePolicy, const bool isBranch) co
 
 	return rebateCultureT100 / 100;
 }
-bool CvPlayer::HasTech(const string name) const
+bool CvPlayer::HasTech(const TechTypes name) const
 {
-	// do sanity check to make sure this thing exists
-	bool found = false;
-	for (int i = 0; i < GC.getNumTechInfos(); ++i)
-	{
-		const CvTechEntry* pInfo = GC.getTechInfo((TechTypes)i);
-		if (pInfo != NULL && pInfo->GetType() == name)
-		{
-			found = true;
-			break;
-		}
-	}
-	if (!found)
-	{
-		stringstream ss;
-		ss << name << " was not a valid tech to call HasTech with.";
-		throw new std::exception(ss.str().c_str());
-	}
-
-	const TechTypes e = GC.GetGameTechs()->Tech(name);
-	return GET_TEAM(getTeam()).GetTeamTechs()->HasTech(e);
+	return GET_TEAM(getTeam()).GetTeamTechs()->HasTech(name);
 }
-bool CvPlayer::IsCiv(const string name) const
+bool CvPlayer::IsCiv(const CivilizationTypes id) const
 {
-	// do sanity check to make sure this thing exists
-	bool found = false;
-	for (int i = 0; i < GC.getNumCivilizationInfos(); ++i)
-	{
-		const CvCivilizationInfo* pInfo = GC.getCivilizationInfo((CivilizationTypes)i);
-		if (pInfo != NULL && pInfo->GetType() == name)
-		{
-			found = true;
-			break;
-		}
-	}
-	if (!found)
-	{
-		stringstream ss;
-		ss << name << " was not a valid tech to call IsCiv with.";
-		throw new std::exception(ss.str().c_str());
-	}
-
-	return this->getCivilizationInfo().GetType() == name;
+	return this->getCivilizationInfo().GetID() == id;
 }
 
 //	--------------------------------------------------------------------------------
@@ -21322,9 +21300,9 @@ bool CvPlayer::isBuildingClassMaxedOut(BuildingClassTypes eIndex, int iExtra, bo
 
 	if (checkAbsolute && isNationalWonderClass(*pkBuildingClassInfo))
 	{
-		CvAssertMsg(getBuildingClassCount(eIndex) <= (pkBuildingClassInfo->getMaxPlayerInstances(this) + pkBuildingClassInfo->getExtraPlayerInstances()), "BuildingClassCount is expected to be less than or match the number of max player instances plus extra player instances");
+		CvAssertMsg(getBuildingClassCount(eIndex) <= (pkBuildingClassInfo->getMaxPlayerInstances() + pkBuildingClassInfo->getExtraPlayerInstances()), "BuildingClassCount is expected to be less than or match the number of max player instances plus extra player instances");
 
-		int allowed = pkBuildingClassInfo->getMaxPlayerInstances(this) + pkBuildingClassInfo->getExtraPlayerInstances();
+		int allowed = pkBuildingClassInfo->getMaxPlayerInstances() + pkBuildingClassInfo->getExtraPlayerInstances();
 		int have = getBuildingClassCount(eIndex) + iExtra;
 		if (have >= allowed)
 		{
@@ -21335,8 +21313,8 @@ bool CvPlayer::isBuildingClassMaxedOut(BuildingClassTypes eIndex, int iExtra, bo
 	if (checkPercent && allowedPercent != -1)
 	{
 		// +99 round up
-		int allowed = (((getNumCities() * allowedPercent) + 50) / 100) + pkBuildingClassInfo->getExtraPlayerInstances();
-		int have = getBuildingClassCount(eIndex) + iExtra + GetExtraBuildingsForClass(eIndex);
+		int allowed = (((getNumCities() * allowedPercent) + 99) / 100) + pkBuildingClassInfo->getExtraPlayerInstances();
+		int have = getBuildingClassCount(eIndex) + iExtra;
 		if (have >= allowed)
 		{
 			return true;
@@ -24842,8 +24820,6 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 #ifdef AUI_CITIZENS_MID_TURN_ASSIGN_RUNS_SELF_CONSISTENCY
 	doSelfConsistencyCheckAllCities();
 #endif
-
-	UpdateFreePolicies();
 
 	GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
@@ -28387,14 +28363,12 @@ bool CvPlayer::HasBuildingClass(BuildingClassTypes iBuildingClassType)
 }
 */
 // correctly does not update policy count if we already did(n't) have it
-int CvPlayer::UpdateHasPolicy(string policyName, bool newVal)
+int UpdateHasPolicy(CvPlayer* player, PolicyTypes ePolicy, bool newVal)
 {
 	int delta = 0;
-	if (policyName.size() > 0)
+	if (ePolicy != NO_POLICY)
 	{
-		const CvPolicyXMLEntries* pAllPolicies = GC.GetGamePolicies();
-		const PolicyTypes ePolicy = pAllPolicies->Policy(policyName);
-		delta = doAdoptPolicy(ePolicy, newVal, false); // correctly does not change if newVal did not change
+		delta = player->doAdoptPolicy(ePolicy, newVal, false); // correctly does not change if newVal did not change
 	}
 	return delta;
 }
@@ -28408,8 +28382,8 @@ void CvPlayer::CardsActivate(int cardIdx)
 		const bool satisfiesActive = TradingCard::CanActivate(cardType, this, &ss);
 		if (satisfiesActive)
 		{
-			const string activePolicyName = TradingCard::GetActivePolicy(cardType);
-			UpdateHasPolicy(activePolicyName, true);
+			const PolicyTypes activePolicy = TradingCard::GetActivePolicy(cardType);
+			UpdateHasPolicy(this, activePolicy, true);
 			CardsDestroy(cardIdx);
 			TradingCard::ApplyActiveEffects(cardType, this);
 		}
@@ -28524,9 +28498,9 @@ void CvPlayer::DoUpdateCardBenefits()
 		const bool hasCard = CardsHasAny(cardType);
 
 		// check passive benefits
-		const string passivePolicyName = TradingCard::GetPassivePolicy(cardType);
+		const PolicyTypes passivePolicy = TradingCard::GetPassivePolicy(cardType);
 		const bool passiveSatisfied = hasCard && TradingCard::IsConditionSatisfied(cardType, this, false);
-		int delta = UpdateHasPolicy(passivePolicyName, passiveSatisfied);
+		int delta = UpdateHasPolicy(this, passivePolicy, passiveSatisfied);
 		if (delta != 0)
 		{
 			TradingCard::ApplyPassiveEffects(cardType, this, delta);

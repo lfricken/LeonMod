@@ -231,7 +231,21 @@ void CvPlot::uninit()
 
 	m_units.clear();
 }
-
+void CvPlot::ResetYieldCache_Policies()
+{
+	m_cachedExtraYields_Policies.clear();
+	m_cachedExtraYields_Policies.resize(NUM_YIELD_TYPES, InvalidCacheVal);
+}
+void CvPlot::ResetYieldCache_Tech()
+{
+	m_cachedExtraYields_Tech.clear();
+	m_cachedExtraYields_Tech.resize(NUM_YIELD_TYPES, InvalidCacheVal);
+}
+void CvPlot::ResetYieldCache_All()
+{
+	ResetYieldCache_Tech();
+	ResetYieldCache_Policies();
+}
 //	--------------------------------------------------------------------------------
 // FUNCTION: reset()
 // Initializes data members that are serialized.
@@ -240,6 +254,8 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
 	//--------------------------------
 	// Uninit class
 	uninit();
+
+	ResetYieldCache_All();
 
 	m_iX = iX;
 	m_iY = iY;
@@ -1010,28 +1026,17 @@ bool CvPlot::IsCivilization(CivilizationTypes iCivilizationType) const
 
 bool CvPlot::HasFeature(FeatureTypes iFeatureType) const
 {
-	if (iFeatureType == (FeatureTypes)GC.getInfoTypeForString("FEATURE_LAKE")) {
-		return IsFeatureLake();
-	}
-	else if (iFeatureType == (FeatureTypes)GC.getInfoTypeForString("FEATURE_RIVER")) {
-		return IsFeatureRiver();
-	}
-
-	return (getFeatureType() == iFeatureType);
-}
-bool CvPlot::HasFeature(const string name) const
-{
-	return HasFeature(GC.Feature(name));
+	return getFeatureType() == iFeatureType;
 }
 bool CvPlot::HasAnyAtoll() const
 {
 	return 
 	(
-		HasFeature("FEATURE_ATOLL") ||
-		HasFeature("FEATURE_ATOLL_GOLD") ||
-		HasFeature("FEATURE_ATOLL_PRODUCTION") ||
-		HasFeature("FEATURE_ATOLL_CULTURE") ||
-		HasFeature("FEATURE_ATOLL_SCIENCE")
+		HasFeature(FEATURE_ATOLL) ||
+		HasFeature(FEATURE_ATOLL_GOLD) ||
+		HasFeature(FEATURE_ATOLL_PRODUCTION) ||
+		HasFeature(FEATURE_ATOLL_CULTURE) ||
+		HasFeature(FEATURE_ATOLL_SCIENCE)
 	);
 }
 
@@ -1080,11 +1085,6 @@ bool CvPlot::HasTerrain(TerrainTypes iTerrainType) const
 	return (getTerrainType() == iTerrainType);
 }
 
-bool CvPlot::HasResource(const string name) const
-{
-	return HasResource(GC.Resource(name));
-}
-
 bool CvPlot::HasResourceClass(const string name) const
 {
 	if (getResourceType() != NO_RESOURCE)
@@ -1100,11 +1100,6 @@ bool CvPlot::HasResourceClass(const string name) const
 		}
 	}
 	return false;
-}
-
-bool CvPlot::HasImprovement(const string name) const
-{
-	return HasImprovement(GC.Improvement(name));
 }
 
 bool CvPlot::IsAdjacentToFeature(FeatureTypes iFeatureType) const

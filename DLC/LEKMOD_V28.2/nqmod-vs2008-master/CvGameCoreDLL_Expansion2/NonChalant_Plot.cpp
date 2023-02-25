@@ -34,6 +34,54 @@
 #include "LintFree.h"
 
 
+int CvPlot::getExtraYield_TechChanged
+(
+	// type of yield we are considering
+	const YieldTypes eYieldType,
+	// type of improvement
+	const ImprovementTypes eImprovement,
+	// type of route (road, railroad, none)
+	const RouteTypes eRoute,
+	// owning player
+	const PlayerTypes tileOwner,
+	const bool allowCached
+)
+{
+	if (allowCached && m_cachedExtraYields_Tech[eYieldType] != InvalidCacheVal)
+	{
+		return m_cachedExtraYields_Tech[eYieldType];
+	}
+	int yieldChange = 0;
+
+
+
+	m_cachedExtraYields_Tech[eYieldType] = yieldChange;
+	return yieldChange;
+}
+int CvPlot::getExtraYield_PoliciesChanged
+(
+	// type of yield we are considering
+	const YieldTypes eYieldType,
+	// type of improvement
+	const ImprovementTypes eImprovement,
+	// type of route (road, railroad, none)
+	const RouteTypes eRoute,
+	// owning player
+	const PlayerTypes tileOwner,
+	const bool allowCached
+)
+{
+	if (allowCached && m_cachedExtraYields_Policies[eYieldType] != InvalidCacheVal)
+	{
+		return m_cachedExtraYields_Policies[eYieldType];
+	}
+	int yieldChange = 0;
+
+
+
+	m_cachedExtraYields_Policies[eYieldType] = yieldChange;
+	return yieldChange;
+}
 
 // extra yields for plots
 int CvPlot::getExtraYield
@@ -43,11 +91,18 @@ int CvPlot::getExtraYield
 	// type of improvement
 	const ImprovementTypes eImprovement,
 	// type of route (road, railroad, none)
-	const RouteTypes,
+	const RouteTypes eRoute,
 	// owning player
-	const PlayerTypes tileOwner
+	const PlayerTypes tileOwner,
+	const bool allowCached
 )
 {
+	int yieldChange = 0;
+	//yieldChange += getExtraYield(eYieldType, eImprovement, eRoute, tileOwner, true);
+	//yieldChange += getExtraYield(eYieldType, eImprovement, eRoute, tileOwner, true);
+
+
+
 	const CvPlot& plot = *this;
 	// city that is/could work this tile
 	const CvCity* pWorkingCity = plot.getWorkingCity();
@@ -74,7 +129,6 @@ int CvPlot::getExtraYield
 		}
 	}
 
-	int yieldChange = 0;
 
 
 	const bool isTundra = plot.HasTerrain(TERRAIN_TUNDRA);
@@ -110,13 +164,13 @@ int CvPlot::getExtraYield
 			//player.HasTech("TECH_POTTERY");
 
 
-			const bool isGreatTile = plot.HasImprovement("IMPROVEMENT_ACADEMY") ||
-				plot.HasImprovement("IMPROVEMENT_CUSTOMS_HOUSE") ||
-				plot.HasImprovement("IMPROVEMENT_MANUFACTORY") ||
-				plot.HasImprovement("IMPROVEMENT_HOLY_SITE") ||
-				plot.HasImprovement("IMPROVEMENT_DOCK") ||
-				plot.HasImprovement("IMPROVEMENT_CHILE_DOCK") ||
-				plot.HasImprovement("IMPROVEMENT_SACRED_GROVE");
+			const bool isGreatTile = plot.HasImprovement(IMPROVEMENT_ACADEMY) ||
+				plot.HasImprovement(IMPROVEMENT_CUSTOMS_HOUSE) ||
+				plot.HasImprovement(IMPROVEMENT_MANUFACTORY) ||
+				plot.HasImprovement(IMPROVEMENT_HOLY_SITE) ||
+				plot.HasImprovement(IMPROVEMENT_DOCK) ||
+				plot.HasImprovement(IMPROVEMENT_CHILE_DOCK) ||
+				plot.HasImprovement(IMPROVEMENT_SACRED_GROVE);
 
 
 
@@ -125,7 +179,7 @@ int CvPlot::getExtraYield
 			{ // BEGIN isCityCenter
 
 				{// POLICY_CONSULATES - gives +3C to the Palace for each City-State Ally
-					const bool hasConsulates = player.HasPolicy("POLICY_CONSULATES");
+					const bool hasConsulates = player.HasPolicy(POLICY_CONSULATES);
 					if (eYieldType == YIELD_CULTURE && hasConsulates && isCapital) // && isCityCenter
 						yieldChange += (numCityStateAllies * 3);
 				}
@@ -219,19 +273,19 @@ int CvPlot::getExtraYield
 				}
 
 				{// POLICY_IRON_CURTAIN - gives +2 tourism per city
-					const bool hasIronCurtain = player.HasPolicy("POLICY_IRON_CURTAIN");
+					const bool hasIronCurtain = player.HasPolicy(POLICY_IRON_CURTAIN);
 					if (eYieldType == YIELD_TOURISM && hasIronCurtain) // && isCityCenter
 						yieldChange += 2;
 				}
 
 				{// POLICY_SPACEFLIGHT_PIONEERS - gives +1 scientific insight per city
-					const bool hasSpaceFlightPioneers = player.HasPolicy("POLICY_SPACEFLIGHT_PIONEERS");
+					const bool hasSpaceFlightPioneers = player.HasPolicy(POLICY_SPACEFLIGHT_PIONEERS);
 					if (eYieldType == YIELD_SCIENTIFIC_INSIGHT && hasSpaceFlightPioneers) // && isCityCenter
 						yieldChange += 1;
 				}
 
 				{// POLICY_ORGANIZED_RELIGION gives +1C for every 3 Followers in Holy city if you have adopted a religion				
-					const bool hasOrganizedReligion = player.HasPolicy("POLICY_ORGANIZED_RELIGION");
+					const bool hasOrganizedReligion = player.HasPolicy(POLICY_ORGANIZED_RELIGION);
 					if (eYieldType == YIELD_CULTURE && hasOrganizedReligion && isHolyCity) // && isCityCenter
 						yieldChange += (numFollowersLocal / 3);
 				}
@@ -263,7 +317,7 @@ int CvPlot::getExtraYield
 
 			{// BELIEF_Messiah - renamed Sacrificial Altars - Holy Sites - 1 faith, culture, tourism, and 1 additioanl for 40 followers (max 3)
 				const bool hasBeliefSacrificialAltars = city.HasBelief("BELIEF_MESSIAH");
-				const bool isHolySite = plot.HasImprovement("IMPROVEMENT_HOLY_SITE");
+				const bool isHolySite = plot.HasImprovement(IMPROVEMENT_HOLY_SITE);
 				if (eYieldType == YIELD_CULTURE && hasBeliefSacrificialAltars && isHolySite)
 					yieldChange += 1 + min(3, numFollowersGlobal / 40);
 				if (eYieldType == YIELD_FAITH && hasBeliefSacrificialAltars && isHolySite)
@@ -273,12 +327,12 @@ int CvPlot::getExtraYield
 			}
 
 			{// POLICY_NEW_DEAL - GP Tile +2 Atoll Yields, +2 Tourism from Natural Wonders
-				const bool hasNewDeal = player.HasPolicy("POLICY_NEW_DEAL");
-				const bool isAtoll = plot.HasFeature("FEATURE_ATOLL");
-				const bool isAtollCulture = plot.HasFeature("FEATURE_ATOLL_CULTURE");
-				const bool isAtollProduction = plot.HasFeature("FEATURE_ATOLL_PRODUCTION");
-				const bool isAtollGold = plot.HasFeature("FEATURE_ATOLL_GOLD");
-				const bool isAtollScience = plot.HasFeature("FEATURE_ATOLL_SCIENCE");
+				const bool hasNewDeal = player.HasPolicy(POLICY_NEW_DEAL);
+				const bool isAtoll = plot.HasFeature(FEATURE_ATOLL);
+				const bool isAtollCulture = plot.HasFeature(FEATURE_ATOLL_CULTURE);
+				const bool isAtollProduction = plot.HasFeature(FEATURE_ATOLL_PRODUCTION);
+				const bool isAtollGold = plot.HasFeature(FEATURE_ATOLL_GOLD);
+				const bool isAtollScience = plot.HasFeature(FEATURE_ATOLL_SCIENCE);
 				const bool isNaturalWonder = plot.HasAnyNaturalWonder();
 				if (eYieldType == YIELD_TOURISM && hasNewDeal && isNaturalWonder)
 					yieldChange += 2;
@@ -321,33 +375,33 @@ int CvPlot::getExtraYield
 			{// BELIEF_SACRED_WATERS - gives one tourism from lake and atoll tiles. Could change to lake and oasis in future if Atolls seems too good. Features don't work right now though. 
 				const bool hasBeliefSacredWaters = city.HasBelief("BELIEF_SACRED_WATERS");
 				const bool isLake = plot.isLake();
-				const bool isOasis = plot.HasFeature("FEATURE_OASIS");
+				const bool isOasis = plot.HasFeature(FEATURE_OASIS);
 				if (eYieldType == YIELD_TOURISM && hasBeliefSacredWaters && (isLake || hasAnyAtoll || isOasis))
 					yieldChange += 1;
 			}
 
 			{// Policy_Cutural Exchange - gives 1 tourism to great person tile improvements. 
-				const bool hasPolicyCulturalExchange = player.HasPolicy("POLICY_ETHICS");
+				const bool hasPolicyCulturalExchange = player.HasPolicy(POLICY_ETHICS);
 				if (eYieldType == YIELD_TOURISM && hasPolicyCulturalExchange && isGreatTile)
 					yieldChange += 1;
 			}
 
 			{// POLICY_MEDIA_CULTURE - gives 3 tourism to great person tile improvements. 
-				const bool hasMediaCulture = player.HasPolicy("POLICY_MEDIA_CULTURE");
+				const bool hasMediaCulture = player.HasPolicy(POLICY_MEDIA_CULTURE);
 				if (eYieldType == YIELD_TOURISM && hasMediaCulture && isGreatTile)
 					yieldChange += 3;
 			}
 
 			{ // POLICY_SPACE_PROCUREMENTS - gives 3 Singularity Points per Acadamy. 
-				const bool hasSpaceProcurement = player.HasPolicy("POLICY_SPACE_PROCUREMENTS");
-				const bool isAcadamy = plot.HasImprovement("IMPROVEMENT_ACADEMY");
+				const bool hasSpaceProcurement = player.HasPolicy(POLICY_SPACE_PROCUREMENTS);
+				const bool isAcadamy = plot.HasImprovement(IMPROVEMENT_ACADEMY);
 				if (eYieldType == YIELD_SCIENTIFIC_INSIGHT && hasSpaceProcurement && isAcadamy)
 					yieldChange += 2;
 			}
 
 			{// POLICY_NEW_ORDER - gives +3 tourism, culture, diplo points, gold to citadels
-				const bool hasNewOrder = player.HasPolicy("POLICY_NEW_ORDER");
-				const bool isCitadel = plot.HasImprovement("IMPROVEMENT_CITADEL");
+				const bool hasNewOrder = player.HasPolicy(POLICY_NEW_ORDER);
+				const bool isCitadel = plot.HasImprovement(IMPROVEMENT_CITADEL);
 				if (eYieldType == YIELD_TOURISM && hasNewOrder && isCitadel)
 					yieldChange += 3;
 				if (eYieldType == YIELD_CULTURE && hasNewOrder && isCitadel)
@@ -356,11 +410,11 @@ int CvPlot::getExtraYield
 					yieldChange += 3;
 				if (eYieldType == YIELD_GOLD && hasNewOrder && isCitadel)
 					yieldChange += 3;
-			}			
+			}
 
 			{// POLICY_HONOR_FINISHER - gives +3 PD, SC, C to Citadels
-				const bool hasHonorFinisher = player.HasPolicy("POLICY_HONOR_FINISHER");
-				const bool isCitadel = plot.HasImprovement("IMPROVEMENT_CITADEL");
+				const bool hasHonorFinisher = player.HasPolicy(POLICY_HONOR_FINISHER);
+				const bool isCitadel = plot.HasImprovement(IMPROVEMENT_CITADEL);
 				if (eYieldType == YIELD_PRODUCTION && hasHonorFinisher && isCitadel)
 					yieldChange += 3;
 				if (eYieldType == YIELD_CULTURE && hasHonorFinisher && isCitadel)
@@ -370,11 +424,11 @@ int CvPlot::getExtraYield
 			}
 
 			{// POLICY_EXPLORATION_FINISHER gives +1C from Coastal Luxuries, +1PD from Atolls, 2PD, 2G from DryDocks				
-				const bool hasExplorationFinisher = player.HasPolicy("POLICY_EXPLORATION_FINISHER");
+				const bool hasExplorationFinisher = player.HasPolicy(POLICY_EXPLORATION_FINISHER);
 				//const bool isFish = plot.HasResource("RESOURCE_FISH"); 
-				const bool isCoastalLuxury = (plot.HasResource("RESOURCE_CRAB") || plot.HasResource("RESOURCE_WHALE") || plot.HasResource("RESOURCE_PEARLS")
-					|| plot.HasResource("RESOURCE_CORAL"));
-				const bool isDryDock = (plot.HasImprovement("IMPROVEMENT_DOCK") || plot.HasImprovement("IMPROVEMENT_CHILE_DOCK"));
+				const bool isCoastalLuxury = (plot.HasResource(RESOURCE_CRAB) || plot.HasResource(RESOURCE_WHALE) || plot.HasResource(RESOURCE_PEARLS)
+					|| plot.HasResource(RESOURCE_CORAL));
+				const bool isDryDock = (plot.HasImprovement(IMPROVEMENT_DOCK) || plot.HasImprovement(IMPROVEMENT_CHILE_DOCK));
 				if (eYieldType == YIELD_CULTURE && hasExplorationFinisher && isCoastalLuxury)
 					yieldChange += 1;
 				if (eYieldType == YIELD_PRODUCTION && hasExplorationFinisher && hasAnyAtoll)
@@ -386,19 +440,19 @@ int CvPlot::getExtraYield
 			}
 
 			{// POLICY_COMMERCE_FINISHER gives +1PD to mines withour resources, and +1FD to Farms without Resources or Flood Plains				
-				const bool hasCommerceFinisher = player.HasPolicy("POLICY_COMMERCE_FINISHER");
-				const bool isFarm = plot.HasImprovement("IMPROVEMENT_FARM");
-				const bool isMine = plot.HasImprovement("IMPROVEMENT_MINE");
-				const bool isFloodPlains = plot.HasFeature("FEATURE_FLOOD_PLAINS");
+				const bool hasCommerceFinisher = player.HasPolicy(POLICY_COMMERCE_FINISHER);
+				const bool isFarm = plot.HasImprovement(IMPROVEMENT_FARM);
+				const bool isMine = plot.HasImprovement(IMPROVEMENT_MINE);
+				const bool isFloodPlains = plot.HasFeature(FEATURE_FLOOD_PLAINS);
 				if (eYieldType == YIELD_FOOD && hasCommerceFinisher && isFarm && noResource && !isFloodPlains)
 					yieldChange += 1;
 				if (eYieldType == YIELD_PRODUCTION && hasCommerceFinisher && isMine && noResource)
-					yieldChange += 1;				
+					yieldChange += 1;
 			}
 
 			{// IMPROVEMENT_POLDER - gives +2 Food to Marsh.
-				const bool isMarsh = plot.HasFeature("FEATURE_MARSH");
-				const bool isPolder = plot.HasImprovement("IMPROVEMENT_POLDER");
+				const bool isMarsh = plot.HasFeature(FEATURE_MARSH);
+				const bool isPolder = plot.HasImprovement(IMPROVEMENT_POLDER);
 				if (eYieldType == YIELD_FOOD && isMarsh && isPolder)
 					yieldChange += 2;
 			}
@@ -410,38 +464,38 @@ int CvPlot::getExtraYield
 			}
 
 			{// CIVILIZATION_MC_SCOTLAND - 1 FD 1 PD from Cattle, Sheep, After Trapping
-				const bool hasCattle = plot.HasResource("RESOURCE_COW");
-				const bool hasSheep = plot.HasResource("RESOURCE_SHEEP");
-				const bool isEngland = player.IsCiv("CIVILIZATION_MC_SCOTLAND");
-				const bool hasTrapping = player.HasTech("TECH_TRAPPING");
+				const bool hasCattle = plot.HasResource(RESOURCE_COW);
+				const bool hasSheep = plot.HasResource(RESOURCE_SHEEP);
+				const bool isEngland = player.IsCiv(CIVILIZATION_MC_SCOTLAND);
+				const bool hasTrapping = player.HasTech(TECH_TRAPPING);
 				if (eYieldType == YIELD_FOOD && isEngland && hasTrapping && (hasCattle || hasSheep))
 					yieldChange += 1;
 				if (eYieldType == YIELD_PRODUCTION && isEngland && hasTrapping && (hasCattle || hasSheep))
-						yieldChange += 1;
-			}	
+					yieldChange += 1;
+			}
 
 			{// CIVILIZATION_RUSSIA - 1 PD from Strategic Resources (only available after you can see Horse or Iron, etc.)
-				const bool isRussia = player.IsCiv("CIVILIZATION_RUSSIA");				
+				const bool isRussia = player.IsCiv(CIVILIZATION_RUSSIA);
 				if (eYieldType == YIELD_PRODUCTION && isRussia && hasStrategic)
 					yieldChange += 1;
 			}
 
 			{// CIVILIZATION_FRANCE - 1 G from Strategic Resources (only available after you can see Horse or Iron, etc.)
-				const bool isFrance = player.IsCiv("CIVILIZATION_FRANCE");
+				const bool isFrance = player.IsCiv(CIVILIZATION_FRANCE);
 				if (eYieldType == YIELD_GOLD && isFrance && hasStrategic)
 					yieldChange += 1;
 			}
 
 			{// CIVILIZATION_INDONESIA - +1 to Atolls +2G from Coastal Luxes After Sailing
-				const bool isAtoll = plot.HasFeature("FEATURE_ATOLL");
-				const bool isAtollCulture = plot.HasFeature("FEATURE_ATOLL_CULTURE");
-				const bool isAtollProduction = plot.HasFeature("FEATURE_ATOLL_PRODUCTION");
-				const bool isAtollGold = plot.HasFeature("FEATURE_ATOLL_GOLD");
-				const bool isAtollScience = plot.HasFeature("FEATURE_ATOLL_SCIENCE");
-				const bool isCoastalLuxury = (plot.HasResource("RESOURCE_CRAB") || plot.HasResource("RESOURCE_WHALE") || plot.HasResource("RESOURCE_PEARLS")
-					|| plot.HasResource("RESOURCE_CORAL"));
-				const bool isIndonesia = player.IsCiv("CIVILIZATION_INDONESIA");
-				const bool hasSailing = player.HasTech("TECH_SAILING");
+				const bool isAtoll = plot.HasFeature(FEATURE_ATOLL);
+				const bool isAtollCulture = plot.HasFeature(FEATURE_ATOLL_CULTURE);
+				const bool isAtollProduction = plot.HasFeature(FEATURE_ATOLL_PRODUCTION);
+				const bool isAtollGold = plot.HasFeature(FEATURE_ATOLL_GOLD);
+				const bool isAtollScience = plot.HasFeature(FEATURE_ATOLL_SCIENCE);
+				const bool isCoastalLuxury = (plot.HasResource(RESOURCE_CRAB) || plot.HasResource(RESOURCE_WHALE) || plot.HasResource(RESOURCE_PEARLS)
+					|| plot.HasResource(RESOURCE_CORAL));
+				const bool isIndonesia = player.IsCiv(CIVILIZATION_INDONESIA);
+				const bool hasSailing = player.HasTech(TECH_SAILING);
 				if (eYieldType == YIELD_GOLD && isIndonesia && hasSailing && isCoastalLuxury)
 					yieldChange += 2;
 				if (eYieldType == YIELD_FAITH && isIndonesia && hasSailing && isAtoll)
@@ -453,34 +507,34 @@ int CvPlot::getExtraYield
 				if (eYieldType == YIELD_GOLD && isIndonesia && hasSailing && isAtollGold)
 					yieldChange += 1;
 				if (eYieldType == YIELD_SCIENCE && isIndonesia && hasSailing && isAtollScience)
-					yieldChange += 1;				
+					yieldChange += 1;
 			}
 
 			{// CIVILIZATION_INDIA - 2FD 1C PD from Cattle After Animal Husbandry
-				const bool hasCattle = plot.HasResource("RESOURCE_COW");
-				const bool isIndia = player.IsCiv("CIVILIZATION_INDIA");
-				const bool hasAnimalHusbandry = player.HasTech("TECH_ANIMAL_HUSBANDRY");
+				const bool hasCattle = plot.HasResource(RESOURCE_COW);
+				const bool isIndia = player.IsCiv(CIVILIZATION_INDIA);
+				const bool hasAnimalHusbandry = player.HasTech(TECH_ANIMAL_HUSBANDRY);
 				if (eYieldType == YIELD_CULTURE && isIndia && hasAnimalHusbandry && hasCattle)
 					yieldChange += 1;
 				if (eYieldType == YIELD_FAITH && isIndia && hasAnimalHusbandry && hasCattle)
-					yieldChange += 2;				
+					yieldChange += 2;
 			}
 
 			{// CIVILIZATION_DENMARK - 1PD from fish. After Sailing
-				const bool hasFish = plot.HasResource("RESOURCE_FISH");
-				const bool isDenmark = player.IsCiv("CIVILIZATION_DENMARK");
-				const bool hasSailing = player.HasTech("TECH_SAILING");
+				const bool hasFish = plot.HasResource(RESOURCE_FISH);
+				const bool isDenmark = player.IsCiv(CIVILIZATION_DENMARK);
+				const bool hasSailing = player.HasTech(TECH_SAILING);
 				if (eYieldType == YIELD_PRODUCTION && isDenmark && hasSailing && hasFish)
-					yieldChange += 1;				
+					yieldChange += 1;
 			}
 
 			{// CIVILIZATION_AZTEC - 1C from Jungle Lux 1PD from Bannanas After Calendar
-				const bool hasBanana = plot.HasResource("RESOURCE_BANANA");
-				const bool isAztec = player.IsCiv("CIVILIZATION_AZTEC");
-				const bool hasCalendar = player.HasTech("TECH_CALENDAR");
-				const bool isJungleLuxury = (plot.HasResource("RESOURCE_DYE") || plot.HasResource("RESOURCE_GEMS") || plot.HasResource("RESOURCE_SPICES") 
-					|| plot.HasResource("RESOURCE_COCOA") || plot.HasResource("RESOURCE_COCONUT") || plot.HasResource("RESOURCE_SUGAR") 
-					|| plot.HasResource("RESOURCE_CITRUS") || plot.HasResource("RESOURCE_SILK"));
+				const bool hasBanana = plot.HasResource(RESOURCE_BANANA);
+				const bool isAztec = player.IsCiv(CIVILIZATION_AZTEC);
+				const bool hasCalendar = player.HasTech(TECH_CALENDAR);
+				const bool isJungleLuxury = (plot.HasResource(RESOURCE_DYE) || plot.HasResource(RESOURCE_GEMS) || plot.HasResource(RESOURCE_SPICES)
+					|| plot.HasResource(RESOURCE_COCOA) || plot.HasResource(RESOURCE_COCONUT) || plot.HasResource(RESOURCE_SUGAR)
+					|| plot.HasResource(RESOURCE_CITRUS) || plot.HasResource(RESOURCE_SILK));
 				if (eYieldType == YIELD_PRODUCTION && isAztec && hasCalendar && hasBanana)
 					yieldChange += 1;
 				if (eYieldType == YIELD_CULTURE && isAztec && hasCalendar && isJungleLuxury)
@@ -488,18 +542,18 @@ int CvPlot::getExtraYield
 			}
 
 			{// CIVILIZATION_EGYPT - 2PD from Stone After Masonry
-				const bool hasStone = plot.HasResource("RESOURCE_STONE");
-				const bool isEgypt = player.IsCiv("CIVILIZATION_EGYPT");
-				const bool hasMasonry = player.HasTech("TECH_MASONRY");
+				const bool hasStone = plot.HasResource(RESOURCE_STONE);
+				const bool isEgypt = player.IsCiv(CIVILIZATION_EGYPT);
+				const bool hasMasonry = player.HasTech(TECH_MASONRY);
 				if (eYieldType == YIELD_PRODUCTION && isEgypt && hasMasonry && hasStone)
 					yieldChange += 2;
 			}
 
 			{// CIVILIZATION_UC_TURKEY - 1PD 1G from Wheat and Oasis After Pottery
-				const bool hasWheat = plot.HasResource("RESOURCE_WHEAT");
-				const bool isMiddleEast = player.IsCiv("CIVILIZATION_UC_TURKEY");
-				const bool hasPottery = player.HasTech("TECH_POTTERY");				
-				const bool isOasis = plot.HasFeature("FEATURE_OASIS");
+				const bool hasWheat = plot.HasResource(RESOURCE_WHEAT);
+				const bool isMiddleEast = player.IsCiv(CIVILIZATION_UC_TURKEY);
+				const bool hasPottery = player.HasTech(TECH_POTTERY);
+				const bool isOasis = plot.HasFeature(FEATURE_OASIS);
 				if (eYieldType == YIELD_PRODUCTION && isMiddleEast && hasPottery && (hasWheat || isOasis))
 					yieldChange += 1;
 				if (eYieldType == YIELD_GOLD && isMiddleEast && hasPottery && (hasWheat || isOasis))
@@ -507,11 +561,11 @@ int CvPlot::getExtraYield
 			}
 
 			{// CIVILIZATION_BYZANTIUM - 1PD 1C from Horse After The Wheel
-				const bool hasHorse = plot.HasResource("RESOURCE_HORSE");
-				const bool hasMaize = plot.HasResource("RESOURCE_MAIZE");
-				const bool isByzantium = player.IsCiv("CIVILIZATION_BYZANTIUM");
-				const bool hasTheWheel = player.HasTech("TECH_THE_WHEEL");	
-				const bool hasPottery = player.HasTech("TECH_POTTERY");
+				const bool hasHorse = plot.HasResource(RESOURCE_HORSE);
+				const bool hasMaize = plot.HasResource(RESOURCE_MAIZE);
+				const bool isByzantium = player.IsCiv(CIVILIZATION_BYZANTIUM);
+				const bool hasTheWheel = player.HasTech(TECH_THE_WHEEL);
+				const bool hasPottery = player.HasTech(TECH_POTTERY);
 				if (eYieldType == YIELD_PRODUCTION && isByzantium && hasTheWheel && hasHorse)
 					yieldChange += 1;
 				if (eYieldType == YIELD_CULTURE && isByzantium && hasTheWheel && hasHorse)
@@ -523,53 +577,53 @@ int CvPlot::getExtraYield
 			}
 
 			{// CIVILIZATION_IROQUOIS - 2G 1 C from Lakes After Trappingislake
-				const bool isLake = plot.isLake();				
-				const bool isAmerica = player.IsCiv("CIVILIZATION_IROQUOIS");
-				const bool hasTrapping = player.HasTech("TECH_TRAPPING");				
+				const bool isLake = plot.isLake();
+				const bool isAmerica = player.IsCiv(CIVILIZATION_IROQUOIS);
+				const bool hasTrapping = player.HasTech(TECH_TRAPPING);
 				if (eYieldType == YIELD_CULTURE && hasTrapping && isAmerica && isLake)
 					yieldChange += 1;
 				if (eYieldType == YIELD_GOLD && hasTrapping && isAmerica && isLake)
-					yieldChange += 1;				
+					yieldChange += 1;
 			}
 
 			{// CIVILIZATION_PRUSSIA - 2G from Luxuries
-				const bool isPrussia = player.IsCiv("CIVILIZATION_PRUSSIA");				
+				const bool isPrussia = player.IsCiv(CIVILIZATION_PRUSSIA);
 				if (eYieldType == YIELD_GOLD && isPrussia && hasLuxury)
 					yieldChange += 2;
 			}
 
 			{// CARD_ANCIENT_RESOURCES_INUITS - 1C to Tundra
-				const bool hasInuits = player.HasPolicy("POLICY_CARD_ANCIENT_RESOURCES_INUITS_PASSIVE");
+				const bool hasInuits = player.HasPolicy(POLICY_CARD_ANCIENT_RESOURCES_INUITS_PASSIVE);
 				if (eYieldType == YIELD_CULTURE && hasInuits && isTundra && (hasLuxury || hasStrategic || hasBonus))
-					yieldChange += 1;				
+					yieldChange += 1;
 			}
-			
+
 			{// CARD_ANCIENT_RESOURCES_BEDOUINS - 1C to Desert
-				const bool hasBedouins = player.HasPolicy("POLICY_CARD_ANCIENT_RESOURCES_BEDOUINS_PASSIVE");
+				const bool hasBedouins = player.HasPolicy(POLICY_CARD_ANCIENT_RESOURCES_BEDOUINS_PASSIVE);
 				if (eYieldType == YIELD_CULTURE && hasBedouins && isDesert && (hasLuxury || hasStrategic || hasBonus))
 					yieldChange += 1;
 			}
 
 			{// CARD_ANCIENT_RESOURCES_ATLATL - 2F to Deer
-				const bool hasAtlatl = player.HasPolicy("POLICY_CARD_ANCIENT_RESOURCES_ATLATL_PASSIVE");
-				const bool isDeer = plot.HasResource("RESOURCE_DEER");
+				const bool hasAtlatl = player.HasPolicy(POLICY_CARD_ANCIENT_RESOURCES_ATLATL_PASSIVE);
+				const bool isDeer = plot.HasResource(RESOURCE_DEER);
 				if (eYieldType == YIELD_FOOD && hasAtlatl && isDeer)
 					yieldChange += 2;
 			}
 
 			{// CARD_ANCIENT_RESOURCES_FLINT_KNAPPING - 2PD from Obsidian 1G from Quarries
-				const bool hasFlints = player.HasPolicy("POLICY_CARD_ANCIENT_RESOURCES_FLINT_KNAPPING_PASSIVE");
-				const bool isObsidian = plot.HasResource("RESOURCE_OBSIDIAN");
-				const bool isQuarry = plot.HasImprovement("IMPROVEMENT_QUARRY");
+				const bool hasFlints = player.HasPolicy(POLICY_CARD_ANCIENT_RESOURCES_FLINT_KNAPPING_PASSIVE);
+				const bool isObsidian = plot.HasResource(RESOURCE_OBSIDIAN);
+				const bool isQuarry = plot.HasImprovement(IMPROVEMENT_QUARRY);
 				if (eYieldType == YIELD_PRODUCTION && hasFlints && isObsidian)
 					yieldChange += 2;
 				if (eYieldType == YIELD_CULTURE && hasFlints && isQuarry)
 					yieldChange += 1;
-			}			
+			}
 
 			{// CARD_ANCIENT_RESOURCES_SACRIFICIAL_LAMBS - -1FD +4FH to sheep
-				const bool hasSacrificialLambs = player.HasPolicy("POLICY_CARD_ANCIENT_RESOURCES_SACRIFICIAL_LAMBS_PASSIVE");
-				const bool isSheep = plot.HasResource("RESOURCE_SHEEP");				
+				const bool hasSacrificialLambs = player.HasPolicy(POLICY_CARD_ANCIENT_RESOURCES_SACRIFICIAL_LAMBS_PASSIVE);
+				const bool isSheep = plot.HasResource(RESOURCE_SHEEP);
 				if (eYieldType == YIELD_FOOD && hasSacrificialLambs && isSheep)
 					yieldChange -= 1;
 				if (eYieldType == YIELD_FAITH && hasSacrificialLambs && isSheep)
@@ -577,14 +631,14 @@ int CvPlot::getExtraYield
 			}
 
 			{// CARD_ANCIENT_RESOURCES_SPEAR_FISHING +1FD to fish
-				const bool hasSpearfishing = player.HasPolicy("POLICY_CARD_ANCIENT_RESOURCES_SPEAR_FISHING_PASSIVE");
-				const bool isFish = plot.HasResource("RESOURCE_FISH");
+				const bool hasSpearfishing = player.HasPolicy(POLICY_CARD_ANCIENT_RESOURCES_SPEAR_FISHING_PASSIVE);
+				const bool isFish = plot.HasResource(RESOURCE_FISH);
 				if (eYieldType == YIELD_FOOD && hasSpearfishing && isFish)
-					yieldChange += 1;				
+					yieldChange += 1;
 			}
 
 			{// CARD_ANCIENT_RESOURCES_DIVINE_CREATION - +2C +4FH from Natural Wonders
-				const bool hasDivineCreation = player.HasPolicy("POLICY_CARD_ANCIENT_RESOURCES_DIVINE_CREATION_PASSIVE");
+				const bool hasDivineCreation = player.HasPolicy(POLICY_CARD_ANCIENT_RESOURCES_DIVINE_CREATION_PASSIVE);
 				const bool isNaturalWonder = plot.HasAnyNaturalWonder();
 				if (eYieldType == YIELD_CULTURE && hasDivineCreation && isNaturalWonder)
 					yieldChange += 2;
@@ -593,48 +647,48 @@ int CvPlot::getExtraYield
 			}
 
 			{// CARD_ANCIENT_POLITICAL_ORTHODOXY - +3 FD to City Center
-				const bool hasOrthodoxyCard = player.HasPolicy("POLICY_CARD_ANCIENT_POLITICAL_ORTHODOXY_PASSIVE");				
+				const bool hasOrthodoxyCard = player.HasPolicy(POLICY_CARD_ANCIENT_POLITICAL_ORTHODOXY_PASSIVE);
 				if (eYieldType == YIELD_FOOD && hasOrthodoxyCard && isCityCenter)
-					yieldChange += 3;				
+					yieldChange += 3;
 			}
 
 			{// POLICY_CARD_ANCIENT_POLITICAL_PROGRESSIVE_PASSIVE - +2 PD to City Center
-				const bool hasProgressiveCard = player.HasPolicy("POLICY_CARD_ANCIENT_POLITICAL_PROGRESSIVE_PASSIVE");
+				const bool hasProgressiveCard = player.HasPolicy(POLICY_CARD_ANCIENT_POLITICAL_PROGRESSIVE_PASSIVE);
 				if (eYieldType == YIELD_PRODUCTION && hasProgressiveCard && isCityCenter)
 					yieldChange += 2;
 			}
 
 			{// CARD_ANCIENT_POLITICAL_AGGRESIVE - +2 C to City Center
-				const bool hasAgressiveCard = player.HasPolicy("POLICY_CARD_ANCIENT_POLITICAL_AGGRESIVE_PASSIVE");
+				const bool hasAgressiveCard = player.HasPolicy(POLICY_CARD_ANCIENT_POLITICAL_AGGRESIVE_PASSIVE);
 				if (eYieldType == YIELD_CULTURE && hasAgressiveCard && isCityCenter)
 					yieldChange += 2;
 			}
 
 			{// CARD_ANCIENT_POLITICAL_EXCLUSIVE - +5 FD to Capital  City Center
-				const bool hasExclusiveCard = player.HasPolicy("POLICY_CARD_ANCIENT_POLITICAL_EXCLUSIVE_PASSIVE");
+				const bool hasExclusiveCard = player.HasPolicy(POLICY_CARD_ANCIENT_POLITICAL_EXCLUSIVE_PASSIVE);
 				if (eYieldType == YIELD_FOOD && hasExclusiveCard && isCityCenter && isCapital)
 					yieldChange += 5;
 			}
 
 			{// CARD_CLASSICAL_RESOURCE_LIMESTONE - +3 PD to Stone
-				const bool hasLimtestoneCard = player.HasPolicy("POLICY_CARD_CLASSICAL_RESOURCE_LIMESTONE_PASSIVE");
-				const bool isStone = plot.HasResource("RESOURCE_STONE");
+				const bool hasLimtestoneCard = player.HasPolicy(POLICY_CARD_CLASSICAL_RESOURCE_LIMESTONE_PASSIVE);
+				const bool isStone = plot.HasResource(RESOURCE_STONE);
 				if (eYieldType == YIELD_PRODUCTION && hasLimtestoneCard && isStone)
 					yieldChange += 3;
 			}
 
 			{// CARD_MEDIEVAL_RESOURCE_GILLNETS - +2 PD to Fish
-				const bool hasGillnetsCard = player.HasPolicy("POLICY_CARD_MEDIEVAL_RESOURCE_GILLNETS_PASSIVE");
-				const bool isFish = plot.HasResource("RESOURCE_FISH");
+				const bool hasGillnetsCard = player.HasPolicy(POLICY_CARD_MEDIEVAL_RESOURCE_GILLNETS_PASSIVE);
+				const bool isFish = plot.HasResource(RESOURCE_FISH);
 				if (eYieldType == YIELD_PRODUCTION && hasGillnetsCard && isFish)
 					yieldChange += 1;
 			}
 
 			{// CARD_MEDIEVAL_RESOURCE_PRECIOUS_METALS - +2C +2G to Metals
-				const bool hasPreciousCard = player.HasPolicy("POLICY_CARD_MEDIEVAL_RESOURCE_PRECIOUS_METALS_PASSIVE");
-				const bool isPreciousMetal = plot.HasResource("RESOURCE_GOLD") || 
-					plot.HasResource("RESOURCE_SILVER") ||
-					plot.HasResource("RESOURCE_GEMS");
+				const bool hasPreciousCard = player.HasPolicy(POLICY_CARD_MEDIEVAL_RESOURCE_PRECIOUS_METALS_PASSIVE);
+				const bool isPreciousMetal = plot.HasResource(RESOURCE_GOLD) ||
+					plot.HasResource(RESOURCE_SILVER) ||
+					plot.HasResource(RESOURCE_GEMS);
 				if (eYieldType == YIELD_CULTURE && hasPreciousCard && isPreciousMetal)
 					yieldChange += 2;
 				if (eYieldType == YIELD_GOLD && hasPreciousCard && isPreciousMetal)
@@ -642,11 +696,11 @@ int CvPlot::getExtraYield
 			}
 
 			{// CARD_MEDIEVAL_RESOURCE_SILK_ROAD - +2C +2G to Silk Road
-				const bool hasSilkRoadCard = player.HasPolicy("POLICY_CARD_MEDIEVAL_RESOURCE_SILK_ROAD_PASSIVE");
-				const bool isSilkyResource = plot.HasResource("RESOURCE_SILK") ||
-					plot.HasResource("RESOURCE_JADE") ||
-					plot.HasResource("RESOURCE_DYE") ||
-					plot.HasResource("RESOURCE_PERFUME");
+				const bool hasSilkRoadCard = player.HasPolicy(POLICY_CARD_MEDIEVAL_RESOURCE_SILK_ROAD_PASSIVE);
+				const bool isSilkyResource = plot.HasResource(RESOURCE_SILK) ||
+					plot.HasResource(RESOURCE_JADE) ||
+					plot.HasResource(RESOURCE_DYE) ||
+					plot.HasResource(RESOURCE_PERFUME);
 				if (eYieldType == YIELD_CULTURE && hasSilkRoadCard && isSilkyResource)
 					yieldChange += 2;
 				if (eYieldType == YIELD_GOLD && hasSilkRoadCard && isSilkyResource)
@@ -654,11 +708,11 @@ int CvPlot::getExtraYield
 			}
 
 			{// CARD_MEDIEVAL_RESOURCE_SPICE_TRADE - +2C +1FD to Spice Trade
-				const bool hasSpiceTradeCard = player.HasPolicy("POLICY_CARD_MEDIEVAL_RESOURCE_SPICE_TRADE_PASSIVE");
-				const bool isSpiceyResource = plot.HasResource("RESOURCE_SPICES") ||
-					plot.HasResource("RESOURCE_INCENSE") ||
-					plot.HasResource("RESOURCE_COCONUT") ||
-					plot.HasResource("RESOURCE_BANANA");
+				const bool hasSpiceTradeCard = player.HasPolicy(POLICY_CARD_MEDIEVAL_RESOURCE_SPICE_TRADE_PASSIVE);
+				const bool isSpiceyResource = plot.HasResource(RESOURCE_SPICES) ||
+					plot.HasResource(RESOURCE_INCENSE) ||
+					plot.HasResource(RESOURCE_COCONUT) ||
+					plot.HasResource(RESOURCE_BANANA);
 				if (eYieldType == YIELD_CULTURE && hasSpiceTradeCard && isSpiceyResource)
 					yieldChange += 2;
 				if (eYieldType == YIELD_FOOD && hasSpiceTradeCard && isSpiceyResource)
@@ -666,37 +720,37 @@ int CvPlot::getExtraYield
 			}
 
 			{// CARD_MEDIEVAL_RESOURCE_VITICULTURE - +2C +2FD to Wine. +1G Farms.
-				const bool hasViticultureCard = player.HasPolicy("POLICY_CARD_MEDIEVAL_RESOURCE_VITICULTURE_PASSIVE");
-				const bool isWine = plot.HasResource("RESOURCE_WINE");
-				const bool isOlive = plot.HasResource("RESOURCE_OLIVE");
-				const bool hasFarm = plot.HasImprovement("IMPROVEMENT_FARM");
+				const bool hasViticultureCard = player.HasPolicy(POLICY_CARD_MEDIEVAL_RESOURCE_VITICULTURE_PASSIVE);
+				const bool isWine = plot.HasResource(RESOURCE_WINE);
+				const bool isOlive = plot.HasResource(RESOURCE_OLIVE);
+				const bool hasFarm = plot.HasImprovement(IMPROVEMENT_FARM);
 				if (eYieldType == YIELD_GOLD && hasViticultureCard && hasFarm)
 					yieldChange += 1;
 				if (eYieldType == YIELD_CULTURE && hasViticultureCard && (isWine || isOlive))
 					yieldChange += 2;
 				if (eYieldType == YIELD_FOOD && hasViticultureCard && (isWine || isOlive))
-					yieldChange += 2;				
+					yieldChange += 2;
 			}
 
 			{// CARD_ANCIENT_RESOURCES_INUITS - +2PD to Whales.
-				const bool hasInuitsCard = player.HasPolicy("POLICY_CARD_ANCIENT_RESOURCES_INUITS_PASSIVE");
-				const bool isWhale = plot.HasResource("RESOURCE_WHALE");				
+				const bool hasInuitsCard = player.HasPolicy(POLICY_CARD_ANCIENT_RESOURCES_INUITS_PASSIVE);
+				const bool isWhale = plot.HasResource(RESOURCE_WHALE);
 				if (eYieldType == YIELD_PRODUCTION && hasInuitsCard && isWhale)
 					yieldChange += 1;
 			}
 
 			{// CARD_ANCIENT_RESOURCES_INUITS - +2PD to Whales.
-				const bool hasBedouinsCard = player.HasPolicy("POLICY_CARD_ANCIENT_RESOURCES_BEDOUINS_PASSIVE");
-				const bool isOases = plot.HasFeature("FEATURE_OASIS");
+				const bool hasBedouinsCard = player.HasPolicy(POLICY_CARD_ANCIENT_RESOURCES_BEDOUINS_PASSIVE);
+				const bool isOases = plot.HasFeature(FEATURE_OASIS);
 				if (eYieldType == YIELD_FOOD && hasBedouinsCard && isOases)
 					yieldChange += 1;
 			}
 
 			{// CARD_RENAISSANCE_RESOURCES_TRIANGULAR_TRADE - +1 FD, PD, G to a bunch of stuff
-				const bool hasTriangularTradeCard = player.HasPolicy("POLICY_CARD_RENAISSANCE_RESOURCES_TRIANGULAR_TRADE_PASSIVE");
-				const bool isTriangularResource = (plot.HasResource("RESOURCE_SUGAR") || plot.HasResource("RESOURCE_TOBACCO") ||
-					plot.HasResource("RESOURCE_TEA") || plot.HasResource("RESOURCE_COFFEE") || plot.HasResource("RESOURCE_COCOA"));
-				if (eYieldType == YIELD_FOOD && hasTriangularTradeCard && isTriangularResource) 
+				const bool hasTriangularTradeCard = player.HasPolicy(POLICY_CARD_RENAISSANCE_RESOURCES_TRIANGULAR_TRADE_PASSIVE);
+				const bool isTriangularResource = (plot.HasResource(RESOURCE_SUGAR) || plot.HasResource(RESOURCE_TOBACCO) ||
+					plot.HasResource(RESOURCE_TEA) || plot.HasResource(RESOURCE_COFFEE) || plot.HasResource(RESOURCE_COCOA));
+				if (eYieldType == YIELD_FOOD && hasTriangularTradeCard && isTriangularResource)
 					yieldChange += 1;
 				if (eYieldType == YIELD_PRODUCTION && hasTriangularTradeCard && isTriangularResource)
 					yieldChange += 1;
@@ -705,17 +759,17 @@ int CvPlot::getExtraYield
 			}
 
 			{// CARD_INDUSTRIAL_RESOURCES_GREAT_AWAKENING - +5 FH, +3 C Holy Sites
-				const bool hasGreatAwakeningCard = player.HasPolicy("POLICY_CARD_INDUSTRIAL_RESOURCES_GREAT_AWAKENING_PASSIVE");
-				const bool isHolySite = plot.HasImprovement("IMPROVEMENT_HOLY_SITE");					
+				const bool hasGreatAwakeningCard = player.HasPolicy(POLICY_CARD_INDUSTRIAL_RESOURCES_GREAT_AWAKENING_PASSIVE);
+				const bool isHolySite = plot.HasImprovement(IMPROVEMENT_HOLY_SITE);
 				if (eYieldType == YIELD_FAITH && hasGreatAwakeningCard && isHolySite)
 					yieldChange += 5;
 				if (eYieldType == YIELD_CULTURE && hasGreatAwakeningCard && isHolySite)
-					yieldChange += 3;				
+					yieldChange += 3;
 			}
 
 			{// CARD_INDUSTRIAL_RESOURCES_WAR_MEMORIALS - +5 GD +3 C +3 T Citadels
-				const bool hasWarMemorialsCard = player.HasPolicy("POLICY_CARD_INDUSTRIAL_RESOURCES_WAR_MEMORIALS_PASSIVE");
-				const bool isCitadel = plot.HasImprovement("IMPROVEMENT_CITADEL");
+				const bool hasWarMemorialsCard = player.HasPolicy(POLICY_CARD_INDUSTRIAL_RESOURCES_WAR_MEMORIALS_PASSIVE);
+				const bool isCitadel = plot.HasImprovement(IMPROVEMENT_CITADEL);
 				if (eYieldType == YIELD_GOLD && hasWarMemorialsCard && isCitadel)
 					yieldChange += 5;
 				if (eYieldType == YIELD_CULTURE && hasWarMemorialsCard && isCitadel)
@@ -725,36 +779,36 @@ int CvPlot::getExtraYield
 			}
 
 			{// CARD_INDUSTRIAL_RESOURCES_ASSEMBLY_LINE - +5 PD, +5 GD
-				const bool hasAssemblyLineCard = player.HasPolicy("POLICY_CARD_INDUSTRIAL_RESOURCES_ASSEMBLY_LINE_PASSIVE");
-				const bool isManufactory = plot.HasImprovement("IMPROVEMENT_MANUFACTORY");
+				const bool hasAssemblyLineCard = player.HasPolicy(POLICY_CARD_INDUSTRIAL_RESOURCES_ASSEMBLY_LINE_PASSIVE);
+				const bool isManufactory = plot.HasImprovement(IMPROVEMENT_MANUFACTORY);
 				if (eYieldType == YIELD_PRODUCTION && hasAssemblyLineCard && isManufactory)
 					yieldChange += 5;
 				if (eYieldType == YIELD_GOLD && hasAssemblyLineCard && isManufactory)
-					yieldChange += 5;				
+					yieldChange += 5;
 			}
 
 			{// CARD_INDUSTRIAL_RESOURCES_JOHN_JACOB_ASTOR - +1C  +1 PD, +2 GD to Furs
-				const bool hasJohnJaobAstorCard = player.HasPolicy("POLICY_CARD_INDUSTRIAL_RESOURCES_JOHN_JACOB_ASTOR_PASSIVE");
-				const bool isFursEtc = plot.HasResource("RESOURCE_FURS") || plot.HasResource("RESOURCE_BISON")
-					|| plot.HasResource("RESOURCE_DEER") || plot.HasResource("RESOURCE_SALT");
+				const bool hasJohnJaobAstorCard = player.HasPolicy(POLICY_CARD_INDUSTRIAL_RESOURCES_JOHN_JACOB_ASTOR_PASSIVE);
+				const bool isFursEtc = plot.HasResource(RESOURCE_FUR) || plot.HasResource(RESOURCE_BISON)
+					|| plot.HasResource(RESOURCE_DEER) || plot.HasResource(RESOURCE_SALT);
 				if (eYieldType == YIELD_PRODUCTION && hasJohnJaobAstorCard && isFursEtc)
 					yieldChange += 1;
 				if (eYieldType == YIELD_CULTURE && hasJohnJaobAstorCard && isFursEtc)
 					yieldChange += 1;
 				if (eYieldType == YIELD_GOLD && hasJohnJaobAstorCard && isFursEtc)
-					yieldChange += 2;				
+					yieldChange += 2;
 			}
 
 			{// CARD_INDUSTRIAL_RESOURCES_HYDRAULIC_FRACKING - +5 PD to Oil Wells
-				const bool hasHydraulicFrackingCard = player.HasPolicy("POLICY_CARD_INDUSTRIAL_RESOURCES_HYDRAULIC_FRACKING_PASSIVE");
-				const bool isOilWell = plot.HasImprovement("IMPROVEMENT_WELL");
+				const bool hasHydraulicFrackingCard = player.HasPolicy(POLICY_CARD_INDUSTRIAL_RESOURCES_HYDRAULIC_FRACKING_PASSIVE);
+				const bool isOilWell = plot.HasImprovement(IMPROVEMENT_WELL);
 				if (eYieldType == YIELD_PRODUCTION && hasHydraulicFrackingCard && isOilWell)
-					yieldChange += 5;				
-			}	
+					yieldChange += 5;
+			}
 
 			{// CARD_INDUSTRIAL_BUILDINGS_ELI_WHITNEY - +2 PD +2 G to Cotton
-				const bool hasEliWhitneyCard = player.HasPolicy("POLICY_CARD_INDUSTRIAL_BUILDINGS_ELI_WHITNEY_PASSIVE");
-				const bool isCotton = plot.HasResource("RESOURCE_COTTON");
+				const bool hasEliWhitneyCard = player.HasPolicy(POLICY_CARD_INDUSTRIAL_BUILDINGS_ELI_WHITNEY_PASSIVE);
+				const bool isCotton = plot.HasResource(RESOURCE_COTTON);
 				if (eYieldType == YIELD_PRODUCTION && hasEliWhitneyCard && isCotton)
 					yieldChange += 2;
 				if (eYieldType == YIELD_GOLD && hasEliWhitneyCard && isCotton)
@@ -762,8 +816,8 @@ int CvPlot::getExtraYield
 			}
 
 			{// CARD_MODERN_RESOURCES_THOMAS_DOOLITTLE - +3 PD +3 G to Copper
-				const bool hasThomasDoolittleCard = player.HasPolicy("POLICY_CARD_MODERN_RESOURCES_THOMAS_DOOLITTLE_PASSIVE");
-				const bool isCopper = plot.HasResource("RESOURCE_COPPER");
+				const bool hasThomasDoolittleCard = player.HasPolicy(POLICY_CARD_MODERN_RESOURCES_THOMAS_DOOLITTLE_PASSIVE);
+				const bool isCopper = plot.HasResource(RESOURCE_COPPER);
 				if (eYieldType == YIELD_PRODUCTION && hasThomasDoolittleCard && isCopper)
 					yieldChange += 2;
 				if (eYieldType == YIELD_GOLD && hasThomasDoolittleCard && isCopper)
@@ -771,8 +825,8 @@ int CvPlot::getExtraYield
 			}
 
 			{// CARD_MODERN_RESOURCES_MODU - +5 PD +5 G to Offshore Wells
-				const bool hasModuCard = player.HasPolicy("POLICY_CARD_INDUSTRIAL_BUILDINGS_ELI_WHITNEY_PASSIVE");
-				const bool isOffshoreWell = plot.HasImprovement("IMPROVEMENT_OFFSHORE_PLATFORM");
+				const bool hasModuCard = player.HasPolicy(POLICY_CARD_MODERN_RESOURCES_MODU_PASSIVE);
+				const bool isOffshoreWell = plot.HasImprovement(IMPROVEMENT_OFFSHORE_PLATFORM);
 				if (eYieldType == YIELD_PRODUCTION && hasModuCard && isOffshoreWell)
 					yieldChange += 5;
 				if (eYieldType == YIELD_GOLD && hasModuCard && isOffshoreWell)
@@ -780,9 +834,9 @@ int CvPlot::getExtraYield
 			}
 
 			{// CARD_MODERN_RESOURCES_GREAT_WESTERN_TRAIL - +2 PD +2 G to Cattle, Horses
-				const bool hasGreatWesternTrailCard = player.HasPolicy("POLICY_CARD_MODERN_RESOURCES_GREAT_WESTERN_TRAIL_PASSIVE");
-				const bool isCow = plot.HasResource("RESOURCE_COW");
-				const bool isHorse = plot.HasResource("RESOURCE_HORSE");
+				const bool hasGreatWesternTrailCard = player.HasPolicy(POLICY_CARD_MODERN_RESOURCES_GREAT_WESTERN_TRAIL_PASSIVE);
+				const bool isCow = plot.HasResource(RESOURCE_COW);
+				const bool isHorse = plot.HasResource(RESOURCE_HORSE);
 				if (eYieldType == YIELD_PRODUCTION && hasGreatWesternTrailCard && isCow)
 					yieldChange += 2;
 				if (eYieldType == YIELD_GOLD && hasGreatWesternTrailCard && isCow)
@@ -794,8 +848,8 @@ int CvPlot::getExtraYield
 			}
 
 			{// CARD_MODERN_RESOURCES_NITRATES - +1 FD +1 PD to Farms
-				const bool hasNitratesCard = player.HasPolicy("POLICY_CARD_MODERN_RESOURCES_NITRATES_PASSIVE");
-				const bool isFarm = plot.HasImprovement("IMPROVEMENT_FARM");
+				const bool hasNitratesCard = player.HasPolicy(POLICY_CARD_MODERN_RESOURCES_NITRATES_PASSIVE);
+				const bool isFarm = plot.HasImprovement(IMPROVEMENT_FARM);
 				if (eYieldType == YIELD_PRODUCTION && hasNitratesCard && isFarm)
 					yieldChange += 1;
 				if (eYieldType == YIELD_FOOD && hasNitratesCard && isFarm)
@@ -803,38 +857,38 @@ int CvPlot::getExtraYield
 			}
 
 			{// CARD_MODERN_RESOURCES_HENRY_FORD - +4 PD +4 G to Rubber
-				const bool hasHenryFordCard = player.HasPolicy("POLICY_CARD_MODERN_RESOURCES_HENRY_FORD_PASSIVE");
-				const bool isRubber = plot.HasResource("RESOURCE_RUBBER");				
+				const bool hasHenryFordCard = player.HasPolicy(POLICY_CARD_MODERN_RESOURCES_HENRY_FORD_PASSIVE);
+				const bool isRubber = plot.HasResource(RESOURCE_RUBBER);
 				if (eYieldType == YIELD_PRODUCTION && hasHenryFordCard && isRubber)
 					yieldChange += 4;
 				if (eYieldType == YIELD_GOLD && hasHenryFordCard && isRubber)
-					yieldChange += 4;				
+					yieldChange += 4;
 			}
 
 			{// CARD_MODERN_RESOURCES_COMMERCIAL_FISHING - +2 FD +1 PD +2 G to Fish, Crabs
-				const bool hasCommercialFishinCard = player.HasPolicy("POLICY_CARD_MODERN_RESOURCES_COMMERCIAL_FISHING_PASSIVE");
-				const bool isCrab = plot.HasResource("RESOURCE_CRAB");
-				const bool isFish = plot.HasResource("RESOURCE_FISH");
+				const bool hasCommercialFishinCard = player.HasPolicy(POLICY_CARD_MODERN_RESOURCES_COMMERCIAL_FISHING_PASSIVE);
+				const bool isCrab = plot.HasResource(RESOURCE_CRAB);
+				const bool isFish = plot.HasResource(RESOURCE_FISH);
 				if (eYieldType == YIELD_FOOD && hasCommercialFishinCard && (isCrab || isFish))
 					yieldChange += 2;
 				if (eYieldType == YIELD_PRODUCTION && hasCommercialFishinCard && (isCrab || isFish))
-						yieldChange += 1;
+					yieldChange += 1;
 				if (eYieldType == YIELD_GOLD && hasCommercialFishinCard && (isCrab || isFish))
-							yieldChange += 2;				
+					yieldChange += 2;
 			}
 
 			{// CARD_MODERN_RESOURCES_U_BOAT_PEN - +5 PD +5 Diplo to Dry Docks
-				const bool hasUboatCard = player.HasPolicy("POLICY_CARD_MODERN_RESOURCES_U_BOAT_PEN_PASSIVE");
-				const bool isDryDock = plot.HasImprovement("IMPROVEMENT_DOCK");
-				const bool isChileDryDock = plot.HasImprovement("IMPROVEMENT_CHILE_DOCK");
+				const bool hasUboatCard = player.HasPolicy(POLICY_CARD_MODERN_RESOURCES_U_BOAT_PEN_PASSIVE);
+				const bool isDryDock = plot.HasImprovement(IMPROVEMENT_DOCK);
+				const bool isChileDryDock = plot.HasImprovement(IMPROVEMENT_CHILE_DOCK);
 				if (eYieldType == YIELD_PRODUCTION && hasUboatCard && (isDryDock || isChileDryDock))
 					yieldChange += 1;
 				if (eYieldType == YIELD_DIPLOMATIC_SUPPORT && hasUboatCard && (isDryDock || isChileDryDock))
 					yieldChange += 1;
 			}
 
-			
-			
+
+
 
 		}
 	}

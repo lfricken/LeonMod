@@ -64,14 +64,14 @@ int CvGlobals::getYIELD_PER_TURN_ALLY(const YieldTypes eYieldType, const PlayerT
 		const CvPlayer& player = GET_PLAYER(ePlayer);
 		if (eYieldType == YIELD_DIPLOMATIC_SUPPORT)
 		{
-			const bool hasPatronageFinisher = player.HasPolicy("POLICY_PATRONAGE_FINISHER");
+			const bool hasPatronageFinisher = player.HasPolicy(POLICY_PATRONAGE_FINISHER);
 			if (hasPatronageFinisher)
 				value += 5;
 		}
 
 		if (eYieldType == YIELD_DIPLOMATIC_SUPPORT)
 		{
-			const bool hasGestapoCard = player.HasPolicy("POLICY_CARD_MODERN_BUILDINGS_GESTAPO_PASSIVE");
+			const bool hasGestapoCard = player.HasPolicy(POLICY_CARD_MODERN_BUILDINGS_GESTAPO_PASSIVE);
 			const bool hasNationalIntelligenceAgency = player.HasWonder(BuildingClass("BUILDINGCLASS_INTELLIGENCE_AGENCY"));
 			if (hasGestapoCard && hasNationalIntelligenceAgency)
 				value += 10;
@@ -96,7 +96,7 @@ int CvGlobals::getYIELD_PER_QUEST(const YieldTypes eYieldType, const PlayerTypes
 		if (eYieldType == YIELD_DIPLOMATIC_SUPPORT)
 		{
 			//POLICY_PATRONAGE_FINISHER grants 50% more Diplo Points from Completing Quests
-			const bool hasPhilanthropy = player.HasPolicy("POLICY_PATRONAGE_FINISHER");
+			const bool hasPhilanthropy = player.HasPolicy(POLICY_PATRONAGE_FINISHER);
 			if (hasPhilanthropy)
 			{
 				value *= 150;
@@ -106,7 +106,7 @@ int CvGlobals::getYIELD_PER_QUEST(const YieldTypes eYieldType, const PlayerTypes
 		if (eYieldType == YIELD_SCIENTIFIC_INSIGHT)
 		{
 			//POLICY_PATRONAGE_FINISHER grants +15 Insight from Completing Quests
-			const bool hasPhilanthropy = player.HasPolicy("POLICY_PATRONAGE_FINISHER");
+			const bool hasPhilanthropy = player.HasPolicy(POLICY_PATRONAGE_FINISHER);
 			if (hasPhilanthropy)
 				value += 15;
 		}
@@ -114,7 +114,7 @@ int CvGlobals::getYIELD_PER_QUEST(const YieldTypes eYieldType, const PlayerTypes
 		if (eYieldType == YIELD_GOLD)
 		{
 			// POLICY_PATRONAGE grants 100G from City-State Quests
-			const bool hasPatronageOpener = player.HasPolicy("POLICY_PATRONAGE");
+			const bool hasPatronageOpener = player.HasPolicy(POLICY_PATRONAGE);
 			if (hasPatronageOpener)
 				value += 100;
 		}
@@ -142,8 +142,8 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 
 	// how many tiles between the 2 cities
 	//const int tradeDistance = kTradeConnection.m_aPlotList.size();
-	const bool hasSilkRoad = playerOrigin.HasPolicy("POLICY_CARAVANS");
-	const bool hasMerchantConfederacy = playerOrigin.HasPolicy("POLICY_MERCHANT_CONFEDERACY");
+	const bool hasSilkRoad = playerOrigin.HasPolicy(POLICY_CARAVANS);
+	const bool hasMerchantConfederacy = playerOrigin.HasPolicy(POLICY_MERCHANT_CONFEDERACY);
 	const bool hasMerchantsGuild = cityOrigin->GetCityBuildings()->HasBuildingClass(BuildingClass("BUILDINGCLASS_CARAVANSARY"));
 	const bool hasMarket = cityOrigin->GetCityBuildings()->HasBuildingClass(BuildingClass("BUILDINGCLASS_MARKET"));
 	const bool hasBank = cityOrigin->GetCityBuildings()->HasBuildingClass(BuildingClass("BUILDINGCLASS_BANK"));
@@ -179,7 +179,7 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 			if (eYieldType == YIELD_PRODUCTION && hasOilRefinery)
 				yieldChange += 3;
 			{ // POLICY_FREE_THOUGHT +6SC +2FD from Internal Trade Routes
-				const bool hasFreeThought = playerOrigin.HasPolicy("POLICY_FREE_THOUGHT");
+				const bool hasFreeThought = playerOrigin.HasPolicy(POLICY_FREE_THOUGHT);
 				if (eYieldType == YIELD_FOOD && hasFreeThought)
 					yieldChange += 2;
 				if (eYieldType == YIELD_SCIENCE && hasFreeThought)
@@ -215,7 +215,7 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 			}
 
 			{ // POLICY_AESTHETICS +2C and +2T from External Routes
-				const bool hasAestheticsOpener = playerOrigin.HasPolicy("POLICY_AESTHETICS");
+				const bool hasAestheticsOpener = playerOrigin.HasPolicy(POLICY_AESTHETICS);
 				if (eYieldType == YIELD_CULTURE && hasAestheticsOpener)
 					yieldChange += 2;
 				if (eYieldType == YIELD_TOURISM && hasAestheticsOpener)
@@ -223,7 +223,7 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 			}
 
 			{ // POLICY_FREE_THOUGHT +1 Insight from External Routes
-				const bool hasFreeThought = playerOrigin.HasPolicy("POLICY_FREE_THOUGHT");
+				const bool hasFreeThought = playerOrigin.HasPolicy(POLICY_FREE_THOUGHT);
 				if (eYieldType == YIELD_SCIENTIFIC_INSIGHT && hasFreeThought)
 					yieldChange += 1;
 			}
