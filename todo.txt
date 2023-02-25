@@ -58,6 +58,7 @@ Trading Cards
 
 Map
 	goody huts
+	natural wonders
 
 	DO
 	get rid of grid point logic
