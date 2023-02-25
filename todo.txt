@@ -5,7 +5,7 @@ deal history screen is busted?
 do combat strength calculation tooltip serverside
 policy start % odds to shake up early game
 
-
+plot:SetImprovementType(2);
 
 
 substantial trade route bonus if connected via roads
@@ -34,7 +34,9 @@ do hidden antiquity sites still work at all? just redo antiquity logic
 
 
 Map
-	goody huts
+	goody hut random resource chunk
+	
+	natural wonders
 
 	city states
 

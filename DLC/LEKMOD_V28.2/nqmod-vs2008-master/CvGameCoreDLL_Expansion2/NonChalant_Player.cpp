@@ -120,9 +120,10 @@ int CvPlayer::GetExtraBuildingsForClass(BuildingClassTypes eClass) const
 
 int CvPlayer::GetMaxPoliciesForBranch(PolicyBranchTypes eBranch) const
 {
-	const CvCity* pCity,
-	const CvPlayer& player = *this;
 	int total = 3;
+
+	const CvPlayer& player = *this;
+	const CvCity* pCity = player.getCapitalCity();
 
 	if (pCity != NULL) // in a city
 	{
