@@ -2556,6 +2556,12 @@ void CvCityBuildings::Init(CvBuildingXMLEntries* pBuildings, CvCity* pCity)
 	m_aBuildingYieldChange.clear();
 	m_aBuildingGreatWork.clear();
 
+	numClasses.clear();
+	for (int i = 0; i < GC.getNumBuildingClassInfos(); ++i)
+	{
+		numClasses.push_back(0);
+	}
+
 	Reset();
 }
 
@@ -2649,6 +2655,18 @@ void CvCityBuildings::Read(FDataStream& kStream)
 
 	kStream >> m_aBuildingYieldChange;
 	kStream >> m_aBuildingGreatWork;
+
+
+	for (int i = 0; i < GC.getNumBuildingInfos(); ++i)
+	{
+		const CvBuildingEntry* pInfo = GC.getBuildingInfo((BuildingTypes)i);
+		if (pInfo != NULL)
+		{
+			BuildingClassTypes e = (BuildingClassTypes)pInfo->GetBuildingClassType();
+			// was set to 0 in init
+			numClasses[e] += GetNumRealBuilding((BuildingTypes)i);
+		}
+	}
 }
 
 /// Serialization write
@@ -2779,27 +2797,12 @@ bool CvCityBuildings::HasBuildingClass(BuildingClassTypes eClass, int* pCount) c
 {
 	CvAssertMsg(eClass != NO_BUILDINGCLASS, "BuildingClassTypes eIndex is expected to not be NO_BUILDINGCLASS");
 
-	// for every building
-	const int numBuildings = GC.GetGameBuildings()->GetNumBuildings();
 	int count = 0;
 	if (pCount == NULL)
 		pCount = &count;
 
-	for (int i = 0; i < numBuildings; ++i)
-	{
-		// if this city has it
-		const BuildingTypes type = (BuildingTypes)i;
-		if (GetNumRealBuilding(type) > 0)
-		{
-			// see if it matches the class
-			const CvBuildingEntry* pkInfo = GC.getBuildingInfo(type);
-			if (pkInfo && pkInfo->GetBuildingClassType() == eClass)
-			{
-				(*pCount)++;
-			}
-		}
-	}
-	return *pCount > 0;
+	*pCount = numClasses[eClass];
+	return pCount > 0;
 }
 /// Accessor: How many of these buildings are not obsolete?
 int CvCityBuildings::GetNumActiveBuilding(BuildingTypes eIndex) const
@@ -3118,6 +3121,8 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 			SetBuildingOriginalOwner(eIndex, NO_PLAYER);
 			SetBuildingOriginalTime(eIndex, MIN_INT);
 		}
+
+		numClasses[buildingClassType] = iNewValue;
 
 		// Process building effects
 		if(iOldNumBuilding != GetNumBuilding(eIndex))

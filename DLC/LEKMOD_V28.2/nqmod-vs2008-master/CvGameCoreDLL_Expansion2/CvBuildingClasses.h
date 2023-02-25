@@ -768,6 +768,9 @@ private:
 	int* m_paiNumRealBuilding;
 	int* m_paiNumFreeBuilding;
 
+
+	// maps class to the number of that class
+	mutable std::vector<int> numClasses;
 	std::vector<BuildingYieldChange> m_aBuildingYieldChange;
 	std::vector<BuildingGreatWork> m_aBuildingGreatWork;
 

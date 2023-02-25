@@ -413,10 +413,10 @@ bool CvGameCulture::SwapGreatWorks (PlayerTypes ePlayer1, int iWork1, PlayerType
 	CvPlayerCulture* pCulture1 = GET_PLAYER(ePlayer1).GetCulture();
 	CvPlayerCulture* pCulture2 = GET_PLAYER(ePlayer2).GetCulture();
 
-	GreatWorkClass eWritingClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_LITERATURE");
-	GreatWorkClass eArtClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ART");
-	GreatWorkClass eArtifactsClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ARTIFACT");
-	GreatWorkClass eMusicClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_MUSIC");
+	GreatWorkClass eWritingClass = (GreatWorkClass)3;
+	GreatWorkClass eArtClass = (GreatWorkClass)1;
+	GreatWorkClass eArtifactsClass = (GreatWorkClass)2;
+	GreatWorkClass eMusicClass = (GreatWorkClass)4;
 
 	GreatWorkClass eClass1 = GetGreatWorkClass(iWork1);
 	GreatWorkClass eClass2 = GetGreatWorkClass(iWork2);

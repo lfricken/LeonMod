@@ -4542,7 +4542,7 @@ CvPolicyEntry* CvGlobals::getPolicyInfo(PolicyTypes ePolicyNum)
 	if (ePolicyNum == NO_POLICY || ePolicyNum < 0 || ePolicyNum >= GC.getNumPolicyInfos())
 		return NULL;
 	CvAssert(ePolicyNum > -1);
-	CvAssert(ePolicyNum < GC.getNumPolicyInfos());
+	//CvAssert(ePolicyNum < GC.getNumPolicyInfos());
 	return m_pPolicies->GetPolicyEntries()[ePolicyNum];
 #endif
 }

@@ -2908,8 +2908,8 @@ CvPlayer* CvPlayerPolicies::GetPlayer() const
 /// Accessor: does a player have a policy
 bool CvPlayerPolicies::HasPolicy(PolicyTypes eIndex) const
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < GC.getNumPolicyInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	//CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	//CvAssertMsg(eIndex < GC.getNumPolicyInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_pabHasPolicy[eIndex];
 }
 

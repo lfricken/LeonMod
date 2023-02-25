@@ -6147,9 +6147,9 @@ int CvPlayer::GetNumSpecialistGreatWorks() const
 	{
 		const CvCityBuildings* pCityBuildings = pLoopCity->GetCityBuildings();
 
-		count += pCityBuildings->GetNumGreatWorks((GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ART"));
-		count += pCityBuildings->GetNumGreatWorks((GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_LITERATURE"));
-		count += pCityBuildings->GetNumGreatWorks((GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_MUSIC"));
+		count += pCityBuildings->GetNumGreatWorks((GreatWorkClass)1);
+		count += pCityBuildings->GetNumGreatWorks((GreatWorkClass)3);
+		count += pCityBuildings->GetNumGreatWorks((GreatWorkClass)4);
 
 		//GreatWorkSlotType eArtArtifactSlot = CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT();
 		//int iFilledArt = pCityBuildings->GetNumGreatWorks(eArtArtifactSlot);
@@ -10749,20 +10749,34 @@ map<BuildingTypes, int> CvPlayer::getBuildingCount() const
 
 	return map;
 }
-
-//	--------------------------------------------------------------------------------
-int CvPlayer::getNumNationalWonders() const
+std::vector<BuildingClassTypes> initClassesToCheck()
 {
-	int count = 0;
-	map<BuildingTypes, int> map = getBuildingCount();
+	std::vector<BuildingClassTypes> classesToCheck;
 
-	for (std::map<BuildingTypes, int>::iterator it = map.begin(); it != map.end(); ++it)
+	for (int i = 0; i < GC.getNumBuildInfos(); ++i)
 	{
-		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(it->first);
+		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo((BuildingTypes)i);
 		if (pkBuildingInfo != NULL)
 		{
 			const CvBuildingClassInfo& buildingClassInfo = pkBuildingInfo->GetBuildingClassInfo();
-			count += isNationalWonderClass(buildingClassInfo) ? 1 : 0;
+			if (isNationalWonderClass(buildingClassInfo))
+				classesToCheck.push_back((BuildingClassTypes)buildingClassInfo.GetID());
+		}
+	}
+	return classesToCheck;
+}
+//	--------------------------------------------------------------------------------
+int CvPlayer::getNumNationalWonders() const
+{
+	static std::vector<BuildingClassTypes> classesToCheck = initClassesToCheck();
+
+	int count = 0;
+	int iLoop = 0;
+	for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		for (int i = 0; i < (int)classesToCheck.size(); ++i)
+		{
+			count += pLoopCity->HasBuildingClass(classesToCheck[i]);
 		}
 	}
 
