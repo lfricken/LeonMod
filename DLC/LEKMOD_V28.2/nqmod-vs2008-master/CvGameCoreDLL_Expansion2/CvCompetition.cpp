@@ -476,10 +476,12 @@ void CvCompetition::Update(bool shouldMoveToNextSession, int numTurnsPerSession)
 		if (player.isAlive() && player.isMajorCiv())
 			score = GC.GetDelegatesFor[(int)m_eCompetitionType]->EvalScore(player);
 
-		m_entries[i].iTempScore += score;
+		const int tempScore = m_entries[i].iTempScore;
+		m_entries[i].iTempScore = tempScore + score;
 		if (shouldMoveToNextSession)
 		{
-			m_entries[i].iScore = (m_entries[i].iTempScore * 10) / numTurnsPerSession;
+			const int calcScore = (m_entries[i].iTempScore * 10) / numTurnsPerSession;
+			m_entries[i].iScore = calcScore;
 			m_entries[i].iTempScore = 0;
 			sort(m_entries.begin(), m_entries.end(), compareEntries);
 		}

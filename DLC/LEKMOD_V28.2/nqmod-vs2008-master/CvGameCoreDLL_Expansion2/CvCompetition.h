@@ -16,6 +16,7 @@ public:
 		eType = _type;
 		ePlayer = _ePlayer;
 		iScore = 0;
+		iTempScore = 0;
 	}
 	MiniCompetitionTypes eType;
 	// player this score is for
