@@ -21298,7 +21298,22 @@ int CvPlayer::getBuildingClassCount(BuildingClassTypes eIndex) const
 	return m_paiBuildingClassCount[eIndex];
 }
 
+void CvPlayer::getNumAllowed(BuildingClassTypes eIndex, int* have, int* allowed) const
+{
+	*have = 0;
+	*allowed = 999999;
+	CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eIndex);
+	if (pkBuildingClassInfo == NULL)
+		return;
 
+	const int allowedPercent = pkBuildingClassInfo->getMaxPlayerInstancesPercent();
+	if (allowedPercent != -1)
+	{
+		// +99 round up
+		*allowed = GetExtraBuildingsForClass(eIndex) + (((getNumCities() * allowedPercent) + 50) / 100) + pkBuildingClassInfo->getExtraPlayerInstances();
+		*have = getBuildingClassCount(eIndex);
+	}
+}
 //	--------------------------------------------------------------------------------
 bool CvPlayer::isBuildingClassMaxedOut(BuildingClassTypes eIndex, int iExtra, bool checkAbsolute, bool checkPercent) const
 {
@@ -21323,12 +21338,12 @@ bool CvPlayer::isBuildingClassMaxedOut(BuildingClassTypes eIndex, int iExtra, bo
 			return true;
 		}
 	}
-	const int allowedPercent = pkBuildingClassInfo->getMaxPlayerInstancesPercent();
-	if (checkPercent && allowedPercent != -1)
+	if (checkPercent)
 	{
-		// +99 round up
-		int allowed = (((getNumCities() * allowedPercent) + 50) / 100) + pkBuildingClassInfo->getExtraPlayerInstances();
-		int have = getBuildingClassCount(eIndex) + iExtra + GetExtraBuildingsForClass(eIndex);
+		int have, allowed;
+		getNumAllowed(eIndex, &have, &allowed);
+		have += iExtra;
+
 		if (have >= allowed)
 		{
 			return true;

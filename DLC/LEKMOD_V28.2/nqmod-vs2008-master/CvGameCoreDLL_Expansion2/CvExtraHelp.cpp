@@ -31,7 +31,6 @@ int CvLuaGame::lGetAdditionalHelpBuilding(lua_State* L)
 		const CvBuildingEntry* thisBuildingEntry = GC.getBuildingInfo(eBuilding);
 		const BuildingClassTypes eClass = (BuildingClassTypes)thisBuildingEntry->GetBuildingClassType();
 		const int maxPercent = GC.getBuildingClassInfo(eClass)->getMaxPlayerInstancesPercent();
-		const int extraForTooltip = rPlayer.GetExtraBuildingsForClass(eClass);
 		const bool isPercentLimited = maxPercent != -1;
 		if (thisBuildingEntry != NULL)
 		{
@@ -46,16 +45,16 @@ int CvLuaGame::lGetAdditionalHelpBuilding(lua_State* L)
 			}
 			else if (isPercentLimited)
 			{
+				const int extraForTooltip = rPlayer.GetExtraBuildingsForClass(eClass);
+				int have, allowed;
+				rPlayer.getNumAllowed(eClass, &have, &allowed);
+
 				Localization::String loc = Localization::Lookup("TXT_KEY_NO_ACTION_PLAYER_COUNT_MAX_PERCENT");
 				loc << maxPercent;
+				loc << extraForTooltip;
+				loc << have;
+				loc << allowed;
 				s << loc.toUTF8();
-
-				if (extraForTooltip > 0)
-				{
-					Localization::String loc = Localization::Lookup("TXT_KEY_NO_ACTION_PLAYER_COUNT_MAX_PERCENT_BONUS");
-					loc << extraForTooltip;
-					s << loc.toUTF8();
-				}
 				
 				const int additional = 0;
 				if (additional != 0)
