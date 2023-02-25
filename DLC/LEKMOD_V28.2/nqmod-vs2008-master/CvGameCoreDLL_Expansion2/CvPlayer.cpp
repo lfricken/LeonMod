@@ -1912,8 +1912,8 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI, const bool i
 		const bool isSettler = pNewUnit->isFound(); // can ever found cities?
 		if (isSettler && isGameStart)
 		{
-			const int extraMoves = 3;
-			const int sightBonus = 6;
+			const int extraMoves = 1;
+			const int sightBonus = 4;
 
 			// buff unit
 			pNewUnit->setHasPromotion((PromotionTypes)142, true); // PROMOTION_IGNORE_TERRAIN_COST
