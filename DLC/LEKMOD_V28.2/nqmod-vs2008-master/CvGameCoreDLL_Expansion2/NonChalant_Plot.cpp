@@ -41,7 +41,7 @@ int CvPlot::getExtraYield
 	// type of improvement
 	const ImprovementTypes eImprovement,
 	// type of route (road, railroad, none)
-	const RouteTypes eRoute,
+	const RouteTypes,
 	// owning player
 	const PlayerTypes tileOwner
 )

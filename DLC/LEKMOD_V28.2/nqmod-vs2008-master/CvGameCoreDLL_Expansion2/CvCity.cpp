@@ -14416,7 +14416,7 @@ bool CvCity::CreateBuilding(BuildingTypes eBuildingType)
 	return true;
 }
 
-void CvCity::OnAfterFinishBuild(OrderTypes type, int data1)
+void CvCity::OnAfterFinishBuild(OrderTypes, int)
 {
 	UpdateFreeBuildings(false);
 }

@@ -57,6 +57,8 @@ Trading Cards
 
 
 Map
+	goody huts
+
 	DO
 	get rid of grid point logic
 	extract things to functions
