@@ -7763,21 +7763,14 @@ void CvPlayer::found(int iX, int iY)
 	const bool isFirstFounding = !IsHasLostCapital() && getNumCities() == 0;
 	if (isFirstFounding)
 	{
-		// TODO		 -- GIVE players EVERY CARD
+		// TODO HACK -- GIVE players EVERY CARD
 		if (false)
 		{
-			// gives all cards past a certain policy number
-			for (int cardId = 130; cardId < GC.getNumPolicyInfos(); ++cardId)
+			for (int cardId = 128; cardId < GC.getNumPolicyInfos(); ++cardId)
 			{
 				if (TradingCard::IsCard(cardId))
 					CardsAdd((TradingCardTypes)cardId);
 			}
-		}
-		{
-			// gives one specific card
-			// 	{
-			//		CardsAdd((TradingCardTypes)289);
-			//	}
 		}
 	}
 	
