@@ -41,6 +41,16 @@ bool TradingCard::IsConditionSatisfied(TradingCardTypes type, const CvPlayer* pP
 	const CvPlayer& player = *pPlayer;
 	switch (type)
 	{
+	case 130: // POLICY_CARD_ANCIENT_UNITS_MILITIA_ACTIVE
+	{
+		int hasBronzeTech = player.HasTech("TECH_BRONZE_WORKING");
+		return (hasBronzeTech);
+	}
+	case 134: // POLICY_CARD_ANCIENT_UNITS_SLAVES_ACTIVE
+	{
+		int hasMining = player.HasTech("TECH_MINING");
+		return (hasMining);
+	}
 	case 140: // POLICY_CARD_ANCIENT_RESOURCES_INUITS_PASSIVE
 	{
 		int numTundraPlotsOwned = player.CountOwnedPlots(TundraTiles);
@@ -50,12 +60,7 @@ bool TradingCard::IsConditionSatisfied(TradingCardTypes type, const CvPlayer* pP
 	{
 		int numDesertPlotsOwned = player.CountOwnedPlots(DesertTiles);
 		return !(numDesertPlotsOwned < 10);
-	}
-	case 142: // POLICY_CARD_ANCIENT_RESOURCES_ATLATL_PASSIVE
-	{
-		int numDeerPlotsOwned = player.CountOwnedPlots(DeerPlots);
-		return !(numDeerPlotsOwned < 6);
-	}
+	}	
 	case 149: // POLICY_CARD_ANCIENT_POLITICAL_ORTHODOXY_PASSIVE
 	{
 		int numTraditionPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(0));
@@ -153,7 +158,7 @@ bool TradingCard::ShouldDeleteCard(TradingCardTypes type, const CvPlayer* pPlaye
 	}
 	case 145: // POLICY_CARD_ANCIENT_RESOURCES_SPEAR_FISHING_PASSIVE
 	{
-		return (playerEra > classicalEra);
+		return (playerEra > medievalEra);
 	}
 	case 157: // POLICY_CARD_CLASSICAL_UNITS_INDUSTRIOUS_PASSIVE
 	{
