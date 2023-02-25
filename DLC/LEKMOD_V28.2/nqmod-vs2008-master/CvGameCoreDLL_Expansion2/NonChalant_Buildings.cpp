@@ -285,16 +285,16 @@ int CvPlayer::GetExtraYieldForBuilding
 		{
 			if (eYieldType == YIELD_MAINTENANCE && hasUniversal && isLevel1FoodBuilding)
 				yieldChange += 1;
-
+			if (eYieldType == YIELD_FOOD && hasUniversal && isLevel1FoodBuilding)
+				yieldChange += 1;
 			if (eYieldType == YIELD_MAINTENANCE && hasUniversal && isLevel2FoodBuilding)
 				yieldChange += 2;
 			if (eYieldType == YIELD_FOOD && hasUniversal && isLevel2FoodBuilding)
-				yieldChange += 1;
-
+				yieldChange += 2;
 			if (eYieldType == YIELD_MAINTENANCE && hasUniversal && isLevel3FoodBuilding)
 				yieldChange += 2;
 			if (eYieldType == YIELD_FOOD && hasUniversal && isLevel3FoodBuilding)
-				yieldChange += 4;
+				yieldChange += 3;
 			if (eYieldType == YIELD_PRODUCTION && hasUniversal && isLevel3FoodBuilding)
 				yieldChange -= 2;
 		}
