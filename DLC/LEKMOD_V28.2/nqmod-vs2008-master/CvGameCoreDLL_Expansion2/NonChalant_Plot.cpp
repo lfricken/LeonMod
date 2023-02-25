@@ -599,30 +599,30 @@ int CvPlot::getExtraYield
 					yieldChange += 1;
 			}
 
-			{// CARD_ANCIENT_RESOURCES_ATLATL - 2F to Deer
+			{// CARD_ANCIENT_RESOURCES_ATLATL - 1FD to Improved Deer
 				const bool hasAtlatl = player.HasPolicy(POLICY_CARD_ANCIENT_RESOURCES_ATLATL_PASSIVE);
 				const bool isDeer = plot.HasResource(RESOURCE_DEER);
-				if (eYieldType == YIELD_FOOD && hasAtlatl && isDeer)
-					yieldChange += 2;
-			}
-
-			{// CARD_ANCIENT_RESOURCES_FLINT_KNAPPING - 2PD from Obsidian 1G from Quarries
-				const bool hasFlints = player.HasPolicy(POLICY_CARD_ANCIENT_RESOURCES_FLINT_KNAPPING_PASSIVE);
-				const bool isObsidian = plot.HasResource(RESOURCE_OBSIDIAN);
-				const bool isQuarry = plot.HasImprovement(IMPROVEMENT_QUARRY);
-				if (eYieldType == YIELD_PRODUCTION && hasFlints && isObsidian)
-					yieldChange += 2;
-				if (eYieldType == YIELD_CULTURE && hasFlints && isQuarry)
+				const bool isCamp = plot.HasImprovement(IMPROVEMENT_CAMP);
+				if (eYieldType == YIELD_FOOD && hasAtlatl && isDeer && isCamp)
 					yieldChange += 1;
 			}
 
-			{// CARD_ANCIENT_RESOURCES_SACRIFICIAL_LAMBS - -1FD +4FH to sheep
+			{// CARD_ANCIENT_RESOURCES_FLINT_KNAPPING - 1PD from Obsidian 1PD from Quarries
+				const bool hasFlints = player.HasPolicy(POLICY_CARD_ANCIENT_RESOURCES_FLINT_KNAPPING_PASSIVE);
+				const bool isObsidian = plot.HasResource(RESOURCE_OBSIDIAN);
+				const bool isQuarry = plot.HasImprovement(IMPROVEMENT_QUARRY);
+				if (eYieldType == YIELD_PRODUCTION && hasFlints && isObsidian && isQuarry)
+						yieldChange += 1;
+				if (eYieldType == YIELD_PRODUCTION && hasFlints && isQuarry)
+					yieldChange += 1;
+			}			
+
+			{// CARD_ANCIENT_RESOURCES_SACRIFICIAL_LAMBS - 2FH to sheep
 				const bool hasSacrificialLambs = player.HasPolicy(POLICY_CARD_ANCIENT_RESOURCES_SACRIFICIAL_LAMBS_PASSIVE);
-				const bool isSheep = plot.HasResource(RESOURCE_SHEEP);
-				if (eYieldType == YIELD_FOOD && hasSacrificialLambs && isSheep)
-					yieldChange -= 1;
-				if (eYieldType == YIELD_FAITH && hasSacrificialLambs && isSheep)
-					yieldChange += 4;
+				const bool isSheep = plot.HasResource(RESOURCE_SHEEP);				
+				const bool isPasture = plot.HasImprovement(IMPROVEMENT_PASTURE);
+				if (eYieldType == YIELD_FAITH && hasSacrificialLambs && isSheep && isPasture)
+					yieldChange += 2;
 			}
 
 			{// CARD_ANCIENT_RESOURCES_SPEAR_FISHING +1FD to fish
@@ -641,28 +641,28 @@ int CvPlot::getExtraYield
 					yieldChange += 4;
 			}
 
-			{// CARD_ANCIENT_POLITICAL_ORTHODOXY - +3 FD to City Center
+			{// CARD_ANCIENT_POLITICAL_ORTHODOXY - +1 FD to City Center
 				const bool hasOrthodoxyCard = player.HasPolicy(POLICY_CARD_ANCIENT_POLITICAL_ORTHODOXY_PASSIVE);
 				if (eYieldType == YIELD_FOOD && hasOrthodoxyCard && isCityCenter)
-					yieldChange += 3;
+					yieldChange += 1;
 			}
 
 			{// POLICY_CARD_ANCIENT_POLITICAL_PROGRESSIVE_PASSIVE - +2 PD to City Center
 				const bool hasProgressiveCard = player.HasPolicy(POLICY_CARD_ANCIENT_POLITICAL_PROGRESSIVE_PASSIVE);
 				if (eYieldType == YIELD_PRODUCTION && hasProgressiveCard && isCityCenter)
-					yieldChange += 2;
+					yieldChange += 1;
 			}
 
 			{// CARD_ANCIENT_POLITICAL_AGGRESIVE - +2 C to City Center
 				const bool hasAgressiveCard = player.HasPolicy(POLICY_CARD_ANCIENT_POLITICAL_AGGRESIVE_PASSIVE);
 				if (eYieldType == YIELD_CULTURE && hasAgressiveCard && isCityCenter)
-					yieldChange += 2;
+					yieldChange += 1;
 			}
 
 			{// CARD_ANCIENT_POLITICAL_EXCLUSIVE - +5 FD to Capital  City Center
 				const bool hasExclusiveCard = player.HasPolicy(POLICY_CARD_ANCIENT_POLITICAL_EXCLUSIVE_PASSIVE);
 				if (eYieldType == YIELD_FOOD && hasExclusiveCard && isCityCenter && isCapital)
-					yieldChange += 5;
+					yieldChange += 4;
 			}
 
 			{// CARD_CLASSICAL_RESOURCE_LIMESTONE - +3 PD to Stone

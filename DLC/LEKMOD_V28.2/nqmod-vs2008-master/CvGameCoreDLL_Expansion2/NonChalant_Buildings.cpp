@@ -401,14 +401,7 @@ int CvPlayer::GetExtraYieldForBuilding
 		const bool isHarbor = eBuildingClass == BUILDINGCLASS_HARBOR;		
 		if (eYieldType == YIELD_MAINTENANCE && !isPercentMod && hasHarbormasterCard && isHarbor)
 			yieldChange -= 2;
-	}
-
-	{// CARD_CLASSICAL_BUILDINGS_GLADIATOR_GAMES_PASSIVE grants +2 Maintenance to Colloseums
-		const bool hasGladitorGamesCard = player.HasPolicy(POLICY_CARD_CLASSICAL_BUILDINGS_GLADIATOR_GAMES_PASSIVE);
-		const bool isColloseum = eBuildingClass == BUILDINGCLASS_COLOSSEUM;
-		if (eYieldType == YIELD_MAINTENANCE && !isPercentMod && hasGladitorGamesCard && isColloseum)
-			yieldChange += 2;
-	}
+	}	
 
 	{// CARD_RENAISSANCE_BUILDINGS_DOMINANCE gives +1C +1Diplo to palace for every 2 military units
 		const bool hasDominanceCard = player.HasPolicy(POLICY_CARD_RENAISSANCE_BUILDINGS_DOMINANCE_PASSIVE);

@@ -35,7 +35,6 @@ do hidden antiquity sites still work at all? just redo antiquity logic
 
 Map
 	goody huts
-	natural wonders
 
 	city states
 
