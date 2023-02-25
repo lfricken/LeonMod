@@ -2802,7 +2802,7 @@ bool CvCityBuildings::HasBuildingClass(BuildingClassTypes eClass, int* pCount) c
 		pCount = &count;
 
 	*pCount = numClasses[eClass];
-	return *pCount > 0;
+	return pCount > 0;
 }
 /// Accessor: How many of these buildings are not obsolete?
 int CvCityBuildings::GetNumActiveBuilding(BuildingTypes eIndex) const
