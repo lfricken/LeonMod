@@ -1912,8 +1912,8 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI, const bool i
 		const bool isSettler = pNewUnit->isFound(); // can ever found cities?
 		if (isSettler && isGameStart)
 		{
-			const int extraMoves = 3;
-			const int sightBonus = 6;
+			const int extraMoves = 1;
+			const int sightBonus = 4;
 
 			// buff unit
 			pNewUnit->setHasPromotion((PromotionTypes)142, true); // PROMOTION_IGNORE_TERRAIN_COST
@@ -6233,7 +6233,7 @@ int CvPlayer::GetDiplomaticInfluenceNeeded() const
 	const int truncate = 10;
 	const int amountNeeded = ((influenceNeededT100 / 100) / truncate) * truncate;
 
-	return max(10, amountNeeded); // prevent glitches with 0 city states
+	return max(1000, amountNeeded); // prevent glitches with 0 city states
 }
 //	--------------------------------------------------------------------------------
 void CvPlayer::GetScientificInfluencePerTurn(int* influenceThisTurn) const

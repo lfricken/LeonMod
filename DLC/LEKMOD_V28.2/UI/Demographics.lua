@@ -524,7 +524,7 @@ Events.SerialEventGameMessagePopup.Add( OnPopup );
 ----------------------------------------------------------------
 ----------------------------------------------------------------
 function OnBack()
-	print("Dequeuing demographics");
+	--print("Dequeuing demographics");
 	UIManager:DequeuePopup( ContextPtr );
 end
 Controls.BackButton:RegisterCallback( Mouse.eLClick, OnBack );

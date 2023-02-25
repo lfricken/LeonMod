@@ -1052,7 +1052,7 @@ local iCiv = GameInfoTypes["CIVILIZATION_VENEZ"]
 local bIsActive = JFD_IsCivilisationActive(iCiv)
 
 -- Venez trait tech research
-print("loaded venez ua")
+--print("loaded venez ua")
 if bIsActive then
 GameEvents.TeamSetHasTech.Add(function(iTeam, iTech, bAdopted)
 	print("working: venez UA")
@@ -1075,7 +1075,7 @@ local iCiv = GameInfoTypes["CIVILIZATION_HORDE"]
 local bIsActive = JFD_IsCivilisationActive(iCiv)
 
 if bIsActive then
-print("loaded horde ua")
+--print("loaded horde ua")
 GameEvents.TeamSetHasTech.Add(function(iTeam, iTech, bAdopted)
 	print("working: horde UA")
 	for playerID, player in pairs(Players) do
@@ -1100,7 +1100,7 @@ end
 --local iCiv = GameInfoTypes["CIVILIZATION_UC_CUBA_BATISTA"]
 --local bIsActive = JFD_IsCivilisationActive(iCiv)
 
-print("dummy policy loaded - Cuba")
+--print("dummy policy loaded - Cuba")
 function DummyPolicyCuba(player)
 	print("working - Cuba")
 	for playerID, player in pairs(Players) do
@@ -1138,7 +1138,7 @@ end
 local iCiv = GameInfoTypes["CIVILIZATION_VIET"]
 local bIsActive = JFD_IsCivilisationActive(iCiv)
 
-print("dummy policy loaded - Vietnam")
+--print("dummy policy loaded - Vietnam")
 function DummyPolicy(player)
 	print("working - Vietnam")
 	for playerID, player in pairs(Players) do
@@ -1161,7 +1161,7 @@ end
 local iCiv = GameInfoTypes["CIVILIZATION_LEXICO"]
 local bIsActive = JFD_IsCivilisationActive(iCiv)
 
-print("dummy policy loaded - Mexico")
+--print("dummy policy loaded - Mexico")
 function DummyPolicy(player)
 	print("working - Mexico")
 	for playerID, player in pairs(Players) do
@@ -1184,7 +1184,7 @@ end
 local iCiv = GameInfoTypes["CIVILIZATION_MC_MAORI"]
 local bIsActive = JFD_IsCivilisationActive(iCiv)
 
-print("dummy policy loaded - Maori")
+--print("dummy policy loaded - Maori")
 function DummyPolicy(player)
 	print("working - Maori")
 	for playerID, player in pairs(Players) do

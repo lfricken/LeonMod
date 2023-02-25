@@ -1,4 +1,3 @@
-print("This is the modded UnitFlagManager from 'Improvement - Airbases'")
 
 local isUsingFlagsPlus = false
 
