@@ -157,6 +157,13 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 	const bool hasGemcutter = cityOrigin->GetCityBuildings()->HasBuildingClass(BuildingClass("BUILDINGCLASS_GEMCUTTER"));
 	const bool hasOilRefinery = cityOrigin->GetCityBuildings()->HasBuildingClass(BuildingClass("BUILDINGCLASS_REFINERY"));
 	const bool hasShipyard = cityOrigin->GetCityBuildings()->HasBuildingClass(BuildingClass("BUILDINGCLASS_SHIPYARD"));
+	int numExplorationPolicies = playerOrigin.HasPolicy("POLICY_EXPLORATION_CLOSER_1") || playerOrigin.HasPolicy("POLICY_EXPLORATION_CLOSER_2") || 
+		playerOrigin.HasPolicy("POLICY_EXPLORATION_CLOSER_3") || playerOrigin.HasPolicy("POLICY_EXPLORATION_CLOSER_4") || 
+		playerOrigin.HasPolicy("POLICY_EXPLORATION_CLOSER_5") || playerOrigin.HasPolicy("POLICY_EXPLORATION_CLOSER_6");
+	int numCommercePolicies = playerOrigin.HasPolicy("POLICY_COMMERCE_CLOSER_1") || playerOrigin.HasPolicy("POLICY_COMMERCE_CLOSER_2") ||
+		playerOrigin.HasPolicy("POLICY_COMMERCE_CLOSER_3") || playerOrigin.HasPolicy("POLICY_COMMERCE_FINISHER") ||
+		playerOrigin.HasPolicy("POLICY_COMMERCE_CLOSER_5") || playerOrigin.HasPolicy("POLICY_COMMERCE_CLOSER_6");
+	const bool hasTheocrary = playerOrigin.HasPolicy("POLICY_THEOCRACY");
 
 	if (isInternal) // true if this is an internal trade route
 	{
@@ -178,8 +185,9 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 				yieldChange += 1;
 			if (eYieldType == YIELD_PRODUCTION && hasOilRefinery)
 				yieldChange += 3;
-			{ // POLICY_FREE_THOUGHT +6SC +2FD from Internal Trade Routes
-				const bool hasFreeThought = playerOrigin.HasPolicy(POLICY_FREE_THOUGHT);
+
+			{ // POLICY_FREE_THOUGHT +6SC +2FD from Trade Routes
+				const bool hasFreeThought = playerOrigin.HasPolicy("POLICY_FREE_THOUGHT");
 				if (eYieldType == YIELD_FOOD && hasFreeThought)
 					yieldChange += 2;
 				if (eYieldType == YIELD_SCIENCE && hasFreeThought)
@@ -187,6 +195,10 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 			}
 			if (eYieldType == YIELD_PRODUCTION && hasShipyard)
 				yieldChange += 2;
+			if (eYieldType == YIELD_FAITH && hasTheocrary)
+				yieldChange += 2;
+			if (eYieldType == YIELD_GOLD)
+				yieldChange += (numCommercePolicies * 3);
 		}
 	}
 	else
@@ -203,29 +215,37 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 					yieldChange += 2;
 				if (eYieldType == YIELD_CULTURE && hasMerchantConfederacy)
 					yieldChange += 2;
+				if (eYieldType == YIELD_FOOD)
+					yieldChange += numExplorationPolicies;
+				if (eYieldType == YIELD_PRODUCTION)
+					yieldChange += numExplorationPolicies;
+				if (eYieldType == YIELD_FAITH && hasTheocrary)
+					yieldChange += 2;
+				{ // POLICY_FREE_THOUGHT +6SC +2FD from Trade Routes
+					const bool hasFreeThought = playerOrigin.HasPolicy("POLICY_FREE_THOUGHT");
+					if (eYieldType == YIELD_FOOD && hasFreeThought)
+						yieldChange += 2;
+					if (eYieldType == YIELD_SCIENCE && hasFreeThought)
+						yieldChange += 6;
+				}
 			}
 			else // destination is another civ
 			{
-				if (eYieldType == YIELD_FOOD && hasSilkRoad)
-					yieldChange += 3;
-				if (eYieldType == YIELD_PRODUCTION && hasSilkRoad)
-					yieldChange += 3;
-				if (eYieldType == YIELD_DIPLOMATIC_SUPPORT && hasSilkRoad)
-					yieldChange += 3;
-			}
-
-			{ // POLICY_AESTHETICS +2C and +2T from External Routes
-				const bool hasAestheticsOpener = playerOrigin.HasPolicy(POLICY_AESTHETICS);
-				if (eYieldType == YIELD_CULTURE && hasAestheticsOpener)
-					yieldChange += 2;
-				if (eYieldType == YIELD_TOURISM && hasAestheticsOpener)
+				if (eYieldType == YIELD_FOOD)
+					yieldChange += numExplorationPolicies;
+				if (eYieldType == YIELD_PRODUCTION)
+					yieldChange += numExplorationPolicies;
+				if (eYieldType == YIELD_FAITH && hasTheocrary)
 					yieldChange += 2;
 			}
+			
 
-			{ // POLICY_FREE_THOUGHT +1 Insight from External Routes
-				const bool hasFreeThought = playerOrigin.HasPolicy(POLICY_FREE_THOUGHT);
-				if (eYieldType == YIELD_SCIENTIFIC_INSIGHT && hasFreeThought)
-					yieldChange += 1;
+			{ // POLICY_FREE_THOUGHT +6SC +2FD from Trade Routes
+				const bool hasFreeThought = playerOrigin.HasPolicy("POLICY_FREE_THOUGHT");
+				if (eYieldType == YIELD_FOOD && hasFreeThought)
+					yieldChange += 2;
+				if (eYieldType == YIELD_SCIENCE && hasFreeThought)
+					yieldChange += 6;
 			}
 
 			{ // diplomatic support from trade route buildings

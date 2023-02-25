@@ -21313,8 +21313,8 @@ bool CvPlayer::isBuildingClassMaxedOut(BuildingClassTypes eIndex, int iExtra, bo
 	if (checkPercent && allowedPercent != -1)
 	{
 		// +99 round up
-		int allowed = (((getNumCities() * allowedPercent) + 99) / 100) + pkBuildingClassInfo->getExtraPlayerInstances();
-		int have = getBuildingClassCount(eIndex) + iExtra;
+		int allowed = (((getNumCities() * allowedPercent) + 50) / 100) + pkBuildingClassInfo->getExtraPlayerInstances();
+		int have = getBuildingClassCount(eIndex) + iExtra + GetExtraBuildingsForClass(eIndex);
 		if (have >= allowed)
 		{
 			return true;
@@ -24820,6 +24820,8 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 #ifdef AUI_CITIZENS_MID_TURN_ASSIGN_RUNS_SELF_CONSISTENCY
 	doSelfConsistencyCheckAllCities();
 #endif
+
+	UpdateFreePolicies();
 
 	GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
