@@ -10398,7 +10398,7 @@ void CvPlayer::ResetHasBuildingClassCache() const
 {
 	m_cache_hasBuildingClass.clear();
 	m_cache_hasBuildingClass.resize(GC.getNumBuildingClassInfos());
-	for (int i = 0; i < m_cache_hasBuildingClass.size(); ++i)
+	for (int i = 0; i < (int)m_cache_hasBuildingClass.size(); ++i)
 		m_cache_hasBuildingClass[i] = NoCacheVal;
 }
 bool CvPlayer::HasWonder(BuildingClassTypes eBuildingClass) const
