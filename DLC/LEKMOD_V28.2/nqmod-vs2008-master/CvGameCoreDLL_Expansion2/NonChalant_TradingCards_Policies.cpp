@@ -43,12 +43,12 @@ bool TradingCard::IsConditionSatisfied(TradingCardTypes type, const CvPlayer* pP
 	{
 	case 130: // POLICY_CARD_ANCIENT_UNITS_MILITIA_ACTIVE
 	{
-		int hasBronzeTech = player.HasTech("TECH_BRONZE_WORKING");
+		int hasBronzeTech = player.HasTech(TECH_BRONZE_WORKING);
 		return (hasBronzeTech);
 	}
 	case 134: // POLICY_CARD_ANCIENT_UNITS_SLAVES_ACTIVE
 	{
-		int hasMining = player.HasTech("TECH_MINING");
+		int hasMining = player.HasTech(TECH_MINING);
 		return (hasMining);
 	}
 	case 140: // POLICY_CARD_ANCIENT_RESOURCES_INUITS_PASSIVE
