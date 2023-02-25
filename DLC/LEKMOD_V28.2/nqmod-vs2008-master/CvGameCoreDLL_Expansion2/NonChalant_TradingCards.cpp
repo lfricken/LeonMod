@@ -34,17 +34,6 @@ FDataStream& operator >>(FDataStream& kStream, TradingCardState& data)
 
 
 
-const CvPolicyEntry* GetPolicyInfo(const string policyName)
-{
-	if (policyName.size() == 0)
-	{
-		return NULL;
-	}
-	const CvPolicyXMLEntries* pAllPolicies = GC.GetGamePolicies();
-	const PolicyTypes ePolicy = pAllPolicies->Policy(policyName);
-	const CvPolicyEntry* pInfo = GC.getPolicyInfo(ePolicy);
-	return pInfo;
-}
 bool TradingCard::IsCard(int type)
 {
 	bool isPolicyCard = false;
@@ -86,9 +75,9 @@ int TradingCard::Genre(int type)
 }
 string TradingCard::GetName(TradingCardTypes type, CvPlayer* player)
 {
-	const CvPolicyEntry* activeInfo = GetPolicyInfo(TradingCard::GetActivePolicy(type));
+	const CvPolicyEntry* activeInfo = GC.getPolicyInfo(TradingCard::GetActivePolicy(type));
 	string active = activeInfo == NULL ? "" : activeInfo->GetDescription();
-	const CvPolicyEntry* passiveInfo = GetPolicyInfo(TradingCard::GetPassivePolicy(type));
+	const CvPolicyEntry* passiveInfo = GC.getPolicyInfo(TradingCard::GetPassivePolicy(type));
 	string passive = passiveInfo == NULL ? "" : passiveInfo->GetDescription();
 	string joiner = "";
 	if (passive.size() != 0 && active.size() != 0)
@@ -99,9 +88,9 @@ string TradingCard::GetName(TradingCardTypes type, CvPlayer* player)
 }
 string TradingCard::GetDesc(TradingCardTypes type, CvPlayer* player)
 {
-	const CvPolicyEntry* activeInfo = GetPolicyInfo(TradingCard::GetActivePolicy(type));
+	const CvPolicyEntry* activeInfo = GC.getPolicyInfo(TradingCard::GetActivePolicy(type));
 	string active = activeInfo == NULL ? "" : activeInfo->GetHelp();
-	const CvPolicyEntry* passiveInfo = GetPolicyInfo(TradingCard::GetPassivePolicy(type));
+	const CvPolicyEntry* passiveInfo = GC.getPolicyInfo(TradingCard::GetPassivePolicy(type));
 	string passive = passiveInfo == NULL ? "" : passiveInfo->GetHelp();
 	string joiner = "";
 	if (passive.size() != 0 && active.size() != 0)
@@ -122,7 +111,7 @@ void TradingCard::OnCountChanged(TradingCardTypes cardType, CvPlayer* player, in
 }
 string TradingCard::GetActivePolicyDesc(TradingCardTypes type)
 {
-	const CvPolicyEntry* pInfo = GetPolicyInfo(TradingCard::GetActivePolicy(type));
+	const CvPolicyEntry* pInfo = GC.getPolicyInfo(TradingCard::GetActivePolicy(type));
 	if (pInfo == NULL)
 	{
 		return "";
@@ -132,7 +121,7 @@ string TradingCard::GetActivePolicyDesc(TradingCardTypes type)
 }
 string TradingCard::GetPassivePolicyDesc(TradingCardTypes type)
 {
-	const CvPolicyEntry* pInfo = GetPolicyInfo(TradingCard::GetPassivePolicy(type));
+	const CvPolicyEntry* pInfo = GC.getPolicyInfo(TradingCard::GetPassivePolicy(type));
 	if (pInfo == NULL)
 	{
 		return "";
@@ -142,9 +131,9 @@ string TradingCard::GetPassivePolicyDesc(TradingCardTypes type)
 }
 bool TradingCard::CanActivate(TradingCardTypes cardType, const CvPlayer* pPlayer, stringstream* noActiveReason)
 {
-	const string activePolicyName = TradingCard::GetActivePolicy(cardType);
+	const PolicyTypes activePolicyName = TradingCard::GetActivePolicy(cardType);
 	// no active policy
-	if (activePolicyName.size() <= 0)
+	if (activePolicyName == NO_POLICY)
 	{
 		return false;
 	}
@@ -163,37 +152,37 @@ bool TradingCard::CanActivate(TradingCardTypes cardType, const CvPlayer* pPlayer
 	}
 	return success;
 }
-string TradingCard::GetActivePolicy(TradingCardTypes type)
+PolicyTypes TradingCard::GetActivePolicy(TradingCardTypes type)
 {
 	const CvPolicyEntry* pInfo = GC.getPolicyInfo((PolicyTypes)type);
 	if (pInfo != NULL)
 	{
 		if (pInfo->CardIsActive())
 		{
-			return pInfo->GetType();
+			return (PolicyTypes)type;
 		}
 		else
 		{
-			return "";
+			return NO_POLICY;
 		}
 	}
-	return "";
+	return NO_POLICY;
 }
-string TradingCard::GetPassivePolicy(TradingCardTypes type)
+PolicyTypes TradingCard::GetPassivePolicy(TradingCardTypes type)
 {
 	const CvPolicyEntry* pInfo = GC.getPolicyInfo((PolicyTypes)type);
 	if (pInfo != NULL)
 	{
 		if (pInfo->CardIsActive())
 		{
-			return "";
+			return NO_POLICY;
 		}
 		else
 		{
-			return pInfo->GetType();
+			return (PolicyTypes)type;
 		}
 	}
-	return "";
+	return NO_POLICY;
 }
 int TradingCard::GetEstimatedValue(TradingCardTypes type)
 {

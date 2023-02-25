@@ -131,6 +131,11 @@ public:
 	CvPlot();
 	~CvPlot();
 
+
+	void ResetYieldCache_Policies();
+	void ResetYieldCache_Tech();
+	void ResetYieldCache_All();
+
 	void init(int iX, int iY);
 	void uninit();
 	void reset(int iX = 0, int iY = 0, bool bConstructorCall=false);
@@ -642,7 +647,32 @@ public:
 		// type of route (road, railroad, none)
 		const RouteTypes eRouteType,
 		// owning player
-		const PlayerTypes tileOwner
+		const PlayerTypes tileOwner,
+		const bool allowCached = false
+	);
+	int getExtraYield_TechChanged
+	(
+		// type of yield we are considering
+		const YieldTypes eYieldType,
+		// type of improvement
+		const ImprovementTypes eImprovement,
+		// type of route (road, railroad, none)
+		const RouteTypes eRouteType,
+		// owning player
+		const PlayerTypes tileOwner,
+		const bool allowCached = false
+	);
+	int getExtraYield_PoliciesChanged
+	(
+		// type of yield we are considering
+		const YieldTypes eYieldType,
+		// type of improvement
+		const ImprovementTypes eImprovement,
+		// type of route (road, railroad, none)
+		const RouteTypes eRouteType,
+		// owning player
+		const PlayerTypes tileOwner,
+		const bool allowCached = false
 	);
 
 	bool hasYield() const;
@@ -890,6 +920,11 @@ protected:
 	int m_ePlotType;
 	int m_eTerrainType;
 #else
+	static const int InvalidCacheVal = -99999;
+	// indexed on yieldtype
+	mutable std::vector<int> m_cachedExtraYields_Policies;
+	// indexed on yieldtype
+	mutable std::vector<int> m_cachedExtraYields_Tech;
 	short m_iX;
 	short m_iY;
 	char /*PlayerTypes*/  m_eOwner;

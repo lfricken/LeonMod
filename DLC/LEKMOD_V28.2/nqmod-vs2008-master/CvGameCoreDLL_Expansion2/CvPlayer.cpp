@@ -6121,7 +6121,7 @@ int CvPlayer::GetNumScienceImprovements() const
 		const CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
 		if (pLoopPlot->getOwner() != m_eID)
 			continue;
-		if (pLoopPlot->HasImprovement("IMPROVEMENT_ACADEMY"))
+		if (pLoopPlot->HasImprovement(IMPROVEMENT_ACADEMY))
 			iCount++;
 	}
 
@@ -28363,13 +28363,11 @@ bool CvPlayer::HasBuildingClass(BuildingClassTypes iBuildingClassType)
 }
 */
 // correctly does not update policy count if we already did(n't) have it
-int UpdateHasPolicy(CvPlayer* player, string policyName, bool newVal)
+int UpdateHasPolicy(CvPlayer* player, PolicyTypes ePolicy, bool newVal)
 {
 	int delta = 0;
-	if (policyName.size() > 0)
+	if (ePolicy != NO_POLICY)
 	{
-		const CvPolicyXMLEntries* pAllPolicies = GC.GetGamePolicies();
-		const PolicyTypes ePolicy = pAllPolicies->Policy(policyName);
 		delta = player->doAdoptPolicy(ePolicy, newVal, false); // correctly does not change if newVal did not change
 	}
 	return delta;
@@ -28384,8 +28382,8 @@ void CvPlayer::CardsActivate(int cardIdx)
 		const bool satisfiesActive = TradingCard::CanActivate(cardType, this, &ss);
 		if (satisfiesActive)
 		{
-			const string activePolicyName = TradingCard::GetActivePolicy(cardType);
-			UpdateHasPolicy(this, activePolicyName, true);
+			const PolicyTypes activePolicy = TradingCard::GetActivePolicy(cardType);
+			UpdateHasPolicy(this, activePolicy, true);
 			CardsDestroy(cardIdx);
 			TradingCard::ApplyActiveEffects(cardType, this);
 		}
@@ -28500,9 +28498,9 @@ void CvPlayer::DoUpdateCardBenefits()
 		const bool hasCard = CardsHasAny(cardType);
 
 		// check passive benefits
-		const string passivePolicyName = TradingCard::GetPassivePolicy(cardType);
+		const PolicyTypes passivePolicy = TradingCard::GetPassivePolicy(cardType);
 		const bool passiveSatisfied = hasCard && TradingCard::IsConditionSatisfied(cardType, this, false);
-		int delta = UpdateHasPolicy(this, passivePolicyName, passiveSatisfied);
+		int delta = UpdateHasPolicy(this, passivePolicy, passiveSatisfied);
 		if (delta != 0)
 		{
 			TradingCard::ApplyPassiveEffects(cardType, this, delta);

@@ -231,7 +231,21 @@ void CvPlot::uninit()
 
 	m_units.clear();
 }
-
+void CvPlot::ResetYieldCache_Policies()
+{
+	m_cachedExtraYields_Policies.clear();
+	m_cachedExtraYields_Policies.resize(NUM_YIELD_TYPES, InvalidCacheVal);
+}
+void CvPlot::ResetYieldCache_Tech()
+{
+	m_cachedExtraYields_Tech.clear();
+	m_cachedExtraYields_Tech.resize(NUM_YIELD_TYPES, InvalidCacheVal);
+}
+void CvPlot::ResetYieldCache_All()
+{
+	ResetYieldCache_Tech();
+	ResetYieldCache_Policies();
+}
 //	--------------------------------------------------------------------------------
 // FUNCTION: reset()
 // Initializes data members that are serialized.
@@ -240,6 +254,8 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
 	//--------------------------------
 	// Uninit class
 	uninit();
+
+	ResetYieldCache_All();
 
 	m_iX = iX;
 	m_iY = iY;
