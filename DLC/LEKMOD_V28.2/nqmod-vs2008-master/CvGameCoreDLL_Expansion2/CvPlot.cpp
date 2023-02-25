@@ -243,6 +243,8 @@ void CvPlot::ResetYieldCache_Tech()
 }
 void CvPlot::ResetYieldCache_All()
 {
+	m_cachedExtraYields_Beliefs.clear();
+	m_cachedExtraYields_Beliefs.resize(NUM_YIELD_TYPES, InvalidCacheVal);
 	ResetYieldCache_Tech();
 	ResetYieldCache_Policies();
 }
@@ -8664,7 +8666,7 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 		eYield,
 		eImprovement,
 		eRoute,
-		ePlayer
+		getOwner()
 	);
 
 	return std::max(0, iYield);

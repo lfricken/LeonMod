@@ -647,32 +647,7 @@ public:
 		// type of route (road, railroad, none)
 		const RouteTypes eRouteType,
 		// owning player
-		const PlayerTypes tileOwner,
-		const bool allowCached = false
-	);
-	int getExtraYield_TechChanged
-	(
-		// type of yield we are considering
-		const YieldTypes eYieldType,
-		// type of improvement
-		const ImprovementTypes eImprovement,
-		// type of route (road, railroad, none)
-		const RouteTypes eRouteType,
-		// owning player
-		const PlayerTypes tileOwner,
-		const bool allowCached = false
-	);
-	int getExtraYield_PoliciesChanged
-	(
-		// type of yield we are considering
-		const YieldTypes eYieldType,
-		// type of improvement
-		const ImprovementTypes eImprovement,
-		// type of route (road, railroad, none)
-		const RouteTypes eRouteType,
-		// owning player
-		const PlayerTypes tileOwner,
-		const bool allowCached = false
+		const PlayerTypes tileOwner
 	);
 
 	bool hasYield() const;
@@ -920,11 +895,22 @@ protected:
 	int m_ePlotType;
 	int m_eTerrainType;
 #else
+
+public:
+	bool checkTechCache(int num, int* data) const;
+	bool checkBeliefCache(int num, int* data) const;
+	bool checkPolicyCache(int num, int* data) const;
+
+private:
 	static const int InvalidCacheVal = -99999;
 	// indexed on yieldtype
 	mutable std::vector<int> m_cachedExtraYields_Policies;
+	mutable std::vector<int> m_cachedExtraYields_PoliciesData;
 	// indexed on yieldtype
 	mutable std::vector<int> m_cachedExtraYields_Tech;
+	mutable std::vector<int> m_cachedExtraYields_TechData;
+	mutable std::vector<int> m_cachedExtraYields_Beliefs;
+	mutable std::vector<int> m_cachedExtraYields_BeliefsData;
 	short m_iX;
 	short m_iY;
 	char /*PlayerTypes*/  m_eOwner;

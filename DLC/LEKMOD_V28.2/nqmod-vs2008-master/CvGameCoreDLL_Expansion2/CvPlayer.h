@@ -63,13 +63,24 @@ typedef std::vector< std::pair<UnitClassTypes, PromotionTypes> > UnitClassPromot
 typedef std::vector< std::pair<CivilizationTypes, LeaderHeadTypes> > CivLeaderArray;
 typedef FStaticVector<int, 152* 96, true, c_eCiv5GameplayDLL, 0> CvPlotsVector; // allocate the size of HUGE Terra world just in case (this is max that we ship with)
 
-class CvPlayer
+class CvPlayer_InterfacePolicy : public CvPlayer_InterfaceCore
+{
+public:
+	virtual bool HasPolicy(const PolicyTypes e) const = 0;
+};
+class CvPlayer_InterfaceTech : public CvPlayer_InterfaceCore
+{
+public:
+	virtual bool HasTech(const TechTypes e) const = 0;
+};
+
+
+class CvPlayer : public CvPlayer_InterfacePolicy, public CvPlayer_InterfaceTech
 {
 	friend class CvPlayerPolicies;
 
 public:
 	typedef std::map<unsigned int, int> TurnData;
-
 
 	CvPlayer();
 	virtual ~CvPlayer();

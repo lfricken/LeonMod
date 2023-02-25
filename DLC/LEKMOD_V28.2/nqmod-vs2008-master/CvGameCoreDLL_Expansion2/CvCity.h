@@ -42,7 +42,18 @@ struct SCityExtraYields
 	vector<pair<ImprovementTypes, int>> forImprovement;
 };
 
-class CvCity
+
+class CvPlayer_InterfaceCore
+{
+public:
+	virtual bool IsCiv(const CivilizationTypes e) const = 0;
+};
+class CvCity_InterfaceBelief : public CvPlayer_InterfaceCore
+{
+public:
+	virtual bool HasBelief(const BeliefTypes e) const = 0;
+};
+class CvCity : public CvCity_InterfaceBelief
 {
 
 public:
