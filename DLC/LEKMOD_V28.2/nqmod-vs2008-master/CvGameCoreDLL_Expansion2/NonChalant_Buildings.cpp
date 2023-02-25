@@ -184,7 +184,7 @@ int CvPlayer::GetExtraYieldForBuilding
 		}
 
 		{// POLICY_LEGALISM - +2 Golden Age Point per per Policy Capital.
-			const bool hasLegalism = player.HasPolicy("POLICY_LEGALISM");
+			const bool hasLegalism = player.HasPolicy(POLICY_LEGALISM);
 			const bool isCityCenterBuilding = eBuildingClass == BuildingClass("BUILDINGCLASS_CITY_CENTER");
 			int numPolicies = player.GetNumPoliciesTotal();
 			if (eYieldType == YIELD_GOLDEN && !isPercentMod && isCityCenterBuilding && hasLegalism && isCapital)
@@ -616,8 +616,8 @@ BuildingAddType CvPlayer::ShouldHaveBuilding(const CvPlayer& rPlayer, const CvCi
 		const bool isJarliq = eBuildingClass == BuildingClass("BUILDINGCLASS_COURTHOUSE");
 		if (isJarliq)
 		{
-			const bool isRussia = rPlayer.IsCiv("CIVILIZATION_RUSSIA");
-			const bool hasPhilosophy = rPlayer.HasTech("TECH_PHILOSOPHY");
+			const bool isRussia = rPlayer.IsCiv(CIVILIZATION_RUSSIA);
+			const bool hasPhilosophy = rPlayer.HasTech(TECH_PHILOSOPHY);
 			if (isRussia && hasPhilosophy)
 				return ADD;
 			else
@@ -764,7 +764,7 @@ BuildingAddType CvPlayer::ShouldHaveBuilding(const CvPlayer& rPlayer, const CvCi
 		const bool isLegalismBuilding = eBuildingClass == BuildingClass("BUILDINGCLASS_POLICY_LEGALISM_GP_GENERATION");
 		if (isLegalismBuilding)
 		{
-			const bool hasLegalism = rPlayer.HasPolicy("POLICY_LEGALISM");
+			const bool hasLegalism = rPlayer.HasPolicy(POLICY_LEGALISM);
 			if (hasLegalism && isYourCapital)
 				return ADD;
 			else
@@ -862,7 +862,7 @@ int CvPlayer::getSpecialistYieldHardcoded(const CvCity* pCity, const SpecialistT
 
 
 	{// POLICY_TRADE_UNIONS gives +1G +1PD to Engineer Specialists
-		const bool hasTradeUnions = player.HasPolicy("POLICY_TRADE_UNIONS");
+		const bool hasTradeUnions = player.HasPolicy(POLICY_TRADE_UNIONS);
 		if (eYield == YIELD_GOLD && hasTradeUnions && isEngineer)
 			change += 1;
 		if (eYield == YIELD_PRODUCTION && hasTradeUnions && isEngineer)
@@ -894,7 +894,7 @@ int CvPlayer::getSpecialistYieldHardcoded(const CvCity* pCity, const SpecialistT
 	}
 
 	{// POLICY_ENTREPRENEURSHIP gives +1PD +1G 1C to Merchant Specialists
-		const bool hasEntreprenuership = player.HasPolicy("POLICY_ENTREPRENEURSHIP");
+		const bool hasEntreprenuership = player.HasPolicy(POLICY_ENTREPRENEURSHIP);
 		if (eYield == YIELD_GOLD && hasEntreprenuership && isMerchant)
 			change += 1;
 		if (eYield == YIELD_CULTURE && hasEntreprenuership && isMerchant)

@@ -157,13 +157,15 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 	const bool hasGemcutter = cityOrigin->GetCityBuildings()->HasBuildingClass(BuildingClass("BUILDINGCLASS_GEMCUTTER"));
 	const bool hasOilRefinery = cityOrigin->GetCityBuildings()->HasBuildingClass(BuildingClass("BUILDINGCLASS_REFINERY"));
 	const bool hasShipyard = cityOrigin->GetCityBuildings()->HasBuildingClass(BuildingClass("BUILDINGCLASS_SHIPYARD"));
-	int numExplorationPolicies = playerOrigin.HasPolicy("POLICY_EXPLORATION_CLOSER_1") || playerOrigin.HasPolicy("POLICY_EXPLORATION_CLOSER_2") || 
-		playerOrigin.HasPolicy("POLICY_EXPLORATION_CLOSER_3") || playerOrigin.HasPolicy("POLICY_EXPLORATION_CLOSER_4") || 
-		playerOrigin.HasPolicy("POLICY_EXPLORATION_CLOSER_5") || playerOrigin.HasPolicy("POLICY_EXPLORATION_CLOSER_6");
-	int numCommercePolicies = playerOrigin.HasPolicy("POLICY_COMMERCE_CLOSER_1") || playerOrigin.HasPolicy("POLICY_COMMERCE_CLOSER_2") ||
-		playerOrigin.HasPolicy("POLICY_COMMERCE_CLOSER_3") || playerOrigin.HasPolicy("POLICY_COMMERCE_FINISHER") ||
-		playerOrigin.HasPolicy("POLICY_COMMERCE_CLOSER_5") || playerOrigin.HasPolicy("POLICY_COMMERCE_CLOSER_6");
-	const bool hasTheocrary = playerOrigin.HasPolicy("POLICY_THEOCRACY");
+	int numExplorationPolicies = playerOrigin.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch();
+	/*HasPolicy("POLICY_EXPLORATION_CLOSER_1") + playerOrigin.HasPolicy("POLICY_EXPLORATION_CLOSER_2") +
+		playerOrigin.HasPolicy("POLICY_EXPLORATION_CLOSER_3") + playerOrigin.HasPolicy("POLICY_EXPLORATION_CLOSER_4") + 
+		playerOrigin.HasPolicy("POLICY_EXPLORATION_CLOSER_5") + playerOrigin.HasPolicy("POLICY_EXPLORATION_CLOSER_6");*/
+	int numCommercePolicies = playerOrigin.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(); 
+	//playerOrigin.HasPolicy("POLICY_COMMERCE_CLOSER_1") + playerOrigin.HasPolicy("POLICY_COMMERCE_CLOSER_2") +
+	//	playerOrigin.HasPolicy("POLICY_COMMERCE_CLOSER_3") + playerOrigin.HasPolicy("POLICY_COMMERCE_FINISHER") +
+	//	playerOrigin.HasPolicy("POLICY_COMMERCE_CLOSER_5") + playerOrigin.HasPolicy("POLICY_COMMERCE_CLOSER_6");
+	const bool hasTheocrary = playerOrigin.HasPolicy(POLICY_THEOCRACY);
 
 	if (isInternal) // true if this is an internal trade route
 	{
@@ -187,7 +189,7 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 				yieldChange += 3;
 
 			{ // POLICY_FREE_THOUGHT +6SC +2FD from Trade Routes
-				const bool hasFreeThought = playerOrigin.HasPolicy("POLICY_FREE_THOUGHT");
+				const bool hasFreeThought = playerOrigin.HasPolicy(POLICY_FREE_THOUGHT);
 				if (eYieldType == YIELD_FOOD && hasFreeThought)
 					yieldChange += 2;
 				if (eYieldType == YIELD_SCIENCE && hasFreeThought)
@@ -222,7 +224,7 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 				if (eYieldType == YIELD_FAITH && hasTheocrary)
 					yieldChange += 2;
 				{ // POLICY_FREE_THOUGHT +6SC +2FD from Trade Routes
-					const bool hasFreeThought = playerOrigin.HasPolicy("POLICY_FREE_THOUGHT");
+					const bool hasFreeThought = playerOrigin.HasPolicy(POLICY_FREE_THOUGHT);
 					if (eYieldType == YIELD_FOOD && hasFreeThought)
 						yieldChange += 2;
 					if (eYieldType == YIELD_SCIENCE && hasFreeThought)
@@ -241,7 +243,7 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 			
 
 			{ // POLICY_FREE_THOUGHT +6SC +2FD from Trade Routes
-				const bool hasFreeThought = playerOrigin.HasPolicy("POLICY_FREE_THOUGHT");
+				const bool hasFreeThought = playerOrigin.HasPolicy(POLICY_FREE_THOUGHT);
 				if (eYieldType == YIELD_FOOD && hasFreeThought)
 					yieldChange += 2;
 				if (eYieldType == YIELD_SCIENCE && hasFreeThought)

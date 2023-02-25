@@ -71,7 +71,7 @@ string CvPlayer::GetCityCapCurrent_WithSourcesTooltip(int* sum) const
 		appendNewLine(&ss, sum, desc.str(), min(maxConqueredBonus, numConquered), numConquered > 0);
 	}
 	{ // colonialism +1
-		appendNewLine(&ss, sum, "from the Colonialism Policy", +1, player.HasPolicy("POLICY_MERCHANT_NAVY"));
+		appendNewLine(&ss, sum, "from the Colonialism Policy", +1, player.HasPolicy(POLICY_MERCHANT_NAVY));
 	}
 	{ // iron curtain +2
 		appendNewLine(&ss, sum, "from the Iron Curtain Tenet", +2, player.HasPolicy(POLICY_IRON_CURTAIN));
@@ -94,22 +94,22 @@ int CvPlayer::GetExtraBuildingsForClass(BuildingClassTypes eClass) const
 	int total = 0;
 	
 	// Landed Elite +1 Granary Supply
-	const bool hasLandedElite = player.HasPolicy("POLICY_LANDED_ELITE");	
+	const bool hasLandedElite = player.HasPolicy(POLICY_LANDED_ELITE);	
 	if (hasLandedElite && eClass == BuildingClassTypes(32))
 		total += 1;
 
 	// Oligarchy +1 Hunters Haven Supply
-	const bool hasOligachy = player.HasPolicy("POLICY_OLIGARCHY");
+	const bool hasOligachy = player.HasPolicy(POLICY_OLIGARCHY);
 	if (hasOligachy && eClass == BuildingClassTypes(254))
 		total += 1;
 
 	// Representation +1 Stable Supply
-	const bool hasRepresentation = player.HasPolicy("POLICY_REPRESENTATION");
+	const bool hasRepresentation = player.HasPolicy(POLICY_REPRESENTATION);
 	if (hasRepresentation && eClass == BuildingClassTypes(2))
 		total += 1;
 
 	// Military Tradition +1 Stoneworks, Forge Supply
-	const bool hasMilitaryTradidion = player.HasPolicy("POLICY_MILITARY_TRADITION");
+	const bool hasMilitaryTradidion = player.HasPolicy(POLICY_MILITARY_TRADITION);
 	if (hasMilitaryTradidion && eClass == BuildingClassTypes(84))
 		total += 1;
 	if (hasMilitaryTradidion && eClass == BuildingClassTypes(5))
