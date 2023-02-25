@@ -134,9 +134,9 @@ int CvPlot::getExtraYield
 	const bool isTundra = plot.HasTerrain(TERRAIN_TUNDRA);
 	//const bool isSnow = plot.HasTerrain(TERRAIN_SNOW);
 	const bool isDesert = plot.HasTerrain(TERRAIN_DESERT);
-	const bool hasBonus = plot.HasResourceClass("RESOURCECLASS_BONUS"); // has a bonus resource
-	const bool hasLuxury = plot.HasResourceClass("RESOURCECLASS_LUXURY"); // has a luxury resource
-	const bool hasStrategic = plot.HasResourceClass("RESOURCECLASS_RUSH") || plot.HasResourceClass("RESOURCECLASS_MODERN"); // has any strategic resource
+	const bool hasBonus = plot.HasResourceClass(RESOURCECLASS_BONUS); // has a bonus resource
+	const bool hasLuxury = plot.HasResourceClass(RESOURCECLASS_LUXURY); // has a luxury resource
+	const bool hasStrategic = plot.HasResourceClass(RESOURCECLASS_RUSH) || plot.HasResourceClass(RESOURCECLASS_MODERN); // has any strategic resource
 	const bool noResource = !hasBonus && !hasLuxury && !hasStrategic; // no resource of any kind (might have artifacts though)
 
 
@@ -935,13 +935,13 @@ int CvPlot::getExtraYield
 			}
 
 			{// POLICY_LIBERTY_CLOSER_5 - +2 C to GP Tile Improvements
-				const bool hasLibertyCloser5 = player.HasPolicy("POLICY_LIBERTY_CLOSER_5");				
+				const bool hasLibertyCloser5 = player.HasPolicy(POLICY_LIBERTY_CLOSER_5);				
 				if (eYieldType == YIELD_CULTURE && hasLibertyCloser5 && isGreatTile)
 					yieldChange += 2;				
 			}
 
 			{// POLICY_TRADITION_CLOSER_5 - +2 FD to GP Tile Improvements
-				const bool hasTraditionCloser5 = player.HasPolicy("POLICY_TRADITION_CLOSER_5");
+				const bool hasTraditionCloser5 = player.HasPolicy(POLICY_TRADITION_CLOSER_5);
 				if (eYieldType == YIELD_FOOD && hasTraditionCloser5 && isGreatTile)
 					yieldChange += 2;
 			}

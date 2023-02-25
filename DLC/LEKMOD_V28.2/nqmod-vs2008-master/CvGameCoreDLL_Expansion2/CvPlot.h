@@ -109,7 +109,7 @@ public:
 	// "RESOURCECLASS_LUXURY": Obvious
 	// "RESOURCECLASS_RUSH": Iron, Horses, Artifact, Hidden Artifact
 	// "RESOURCECLASS_MODERN": Coal, Oil, Aluminum, Uranium, Slaves
-	bool HasResourceClass(const string name) const;
+	bool HasResourceClass(const ResourceClassTypes type) const;
 
 	bool IsFeatureLake() const;
 	bool IsFeatureRiver() const;

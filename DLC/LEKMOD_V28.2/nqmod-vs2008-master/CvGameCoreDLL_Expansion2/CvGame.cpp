@@ -452,6 +452,26 @@ bool CvGame::init2()
 {
 	InitPlayers();
 
+	// print building classes
+	for (int i = 0; i < GC.getNumBuildingClassInfos(); ++i)
+	{
+		const CvBuildingClassInfo* pInfo = GC.getBuildingClassInfo((BuildingClassTypes)i);
+
+		stringstream s;
+		s << pInfo->GetType() << ",";
+		GC.debugState(s);
+	}
+
+	// print beliefs
+	for (int i = 0; i < GC.getNumBeliefInfos(); ++i)
+	{
+		const CvBeliefEntry* pInfo = GC.getBeliefInfo((BeliefTypes)i);
+
+		stringstream s;
+		s << pInfo->GetType() << ",";
+		GC.debugState(s);
+	}
+
 	CvGameInitialItemsOverrides kItemOverrides;
 	if(!InitMap(kItemOverrides))
 	{

@@ -129,27 +129,27 @@ int CvPlayer::GetExtraYieldForBuilding
 		}
 
 		{// POLICY_TRADITION_CLOSER - 1FD Capital.
-			int numTraditionClosers = player.HasPolicy("POLICY_TRADITION_CLOSER_1") || player.HasPolicy("POLICY_TRADITION_CLOSER_2") ||
+			int numTraditionClosers = 0;/* player.HasPolicy("POLICY_TRADITION_CLOSER_1") || player.HasPolicy("POLICY_TRADITION_CLOSER_2") ||
 				player.HasPolicy("POLICY_TRADITION_CLOSER_3") || player.HasPolicy("POLICY_TRADITION_CLOSER_4") ||
-				player.HasPolicy("POLICY_TRADITION_CLOSER_5") || player.HasPolicy("POLICY_TRADITION_CLOSER_6");
+				player.HasPolicy("POLICY_TRADITION_CLOSER_5") || player.HasPolicy("POLICY_TRADITION_CLOSER_6");*/
 			const bool isCityCenterBuilding = eBuildingClass == BuildingClass("BUILDINGCLASS_CITY_CENTER");			
 			if (eYieldType == YIELD_FOOD && !isPercentMod && isCityCenterBuilding && isCapital)
 				yieldChange += numTraditionClosers;
 		}
 
 		{// POLICY_LIBERTY_CLOSER - 1C Capital.
-			int numLibertyClosers = player.HasPolicy("POLICY_LIBERTY_CLOSER_1") || player.HasPolicy("POLICY_LIBERTY_CLOSER_2") ||
+			int numLibertyClosers = 0;/* player.HasPolicy("POLICY_LIBERTY_CLOSER_1") || player.HasPolicy("POLICY_LIBERTY_CLOSER_2") ||
 				player.HasPolicy("POLICY_LIBERTY_CLOSER_3") || player.HasPolicy("POLICY_LIBERTY_CLOSER_4") ||
-				player.HasPolicy("POLICY_LIBERTY_CLOSER_5") || player.HasPolicy("POLICY_LIBERTY_CLOSER_6");
+				player.HasPolicy("POLICY_LIBERTY_CLOSER_5") || player.HasPolicy("POLICY_LIBERTY_CLOSER_6");*/
 			const bool isCityCenterBuilding = eBuildingClass == BuildingClass("BUILDINGCLASS_CITY_CENTER");			
 			if (eYieldType == YIELD_CULTURE && !isPercentMod && isCityCenterBuilding && isCapital)
 				yieldChange += numLibertyClosers;
 		}
 
 		{// POLICY_HONOR_CLOSER - +2%PD all Cities. 1PD Capital.
-			int numHonorClosers = player.HasPolicy("POLICY_HONOR_CLOSER_1") || player.HasPolicy("POLICY_HONOR_CLOSER_2") ||
+			int numHonorClosers = 0;/* player.HasPolicy("POLICY_HONOR_CLOSER_1") || player.HasPolicy("POLICY_HONOR_CLOSER_2") ||
 				player.HasPolicy("POLICY_HONOR_CLOSER_3") || player.HasPolicy("POLICY_HONOR_CLOSER_4") ||
-				player.HasPolicy("POLICY_HONOR_CLOSER_5") || player.HasPolicy("POLICY_HONOR_CLOSER_6");
+				player.HasPolicy("POLICY_HONOR_CLOSER_5") || player.HasPolicy("POLICY_HONOR_CLOSER_6");*/
 			const bool isCityCenterBuilding = eBuildingClass == BuildingClass("BUILDINGCLASS_CITY_CENTER");
 			if (eYieldType == YIELD_PRODUCTION && isPercentMod && isCityCenterBuilding)
 				yieldChange += numHonorClosers * 2;
@@ -158,25 +158,25 @@ int CvPlayer::GetExtraYieldForBuilding
 		}
 
 		{// POLICY_PIETY_CLOSER - +1FH Capital.
-			int numPietyClosers = player.HasPolicy("POLICY_PIETY_CLOSER_1") || player.HasPolicy("POLICY_PIETY_CLOSER_2") ||
+			int numPietyClosers = 0;/* player.HasPolicy("POLICY_PIETY_CLOSER_1") || player.HasPolicy("POLICY_PIETY_CLOSER_2") ||
 				player.HasPolicy("POLICY_PIETY_CLOSER_3") || player.HasPolicy("POLICY_PIETY_FINISHER") ||
-				player.HasPolicy("POLICY_PIETY_CLOSER_5") || player.HasPolicy("POLICY_PIETY_CLOSER_6");
+				player.HasPolicy("POLICY_PIETY_CLOSER_5") || player.HasPolicy("POLICY_PIETY_CLOSER_6");*/
 			const bool isCityCenterBuilding = eBuildingClass == BuildingClass("BUILDINGCLASS_CITY_CENTER");			
 			if (eYieldType == YIELD_FAITH && !isPercentMod && isCityCenterBuilding && isCapital)
 				yieldChange += numPietyClosers;
 		}
 
 		{// POLICY_AESTHETICS_CLOSER - +1T Capital.
-			int numAestheticsClosers = player.HasPolicy("POLICY_AESTHETICS_CLOSER_1") || player.HasPolicy("POLICY_AESTHETICS_CLOSER_2") ||
+			int numAestheticsClosers = 0;/* player.HasPolicy("POLICY_AESTHETICS_CLOSER_1") || player.HasPolicy("POLICY_AESTHETICS_CLOSER_2") ||
 				player.HasPolicy("POLICY_AESTHETICS_CLOSER_3") || player.HasPolicy("POLICY_AESTHETICS_CLOSER_4") ||
-				player.HasPolicy("POLICY_AESTHETICS_CLOSER_5") || player.HasPolicy("POLICY_AESTHETICS_CLOSER_6");
+				player.HasPolicy("POLICY_AESTHETICS_CLOSER_5") || player.HasPolicy("POLICY_AESTHETICS_CLOSER_6");*/
 			const bool isCityCenterBuilding = eBuildingClass == BuildingClass("BUILDINGCLASS_CITY_CENTER");
 			if (eYieldType == YIELD_TOURISM && !isPercentMod && isCityCenterBuilding && isCapital)
 				yieldChange += numAestheticsClosers;
 		}
 
 		{// POLICY_AESTHETICS_CLOSER_3 - +2 Golden Age Point World and National Wonder Capital. 
-			const bool hasAestheticsCloser = player.HasPolicy("POLICY_AESTHETICS_CLOSER_3");
+			const bool hasAestheticsCloser = player.HasPolicy(POLICY_AESTHETICS_CLOSER_3);
 			const bool isCityCenterBuilding = eBuildingClass == BuildingClass("BUILDINGCLASS_CITY_CENTER");
 			int numWonders = (player.GetNumWonders() + player.getNumNationalWonders());
 			if (eYieldType == YIELD_GOLDEN && !isPercentMod && isCityCenterBuilding && hasAestheticsCloser && isCapital)
@@ -192,18 +192,18 @@ int CvPlayer::GetExtraYieldForBuilding
 		}
 
 		{// POLICY_COMMERCE_CLOSER - +5%G all Cities
-			int numCommerceClosers = player.HasPolicy("POLICY_COMMERCE_CLOSER_1") || player.HasPolicy("POLICY_COMMERCE_CLOSER_1") ||
+			int numCommerceClosers = 0;/* player.HasPolicy("POLICY_COMMERCE_CLOSER_1") || player.HasPolicy("POLICY_COMMERCE_CLOSER_1") ||
 				player.HasPolicy("POLICY_COMMERCE_CLOSER_1") || player.HasPolicy("POLICY_COMMERCE_CLOSER_1") ||
-				player.HasPolicy("POLICY_COMMERCE_CLOSER_1") || player.HasPolicy("POLICY_COMMERCE_CLOSER_1");
+				player.HasPolicy("POLICY_COMMERCE_CLOSER_1") || player.HasPolicy("POLICY_COMMERCE_CLOSER_1");*/
 			const bool isCityCenterBuilding = eBuildingClass == BuildingClass("BUILDINGCLASS_CITY_CENTER");
 			if (eYieldType == YIELD_GOLD && isPercentMod && isCityCenterBuilding)
 				yieldChange += numCommerceClosers * 5;			
 		}
 
 		{// POLICY_RATIONALISM_CLOSER - +4%SC all Cities
-			int numRationalismClosers = player.HasPolicy("POLICY_RATIONALISM_CLOSER_1") || player.HasPolicy("POLICY_RATIONALISM_CLOSER_2") ||
+			int numRationalismClosers = 0;/* player.HasPolicy("POLICY_RATIONALISM_CLOSER_1") || player.HasPolicy("POLICY_RATIONALISM_CLOSER_2") ||
 				player.HasPolicy("POLICY_RATIONALISM_CLOSER_3") || player.HasPolicy("POLICY_RATIONALISM_FINISHER") ||
-				player.HasPolicy("POLICY_RATIONALISM_CLOSER_5") || player.HasPolicy("POLICY_RATIONALISM_CLOSER_6");
+				player.HasPolicy("POLICY_RATIONALISM_CLOSER_5") || player.HasPolicy("POLICY_RATIONALISM_CLOSER_6");*/
 			const bool isCityCenterBuilding = eBuildingClass == BuildingClass("BUILDINGCLASS_CITY_CENTER");
 			if (eYieldType == YIELD_SCIENCE && isPercentMod && isCityCenterBuilding)
 				yieldChange += numRationalismClosers * 4;
@@ -591,7 +591,7 @@ BuildingAddType CvPlayer::ShouldHaveBuilding(const CvPlayer& rPlayer, const CvCi
 		const bool isFreePopBuilding = eBuildingClass == BuildingClass("BUILDINGCLASS_RATIONALISM_FINISHER_FREE_POP");
 		if (isFreePopBuilding)
 		{
-			const bool hasRationalismFinisher3 = rPlayer.HasPolicy("POLICY_RATIONALISM_CLOSER_3");
+			const bool hasRationalismFinisher3 = rPlayer.HasPolicy(POLICY_RATIONALISM_CLOSER_3);
 			if (isYourCapital && hasRationalismFinisher3)
 				return ADD;
 			else
@@ -752,7 +752,7 @@ BuildingAddType CvPlayer::ShouldHaveBuilding(const CvPlayer& rPlayer, const CvCi
 		const bool isAesthetics5Building = eBuildingClass == BuildingClass("BUILDINGCLASS_AESTHETICS_CLOSER_5");
 		if (isAesthetics5Building)
 		{
-			const bool hasAesthetics5 = rPlayer.HasPolicy("POLICY_AESTHETICS_CLOSER_5");
+			const bool hasAesthetics5 = rPlayer.HasPolicy(POLICY_AESTHETICS_CLOSER_5);
 			if (hasAesthetics5 && isYourCapital)
 				return ADD;
 			else
@@ -776,7 +776,7 @@ BuildingAddType CvPlayer::ShouldHaveBuilding(const CvPlayer& rPlayer, const CvCi
 		const bool isExplorationBuilding2 = eBuildingClass == BuildingClass("BUILDINGCLASS_POLICY_EXPLORATION_CLOSER_2");
 		if (isExplorationBuilding2)
 		{
-			const bool hasExploration2 = rPlayer.HasPolicy("POLICY_EXPLORATION_CLOSER_2");
+			const bool hasExploration2 = rPlayer.HasPolicy(POLICY_EXPLORATION_CLOSER_2);
 			if (hasExploration2 && isYourCapital)
 				return ADD;
 			else
@@ -788,7 +788,7 @@ BuildingAddType CvPlayer::ShouldHaveBuilding(const CvPlayer& rPlayer, const CvCi
 		const bool isExplorationBuilding5 = eBuildingClass == BuildingClass("BUILDINGCLASS_POLICY_EXPLORATION_CLOSER_5");
 		if (isExplorationBuilding5)
 		{
-			const bool hasExploration5 = rPlayer.HasPolicy("POLICY_EXPLORATION_CLOSER_5");
+			const bool hasExploration5 = rPlayer.HasPolicy(POLICY_EXPLORATION_CLOSER_5);
 			if (hasExploration5 && isYourCapital)
 				return ADD;
 			else

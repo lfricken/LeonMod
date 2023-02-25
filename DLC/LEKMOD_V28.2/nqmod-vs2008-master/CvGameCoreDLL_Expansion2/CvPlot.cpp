@@ -1085,21 +1085,20 @@ bool CvPlot::HasTerrain(TerrainTypes iTerrainType) const
 	return (getTerrainType() == iTerrainType);
 }
 
-bool CvPlot::HasResourceClass(const string name) const
+bool CvPlot::HasResourceClass(const ResourceClassTypes type) const
 {
-	if (getResourceType() != NO_RESOURCE)
+	if (getResourceType() == NO_RESOURCE)
+		return false;
+	
+	const CvResourceInfo* info = GC.getResourceInfo(getResourceType());
+	// do not include RESOURCE_ARTIFACTS and RESOURCE_HIDDEN_ARTIFACTS
+	if (type == RESOURCECLASS_RUSH && (info->GetID() == 35 || info->GetID() == 39))
+		return false;
+	else
 	{
-		const CvResourceInfo* info = GC.getResourceInfo(getResourceType());
-		// do not include RESOURCE_ARTIFACTS and RESOURCE_HIDDEN_ARTIFACTS
-		if (name == "RESOURCECLASS_RUSH" && (info->GetID() == 35 || info->GetID() == 39))
-			return false;
-		else
-		{
-			const bool isRightClass = info->getResourceClassType() == GC.ResourceClass(name);
-			return isRightClass;
-		}
+		const bool isRightClass = info->getResourceClassType() == type;
+		return isRightClass;
 	}
-	return false;
 }
 
 bool CvPlot::IsAdjacentToFeature(FeatureTypes iFeatureType) const

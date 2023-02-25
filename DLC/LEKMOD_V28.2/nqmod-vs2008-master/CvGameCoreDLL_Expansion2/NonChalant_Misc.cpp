@@ -142,7 +142,6 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 
 	// how many tiles between the 2 cities
 	//const int tradeDistance = kTradeConnection.m_aPlotList.size();
-	const bool hasSilkRoad = playerOrigin.HasPolicy(POLICY_CARAVANS);
 	const bool hasMerchantConfederacy = playerOrigin.HasPolicy(POLICY_MERCHANT_CONFEDERACY);
 	const bool hasMerchantsGuild = cityOrigin->GetCityBuildings()->HasBuildingClass(BuildingClass("BUILDINGCLASS_CARAVANSARY"));
 	const bool hasMarket = cityOrigin->GetCityBuildings()->HasBuildingClass(BuildingClass("BUILDINGCLASS_MARKET"));
@@ -157,11 +156,11 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 	const bool hasGemcutter = cityOrigin->GetCityBuildings()->HasBuildingClass(BuildingClass("BUILDINGCLASS_GEMCUTTER"));
 	const bool hasOilRefinery = cityOrigin->GetCityBuildings()->HasBuildingClass(BuildingClass("BUILDINGCLASS_REFINERY"));
 	const bool hasShipyard = cityOrigin->GetCityBuildings()->HasBuildingClass(BuildingClass("BUILDINGCLASS_SHIPYARD"));
-	int numExplorationPolicies = playerOrigin.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch();
+	int numExplorationPolicies = 0;//playerOrigin.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch();
 	/*HasPolicy("POLICY_EXPLORATION_CLOSER_1") + playerOrigin.HasPolicy("POLICY_EXPLORATION_CLOSER_2") +
 		playerOrigin.HasPolicy("POLICY_EXPLORATION_CLOSER_3") + playerOrigin.HasPolicy("POLICY_EXPLORATION_CLOSER_4") + 
 		playerOrigin.HasPolicy("POLICY_EXPLORATION_CLOSER_5") + playerOrigin.HasPolicy("POLICY_EXPLORATION_CLOSER_6");*/
-	int numCommercePolicies = playerOrigin.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(); 
+	int numCommercePolicies = 0;// playerOrigin.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch();
 	//playerOrigin.HasPolicy("POLICY_COMMERCE_CLOSER_1") + playerOrigin.HasPolicy("POLICY_COMMERCE_CLOSER_2") +
 	//	playerOrigin.HasPolicy("POLICY_COMMERCE_CLOSER_3") + playerOrigin.HasPolicy("POLICY_COMMERCE_FINISHER") +
 	//	playerOrigin.HasPolicy("POLICY_COMMERCE_CLOSER_5") + playerOrigin.HasPolicy("POLICY_COMMERCE_CLOSER_6");
