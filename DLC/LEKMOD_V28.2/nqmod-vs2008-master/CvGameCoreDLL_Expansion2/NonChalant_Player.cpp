@@ -116,10 +116,8 @@ void CvPlayer::UpdateFreePolicies()
 			const int numHave = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(eBranch);
 			const int numNeeded = player.GetMaxPoliciesForBranch(eBranch);
 			const PolicyTypes eFinisher = (PolicyTypes)pInfo->GetFreeFinishingPolicy();
-			const CvPolicyEntry* policyInfo = GC.getPolicyInfo(eFinisher);
 			const bool doesGetPolicy = numHave >= numNeeded;
-			if (policyInfo != NULL)
-				UpdateHasPolicy(policyInfo->GetType(), doesGetPolicy);
+				UpdateHasPolicy(eFinisher, doesGetPolicy);
 		}
 	}
 

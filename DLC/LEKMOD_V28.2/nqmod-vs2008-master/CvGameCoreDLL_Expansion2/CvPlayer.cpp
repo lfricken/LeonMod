@@ -8489,7 +8489,7 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestV
 
 		if (isBuildingClassMaxedOut(eBuildingClass, (getBuildingClassMaking(eBuildingClass) + ((bContinue) ? -1 : 0)), true, false))
 		{
-			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_PLAYER_COUNT_MAX", "", "", kBuildingClass.getMaxPlayerInstances());
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_PLAYER_COUNT_MAX", "", "", kBuildingClass.getMaxPlayerInstances(this));
 			if (toolTipSink == NULL)
 				return false;
 		}
@@ -21300,9 +21300,9 @@ bool CvPlayer::isBuildingClassMaxedOut(BuildingClassTypes eIndex, int iExtra, bo
 
 	if (checkAbsolute && isNationalWonderClass(*pkBuildingClassInfo))
 	{
-		CvAssertMsg(getBuildingClassCount(eIndex) <= (pkBuildingClassInfo->getMaxPlayerInstances() + pkBuildingClassInfo->getExtraPlayerInstances()), "BuildingClassCount is expected to be less than or match the number of max player instances plus extra player instances");
+		CvAssertMsg(getBuildingClassCount(eIndex) <= (pkBuildingClassInfo->getMaxPlayerInstances(this) + pkBuildingClassInfo->getExtraPlayerInstances()), "BuildingClassCount is expected to be less than or match the number of max player instances plus extra player instances");
 
-		int allowed = pkBuildingClassInfo->getMaxPlayerInstances() + pkBuildingClassInfo->getExtraPlayerInstances();
+		int allowed = pkBuildingClassInfo->getMaxPlayerInstances(this) + pkBuildingClassInfo->getExtraPlayerInstances();
 		int have = getBuildingClassCount(eIndex) + iExtra;
 		if (have >= allowed)
 		{
@@ -28363,12 +28363,12 @@ bool CvPlayer::HasBuildingClass(BuildingClassTypes iBuildingClassType)
 }
 */
 // correctly does not update policy count if we already did(n't) have it
-int UpdateHasPolicy(CvPlayer* player, PolicyTypes ePolicy, bool newVal)
+int CvPlayer::UpdateHasPolicy(PolicyTypes ePolicy, bool newVal)
 {
 	int delta = 0;
 	if (ePolicy != NO_POLICY)
 	{
-		delta = player->doAdoptPolicy(ePolicy, newVal, false); // correctly does not change if newVal did not change
+		delta = doAdoptPolicy(ePolicy, newVal, false); // correctly does not change if newVal did not change
 	}
 	return delta;
 }
@@ -28383,7 +28383,7 @@ void CvPlayer::CardsActivate(int cardIdx)
 		if (satisfiesActive)
 		{
 			const PolicyTypes activePolicy = TradingCard::GetActivePolicy(cardType);
-			UpdateHasPolicy(this, activePolicy, true);
+			UpdateHasPolicy(activePolicy, true);
 			CardsDestroy(cardIdx);
 			TradingCard::ApplyActiveEffects(cardType, this);
 		}
@@ -28500,7 +28500,7 @@ void CvPlayer::DoUpdateCardBenefits()
 		// check passive benefits
 		const PolicyTypes passivePolicy = TradingCard::GetPassivePolicy(cardType);
 		const bool passiveSatisfied = hasCard && TradingCard::IsConditionSatisfied(cardType, this, false);
-		int delta = UpdateHasPolicy(this, passivePolicy, passiveSatisfied);
+		int delta = UpdateHasPolicy(passivePolicy, passiveSatisfied);
 		if (delta != 0)
 		{
 			TradingCard::ApplyPassiveEffects(cardType, this, delta);

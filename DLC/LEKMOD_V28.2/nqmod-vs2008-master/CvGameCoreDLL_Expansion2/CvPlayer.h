@@ -1868,7 +1868,7 @@ public:
 	virtual void CardsOnChanged();
 	// does not do anything if newVal does not change
 	// returns 0 if no change, -1 if lost, +1 if gained
-	int UpdateHasPolicy(string policyName, bool newVal);
+	int UpdateHasPolicy(PolicyTypes ePolicy, bool newVal);
 	// DO NOT CALL, should only be called from net handler
 	void CardsActivate(int cardIdx);
 	// DO NOT CALL, should only be called from net handler
