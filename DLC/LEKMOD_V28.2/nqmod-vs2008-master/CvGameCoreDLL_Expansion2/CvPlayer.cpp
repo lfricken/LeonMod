@@ -7763,7 +7763,8 @@ void CvPlayer::found(int iX, int iY)
 	const bool isFirstFounding = !IsHasLostCapital() && getNumCities() == 0;
 	if (isFirstFounding)
 	{
-		// TODO		 -- GIVE players EVERY CARD
+		GC.getGame().onPlayerEnteredEra(GetID(), (EraTypes)GetCurrentEra());
+		// TODO HACK -- GIVE players EVERY CARD
 		if (false)
 		{
 			// gives all cards past a certain policy number
