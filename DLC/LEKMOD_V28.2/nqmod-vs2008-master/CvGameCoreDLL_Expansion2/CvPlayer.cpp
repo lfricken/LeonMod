@@ -5508,14 +5508,14 @@ void CvPlayer::updateYield()
 	// Previously this would just go through all the plots the city can work (3 rings around it)
 	// but all plots have their yields updated on load and not updating them here could lead to 
 	// a visual discrepancy.
-	CvMap& kMap = GC.getMap();
-	int iNumPlots = kMap.numPlots();
-	//PlayerTypes ePlayer = GetID();
+	const CvMap& kMap = GC.getMap();
+	const int iNumPlots = kMap.numPlots();
+	const PlayerTypes ePlayer = GetID();
 	for (int iI = 0; iI < iNumPlots; iI++)
 	{
 		CvPlot* pkPlot = kMap.plotByIndexUnchecked(iI);
-		//if (pkPlot->getOwner() == ePlayer) // removing because this is liable to cause cache issues
-		pkPlot->updateYield();
+		if (pkPlot->getOwner() == ePlayer)
+			pkPlot->updateYield();
 	}
 }
 

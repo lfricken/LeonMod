@@ -647,32 +647,7 @@ public:
 		// type of route (road, railroad, none)
 		const RouteTypes eRouteType,
 		// owning player
-		const PlayerTypes tileOwner,
-		const bool allowCached = false
-	);
-	int getExtraYield_TechChanged
-	(
-		// type of yield we are considering
-		const YieldTypes eYieldType,
-		// type of improvement
-		const ImprovementTypes eImprovement,
-		// type of route (road, railroad, none)
-		const RouteTypes eRouteType,
-		// owning player
-		const PlayerTypes tileOwner,
-		const bool allowCached = false
-	);
-	int getExtraYield_PoliciesChanged
-	(
-		// type of yield we are considering
-		const YieldTypes eYieldType,
-		// type of improvement
-		const ImprovementTypes eImprovement,
-		// type of route (road, railroad, none)
-		const RouteTypes eRouteType,
-		// owning player
-		const PlayerTypes tileOwner,
-		const bool allowCached = false
+		const PlayerTypes tileOwner
 	);
 
 	bool hasYield() const;

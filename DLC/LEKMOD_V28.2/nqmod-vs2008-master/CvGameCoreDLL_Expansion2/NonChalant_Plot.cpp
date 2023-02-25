@@ -33,56 +33,6 @@
 // Include this after all other headers.
 #include "LintFree.h"
 
-
-int CvPlot::getExtraYield_TechChanged
-(
-	// type of yield we are considering
-	const YieldTypes eYieldType,
-	// type of improvement
-	const ImprovementTypes eImprovement,
-	// type of route (road, railroad, none)
-	const RouteTypes eRoute,
-	// owning player
-	const PlayerTypes tileOwner,
-	const bool allowCached
-)
-{
-	if (allowCached && m_cachedExtraYields_Tech[eYieldType] != InvalidCacheVal)
-	{
-		return m_cachedExtraYields_Tech[eYieldType];
-	}
-	int yieldChange = 0;
-
-
-
-	m_cachedExtraYields_Tech[eYieldType] = yieldChange;
-	return yieldChange;
-}
-int CvPlot::getExtraYield_PoliciesChanged
-(
-	// type of yield we are considering
-	const YieldTypes eYieldType,
-	// type of improvement
-	const ImprovementTypes eImprovement,
-	// type of route (road, railroad, none)
-	const RouteTypes eRoute,
-	// owning player
-	const PlayerTypes tileOwner,
-	const bool allowCached
-)
-{
-	if (allowCached && m_cachedExtraYields_Policies[eYieldType] != InvalidCacheVal)
-	{
-		return m_cachedExtraYields_Policies[eYieldType];
-	}
-	int yieldChange = 0;
-
-
-
-	m_cachedExtraYields_Policies[eYieldType] = yieldChange;
-	return yieldChange;
-}
-
 // extra yields for plots
 int CvPlot::getExtraYield
 (
@@ -93,14 +43,12 @@ int CvPlot::getExtraYield
 	// type of route (road, railroad, none)
 	const RouteTypes eRoute,
 	// owning player
-	const PlayerTypes tileOwner,
-	const bool allowCached
+	const PlayerTypes tileOwner
 )
 {
 	int yieldChange = 0;
-	//yieldChange += getExtraYield(eYieldType, eImprovement, eRoute, tileOwner, true);
-	//yieldChange += getExtraYield(eYieldType, eImprovement, eRoute, tileOwner, true);
-
+	if (tileOwner == NO_PLAYER)
+		return 0;
 
 
 	const CvPlot& plot = *this;

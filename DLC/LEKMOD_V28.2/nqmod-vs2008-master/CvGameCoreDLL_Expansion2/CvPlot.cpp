@@ -8664,7 +8664,7 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 		eYield,
 		eImprovement,
 		eRoute,
-		ePlayer
+		getOwner()
 	);
 
 	return std::max(0, iYield);
