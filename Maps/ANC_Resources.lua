@@ -151,7 +151,6 @@ function ANC_DoPopulateWorldWithGoodies(this)
 					local hasRes = this.plotResourceNum[plotIdx] > 0;
 					local isNotLocked = not this.plotIsLocked[plotIdx];
 					if isNotLocked and not hasRes and not hasFeature then
-						local xyScaled = GetXyScaled(xy, this.maxX, this.maxY);
 						if isArableLand(plotIdx) then
 							this:applyData(plotIdx, resourceInfo);
 							count = count + 1;

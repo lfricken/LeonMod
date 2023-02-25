@@ -160,6 +160,50 @@ function ANC_CreateMap(ancArgs)
 	ANC_UpdatePlots(this);
 	DetermineContinents(); -- Continental artwork selection must wait until Areas are finalized, so it gets handled last.
 
+	Map.DoPlaceNaturalWonders();
+
+
+
+	-- IMPROVEMENT_GOODY_HUT goody hut ancient ruin
+	local randOffsetX = Map.Rand(4, "res offset3");
+	local randOffsetY = Map.Rand(4, "res offset4");
+	local haltonPointsX = halton(23, 4096, Map.Rand(60, "RandGoodyHaltonStartX"));
+	local haltonPointsY = halton(19, 4096, Map.Rand(60, "RandGoodyHaltonStartY"));
+	local scaleX = function(x) return math.floor(x * 170) - randOffsetX; end
+	local scaleY = function(y) return math.floor(y * 170) - randOffsetY; end
+	local isArableWater = function(idx) return this.plotTerrain[idx] == TerrainTypes.TERRAIN_COAST; end
+	local isNotWater = function(idx) return this.plotTypes[idx] ~= PlotTypes.PLOT_OCEAN; end
+	local isArableLand = function(idx) return this.plotTypes[idx] == PlotTypes.PLOT_LAND or this.plotTypes[idx] == PlotTypes.PLOT_HILLS; end
+	-- bonuses
+	local count = 0;
+	local goodyHutMult = 0.21;
+	local goodyHutScalar = math.sqrt(goodyHutMult);
+
+	for i=1,#haltonPointsX do
+		local xy = {scaleY(haltonPointsY[i]) / goodyHutScalar, scaleX(haltonPointsX[i]) / goodyHutScalar};
+		local inBounds = xy[1] >= 0 and xy[1] < this.maxX and xy[2] >= 0 and xy[2] < this.maxY;
+		if inBounds then
+			local plotIdx = GetI(xy[1], xy[2], this.maxX);
+			local isNotLocked = not this.plotIsLocked[plotIdx];
+			if isNotLocked then
+				local plot = Map.GetPlot(xy[1], xy[2]);
+				if not plot:IsImpassable() and isArableLand(plotIdx) then
+					plot:SetImprovementType(2);
+					count = count + 1;
+
+				elseif not plot:IsImpassable() and plot:IsAdjacentToLand() then
+					if (Map.Rand(1000,"Skip Water Strat") < (200)) then
+						plot:SetImprovementType(2);
+						count = count + 1;
+					end
+				end
+			end
+		end
+	end
+	print("Total Goody: " .. count);
+
+
+
 	print("CreateMap End");
 end
 ------------------------------------------------------------------------------
