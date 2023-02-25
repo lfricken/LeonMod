@@ -120,8 +120,46 @@ int CvPlayer::GetExtraBuildingsForClass(BuildingClassTypes eClass) const
 
 int CvPlayer::GetMaxPoliciesForBranch(PolicyBranchTypes eBranch) const
 {
+	const CvCity* pCity,
 	const CvPlayer& player = *this;
 	int total = 3;
+
+	if (pCity != NULL) // in a city
+	{
+		const CvCity& city = *pCity;
+		const ReligionTypes majorityReligion = city.GetCityReligions()->GetReligiousMajority(); // the majority religion in this city
+			//const int numCitiesFollowing = GC.getGame().GetGameReligions()->GetNumCitiesFollowing(majorityReligion); // number of cities with this as majority
+		const bool isHolyCity = city.GetCityReligions()->IsHolyCityForReligion(majorityReligion); // true if this is the holy city of the majority religion in this city
+
+		// Additional Policy Branch Capacity from Enhancer Beliefs
+		const bool hasBelief1 = city.HasBelief(BELIEF_PROMISED_LAND);
+		const bool hasBelief2 = city.HasBelief(BELIEF_CRAFTWORKS);
+		const bool hasBelief3 = city.HasBelief(BELIEF_JUST_WAR);
+		const bool hasBelief4 = city.HasBelief(BELIEF_UNITY_OF_PROPHETS);
+		const bool hasBelief5 = city.HasBelief(BELIEF_PILGRIMAGE);
+		const bool hasBelief6 = city.HasBelief(BELIEF_KARMA);
+		const bool hasBelief7 = city.HasBelief(BELIEF_DARMA);
+		const bool hasBelief8 = city.HasBelief(BELIEF_DEFENDER_FAITH);
+		const bool hasBelief9 = city.HasBelief(BELIEF_KOTEL);
+		if (hasBelief1 && isHolyCity && eBranch == PolicyBranchTypes(0))
+			total += 1;
+		if (hasBelief2 && isHolyCity && eBranch == PolicyBranchTypes(1))
+			total += 1;
+		if (hasBelief3 && isHolyCity && eBranch == PolicyBranchTypes(2))
+			total += 1;
+		if (hasBelief4 && isHolyCity && eBranch == PolicyBranchTypes(3))
+			total += 1;
+		if (hasBelief5 && isHolyCity && eBranch == PolicyBranchTypes(4))
+			total += 1;
+		if (hasBelief6 && isHolyCity && eBranch == PolicyBranchTypes(5))
+			total += 1;
+		if (hasBelief7 && isHolyCity && eBranch == PolicyBranchTypes(6))
+			total += 1;
+		if (hasBelief8 && isHolyCity && eBranch == PolicyBranchTypes(7))
+			total += 1;
+		if (hasBelief9 && isHolyCity && eBranch == PolicyBranchTypes(8))
+			total += 1;
+	}
 
 	// Additional Policy Branch Capacity from National Wonders
 	const bool hasNationalCollege = player.HasWonder(BUILDINGCLASS_NATIONAL_COLLEGE);

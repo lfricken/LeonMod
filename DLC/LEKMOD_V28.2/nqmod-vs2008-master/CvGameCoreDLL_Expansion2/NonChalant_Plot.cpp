@@ -202,16 +202,16 @@ int CvPlot::getExtraYield
 						yieldChange += 1 + min(10, numFollowersGlobal / 16);
 				}
 
-				{// BELIEF_DEFENDER_FAITH - gives 2FH for every 3 Followers in Holy City. 
+				{// BELIEF_DEFENDER_FAITH - gives 1FH for every 2 Followers in Holy City. 
 					const bool hasBeliefDefenderOfTheFaith = city.HasBelief(BELIEF_DEFENDER_FAITH);
 					if (eYieldType == YIELD_FAITH && hasBeliefDefenderOfTheFaith && isHolyCity) // && isCityCenter
-						yieldChange += (numFollowersLocal / 3) * 2;
+						yieldChange += (numFollowersLocal / 2);
 				}
 
-				{// BELIEF_KARMA - gives 1C for every 2 Followers in Holy City. 
+				{// BELIEF_KARMA - gives 1C for every 3 Followers in Holy City. 
 					const bool hasBeliefKarma = city.HasBelief(BELIEF_KARMA);
 					if (eYieldType == YIELD_CULTURE && hasBeliefKarma && isHolyCity) // && isCityCenter
-						yieldChange += (numFollowersLocal / 2);
+						yieldChange += (numFollowersLocal / 3);
 				}
 
 				{// BELIEF_PROMISED_LAND - gives 1G for every follower in Holy City. 
