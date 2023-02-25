@@ -243,7 +243,7 @@ function ANC_SetupStartPlots(this)
 	local haltonPointsY = halton(3, 600, 2 + Map.Rand(6,"Halton Rng"));
 
 	-- predetermined for major civs
-	local spawnXy, _, _ = ANC_getMajorCivSpawnPoints(numMajorCivs, maxX, maxY);
+	local spawnXy, variation, _ = ANC_getMajorCivSpawnPoints(this.cfg, numMajorCivs, maxX, maxY);
 	if (this.cfg.shufflePositions) then
 		spawnXy = CopyAndShuffle(spawnXy);
 	end
@@ -342,7 +342,7 @@ end
 -- returns
 -- xy coordinates of every major civ player
 ------------------------------------------------------------------------------
-function ANC_getMajorCivSpawnPoints(numMajorCivs, maxX, maxY)
+function ANC_getMajorCivSpawnPoints(cfg, numMajorCivs, maxX, maxY)
 	local spawnFloat = {}; -- floating points
 	if numMajorCivs == 1 then
 		spawnFloat,maxVariation,shapeRatio = getFor1();
@@ -387,6 +387,11 @@ function ANC_getMajorCivSpawnPoints(numMajorCivs, maxX, maxY)
 	-- scale up to world coordinates
 	local spawnXy = {};
 	for k,xy in ipairs(spawnFloat) do
+		local xyVariation = {(Map.Rand(2000, "randSpawnX") / 1000) - 1, (Map.Rand(2000, "randSpawnY") / 1000) - 1};
+		xy[1] = xy[1] + cfg.spawnVariation * maxVariation[1] * xyVariation[1];
+		xy[2] = xy[2] + cfg.spawnVariation * maxVariation[2] * xyVariation[2];
+
+
 		local coordinate = {math.floor(maxX * xy[1]), math.floor(maxY * xy[2])};
 		table.insert(spawnXy, coordinate);
 	end

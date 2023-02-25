@@ -34,6 +34,9 @@ do hidden antiquity sites still work at all? just redo antiquity logic
 
 
 Map
+	higher variance spawn points
+
+
 	city states
 
 

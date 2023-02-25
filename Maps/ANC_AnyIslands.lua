@@ -41,7 +41,7 @@ local g_tilesPerMajorCiv = 700;
 function GetMapInitData(worldSize)
 	-- calculate world size
 	local numMajorCivs, majorIds, numMinors, minorIds, isTeamGame, numCivsPerTeam, majorTeamIds = ANC_GetPlayerAndTeamInfo();
-	local _, _, ratio = ANC_getMajorCivSpawnPoints(numMajorCivs, 20, 20);
+	local _, _, ratio = ANC_getMajorCivSpawnPoints(ANC_CreateArgs(), numMajorCivs, 20, 20);
 	--print("RATIO: " .. ratio[1] .. "," .. ratio[2]);
 	local grid_size = ANC_calcMapSizeXy(numMajorCivs, numMinors, ratio, g_tilesPerMajorCiv);
 	print("Size: " .. grid_size[1] .. "," .. grid_size[2]);
@@ -71,6 +71,10 @@ function GenerateMap()
 	Map.RandSeed(9999); -- helps see changes by guaranteeing the same map gets generated
 
 	args = ANC_CreateArgs();
+
+	args.spawnVariation = 0.1;
+
+
 	ANC_CreateMap(args);
 
 

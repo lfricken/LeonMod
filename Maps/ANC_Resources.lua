@@ -3,7 +3,7 @@ include("ANC_Utils");
 
 local waterLuxFraction = 1.0;
 local waterBonusFraction = 0.7;
-local waterStratFraction = 0.9;
+local waterStratFraction = 1.0;
 
 local resVariation = 2;
 local base = 4;
@@ -408,6 +408,7 @@ function recordResourceInfo(this)
 
 		elseif rName == "RESOURCE_FISH" then
 			this.fish_ID = rid;
+			table.insert(this.bonusWater, {rid, PlotTypes.PLOT_OCEAN, TerrainTypes.TERRAIN_COAST, FeatureTypes.NO_FEATURE});
 			table.insert(this.bonusWater, {rid, PlotTypes.PLOT_OCEAN, TerrainTypes.TERRAIN_COAST, FeatureTypes.NO_FEATURE});
 			table.insert(this.bonusWater, {rid, PlotTypes.PLOT_OCEAN, TerrainTypes.TERRAIN_COAST, FeatureTypes.NO_FEATURE});
 			-- double amount of fish

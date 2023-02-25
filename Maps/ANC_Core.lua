@@ -125,6 +125,9 @@ function ANC_CreateMap(ancArgs)
 
 	ANC_DoPopulateWorldWithGoodies(this); -- (EXCEPT FOR SPAWN POINTS) add luxuries, bonuses, strategics, features (ice, oasis, atolls)
 	
+	-- do minor spawn BEFORE adding lakes so they dont' spawn on the lakes
+	ANC_DoMinorSpawns(this);
+
 	-- do lakes AFTER putting resources on the map so they don't collide
 	for i, plot in ANC_Plots() do
 		local xy = GetXy(i, this.maxX);
@@ -155,7 +158,6 @@ function ANC_CreateMap(ancArgs)
 
 
 	ANC_UpdatePlots(this);
-	ANC_DoMinorSpawns(this);
 	DetermineContinents(); -- Continental artwork selection must wait until Areas are finalized, so it gets handled last.
 
 	print("CreateMap End");
