@@ -86,7 +86,7 @@ int CvPlayer::GetExtraYieldForBuilding
 				|| eBuildingClass == BUILDINGCLASS_GURDWARA  || eBuildingClass == BUILDINGCLASS_SYNAGOGUE 
 				|| eBuildingClass == BUILDINGCLASS_VIHARA || eBuildingClass == BUILDINGCLASS_MANDIR;
 			if (eYieldType == YIELD_GOLD && !isPercentMod && isReligiousBuilding && hasBeliefDharma)
-				yieldChange += 3;
+				yieldChange += 2;
 			if (eYieldType == YIELD_CULTURE && !isPercentMod && isReligiousBuilding && hasBeliefHajj)
 				yieldChange += 1;
 			if (eYieldType == YIELD_FAITH && !isPercentMod && isReligiousBuilding && hasBeliefJizya)
