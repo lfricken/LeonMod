@@ -11127,7 +11127,7 @@ int CvCity::getYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade) const
 	return iModifiedYield;
 }
 
-bool CvCity::HasBelief(const string name) const
+bool CvCity::HasBelief(const BeliefTypes e) const
 {
 	const ReligionTypes majority = GetCityReligions()->GetReligiousMajority();
 	if (majority == NO_RELIGION)
@@ -11137,11 +11137,9 @@ bool CvCity::HasBelief(const string name) const
 	else
 	{
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(majority, getOwner());
-		CvBeliefXMLEntries* allBeliefs = GC.GetGameBeliefs();
-		if (pReligion != NULL && allBeliefs != NULL)
+		if (pReligion != NULL)
 		{
-			const BeliefTypes eBelief = allBeliefs->Belief(name);
-			return pReligion->m_Beliefs.HasBelief(eBelief);
+			return pReligion->m_Beliefs.HasBelief(e);
 		}
 	}
 	return false;

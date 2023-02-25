@@ -164,8 +164,6 @@ T100 iPow1p5(const long long valT100);
 // given a T100, will raise it to a given INTEGER power
 T100 iPow(const long long valT100, int iPower);
 
-BuildingClassTypes BuildingClass(const string name);
-
 // Uses Halton Sequence to produce pseudo random points.
 // base is the coprime number that is used to generate points.
 // permanentNumerator multiplies the value to be non decimal.
@@ -232,8 +230,6 @@ TEnum GetFromMap(const TOwner* This, const string name, std::map<string, TEnum>&
 
 	//return map[name];
 }
-// converts a string like "BUILDINGCLASS_MONUMENT" to the relevant numeric id
-BuildingClassTypes BuildingClass(const string name);
 
 class CvGlobals
 {

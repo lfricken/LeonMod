@@ -72,7 +72,7 @@ int CvGlobals::getYIELD_PER_TURN_ALLY(const YieldTypes eYieldType, const PlayerT
 		if (eYieldType == YIELD_DIPLOMATIC_SUPPORT)
 		{
 			const bool hasGestapoCard = player.HasPolicy(POLICY_CARD_MODERN_BUILDINGS_GESTAPO_PASSIVE);
-			const bool hasNationalIntelligenceAgency = player.HasWonder(BuildingClass("BUILDINGCLASS_INTELLIGENCE_AGENCY"));
+			const bool hasNationalIntelligenceAgency = player.HasWonder(BUILDINGCLASS_INTELLIGENCE_AGENCY);
 			if (hasGestapoCard && hasNationalIntelligenceAgency)
 				value += 10;
 		}
@@ -143,27 +143,27 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 	// how many tiles between the 2 cities
 	//const int tradeDistance = kTradeConnection.m_aPlotList.size();
 	const bool hasMerchantConfederacy = playerOrigin.HasPolicy(POLICY_MERCHANT_CONFEDERACY);
-	const bool hasMerchantsGuild = cityOrigin->GetCityBuildings()->HasBuildingClass(BuildingClass("BUILDINGCLASS_CARAVANSARY"));
-	const bool hasMarket = cityOrigin->GetCityBuildings()->HasBuildingClass(BuildingClass("BUILDINGCLASS_MARKET"));
-	const bool hasBank = cityOrigin->GetCityBuildings()->HasBuildingClass(BuildingClass("BUILDINGCLASS_BANK"));
-	const bool hasStockExchange = cityOrigin->GetCityBuildings()->HasBuildingClass(BuildingClass("BUILDINGCLASS_STOCK_EXCHANGE"));
-	const bool hasMint = cityOrigin->GetCityBuildings()->HasBuildingClass(BuildingClass("BUILDINGCLASS_MINT"));
-	const bool hasBrewery = cityOrigin->GetCityBuildings()->HasBuildingClass(BuildingClass("BUILDINGCLASS_BREWERY"));
-	const bool hasStoneWorks = cityOrigin->GetCityBuildings()->HasBuildingClass(BuildingClass("BUILDINGCLASS_STONE_WORKS"));
-	const bool hasTextileMill = cityOrigin->GetCityBuildings()->HasBuildingClass(BuildingClass("BUILDINGCLASS_TEXTILE"));
-	const bool hasGrocer = cityOrigin->GetCityBuildings()->HasBuildingClass(BuildingClass("BUILDINGCLASS_GROCER"));
-	const bool hasCenserMaker = cityOrigin->GetCityBuildings()->HasBuildingClass(BuildingClass("BUILDINGCLASS_CENSER"));
-	const bool hasGemcutter = cityOrigin->GetCityBuildings()->HasBuildingClass(BuildingClass("BUILDINGCLASS_GEMCUTTER"));
-	const bool hasOilRefinery = cityOrigin->GetCityBuildings()->HasBuildingClass(BuildingClass("BUILDINGCLASS_REFINERY"));
-	const bool hasShipyard = cityOrigin->GetCityBuildings()->HasBuildingClass(BuildingClass("BUILDINGCLASS_SHIPYARD"));
+	const bool hasMerchantsGuild = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_CARAVANSARY);
+	const bool hasMarket = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_MARKET);
+	const bool hasBank = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_BANK);
+	const bool hasStockExchange = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_STOCK_EXCHANGE);
+	const bool hasMint = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_MINT);
+	const bool hasBrewery = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_BREWERY);
+	const bool hasStoneWorks = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_STONE_WORKS);
+	const bool hasTextileMill = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_TEXTILE);
+	const bool hasGrocer = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_GROCER);
+	const bool hasCenserMaker = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_CENSER);
+	const bool hasGemcutter = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_GEMCUTTER);
+	const bool hasOilRefinery = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_REFINERY);
+	const bool hasShipyard = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_SHIPYARD);
 	int numExplorationPolicies = 0;//playerOrigin.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch();
-	/*HasPolicy("POLICY_EXPLORATION_CLOSER_1") + playerOrigin.HasPolicy("POLICY_EXPLORATION_CLOSER_2") +
-		playerOrigin.HasPolicy("POLICY_EXPLORATION_CLOSER_3") + playerOrigin.HasPolicy("POLICY_EXPLORATION_CLOSER_4") + 
-		playerOrigin.HasPolicy("POLICY_EXPLORATION_CLOSER_5") + playerOrigin.HasPolicy("POLICY_EXPLORATION_CLOSER_6");*/
+	/*HasPolicy("POLICY_EXPLORATION_CLOSER_1 + playerOrigin.HasPolicy("POLICY_EXPLORATION_CLOSER_2 +
+		playerOrigin.HasPolicy("POLICY_EXPLORATION_CLOSER_3 + playerOrigin.HasPolicy("POLICY_EXPLORATION_CLOSER_4 + 
+		playerOrigin.HasPolicy("POLICY_EXPLORATION_CLOSER_5 + playerOrigin.HasPolicy("POLICY_EXPLORATION_CLOSER_6;*/
 	int numCommercePolicies = 0;// playerOrigin.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch();
-	//playerOrigin.HasPolicy("POLICY_COMMERCE_CLOSER_1") + playerOrigin.HasPolicy("POLICY_COMMERCE_CLOSER_2") +
-	//	playerOrigin.HasPolicy("POLICY_COMMERCE_CLOSER_3") + playerOrigin.HasPolicy("POLICY_COMMERCE_FINISHER") +
-	//	playerOrigin.HasPolicy("POLICY_COMMERCE_CLOSER_5") + playerOrigin.HasPolicy("POLICY_COMMERCE_CLOSER_6");
+	//playerOrigin.HasPolicy("POLICY_COMMERCE_CLOSER_1 + playerOrigin.HasPolicy("POLICY_COMMERCE_CLOSER_2 +
+	//	playerOrigin.HasPolicy("POLICY_COMMERCE_CLOSER_3 + playerOrigin.HasPolicy("POLICY_COMMERCE_FINISHER +
+	//	playerOrigin.HasPolicy("POLICY_COMMERCE_CLOSER_5 + playerOrigin.HasPolicy("POLICY_COMMERCE_CLOSER_6;
 	const bool hasTheocrary = playerOrigin.HasPolicy(POLICY_THEOCRACY);
 
 	if (isInternal) // true if this is an internal trade route

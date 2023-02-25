@@ -446,10 +446,70 @@ void CvGame::init(HandicapTypes eHandicap)
 
 	doUpdateCacheOnTurn();
 }
-
+void add(const CvBaseInfo* pInfo)
+{
+	if (pInfo != NULL)
+	{
+		stringstream s;
+		s << pInfo->GetType() << " = " << pInfo->GetID() << ", ";
+		GC.debugState(s);
+	}
+}
 //	--------------------------------------------------------------------------------
 bool CvGame::init2()
 {
+	InitPlayers();
+
+	stringstream newLine;
+	newLine << "NEWLINE===================";
+	GC.debugState(newLine);
+	// print building classes
+	for (int i = 0; i < GC.getNumBuildingClassInfos(); ++i)
+	{
+		const CvBuildingClassInfo* pInfo = GC.getBuildingClassInfo((BuildingClassTypes)i);
+		add(pInfo);
+	}
+
+	GC.debugState(newLine);
+	// print buildings
+	for (int i = 0; i < GC.getNumBuildingInfos(); ++i)
+	{
+		const CvBuildingEntry* pInfo = GC.getBuildingInfo((BuildingTypes)i);
+		add(pInfo);
+	}
+
+	GC.debugState(newLine);
+	// print beliefs
+	for (int i = 0; i < GC.getNumBeliefInfos(); ++i)
+	{
+		const CvBeliefEntry* pInfo = GC.getBeliefInfo((BeliefTypes)i);
+		add(pInfo);
+	}
+
+	GC.debugState(newLine);
+	// print policies
+	for (int i = 0; i < GC.getNumPolicyInfos(); ++i)
+	{
+		const CvPolicyEntry* pInfo = GC.getPolicyInfo((PolicyTypes)i);
+		add(pInfo);
+	}
+
+	GC.debugState(newLine);
+	// print luxuries
+	for (int i = 0; i < GC.getNumResourceInfos(); ++i)
+	{
+		const CvResourceInfo* pInfo = GC.getResourceInfo((ResourceTypes)i);
+		add(pInfo);
+	}
+
+	GC.debugState(newLine);
+	// print luxuries
+	for (int i = 0; i < GC.getNumTechInfos(); ++i)
+	{
+		const CvTechEntry* pInfo = GC.getTechInfo((TechTypes)i);
+		add(pInfo);
+	}
+
 	InitPlayers();
 
 	// print building classes

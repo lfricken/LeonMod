@@ -3016,9 +3016,11 @@ int CvPlayerPolicies::GetNumPoliciesOwnedInBranch(PolicyBranchTypes eBranch) con
 #endif
 	{
 		// Do we have this policy?
-		if (m_pabHasPolicy[i] && m_pPolicies->GetPolicyEntry(i)->GetPolicyBranchType() == eBranch)
+		if (m_pabHasPolicy[i])
 		{
-			rtnValue++;
+			const CvPolicyEntry* pInfo = m_pPolicies->GetPolicyEntry(i);
+			if (pInfo->GetPolicyBranchType() == eBranch && !pInfo->IsHiddenFromPolicyCount())
+				rtnValue++;
 		}
 	}
 

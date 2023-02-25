@@ -638,7 +638,7 @@ public:
 	int getYieldRate(YieldTypes eIndex, bool bIgnoreTrade) const;
 	int getYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade) const;
 	// true if this city has a religion majority with this belief
-	bool HasBelief(const string name) const;
+	bool HasBelief(const BeliefTypes name) const;
 
 	// Base Yield
 	int getBaseYieldRate(YieldTypes eIndex) const;

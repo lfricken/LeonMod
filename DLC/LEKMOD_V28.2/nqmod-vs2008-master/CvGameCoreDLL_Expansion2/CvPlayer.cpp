@@ -5443,7 +5443,7 @@ int CvPlayer::GetTotalYieldForBuilding(const CvCity* pCity, const BuildingTypes 
 				const CvBeliefEntry* pInfo = GC.getBeliefInfo(e);
 				if (pInfo)
 				{
-					const bool hasIt = pCity->HasBelief(pInfo->GetType());
+					const bool hasIt = pCity->HasBelief(e);
 					if (hasIt)
 					{
 						if (isPercentMod)

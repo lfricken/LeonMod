@@ -78,7 +78,7 @@ string CvPlayer::GetCityCapCurrent_WithSourcesTooltip(int* sum) const
 	}
 
 	//{ // wonder
-	//	appendNewLine(&ss, sum, "from THE LOUVE", +1, player.countNumBuildingClasses(BuildingClass("")) > 0);
+	//	appendNewLine(&ss, sum, "from THE LOUVE", +1, player.countNumBuildingClasses(")) > 0);
 	//}
 
 	// ai get to build as many as they want
@@ -123,15 +123,15 @@ int CvPlayer::GetMaxPoliciesForBranch(PolicyBranchTypes eBranch) const
 	const CvPlayer& player = *this;
 	int total = 3;
 
-	const bool hasNationalCollege = player.HasWonder(BuildingClass("BUILDINGCLASS_NATIONAL_COLLEGE"));
-	const bool hasNationalEpic = player.HasWonder(BuildingClass("BUILDINGCLASS_NATIONAL_EPIC"));
-	const bool hasHeroicEpic = player.HasWonder(BuildingClass("BUILDINGCLASS_HEROIC_EPIC"));
-	const bool hasGrandTemple = player.HasWonder(BuildingClass("BUILDINGCLASS_GRAND_TEMPLE"));
-	const bool hasThisMakesNoSense = player.HasWonder(BuildingClass("BUILDINGCLASS_CIRCUS_MAXIMUS"));
-	const bool hasHermitage = player.HasWonder(BuildingClass("BUILDINGCLASS_HERMITAGE"));
-	const bool hasIronworks = player.HasWonder(BuildingClass("BUILDINGCLASS_IRONWORKS"));
-	const bool hasEastIndia = player.HasWonder(BuildingClass("BUILDINGCLASS_NATIONAL_TREASURY"));	
-	const bool hasOxfordUniversity = player.HasWonder(BuildingClass("BUILDINGCLASS_OXFORD_UNIVERSITY"));
+	const bool hasNationalCollege = player.HasWonder(BUILDINGCLASS_NATIONAL_COLLEGE);
+	const bool hasNationalEpic = player.HasWonder(BUILDINGCLASS_NATIONAL_EPIC);
+	const bool hasHeroicEpic = player.HasWonder(BUILDINGCLASS_HEROIC_EPIC);
+	const bool hasGrandTemple = player.HasWonder(BUILDINGCLASS_GRAND_TEMPLE);
+	const bool hasThisMakesNoSense = player.HasWonder(BUILDINGCLASS_CIRCUS_MAXIMUS);
+	const bool hasHermitage = player.HasWonder(BUILDINGCLASS_HERMITAGE);
+	const bool hasIronworks = player.HasWonder(BUILDINGCLASS_IRONWORKS);
+	const bool hasEastIndia = player.HasWonder(BUILDINGCLASS_NATIONAL_TREASURY);	
+	const bool hasOxfordUniversity = player.HasWonder(BUILDINGCLASS_OXFORD_UNIVERSITY);
 	if (hasNationalCollege && eBranch == PolicyBranchTypes(0))
 		total += 1;
 	if (hasNationalEpic && eBranch == PolicyBranchTypes(1))
