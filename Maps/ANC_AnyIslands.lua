@@ -7,14 +7,14 @@ include("ANC_SpaceStartPlots");
 function GetMapScriptInfo()
 	return {
 		Name = "A Multiplayer Balance",
-		Description = "Balanced for NonChalant mod. Supports between 1 and 16 players.",
+		Description = "Balanced for NonChalant mod. Supports between 1 and 16 players. Recommended #CityStates = 1.5 x #Civs.",
 		IsAdvancedMap = false,
 		IconIndex = 1,
 		SortIndex = 2,
 		SupportsMultiplayer = true,
 		CustomOptions = {
 			{
-				Name = "Spawn Variation",
+				Name = "Spawn Variation", -- spawnVarianceOptionId 1
 				Values = {
 					"0 -- Fair but predictable",
 					"1",
@@ -28,7 +28,7 @@ function GetMapScriptInfo()
 					"9 -- Unpredictable but unfair",
 				},
 
-				DefaultValue = 5,
+				DefaultValue = 3,
 				SortPriority = -87,
 			},
 		},
@@ -72,7 +72,8 @@ function GenerateMap()
 
 	args = ANC_CreateArgs();
 
-	args.spawnVariation = 0.1;
+	local spawnVarianceOptionId = 1;
+	args.spawnVariation = (Map.GetCustomOption(spawnVarianceOptionId) - 1) / 10; -- -1 since option 1 should be value of 0
 
 
 	ANC_CreateMap(args);
