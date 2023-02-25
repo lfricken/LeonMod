@@ -82,9 +82,8 @@ int CvPlayer::GetExtraYieldForBuilding
 			const bool hasBeliefJizya = city.HasBelief(BELIEF_CRAFTWORKS);
 			const bool isReligiousBuilding =
 				eBuildingClass == BUILDINGCLASS_PAGODA || eBuildingClass == BUILDINGCLASS_MOSQUE
-				|| eBuildingClass == BUILDINGCLASS_CATHEDRAL || eBuildingClass == BUILDINGCLASS_SCRIPTORIUM
-				|| eBuildingClass == BUILDINGCLASS_TABERNACLE || eBuildingClass == BUILDINGCLASS_GURDWARA
-				|| eBuildingClass == BUILDINGCLASS_SYNAGOGUE || eBuildingClass == BUILDINGCLASS_MITHRAEUM
+				|| eBuildingClass == BUILDINGCLASS_CATHEDRAL || eBuildingClass == BUILDINGCLASS_TABERNACLE 
+				|| eBuildingClass == BUILDINGCLASS_GURDWARA  || eBuildingClass == BUILDINGCLASS_SYNAGOGUE 
 				|| eBuildingClass == BUILDINGCLASS_VIHARA || eBuildingClass == BUILDINGCLASS_MANDIR;
 			if (eYieldType == YIELD_GOLD && !isPercentMod && isReligiousBuilding && hasBeliefDharma)
 				yieldChange += 3;
@@ -223,14 +222,7 @@ int CvPlayer::GetExtraYieldForBuilding
 		const bool isCourthouse = eBuildingClass == BUILDINGCLASS_COURTHOUSE;
 		if (eYieldType == YIELD_DIPLOMATIC_SUPPORT && !isPercentMod && hasUnitedFront && isCourthouse)
 			yieldChange += 10;
-	}
-
-	{// POLICY_TRADE_UNIONS - renamed Mercenary Army - gives + 15% gold to Caravansarys
-		const bool hasMercenaryArmy = player.HasPolicy(POLICY_TRADE_UNIONS);
-		const bool isMerchantsGuild = eBuildingClass == BUILDINGCLASS_GUILD_GOLD;
-		if (eYieldType == YIELD_GOLD && isPercentMod && hasMercenaryArmy && isMerchantsGuild)
-			yieldChange += 15;
-	}
+	}	
 
 	{// POLICY_URBANIZATION - +3% Production and Science to Windmill, Workshop, Factory
 		const bool hasUrbanization = player.HasPolicy(POLICY_URBANIZATION);
@@ -266,7 +258,7 @@ int CvPlayer::GetExtraYieldForBuilding
 			eBuildingClass == BUILDINGCLASS_GROCER;
 		const bool isLevel3FoodBuilding = 
 			eBuildingClass == BUILDINGCLASS_HOSPITAL || eBuildingClass == BUILDINGCLASS_STOCKYARDS ||
-			eBuildingClass == BUILDINGCLASS_GRAIN_SILO;
+			eBuildingClass == BUILDINGCLASS_GRAIN_ELEVATOR;
 		if (!isPercentMod)
 		{
 			if (eYieldType == YIELD_MAINTENANCE && hasUniversal && isLevel1FoodBuilding)
