@@ -115,6 +115,44 @@ int CvPlayer::GetExtraBuildingsForClass(BuildingClassTypes eClass) const
 	if (hasMilitaryTradidion && eClass == BuildingClassTypes(5))
 		total += 1;
 
+
+
+
+	// All Unique Buildings that have a % Limit get +1 Supply
+	// All Civillizations Listed (if needed later)
+	const bool isEngland = player.IsCiv(CIVILIZATION_MC_SCOTLAND);
+	const bool isFrance = player.IsCiv(CIVILIZATION_FRANCE);
+	const bool isAztec = player.IsCiv(CIVILIZATION_AZTEC);
+	const bool isByzantium = player.IsCiv(CIVILIZATION_BYZANTIUM);
+	const bool isPrussia = player.IsCiv(CIVILIZATION_PRUSSIA);
+	const bool isRome = player.IsCiv(CIVILIZATION_ROME);
+	const bool isMacedon = player.IsCiv(CIVILIZATION_MACEDON);
+	const bool isPersia = player.IsCiv(CIVILIZATION_PERSIA);
+	const bool isMiddleEast = player.IsCiv(CIVILIZATION_UC_TURKEY);
+	const bool isEgypt = player.IsCiv(CIVILIZATION_EGYPT);
+	const bool isAmerica = player.IsCiv(CIVILIZATION_IROQUOIS);
+	const bool isKorea = player.IsCiv(CIVILIZATION_KOREA);
+	const bool isRussia = player.IsCiv(CIVILIZATION_RUSSIA);
+	const bool isDenmark = player.IsCiv(CIVILIZATION_DENMARK);
+	const bool isZulu = player.IsCiv(CIVILIZATION_ZULU);
+	const bool isInca = player.IsCiv(CIVILIZATION_INCA);
+	const bool isIndia = player.IsCiv(CIVILIZATION_INDIA);
+	const bool isIndonesia = player.IsCiv(CIVILIZATION_INDONESIA);	
+	if (isAztec && eClass == BuildingClassTypes(BUILDINGCLASS_WATERMILL))
+		total += 1;
+	if (isAztec && eClass == BuildingClassTypes(BUILDINGCLASS_WINDMILL))
+		total += 1;
+	if (isPrussia && eClass == BuildingClassTypes(BUILDINGCLASS_WINDMILL))
+		total += 1;
+	if (isEgypt && eClass == BuildingClassTypes(BUILDINGCLASS_FORGE))
+		total += 1;
+	if (isAmerica && eClass == BuildingClassTypes(BUILDINGCLASS_WORKSHOP))
+		total += 1;
+	if (isInca && eClass == BuildingClassTypes(BUILDINGCLASS_STABLE))
+		total += 1;
+	if (isInca && eClass == BuildingClassTypes(BUILDINGCLASS_FACTORY))
+		total += 1;
+
 	return total;
 }
 
