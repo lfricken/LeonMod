@@ -1,4 +1,24 @@
 
+map:
+glitch with goodies appearing in lakes, 
+half strategics
+iron and horses 
+
+ancient era
+online
+simulatneious
+
+private game
+all players found religions
+allow policy saving
+fast combat
+fast movement
+random player activation order
+ai cannot spread religion to humans
+do NOT allow promotion saving
+
+
+
 spawn variation
 
 deal history screen is busted?
@@ -35,7 +55,7 @@ do hidden antiquity sites still work at all? just redo antiquity logic
 
 Map
 	goody hut random resource chunk
-	
+
 	natural wonders
 
 	city states
