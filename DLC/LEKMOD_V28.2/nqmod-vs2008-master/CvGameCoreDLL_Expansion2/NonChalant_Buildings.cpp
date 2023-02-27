@@ -194,6 +194,16 @@ int CvPlayer::GetExtraYieldForBuilding
 				yieldChange += numRationalismClosers * 4;
 		}
 
+		{// MOSQUE_OF_DJENNE - +1C +1FH from City-States Following
+			const ReligionTypes majorityReligion = city.GetCityReligions()->GetReligiousMajority();
+			const int numCityStatesFollowing = GC.getGame().GetGameReligions()->GetNumCitiesFollowing(majorityReligion, true);
+			const bool isGreatMosqueOfDjenne = eBuildingClass == BUILDINGCLASS_MOSQUE_OF_DJENNE;			
+			if (eYieldType == YIELD_CULTURE && !isPercentMod && isGreatMosqueOfDjenne)
+				yieldChange += numCityStatesFollowing * 2;
+			if (eYieldType == YIELD_FAITH && !isPercentMod && isGreatMosqueOfDjenne)
+				yieldChange += numCityStatesFollowing * 2;
+		}
+
 	}
 
 	{ // POLICY_SKYSCRAPERS - adds +2 diplomatic points to plazas
@@ -525,6 +535,7 @@ int CvPlayer::GetExtraYieldForBuilding
 		if (eYieldType == YIELD_SCIENTIFIC_INSIGHT && !isPercentMod && hasAnesthesiaCard && isPalace)
 			yieldChange += numMedicalLabs / 2;
 	}
+	
 
 
 	return yieldChange;
