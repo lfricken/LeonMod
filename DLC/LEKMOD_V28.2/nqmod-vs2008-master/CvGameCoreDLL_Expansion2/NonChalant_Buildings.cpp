@@ -535,7 +535,12 @@ int CvPlayer::GetExtraYieldForBuilding
 		if (eYieldType == YIELD_SCIENTIFIC_INSIGHT && !isPercentMod && hasAnesthesiaCard && isPalace)
 			yieldChange += numMedicalLabs / 2;
 	}
-	
+
+	{// BUILDINGCLASS_ALHAMBRA - +2 C per City State
+		const bool isAlhambra = eBuildingClass == BUILDINGCLASS_ALHAMBRA;		
+		if (eYieldType == YIELD_CULTURE && !isPercentMod && isAlhambra && isAlhambra)
+			yieldChange += numCityStateAllies * 2;
+	}	
 
 
 	return yieldChange;

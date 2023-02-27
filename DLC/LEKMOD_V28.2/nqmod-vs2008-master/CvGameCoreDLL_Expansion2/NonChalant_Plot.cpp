@@ -232,11 +232,17 @@ int CvPlot::getExtraYield
 						yieldChange += 1;
 				}
 
-				{// BUILDINGCLASS_BOROBUDUR - 1 FH per city
-					const bool hasBorobudur = player.HasWonder(BUILDINGCLASS_BOROBUDUR);
-					if (eYieldType == YIELD_FAITH && hasBorobudur) // && isCityCenter
+				{// BUILDINGCLASS_HAGIA_SOPHIA - 1 FH per city
+					const bool hasHagia = player.HasWonder(BUILDINGCLASS_HAGIA_SOPHIA);
+					if (eYieldType == YIELD_FAITH && hasHagia) // && isCityCenter
 						yieldChange += 1;
-				}				
+				}
+
+				{// BUILDINGCLASS_BOROBUDUR - 1 Cper city
+					const bool hasBorobudur = player.HasWonder(BUILDINGCLASS_BOROBUDUR);
+					if (eYieldType == YIELD_CULTURE && hasBorobudur) // && isCityCenter
+						yieldChange += 1;
+				}
 
 				{// BUILDINGCLASS_PYRAMID - 1PD per city
 					const bool hasPyramids = player.HasWonder(BUILDINGCLASS_PYRAMID);
