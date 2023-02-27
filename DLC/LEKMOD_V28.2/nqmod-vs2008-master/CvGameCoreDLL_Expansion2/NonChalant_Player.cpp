@@ -200,6 +200,35 @@ int CvPlayer::GetMaxPoliciesForBranch(PolicyBranchTypes eBranch) const
 			total += 1;
 	}
 
+	// Additional Policy Branch Capacity from World Wonders
+	const bool hasWorldWonderUnlock1 = player.HasWonder(BUILDINGCLASS_CHICHEN_ITZA);
+	const bool hasWorldWonderUnlock2 = player.HasWonder(BUILDINGCLASS_MACHU_PICHU);
+	const bool hasWorldWonderUnlock3 = player.HasWonder(BUILDINGCLASS_GREAT_WALL);
+	const bool hasWorldWonderUnlock4 = player.HasWonder(BUILDINGCLASS_HAGIA_SOPHIA);
+	const bool hasWorldWonderUnlock5 = player.HasWonder(BUILDINGCLASS_ALHAMBRA);
+	const bool hasWorldWonderUnlock6 = player.HasWonder(BUILDINGCLASS_BOROBUDUR);
+	const bool hasWorldWonderUnlock7 = player.HasWonder(BUILDINGCLASS_HIMEJI_CASTLE);
+	const bool hasWorldWonderUnlock8 = player.HasWonder(BUILDINGCLASS_RED_FORT);
+	const bool hasWorldWonderUnlock9 = player.HasWonder(BUILDINGCLASS_BRANDENBURG_GATE);
+	if (hasWorldWonderUnlock1 && eBranch == PolicyBranchTypes(0))
+		total += 1;
+	if (hasWorldWonderUnlock2 && eBranch == PolicyBranchTypes(1))
+		total += 1;
+	if (hasWorldWonderUnlock3 && eBranch == PolicyBranchTypes(2))
+		total += 1;
+	if (hasWorldWonderUnlock4 && eBranch == PolicyBranchTypes(3))
+		total += 1;
+	if (hasWorldWonderUnlock5 && eBranch == PolicyBranchTypes(4))
+		total += 1;
+	if (hasWorldWonderUnlock6 && eBranch == PolicyBranchTypes(5))
+		total += 1;
+	if (hasWorldWonderUnlock7 && eBranch == PolicyBranchTypes(6))
+		total += 1;
+	if (hasWorldWonderUnlock8 && eBranch == PolicyBranchTypes(7))
+		total += 1;
+	if (hasWorldWonderUnlock9 && eBranch == PolicyBranchTypes(8))
+		total += 1;
+
 	// Additional Policy Branch Capacity from National Wonders
 	const bool hasNationalCollege = player.HasWonder(BUILDINGCLASS_NATIONAL_COLLEGE);
 	const bool hasNationalEpic = player.HasWonder(BUILDINGCLASS_NATIONAL_EPIC);
@@ -208,7 +237,7 @@ int CvPlayer::GetMaxPoliciesForBranch(PolicyBranchTypes eBranch) const
 	const bool hasThisMakesNoSense = player.HasWonder(BUILDINGCLASS_CIRCUS_MAXIMUS);
 	const bool hasHermitage = player.HasWonder(BUILDINGCLASS_HERMITAGE);
 	const bool hasIronworks = player.HasWonder(BUILDINGCLASS_IRONWORKS);
-	const bool hasEastIndia = player.HasWonder(BUILDINGCLASS_NATIONAL_TREASURY);	
+	const bool hasEastIndia = player.HasWonder(BUILDINGCLASS_NATIONAL_TREASURY);
 	const bool hasOxfordUniversity = player.HasWonder(BUILDINGCLASS_OXFORD_UNIVERSITY);
 	if (hasNationalCollege && eBranch == PolicyBranchTypes(0))
 		total += 1;
