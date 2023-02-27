@@ -126,10 +126,10 @@ int CvPlot::getExtraYield
 			if (isCityCenter)
 			{ // BEGIN isCityCenter
 
-				{// POLICY_CONSULATES - gives +3C to the Palace for each City-State Ally
+				{// POLICY_CONSULATES - gives +2C to the Palace for each City-State Ally
 					const bool hasConsulates = player.HasPolicy(POLICY_CONSULATES);
 					if (eYieldType == YIELD_CULTURE && hasConsulates && isCapital) // && isCityCenter
-						yieldChange += (numCityStateAllies * 3);
+						yieldChange += (numCityStateAllies * 2);
 				}
 
 				{// BELIEF_Religious Community - gives 1 diplo point per 6 followers (max 20)
