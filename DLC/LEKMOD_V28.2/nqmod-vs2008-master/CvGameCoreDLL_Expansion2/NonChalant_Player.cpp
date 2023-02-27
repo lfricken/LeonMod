@@ -42,13 +42,7 @@ string CvPlayer::GetCityCapCurrent_WithSourcesTooltip(int* sum) const
 
 	{ // the base amount to start with always
 		appendNewLine(&ss, sum, "Base", +3, true);
-	}
-	{ // liberty finisher
-		appendNewLine(&ss, sum, "from adopting 4 policies in the Liberty branch", +1, player.HasPolicy(POLICY_LIBERTY_CLOSER_4));
-	}
-	{ // 1 for 8 policies (free policies included)
-		appendNewLine(&ss, sum, "from 8 or more Social Policies", +1, player.GetNumPoliciesTotal() >= 8);
-	}
+	}	
 	{ // 1 for every other era, first unlock in classical
 		// ancient era is id 0, classical is id 1...
 		appendNewLine(&ss, sum, "from the {TXT_KEY_ERA_1}", +1, player.GetCurrentEra() >= 1); // {} evaluates to Classical Era
@@ -56,6 +50,9 @@ string CvPlayer::GetCityCapCurrent_WithSourcesTooltip(int* sum) const
 		appendNewLine(&ss, sum, "from the {TXT_KEY_ERA_5}", +1, player.GetCurrentEra() >= 5);
 		appendNewLine(&ss, sum, "from the {TXT_KEY_ERA_7}", +1, player.GetCurrentEra() >= 7);
 		// last era is 8 (future)
+	}
+	{ // 1 for 8 policies (free policies included)
+		appendNewLine(&ss, sum, "from 8 or more Social Policies", +1, player.GetNumPoliciesTotal() >= 8);
 	}
 	{ // 1 per courthouse
 		const int numConquered = CountNumCities(ConqueredCities);
@@ -70,16 +67,18 @@ string CvPlayer::GetCityCapCurrent_WithSourcesTooltip(int* sum) const
 		desc << "from 1 per Conquered City (max bonus of " << maxConqueredBonus << ")";
 		appendNewLine(&ss, sum, desc.str(), min(maxConqueredBonus, numConquered), numConquered > 0);
 	}
+	{ // liberty finisher
+		appendNewLine(&ss, sum, "from adopting 4 policies in the Liberty branch", +1, player.HasPolicy(POLICY_LIBERTY_CLOSER_4));
+	}
 	{ // colonialism +1
 		appendNewLine(&ss, sum, "from the Colonialism Policy", +1, player.HasPolicy(POLICY_MERCHANT_NAVY));
+	}	
+	{ 
+		appendNewLine(&ss, sum, "from the Red Fort", +1, player.HasWonder(BUILDINGCLASS_RED_FORT));
 	}
 	{ // iron curtain +2
 		appendNewLine(&ss, sum, "from the Iron Curtain Tenet", +2, player.HasPolicy(POLICY_IRON_CURTAIN));
 	}
-
-	//{ // wonder
-	//	appendNewLine(&ss, sum, "from THE LOUVE", +1, player.countNumBuildingClasses(")) > 0);
-	//}
 
 	// ai get to build as many as they want
 	if (!isHuman())

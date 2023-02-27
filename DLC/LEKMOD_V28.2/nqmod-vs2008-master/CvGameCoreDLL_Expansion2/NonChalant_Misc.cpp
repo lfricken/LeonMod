@@ -156,14 +156,10 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 	const bool hasGemcutter = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_GEMCUTTER);
 	const bool hasOilRefinery = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_REFINERY);
 	const bool hasShipyard = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_SHIPYARD);
-	int numExplorationPolicies = 0;//playerOrigin.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch();
-	/*HasPolicy("POLICY_EXPLORATION_CLOSER_1 + playerOrigin.HasPolicy("POLICY_EXPLORATION_CLOSER_2 +
-		playerOrigin.HasPolicy("POLICY_EXPLORATION_CLOSER_3 + playerOrigin.HasPolicy("POLICY_EXPLORATION_CLOSER_4 + 
-		playerOrigin.HasPolicy("POLICY_EXPLORATION_CLOSER_5 + playerOrigin.HasPolicy("POLICY_EXPLORATION_CLOSER_6;*/
-	int numCommercePolicies = 0;// playerOrigin.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch();
-	//playerOrigin.HasPolicy("POLICY_COMMERCE_CLOSER_1 + playerOrigin.HasPolicy("POLICY_COMMERCE_CLOSER_2 +
-	//	playerOrigin.HasPolicy("POLICY_COMMERCE_CLOSER_3 + playerOrigin.HasPolicy("POLICY_COMMERCE_FINISHER +
-	//	playerOrigin.HasPolicy("POLICY_COMMERCE_CLOSER_5 + playerOrigin.HasPolicy("POLICY_COMMERCE_CLOSER_6;
+	const bool hasHimeji = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_HIMEJI_CASTLE);
+	int numExplorationPolicies = playerOrigin.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(POLICY_BRANCH_EXPLORATION);	
+	int numCommercePolicies = playerOrigin.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(POLICY_BRANCH_COMMERCE);
+	int numHonorPolicies = playerOrigin.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(POLICY_BRANCH_HONOR);
 	const bool hasTheocrary = playerOrigin.HasPolicy(POLICY_THEOCRACY);
 
 	if (isInternal) // true if this is an internal trade route
@@ -186,6 +182,10 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 				yieldChange += 1;
 			if (eYieldType == YIELD_PRODUCTION && hasOilRefinery)
 				yieldChange += 3;
+			if (eYieldType == YIELD_GOLD && hasHimeji)
+				yieldChange += (numCommercePolicies + numHonorPolicies) * 2;
+			if (eYieldType == YIELD_DIPLOMATIC_SUPPORT && hasHimeji)
+				yieldChange += (numCommercePolicies + numHonorPolicies);
 
 			{ // POLICY_FREE_THOUGHT +6SC +2FD from Trade Routes
 				const bool hasFreeThought = playerOrigin.HasPolicy(POLICY_FREE_THOUGHT);
