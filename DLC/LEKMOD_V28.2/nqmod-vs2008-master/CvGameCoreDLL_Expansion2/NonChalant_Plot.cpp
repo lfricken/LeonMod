@@ -236,13 +236,7 @@ int CvPlot::getExtraYield
 					const bool hasBorobudur = player.HasWonder(BUILDINGCLASS_BOROBUDUR);
 					if (eYieldType == YIELD_FAITH && hasBorobudur) // && isCityCenter
 						yieldChange += 1;
-				}
-
-				{// BUILDINGCLASS_MACHU_PICHU - 2G per city
-					const bool hasMachuPichu = player.HasWonder(BUILDINGCLASS_MACHU_PICHU);
-					if (eYieldType == YIELD_GOLD && hasMachuPichu) // && isCityCenter
-						yieldChange += 2;
-				}
+				}				
 
 				{// BUILDINGCLASS_PYRAMID - 1PD per city
 					const bool hasPyramids = player.HasWonder(BUILDINGCLASS_PYRAMID);
