@@ -114,6 +114,11 @@ int CvPlayer::GetExtraBuildingsForClass(BuildingClassTypes eClass) const
 	if (hasMilitaryTradidion && eClass == BuildingClassTypes(5))
 		total += 1;
 
+	// Mausoleum +1 Stoneworks Supply
+	const bool hasMausoleum = player.HasWonder(BUILDINGCLASS_MAUSOLEUM_HALICARNASSUS);
+	if (hasMausoleum && eClass == BuildingClassTypes(BUILDINGCLASS_STONE_WORKS))
+		total += 1;
+
 
 
 
