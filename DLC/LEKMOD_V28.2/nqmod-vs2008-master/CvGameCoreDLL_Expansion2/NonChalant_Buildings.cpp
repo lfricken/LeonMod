@@ -50,6 +50,7 @@ int CvPlayer::GetExtraYieldForBuilding
 	const CvPlayer& player = *this;
 
 	const int numCityStateAllies = player.GetNumMinorAllies();
+	const bool isCityCenterBuilding = eBuildingClass == BUILDINGCLASS_CITY_CENTER;
 
 	if (pCity != NULL) // in a city
 	{
@@ -129,21 +130,18 @@ int CvPlayer::GetExtraYieldForBuilding
 
 		{// POLICY_TRADITION_CLOSER - 1FD Capital.
 			int numTraditionClosers = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(POLICY_BRANCH_TRADITION);
-			const bool isCityCenterBuilding = eBuildingClass == BUILDINGCLASS_CITY_CENTER;			
 			if (eYieldType == YIELD_FOOD && !isPercentMod && isCityCenterBuilding && isCapital)
 				yieldChange += numTraditionClosers;
 		}
 
 		{// POLICY_LIBERTY_CLOSER - 1C Capital.
 			int numLibertyClosers = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(POLICY_BRANCH_LIBERTY);
-			const bool isCityCenterBuilding = eBuildingClass == BUILDINGCLASS_CITY_CENTER;			
 			if (eYieldType == YIELD_CULTURE && !isPercentMod && isCityCenterBuilding && isCapital)
 				yieldChange += numLibertyClosers;
 		}
 
 		{// POLICY_HONOR_CLOSER - +2%PD all Cities. 1PD Capital.
 			int numHonorClosers = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(POLICY_BRANCH_HONOR);
-			const bool isCityCenterBuilding = eBuildingClass == BUILDINGCLASS_CITY_CENTER;
 			if (eYieldType == YIELD_PRODUCTION && isPercentMod && isCityCenterBuilding)
 				yieldChange += numHonorClosers * 2;
 			if (eYieldType == YIELD_PRODUCTION && !isPercentMod && isCityCenterBuilding && isCapital)
@@ -152,21 +150,18 @@ int CvPlayer::GetExtraYieldForBuilding
 
 		{// POLICY_PIETY_CLOSER - +1FH Capital.
 			int numPietyClosers = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(POLICY_BRANCH_PIETY);
-			const bool isCityCenterBuilding = eBuildingClass == BUILDINGCLASS_CITY_CENTER;			
 			if (eYieldType == YIELD_FAITH && !isPercentMod && isCityCenterBuilding && isCapital)
 				yieldChange += numPietyClosers;
 		}
 
 		{// POLICY_AESTHETICS_CLOSER - +1T Capital.
 			int numAestheticsClosers = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(POLICY_BRANCH_AESTHETICS);
-			const bool isCityCenterBuilding = eBuildingClass == BUILDINGCLASS_CITY_CENTER;
 			if (eYieldType == YIELD_TOURISM && !isPercentMod && isCityCenterBuilding && isCapital)
 				yieldChange += numAestheticsClosers;
 		}
 
 		{// POLICY_AESTHETICS_CLOSER_3 - +2 Golden Age Point World and National Wonder Capital. 
 			const bool hasAestheticsCloser = player.HasPolicy(POLICY_AESTHETICS_CLOSER_3);
-			const bool isCityCenterBuilding = eBuildingClass == BUILDINGCLASS_CITY_CENTER;
 			int numWonders = (player.GetNumWonders() + player.getNumNationalWonders());
 			if (eYieldType == YIELD_GOLDEN && !isPercentMod && isCityCenterBuilding && hasAestheticsCloser && isCapital)
 				yieldChange += (numWonders * 2);
@@ -174,7 +169,6 @@ int CvPlayer::GetExtraYieldForBuilding
 
 		{// POLICY_LEGALISM - +2 Golden Age Point per per Policy Capital.
 			const bool hasLegalism = player.HasPolicy(POLICY_LEGALISM);
-			const bool isCityCenterBuilding = eBuildingClass == BUILDINGCLASS_CITY_CENTER;
 			int numPolicies = player.GetNumPoliciesTotal();
 			if (eYieldType == YIELD_GOLDEN && !isPercentMod && isCityCenterBuilding && hasLegalism && isCapital)
 				yieldChange += (numPolicies * 2);
@@ -182,14 +176,12 @@ int CvPlayer::GetExtraYieldForBuilding
 
 		{// POLICY_COMMERCE_CLOSER - +5%G all Cities
 			int numCommerceClosers = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(POLICY_BRANCH_COMMERCE);
-			const bool isCityCenterBuilding = eBuildingClass == BUILDINGCLASS_CITY_CENTER;
 			if (eYieldType == YIELD_GOLD && isPercentMod && isCityCenterBuilding)
 				yieldChange += numCommerceClosers * 5;			
 		}
 
 		{// POLICY_RATIONALISM_CLOSER - +4%SC all Cities
 			int numRationalismClosers = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(POLICY_BRANCH_RATIONALISM);
-			const bool isCityCenterBuilding = eBuildingClass == BUILDINGCLASS_CITY_CENTER;
 			if (eYieldType == YIELD_SCIENCE && isPercentMod && isCityCenterBuilding)
 				yieldChange += numRationalismClosers * 4;
 		}
@@ -356,20 +348,14 @@ int CvPlayer::GetExtraYieldForBuilding
 	}
 
 	{// BUILDINGCLASS_STATUE_OF_LIBERTY grants +10% FD to every Granary
-		const bool isAqueduct = eBuildingClass == BUILDINGCLASS_AQUEDUCT;
-		const bool isWatermill = eBuildingClass == BUILDINGCLASS_WATERMILL;
-		const bool isGrocer = eBuildingClass == BUILDINGCLASS_GROCER;
 		const bool hasStatueOfLiberty = player.HasWonder(BUILDINGCLASS_STATUE_OF_LIBERTY);
-		if (eYieldType == YIELD_FOOD && isPercentMod && hasStatueOfLiberty && (isAqueduct || isWatermill || isGrocer))
+		if (eYieldType == YIELD_FOOD && isPercentMod && hasStatueOfLiberty && isCityCenterBuilding)
 			yieldChange += 10;
 	}
 
 	{// BUILDINGCLASS_KREMLIN grants +10% PD to every Workshop
-		const bool isWorkshop = eBuildingClass == BUILDINGCLASS_WORKSHOP;
-		const bool isWindmill = eBuildingClass == BUILDINGCLASS_WINDMILL;
-		const bool isForge = eBuildingClass == BUILDINGCLASS_FORGE;
 		const bool hasKremlin = player.HasWonder(BUILDINGCLASS_KREMLIN);
-		if (eYieldType == YIELD_PRODUCTION && isPercentMod && hasKremlin && (isWorkshop || isWindmill  || isForge))
+		if (eYieldType == YIELD_PRODUCTION && isPercentMod && hasKremlin && isCityCenterBuilding)
 			yieldChange += 10;
 	}
 
