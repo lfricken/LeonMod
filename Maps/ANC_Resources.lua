@@ -6,23 +6,23 @@ local waterBonusFraction = 0.7;
 local waterStratFraction = 1.0;
 
 local resVariation = 2;
-local base = 4;
+local base = 1;
 function calcRes(self)
 	local id = self[1];
 	if id == 0 then
-		return base + Map.Rand(resVariation + 1, "iron");
+		return base, "iron"; -- + Map.Rand(resVariation + 1, "iron");
 	elseif id == 1 then
-		return base + Map.Rand(resVariation + 1, "horses");
+		return base, "horses"; -- + Map.Rand(resVariation + 1, "horses");
 	elseif id == 2 then
-		return base + Map.Rand(resVariation + 1, "coal");
+		return base, "coal"; -- + Map.Rand(resVariation + 1, "coal");
 	elseif id == 3 then
-		return base + Map.Rand(resVariation + 1, "oil");
+		return base, "oil"; -- + Map.Rand(resVariation + 1, "oil");
 	elseif id == 4 then
-		return base + Map.Rand(resVariation + 1, "aluminum");
+		return base, "aluminum" -- + Map.Rand(resVariation + 1, "aluminum");
 	elseif id == 5 then
-		return base + Map.Rand(resVariation + 1, "uranium");
+		return base, "uranium"; -- + Map.Rand(resVariation + 1, "uranium");
 	else
-		return base + Map.Rand(resVariation + 1, "UNKNOWN RESOURCE");
+		return base, "UNKNOWN RESOURCE"; -- + Map.Rand(resVariation + 1, "UNKNOWN RESOURCE");
 	end
 end
 ------------------------------------------------------------------------------
