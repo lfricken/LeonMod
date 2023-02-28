@@ -102,6 +102,16 @@ int CvGlobals::getYIELD_PER_QUEST(const YieldTypes eYieldType, const PlayerTypes
 				value *= 150;
 				value /= 100;
 			}
+		}		
+		if (eYieldType == YIELD_DIPLOMATIC_SUPPORT)
+		{
+			//PENTAGON grants 50% more Diplo Points from Completing Quests
+			const bool hasPentagon = player.HasWonder(BUILDINGCLASS_PENTAGON);
+			if (hasPentagon)
+			{
+				value *= 150;
+				value /= 100;
+			}
 		}
 		if (eYieldType == YIELD_SCIENTIFIC_INSIGHT)
 		{
@@ -110,7 +120,13 @@ int CvGlobals::getYIELD_PER_QUEST(const YieldTypes eYieldType, const PlayerTypes
 			if (hasPhilanthropy)
 				value += 15;
 		}
-
+		if (eYieldType == YIELD_SCIENTIFIC_INSIGHT)
+		{
+			//PENTAGON grants +15 Insight from Completing Quests
+			const bool hasPentagon = player.HasWonder(BUILDINGCLASS_PENTAGON);
+			if (hasPentagon)
+				value += 15;
+		}
 		if (eYieldType == YIELD_GOLD)
 		{
 			// POLICY_PATRONAGE grants 100G from City-State Quests
