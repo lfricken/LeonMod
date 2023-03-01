@@ -528,6 +528,45 @@ int CvPlayer::GetExtraYieldForBuilding
 			yieldChange += numCityStateAllies * 2;
 	}	
 
+	{// POLICY_CARD_ANCIENT_BUILDINGS_SNARE_PASSIVE 
+		const bool hasSnareCard = player.HasPolicy(POLICY_CARD_ANCIENT_BUILDINGS_SNARE_PASSIVE);
+		const bool isHuntersHaven = eBuildingClass == BUILDINGCLASS_HUNTERS_HAVEN;
+		if (eYieldType == YIELD_FOOD && !isPercentMod && hasSnareCard && isHuntersHaven)
+			yieldChange += 1;
+		if (eYieldType == YIELD_MAINTENANCE && !isPercentMod && hasSnareCard && isHuntersHaven)
+			yieldChange -= 1;
+	}
+	{// POLICY_CARD_ANCIENT_BUILDINGS_SOLARIZATION_PASSIVE - 
+		const bool hasSolarizationCard = player.HasPolicy(POLICY_CARD_ANCIENT_BUILDINGS_SOLARIZATION_PASSIVE);
+		const bool isGranary = eBuildingClass == BUILDINGCLASS_GRANARY;
+		if (eYieldType == YIELD_FOOD && !isPercentMod && hasSolarizationCard && isGranary)
+			yieldChange += 1;
+		if (eYieldType == YIELD_MAINTENANCE && !isPercentMod && hasSolarizationCard && isGranary)
+			yieldChange -= 1;
+	}
+	{// POLICY_CARD_ANCIENT_BUILDINGS_GYPSIES_PASSIVE - 
+		const bool hasGypsiesCard = player.HasPolicy(POLICY_CARD_ANCIENT_BUILDINGS_GYPSIES_PASSIVE);
+		const bool isCircus = eBuildingClass == BUILDINGCLASS_CIRCUS;		
+		if (eYieldType == YIELD_MAINTENANCE && !isPercentMod && hasGypsiesCard && isCircus)
+			yieldChange -= 1;
+	}
+	{// POLICY_CARD_ANCIENT_BUILDINGS_HARPOON_PASSIVE - 
+		const bool hasHarpoonCard = player.HasPolicy(POLICY_CARD_ANCIENT_BUILDINGS_HARPOON_PASSIVE);
+		const bool isFishery = eBuildingClass == BUILDINGCLASS_FISHERY;
+		if (eYieldType == YIELD_FOOD && !isPercentMod && hasHarpoonCard && isFishery)
+			yieldChange += 1;
+		if (eYieldType == YIELD_MAINTENANCE && !isPercentMod && hasHarpoonCard && isFishery)
+			yieldChange -= 1;
+	}
+	{// POLICY_CARD_ANCIENT_BUILDINGS_HARROW_PASSIVE - 
+		const bool hasHarrowCard = player.HasPolicy(POLICY_CARD_ANCIENT_BUILDINGS_HARROW_PASSIVE);
+		const bool isStable = eBuildingClass == BUILDINGCLASS_STABLE;
+		if (eYieldType == YIELD_FOOD && !isPercentMod && hasHarrowCard && isStable)
+			yieldChange += 2;
+		if (eYieldType == YIELD_MAINTENANCE && !isPercentMod && hasHarrowCard && isStable)
+			yieldChange -= 1;
+	}
+
 
 	return yieldChange;
 }

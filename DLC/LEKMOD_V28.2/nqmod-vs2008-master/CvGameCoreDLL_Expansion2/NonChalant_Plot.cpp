@@ -948,6 +948,29 @@ int CvPlot::getExtraYield
 					yieldChange += 1;
 			}
 
+			{// POLICY_CARD_ANCIENT_RESOURCES_IDOL_WORSHIPPERS_PASSIVE - 
+				const bool hasIdolWorshippersCard = player.HasPolicy(POLICY_CARD_ANCIENT_RESOURCES_IDOL_WORSHIPPERS_PASSIVE);
+				const bool isMine = plot.HasImprovement(IMPROVEMENT_MINE);
+				const bool isPasture = plot.HasImprovement(IMPROVEMENT_PASTURE);
+				const bool isGold = plot.HasResource(RESOURCE_GOLD);
+				const bool isSilver = plot.HasResource(RESOURCE_SILVER);
+				const bool isCow = plot.HasResource(RESOURCE_COW);
+				if (eYieldType == YIELD_FAITH && hasIdolWorshippersCard && (isMine || isPasture) && (isGold || isSilver || isCow))
+					yieldChange += 2;
+			}
+
+			{// POLICY_CARD_ANCIENT_RESOURCES_EASTERN_FIGURINES_PASSIVE - 
+				const bool hasFigurinesCard = player.HasPolicy(POLICY_CARD_ANCIENT_RESOURCES_EASTERN_FIGURINES_PASSIVE);
+				const bool isMine = plot.HasImprovement(IMPROVEMENT_MINE);
+				const bool isLumbermill = plot.HasImprovement(IMPROVEMENT_LUMBERMILL);
+				const bool isIvory = plot.HasResource(RESOURCE_IVORY);
+				const bool isAmber = plot.HasResource(RESOURCE_AMBER);
+				const bool isJade = plot.HasResource(RESOURCE_JADE);
+				const bool isHardwood = plot.HasResource(RESOURCE_HARDWOOD);
+				if (eYieldType == YIELD_CULTURE && hasFigurinesCard && (isMine || isLumbermill) && (isIvory || isAmber || isJade || isHardwood))
+					yieldChange += 1;
+			}
+
 		}
 	}
 
