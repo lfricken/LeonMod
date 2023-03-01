@@ -157,6 +157,9 @@ int CvPlayer::GetExtraBuildingsForClass(BuildingClassTypes eClass) const
 	const bool hasSolorazationCard = player.HasPolicy(POLICY_CARD_ANCIENT_BUILDINGS_SOLARIZATION_PASSIVE);
 	const bool hasHarpoonCard = player.HasPolicy(POLICY_CARD_ANCIENT_BUILDINGS_HARPOON_PASSIVE);
 	const bool hasHarrowCard = player.HasPolicy(POLICY_CARD_ANCIENT_BUILDINGS_HARROW_PASSIVE);
+	const bool hasBalanceScalesCard = player.HasPolicy(POLICY_CARD_CLASSICAL_BUILDINGS_BALANCE_SCALES_PASSIVE);
+	const bool hasMillstoneCard = player.HasPolicy(POLICY_CARD_CLASSICAL_BUILDINGS_MILLSTONE_PASSIVE);
+	const bool hasNationalTreasuryCard = player.HasPolicy(POLICY_CARD_CLASSICAL_BUILDINGS_NATIONAL_TREASURY_PASSIVE);
 	if (hasSnareCard && eClass == BuildingClassTypes(BUILDINGCLASS_HUNTERS_HAVEN))
 		total += 1;
 	if (hasSolorazationCard && eClass == BuildingClassTypes(BUILDINGCLASS_GRANARY))
@@ -164,6 +167,12 @@ int CvPlayer::GetExtraBuildingsForClass(BuildingClassTypes eClass) const
 	if (hasHarpoonCard && eClass == BuildingClassTypes(BUILDINGCLASS_FISHERY))
 		total += 1;
 	if (hasHarrowCard && eClass == BuildingClassTypes(BUILDINGCLASS_STABLE))
+		total += 1;
+	if (hasBalanceScalesCard && eClass == BuildingClassTypes(BUILDINGCLASS_GROCER))
+		total += 1;
+	if (hasMillstoneCard && eClass == BuildingClassTypes(BUILDINGCLASS_WATERMILL))
+		total += 1;
+	if (hasNationalTreasuryCard && eClass == BuildingClassTypes(BUILDINGCLASS_MINT))
 		total += 1;
 
 	return total;
