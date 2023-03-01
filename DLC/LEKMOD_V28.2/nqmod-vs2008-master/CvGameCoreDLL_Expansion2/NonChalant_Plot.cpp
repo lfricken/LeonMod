@@ -665,11 +665,20 @@ int CvPlot::getExtraYield
 					yieldChange += 4;
 			}
 
-			{// CARD_CLASSICAL_RESOURCE_LIMESTONE - +3 PD to Stone
+			{// CARD_CLASSICAL_RESOURCE_LIMESTONE - +2 PD to Stone
 				const bool hasLimtestoneCard = player.HasPolicy(POLICY_CARD_CLASSICAL_RESOURCE_LIMESTONE_PASSIVE);
 				const bool isStone = plot.HasResource(RESOURCE_STONE);
-				if (eYieldType == YIELD_PRODUCTION && hasLimtestoneCard && isStone)
-					yieldChange += 3;
+				const bool isQuarry = plot.HasImprovement(IMPROVEMENT_QUARRY);
+				if (eYieldType == YIELD_PRODUCTION && hasLimtestoneCard && isStone && isQuarry)
+					yieldChange += 2;
+			}
+
+			{// POLICY_CARD_CLASSICAL_RESOURCE_SYCTHE_PASSIVE - +2 FD to Wheat
+				const bool hasSycthe = player.HasPolicy(POLICY_CARD_CLASSICAL_RESOURCE_SYCTHE_PASSIVE);
+				const bool isWheat = plot.HasResource(RESOURCE_WHEAT);
+				const bool isFarm = plot.HasImprovement(IMPROVEMENT_FARM);
+				if (eYieldType == YIELD_FOOD && hasSycthe && isWheat && isFarm)
+					yieldChange += 2;
 			}
 
 			{// CARD_MEDIEVAL_RESOURCE_GILLNETS - +2 PD to Fish

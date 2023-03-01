@@ -89,12 +89,7 @@ bool TradingCard::IsConditionSatisfied(TradingCardTypes type, const CvPlayer* pP
 		int numPolicies = player.GetNumPoliciesTotal();
 		const bool satisfied = ((numHonorPolicies == 0) && (numPolicies >= 5));
 		return !(!satisfied);
-	}
-	case 156: // POLICY_CARD_CLASSICAL_RESOURCE_LIMESTONE_PASSIVE
-	{
-		int numStonePlotsOwned = player.CountOwnedPlots(StonePlots);
-		return !(numStonePlotsOwned < 3);
-	}
+	}	
 	case 186: // POLICY_CARD_CLASSICAL_BUILDINGS_CANNON_OF_TEN_PASSIVE
 	{
 		int numAmphitheaters = player.countNumBuildingClasses(BuildingClassTypes(19));
