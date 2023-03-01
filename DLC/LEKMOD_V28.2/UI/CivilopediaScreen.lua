@@ -263,6 +263,7 @@ CivilopediaCategory[CategoryGameConcepts].PopulateList = function()
 		HEADER_RELIGION = 23,
 		HEADER_TRADE = 24,
 		HEADER_WORLDCONGRESS = 25,
+		HEADER_RITES = 26,
 	}
 	
 	-- Create table.
