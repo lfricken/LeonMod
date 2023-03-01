@@ -122,6 +122,13 @@ bool TradingCard::IsConditionSatisfied(TradingCardTypes type, const CvPlayer* pP
 		int numAutocracyTenants = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(11));
 		return !((numFreedomTenants < 3) && (numOrderTenants < 3) && (numAutocracyTenants < 3));		
 	}
+	case 304: // POLICY_CARD_ANCIENT_POLITICAL_EXPANSIVE_ACTIVE
+	{
+		int numPolicies = player.GetNumPoliciesTotal();
+		int numTraditionPolicies = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(PolicyBranchTypes(POLICY_BRANCH_TRADITION));		
+		const bool satisfied = ((numTraditionPolicies == 0) && (numPolicies >= 5));
+		return !(!satisfied);
+	}
 
 
 

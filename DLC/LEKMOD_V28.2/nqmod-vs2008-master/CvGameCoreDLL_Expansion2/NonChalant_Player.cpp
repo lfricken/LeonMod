@@ -70,6 +70,9 @@ string CvPlayer::GetCityCapCurrent_WithSourcesTooltip(int* sum) const
 	{ // liberty finisher
 		appendNewLine(&ss, sum, "from adopting 4 policies in the Liberty branch", +1, player.HasPolicy(POLICY_LIBERTY_CLOSER_4));
 	}
+	{ // expansive card
+		appendNewLine(&ss, sum, "from the Expansive Rite", +1, player.HasPolicy(POLICY_CARD_ANCIENT_POLITICAL_EXPANSIVE_ACTIVE));
+	}
 	{ // colonialism +1
 		appendNewLine(&ss, sum, "from the Colonialism Policy", +1, player.HasPolicy(POLICY_MERCHANT_NAVY));
 	}	
@@ -92,35 +95,26 @@ int CvPlayer::GetExtraBuildingsForClass(BuildingClassTypes eClass) const
 	const CvPlayer& player = *this; 
 	int total = 0;
 	
-	// Landed Elite +1 Granary Supply
-	const bool hasLandedElite = player.HasPolicy(POLICY_LANDED_ELITE);	
-	if (hasLandedElite && eClass == BuildingClassTypes(32))
-		total += 1;
-
-	// Oligarchy +1 Hunters Haven Supply
+	// Policies that grant building supply
+	const bool hasLandedElite = player.HasPolicy(POLICY_LANDED_ELITE);
 	const bool hasOligachy = player.HasPolicy(POLICY_OLIGARCHY);
-	if (hasOligachy && eClass == BuildingClassTypes(254))
-		total += 1;
-
-	// Representation +1 Stable Supply
 	const bool hasRepresentation = player.HasPolicy(POLICY_REPRESENTATION);
-	if (hasRepresentation && eClass == BuildingClassTypes(2))
-		total += 1;
-
-	// Military Tradition +1 Stoneworks, Forge Supply
 	const bool hasMilitaryTradidion = player.HasPolicy(POLICY_MILITARY_TRADITION);
-	if (hasMilitaryTradidion && eClass == BuildingClassTypes(84))
+	if (hasLandedElite && eClass == BuildingClassTypes(BUILDINGCLASS_GRANARY))
+		total += 1;	
+	if (hasOligachy && eClass == BuildingClassTypes(BUILDINGCLASS_HUNTERS_HAVEN))
+		total += 1;	
+	if (hasRepresentation && eClass == BuildingClassTypes(BUILDINGCLASS_STABLE))
+		total += 1;	
+	if (hasMilitaryTradidion && eClass == BuildingClassTypes(BUILDINGCLASS_STONE_WORKS))
 		total += 1;
-	if (hasMilitaryTradidion && eClass == BuildingClassTypes(5))
+	if (hasMilitaryTradidion && eClass == BuildingClassTypes(BUILDINGCLASS_FORGE))
 		total += 1;
 
 	// Mausoleum +1 Stoneworks Supply
 	const bool hasMausoleum = player.HasWonder(BUILDINGCLASS_MAUSOLEUM_HALICARNASSUS);
 	if (hasMausoleum && eClass == BuildingClassTypes(BUILDINGCLASS_STONE_WORKS))
 		total += 1;
-
-
-
 
 	// All Unique Buildings that have a % Limit get +1 Supply
 	// All Civillizations Listed (if needed later)
@@ -155,6 +149,21 @@ int CvPlayer::GetExtraBuildingsForClass(BuildingClassTypes eClass) const
 	if (isInca && eClass == BuildingClassTypes(BUILDINGCLASS_STABLE))
 		total += 1;
 	if (isInca && eClass == BuildingClassTypes(BUILDINGCLASS_FACTORY))
+		total += 1;
+
+
+	// Cards that grant building supply
+	const bool hasSnareCard = player.HasPolicy(POLICY_CARD_ANCIENT_BUILDINGS_SNARE_PASSIVE);
+	const bool hasSolorazationCard = player.HasPolicy(POLICY_CARD_ANCIENT_BUILDINGS_SOLARIZATION_PASSIVE);
+	const bool hasHarpoonCard = player.HasPolicy(POLICY_CARD_ANCIENT_BUILDINGS_HARPOON_PASSIVE);
+	const bool hasHarrowCard = player.HasPolicy(POLICY_CARD_ANCIENT_BUILDINGS_HARROW_PASSIVE);
+	if (hasSnareCard && eClass == BuildingClassTypes(BUILDINGCLASS_HUNTERS_HAVEN))
+		total += 1;
+	if (hasSolorazationCard && eClass == BuildingClassTypes(BUILDINGCLASS_GRANARY))
+		total += 1;
+	if (hasHarpoonCard && eClass == BuildingClassTypes(BUILDINGCLASS_FISHERY))
+		total += 1;
+	if (hasHarrowCard && eClass == BuildingClassTypes(BUILDINGCLASS_STABLE))
 		total += 1;
 
 	return total;
