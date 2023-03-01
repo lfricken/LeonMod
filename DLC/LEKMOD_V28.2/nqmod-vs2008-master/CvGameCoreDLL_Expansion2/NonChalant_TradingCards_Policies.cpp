@@ -190,6 +190,10 @@ bool TradingCard::ShouldDeleteCard(TradingCardTypes type, const CvPlayer* pPlaye
 	{
 		return (playerEra >= informationEra);
 	}
+	case 316: // POLICY_CARD_MEDIEVAL_RESOURCE_JOUSTING_TOURNAMENTS_PASSIVE
+	{
+		return (playerEra >= industrialEra);
+	}
 
 
 

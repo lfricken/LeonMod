@@ -566,6 +566,12 @@ int CvPlayer::GetExtraYieldForBuilding
 		if (eYieldType == YIELD_MAINTENANCE && !isPercentMod && hasHarrowCard && isStable)
 			yieldChange -= 1;
 	}
+	{// POLICY_CARD_MEDIEVAL_BUILDINGS_RHINE_RIVER_DELTA_PASSIVE - 
+		const bool hasRhineCard = player.HasPolicy(POLICY_CARD_MEDIEVAL_BUILDINGS_RHINE_RIVER_DELTA_PASSIVE);
+		const bool isWindmill = eBuildingClass == BUILDINGCLASS_WINDMILL;
+		if (eYieldType == YIELD_MAINTENANCE && !isPercentMod && hasRhineCard && isWindmill)
+			yieldChange += 3;
+	}
 
 
 	return yieldChange;
