@@ -152,7 +152,7 @@ int CvPlayer::GetExtraBuildingsForClass(BuildingClassTypes eClass) const
 		total += 1;
 
 
-	// Cards that grant building supply
+	// Rites that grant building supply
 	const bool hasSnareCard = player.HasPolicy(POLICY_CARD_ANCIENT_BUILDINGS_SNARE_PASSIVE);
 	const bool hasSolorazationCard = player.HasPolicy(POLICY_CARD_ANCIENT_BUILDINGS_SOLARIZATION_PASSIVE);
 	const bool hasHarpoonCard = player.HasPolicy(POLICY_CARD_ANCIENT_BUILDINGS_HARPOON_PASSIVE);
@@ -160,6 +160,9 @@ int CvPlayer::GetExtraBuildingsForClass(BuildingClassTypes eClass) const
 	const bool hasBalanceScalesCard = player.HasPolicy(POLICY_CARD_CLASSICAL_BUILDINGS_BALANCE_SCALES_PASSIVE);
 	const bool hasMillstoneCard = player.HasPolicy(POLICY_CARD_CLASSICAL_BUILDINGS_MILLSTONE_PASSIVE);
 	const bool hasNationalTreasuryCard = player.HasPolicy(POLICY_CARD_CLASSICAL_BUILDINGS_NATIONAL_TREASURY_PASSIVE);
+	const bool hasFerrousMetallurgyCard = player.HasPolicy(POLICY_CARD_MEDIEVAL_BUILDINGS_FERROUS_METALLURGY_PASSIVE);
+	const bool hasMonasticBreweryCard = player.HasPolicy(POLICY_CARD_MEDIEVAL_BUILDINGS_MONASTIC_BREWERY_PASSIVE);
+	const bool hasRhineCard = player.HasPolicy(POLICY_CARD_MEDIEVAL_BUILDINGS_RHINE_RIVER_DELTA_PASSIVE);
 	if (hasSnareCard && eClass == BuildingClassTypes(BUILDINGCLASS_HUNTERS_HAVEN))
 		total += 1;
 	if (hasSolorazationCard && eClass == BuildingClassTypes(BUILDINGCLASS_GRANARY))
@@ -173,6 +176,12 @@ int CvPlayer::GetExtraBuildingsForClass(BuildingClassTypes eClass) const
 	if (hasMillstoneCard && eClass == BuildingClassTypes(BUILDINGCLASS_WATERMILL))
 		total += 1;
 	if (hasNationalTreasuryCard && eClass == BuildingClassTypes(BUILDINGCLASS_MINT))
+		total += 1;
+	if (hasFerrousMetallurgyCard && eClass == BuildingClassTypes(BUILDINGCLASS_FORGE))
+		total += 1;
+	if (hasMonasticBreweryCard && eClass == BuildingClassTypes(BUILDINGCLASS_BREWERY))
+		total += 1;
+	if (hasRhineCard && eClass == BuildingClassTypes(BUILDINGCLASS_WINDMILL))
 		total += 1;
 
 	return total;
