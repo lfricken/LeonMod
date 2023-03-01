@@ -21318,7 +21318,7 @@ void CvPlayer::getNumAllowed(BuildingClassTypes eIndex, int* have, int* allowed)
 	if (allowedPercent != -1)
 	{
 		// +99 round up
-		*allowed = GetExtraBuildingsForClass(eIndex) + (((getNumCities() * allowedPercent) + 50) / 100) + pkBuildingClassInfo->getExtraPlayerInstances();
+		*allowed = GetExtraBuildingsForClass(eIndex) + max(1,(((getNumCities() * allowedPercent) + 50) / 100)) + pkBuildingClassInfo->getExtraPlayerInstances();
 		*have = getBuildingClassCount(eIndex);
 	}
 }
