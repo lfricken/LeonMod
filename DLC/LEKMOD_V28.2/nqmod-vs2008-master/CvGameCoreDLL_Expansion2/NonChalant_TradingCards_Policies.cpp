@@ -92,8 +92,9 @@ bool TradingCard::IsConditionSatisfied(TradingCardTypes type, const CvPlayer* pP
 	}	
 	case 186: // POLICY_CARD_CLASSICAL_BUILDINGS_CANNON_OF_TEN_PASSIVE
 	{
-		int numAmphitheaters = player.countNumBuildingClasses(BuildingClassTypes(19));
-		return !(numAmphitheaters < 10);
+		int numCannonBuildings = player.countNumBuildingClasses(BuildingClassTypes(BUILDINGCLASS_AMPHITHEATER)) 
+			+ player.countNumBuildingClasses(BuildingClassTypes(BUILDINGCLASS_LIBRARY));
+		return !(numCannonBuildings < 10);
 	}
 	case 188: // POLICY_CARD_MEDIEVAL_BUILDINGS_FEALTY_ACTIVE
 	{
