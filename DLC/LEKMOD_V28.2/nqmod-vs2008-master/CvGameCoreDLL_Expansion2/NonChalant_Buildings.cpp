@@ -572,6 +572,29 @@ int CvPlayer::GetExtraYieldForBuilding
 		if (eYieldType == YIELD_MAINTENANCE && !isPercentMod && hasRhineCard && isWindmill)
 			yieldChange += 3;
 	}
+	{// POLICY_CARD_INDUSTRIAL_BUILDINGS_UNION_STOCKYARDS_PASSIVE - 
+		const bool hasUnionStockyarsCard = player.HasPolicy(POLICY_CARD_INDUSTRIAL_BUILDINGS_UNION_STOCKYARDS_PASSIVE);
+		const bool isStockyard = eBuildingClass == BUILDINGCLASS_STOCKYARDS;
+		if (eYieldType == YIELD_MAINTENANCE && !isPercentMod && hasUnionStockyarsCard && isStockyard)
+			yieldChange += 2;
+		if (eYieldType == YIELD_FOOD && !isPercentMod && hasUnionStockyarsCard && isStockyard)
+			yieldChange += 3;
+		if (eYieldType == YIELD_PRODUCTION && !isPercentMod && hasUnionStockyarsCard && isStockyard)
+			yieldChange += 3;
+	}
+
+	{// POLICY_CARD_INDUSTRIAL_BUILDINGS_DARTS_ELEVATOR_PASSIVE - 
+		const bool hasDartsElevatorCard = player.HasPolicy(POLICY_CARD_INDUSTRIAL_BUILDINGS_DARTS_ELEVATOR_PASSIVE);
+		const bool isGrainElevator = eBuildingClass == BUILDINGCLASS_GRAIN_ELEVATOR;
+		if (eYieldType == YIELD_MAINTENANCE && !isPercentMod && hasDartsElevatorCard && isGrainElevator)
+			yieldChange += 2;
+		if (eYieldType == YIELD_FOOD && !isPercentMod && hasDartsElevatorCard && isGrainElevator)
+			yieldChange += 3;
+		if (eYieldType == YIELD_PRODUCTION && !isPercentMod && hasDartsElevatorCard && isGrainElevator)
+			yieldChange += 3;
+	}
+
+
 
 
 	return yieldChange;

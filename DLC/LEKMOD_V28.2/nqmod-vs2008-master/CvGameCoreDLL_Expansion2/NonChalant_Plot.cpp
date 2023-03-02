@@ -982,6 +982,34 @@ int CvPlot::getExtraYield
 					yieldChange += 1;
 			}
 
+			{// POLICY_CARD_RENAISSANCE_RESOURCES_VIRGINIA_COMPANY_PASSIVE - 
+				const bool hasVirginiaCompanyCard = player.HasPolicy(POLICY_CARD_RENAISSANCE_RESOURCES_VIRGINIA_COMPANY_PASSIVE);
+				const bool isPlantation = plot.HasImprovement(IMPROVEMENT_PLANTATION);				
+				if (eYieldType == YIELD_PRODUCTION && hasVirginiaCompanyCard && isPlantation)
+					yieldChange += 1;
+				if (eYieldType == YIELD_GOLD && hasVirginiaCompanyCard && isPlantation)
+					yieldChange += 1;
+			}
+
+			{// POLICY_CARD_RENAISSANCE_RESOURCES_TARIFFS_PASSIVE - 
+				const bool hasTariffsCard = player.HasPolicy(POLICY_CARD_RENAISSANCE_RESOURCES_TARIFFS_PASSIVE);
+				const bool isCustoms = plot.HasImprovement(IMPROVEMENT_CUSTOMS_HOUSE);
+				if (eYieldType == YIELD_CULTURE && hasTariffsCard && isCustoms)
+					yieldChange += 4;
+				if (eYieldType == YIELD_GOLD && hasTariffsCard && isCustoms)
+					yieldChange += 4;
+			}
+
+			{// POLICY_CARD_INDUSTRIAL_RESOURCES_BUFFALO_BILL_CODY_PASSIVE - 
+				const bool hasBuffaloBillCard = player.HasPolicy(POLICY_CARD_INDUSTRIAL_RESOURCES_BUFFALO_BILL_CODY_PASSIVE);
+				const bool isBison = plot.HasResource(RESOURCE_BISON);
+				if (eYieldType == YIELD_CULTURE && hasBuffaloBillCard && isBison)
+					yieldChange += 1;
+				if (eYieldType == YIELD_PRODUCTION && hasBuffaloBillCard && isBison)
+					yieldChange += 2;
+			}
+			
+
 		}
 	}
 

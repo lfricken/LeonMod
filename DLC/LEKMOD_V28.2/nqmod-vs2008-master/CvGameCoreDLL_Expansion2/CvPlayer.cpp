@@ -7765,17 +7765,17 @@ void CvPlayer::found(int iX, int iY)
 	{
 		GC.getGame().onPlayerEnteredEra(GetID(), (EraTypes)GetCurrentEra());
 		// TODO HACK -- GIVE players EVERY CARD
-		if (true)
+		if (false)
 		{
-			// gives all cards past a certain policy number
-			for (int cardId = 297; cardId < GC.getNumPolicyInfos(); ++cardId)
+			// gives all cards past a certain policy number for testing
+			for (int cardId = 317; cardId < GC.getNumPolicyInfos(); ++cardId)
 			{
 				if (TradingCard::IsCard(cardId))
 					CardsAdd((TradingCardTypes)cardId);
 			}
 		}
 		{
-			// gives one specific card
+			// gives one specific card for testing
 			// 	{
 			//		CardsAdd((TradingCardTypes)289);
 			//	}

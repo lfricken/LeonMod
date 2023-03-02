@@ -92,20 +92,20 @@ string CvPlayer::GetCityCapCurrent_WithSourcesTooltip(int* sum) const
 
 int CvPlayer::GetExtraBuildingsForClass(BuildingClassTypes eClass) const
 {
-	const CvPlayer& player = *this; 
+	const CvPlayer& player = *this;
 	int total = 0;
-	
+
 	// Policies that grant building supply
 	const bool hasLandedElite = player.HasPolicy(POLICY_LANDED_ELITE);
 	const bool hasOligachy = player.HasPolicy(POLICY_OLIGARCHY);
 	const bool hasRepresentation = player.HasPolicy(POLICY_REPRESENTATION);
 	const bool hasMilitaryTradidion = player.HasPolicy(POLICY_MILITARY_TRADITION);
 	if (hasLandedElite && eClass == BuildingClassTypes(BUILDINGCLASS_GRANARY))
-		total += 1;	
+		total += 1;
 	if (hasOligachy && eClass == BuildingClassTypes(BUILDINGCLASS_HUNTERS_HAVEN))
-		total += 1;	
+		total += 1;
 	if (hasRepresentation && eClass == BuildingClassTypes(BUILDINGCLASS_STABLE))
-		total += 1;	
+		total += 1;
 	if (hasMilitaryTradidion && eClass == BuildingClassTypes(BUILDINGCLASS_STONE_WORKS))
 		total += 1;
 	if (hasMilitaryTradidion && eClass == BuildingClassTypes(BUILDINGCLASS_FORGE))
@@ -135,7 +135,7 @@ int CvPlayer::GetExtraBuildingsForClass(BuildingClassTypes eClass) const
 	const bool isZulu = player.IsCiv(CIVILIZATION_ZULU);
 	const bool isInca = player.IsCiv(CIVILIZATION_INCA);
 	const bool isIndia = player.IsCiv(CIVILIZATION_INDIA);
-	const bool isIndonesia = player.IsCiv(CIVILIZATION_INDONESIA);	
+	const bool isIndonesia = player.IsCiv(CIVILIZATION_INDONESIA);
 	if (isAztec && eClass == BuildingClassTypes(BUILDINGCLASS_WATERMILL))
 		total += 1;
 	if (isAztec && eClass == BuildingClassTypes(BUILDINGCLASS_WINDMILL))
@@ -163,6 +163,11 @@ int CvPlayer::GetExtraBuildingsForClass(BuildingClassTypes eClass) const
 	const bool hasFerrousMetallurgyCard = player.HasPolicy(POLICY_CARD_MEDIEVAL_BUILDINGS_FERROUS_METALLURGY_PASSIVE);
 	const bool hasMonasticBreweryCard = player.HasPolicy(POLICY_CARD_MEDIEVAL_BUILDINGS_MONASTIC_BREWERY_PASSIVE);
 	const bool hasRhineCard = player.HasPolicy(POLICY_CARD_MEDIEVAL_BUILDINGS_RHINE_RIVER_DELTA_PASSIVE);
+	const bool hasUnionStockyarsCard = player.HasPolicy(POLICY_CARD_INDUSTRIAL_BUILDINGS_UNION_STOCKYARDS_PASSIVE);
+	const bool hasDartsElevatorCard = player.HasPolicy(POLICY_CARD_INDUSTRIAL_BUILDINGS_DARTS_ELEVATOR_PASSIVE);
+	const bool hasKeroseneCard = player.HasPolicy(POLICY_CARD_INDUSTRIAL_BUILDINGS_KEROSENE_PASSIVE);
+	const bool hasHooverDamCard = player.HasPolicy(POLICY_CARD_INDUSTRIAL_BUILDINGS_HOOVER_DAM_PASSIVE);
+	const bool hasBuffaloBillCard = player.HasPolicy(POLICY_CARD_INDUSTRIAL_RESOURCES_BUFFALO_BILL_CODY_PASSIVE);
 	if (hasSnareCard && eClass == BuildingClassTypes(BUILDINGCLASS_HUNTERS_HAVEN))
 		total += 1;
 	if (hasSolorazationCard && eClass == BuildingClassTypes(BUILDINGCLASS_GRANARY))
@@ -182,6 +187,16 @@ int CvPlayer::GetExtraBuildingsForClass(BuildingClassTypes eClass) const
 	if (hasMonasticBreweryCard && eClass == BuildingClassTypes(BUILDINGCLASS_BREWERY))
 		total += 1;
 	if (hasRhineCard && eClass == BuildingClassTypes(BUILDINGCLASS_WINDMILL))
+		total += 1;
+	if (hasUnionStockyarsCard && eClass == BuildingClassTypes(BUILDINGCLASS_STOCKYARDS))
+		total += 1;
+	if (hasDartsElevatorCard && eClass == BuildingClassTypes(BUILDINGCLASS_GRAIN_ELEVATOR))
+		total += 1;
+	if (hasKeroseneCard && eClass == BuildingClassTypes(BUILDINGCLASS_REFINERY))
+		total += 1;
+	if (hasHooverDamCard && eClass == BuildingClassTypes(BUILDINGCLASS_HYDRO_PLANT))
+		total += 1;
+	if (hasBuffaloBillCard && eClass == BuildingClassTypes(BUILDINGCLASS_TEXTILE))
 		total += 1;
 
 	return total;
