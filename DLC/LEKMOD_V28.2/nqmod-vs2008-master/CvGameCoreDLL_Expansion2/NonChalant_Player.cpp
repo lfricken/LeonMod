@@ -168,6 +168,9 @@ int CvPlayer::GetExtraBuildingsForClass(BuildingClassTypes eClass) const
 	const bool hasKeroseneCard = player.HasPolicy(POLICY_CARD_INDUSTRIAL_BUILDINGS_KEROSENE_PASSIVE);
 	const bool hasHooverDamCard = player.HasPolicy(POLICY_CARD_INDUSTRIAL_BUILDINGS_HOOVER_DAM_PASSIVE);
 	const bool hasBuffaloBillCard = player.HasPolicy(POLICY_CARD_INDUSTRIAL_RESOURCES_BUFFALO_BILL_CODY_PASSIVE);
+	const bool hasLenigradCard = player.HasPolicy(POLICY_CARD_ATOMIC_BUILDINGS_LENINGRAD_FTI_PASSIVE);
+	const bool hasAluminumCansCard = player.HasPolicy(POLICY_CARD_ATOMIC_BUILDINGS_ALUMINUM_CANS_PASSIVE);
+	const bool hasCleanAirActCard = player.HasPolicy(POLICY_CARD_ATOMIC_BUILDINGS_CLEAN_AIR_ACT_PASSIVE);
 	if (hasSnareCard && eClass == BuildingClassTypes(BUILDINGCLASS_HUNTERS_HAVEN))
 		total += 1;
 	if (hasSolorazationCard && eClass == BuildingClassTypes(BUILDINGCLASS_GRANARY))
@@ -197,6 +200,12 @@ int CvPlayer::GetExtraBuildingsForClass(BuildingClassTypes eClass) const
 	if (hasHooverDamCard && eClass == BuildingClassTypes(BUILDINGCLASS_HYDRO_PLANT))
 		total += 1;
 	if (hasBuffaloBillCard && eClass == BuildingClassTypes(BUILDINGCLASS_TEXTILE))
+		total += 1;
+	if (hasLenigradCard && eClass == BuildingClassTypes(BUILDINGCLASS_NUCLEAR_PLANT))
+		total += 1;
+	if (hasAluminumCansCard && eClass == BuildingClassTypes(BUILDINGCLASS_RECYCLING_CENTER))
+		total += 1;
+	if (hasCleanAirActCard && eClass == BuildingClassTypes(BUILDINGCLASS_SOLAR_PLANT))
 		total += 1;
 
 	return total;

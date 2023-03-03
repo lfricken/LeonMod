@@ -1008,6 +1008,31 @@ int CvPlot::getExtraYield
 				if (eYieldType == YIELD_PRODUCTION && hasBuffaloBillCard && isBison)
 					yieldChange += 2;
 			}
+
+			{// POLICY_CARD_ATOMIC_BUILDINGS_SUPERMARKETS_PASSIVE - 
+				const bool hasSupermarketsCard = player.HasPolicy(POLICY_CARD_ATOMIC_BUILDINGS_SUPERMARKETS_PASSIVE);
+				const bool isBanana = plot.HasResource(RESOURCE_BANANA);
+				const bool isCitris = plot.HasResource(RESOURCE_CITRUS);
+				if (eYieldType == YIELD_FOOD && hasSupermarketsCard && (isBanana || isCitris))
+					yieldChange += 3;
+			}
+
+			{// POLICY_CARD_ATOMIC_RESOURCES_RESEARCH_INSTITUTE_PASSIVE - 
+				const bool hasResearchInstituteCard = player.HasPolicy(POLICY_CARD_ATOMIC_RESOURCES_RESEARCH_INSTITUTE_PASSIVE);
+				const bool isAcademy = plot.HasImprovement(IMPROVEMENT_ACADEMY);
+				if (eYieldType == YIELD_SCIENTIFIC_INSIGHT && hasResearchInstituteCard && isAcademy)
+					yieldChange += 2;
+			}
+
+			{// POLICY_CARD_ATOMIC_RESOURCES_EPA_PASSIVE - 
+				const bool hasEpaCard = player.HasPolicy(POLICY_CARD_ATOMIC_RESOURCES_EPA_PASSIVE);
+				const bool isJungle = plot.HasFeature(FEATURE_JUNGLE);
+				const bool isHardwood = plot.HasResource(RESOURCE_HARDWOOD);
+				if (eYieldType == YIELD_SCIENTIFIC_INSIGHT && hasEpaCard && isJungle)
+					yieldChange += 1;
+				if (eYieldType == YIELD_TOURISM && hasEpaCard && isHardwood)
+					yieldChange += 2;
+			}
 			
 
 		}

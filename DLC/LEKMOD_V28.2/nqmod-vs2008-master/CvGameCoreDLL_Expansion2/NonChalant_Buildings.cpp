@@ -594,8 +594,13 @@ int CvPlayer::GetExtraYieldForBuilding
 			yieldChange += 3;
 	}
 
-
-
+	{// POLICY_CARD_ATOMIC_BUILDINGS_CLEAN_AIR_ACT_PASSIVE - 
+		const bool hasCleanAirActCard = player.HasPolicy(POLICY_CARD_ATOMIC_BUILDINGS_CLEAN_AIR_ACT_PASSIVE);
+		const bool isSolarPlant = eBuildingClass == BUILDINGCLASS_SOLAR_PLANT;
+		if (eYieldType == YIELD_DIPLOMATIC_SUPPORT && !isPercentMod && hasCleanAirActCard && isSolarPlant)
+			yieldChange += 3;
+	}
+		
 
 	return yieldChange;
 }
@@ -831,6 +836,18 @@ BuildingAddType CvPlayer::ShouldHaveBuilding(const CvPlayer& rPlayer, const CvCi
 		{
 			const bool hasExploration5 = rPlayer.HasPolicy(POLICY_EXPLORATION_CLOSER_5);
 			if (hasExploration5 && isYourCapital)
+				return ADD;
+			else
+				return REMOVE;
+		}
+	}
+
+	{// POLICY_CARD_ATOMIC_BUILDINGS_POLIO_VACCINE_ACTIVE free in Capital
+		const bool isPolioVaccineBuilding = eBuildingClass == BUILDINGCLASS_CARD_ATOMIC_BUILDINGS_POLIO_VACCINE;
+		if (isPolioVaccineBuilding)
+		{
+			const bool hasPolioVaccineCard = rPlayer.HasPolicy(POLICY_CARD_ATOMIC_BUILDINGS_POLIO_VACCINE_ACTIVE);
+			if (hasPolioVaccineCard && isYourCapital)
 				return ADD;
 			else
 				return REMOVE;
