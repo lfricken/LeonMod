@@ -161,8 +161,7 @@ int CvPlayer::GetExtraBuildingsForClass(BuildingClassTypes eClass) const
 	const bool hasMillstoneCard = player.HasPolicy(POLICY_CARD_CLASSICAL_BUILDINGS_MILLSTONE_PASSIVE);
 	const bool hasNationalTreasuryCard = player.HasPolicy(POLICY_CARD_CLASSICAL_BUILDINGS_NATIONAL_TREASURY_PASSIVE);
 	const bool hasFerrousMetallurgyCard = player.HasPolicy(POLICY_CARD_MEDIEVAL_BUILDINGS_FERROUS_METALLURGY_PASSIVE);
-	const bool hasMonasticBreweryCard = player.HasPolicy(POLICY_CARD_MEDIEVAL_BUILDINGS_MONASTIC_BREWERY_PASSIVE);
-	const bool hasRhineCard = player.HasPolicy(POLICY_CARD_MEDIEVAL_BUILDINGS_RHINE_RIVER_DELTA_PASSIVE);
+	const bool hasMonasticBreweryCard = player.HasPolicy(POLICY_CARD_MEDIEVAL_BUILDINGS_MONASTIC_BREWERY_PASSIVE);	
 	const bool hasUnionStockyarsCard = player.HasPolicy(POLICY_CARD_INDUSTRIAL_BUILDINGS_UNION_STOCKYARDS_PASSIVE);
 	const bool hasDartsElevatorCard = player.HasPolicy(POLICY_CARD_INDUSTRIAL_BUILDINGS_DARTS_ELEVATOR_PASSIVE);
 	const bool hasKeroseneCard = player.HasPolicy(POLICY_CARD_INDUSTRIAL_BUILDINGS_KEROSENE_PASSIVE);
@@ -188,9 +187,7 @@ int CvPlayer::GetExtraBuildingsForClass(BuildingClassTypes eClass) const
 	if (hasFerrousMetallurgyCard && eClass == BuildingClassTypes(BUILDINGCLASS_FORGE))
 		total += 1;
 	if (hasMonasticBreweryCard && eClass == BuildingClassTypes(BUILDINGCLASS_BREWERY))
-		total += 1;
-	if (hasRhineCard && eClass == BuildingClassTypes(BUILDINGCLASS_WINDMILL))
-		total += 1;
+		total += 1;	
 	if (hasUnionStockyarsCard && eClass == BuildingClassTypes(BUILDINGCLASS_STOCKYARDS))
 		total += 1;
 	if (hasDartsElevatorCard && eClass == BuildingClassTypes(BUILDINGCLASS_GRAIN_ELEVATOR))
