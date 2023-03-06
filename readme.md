@@ -34,8 +34,10 @@ Did it work?:
 * Install the Visual C++ Edition of [Visual Studio 2008](http://download.microsoft.com/download/E/8/E/E8EEB394-7F42-4963-A2D8-29559B738298/VS2008ExpressWithSP1ENUX1504728.iso)
 * Install [Visual Studio 2008 Service Pack 1](https://www.microsoft.com/en-us/download/details.aspx?id=13276)
 * Install [Visual Studio 2010](https://web.archive.org/web/20140227220734/download.microsoft.com/download/1/E/5/1E5F1C0A-0D5B-426A-A603-1798B951DDAE/VS2010Express1.iso) [(mirror)](https://debian.fmi.uni-sofia.bg/~aangelov/VS2010Express1.iso)
-* Install [Service Pack 1 for Visual Studio 2010](https://drive.google.com/file/d/1NevJ0AiNFEDXKDm5FjZn1wzvvvOINF64/view?usp=sharing)
+* Install [Service Pack 1 for Visual Studio 2010](https://my.visualstudio.com/Downloads?q=visual%20studio%202010%20service%20pack%201)
 * Install the [Latest Community Version of Visual Studio](https://visualstudio.microsoft.com/) The only workload you need is "Desktop development with C++".
+
+Ripped from [How to Compile the Vox Populi DLL](https://forums.civfanatics.com/threads/how-to-compile-the-vox-populi-dll.665916/) on forums.civfanatics.com by ASCII Guy.
 
 ## Not Needed Downloads:
 * [Old Microsoft Downloads](https://my.visualstudio.com/Downloads?q=visual%20studio%202010&wt.mc_id=o~msft~vscom~older-downloads)
@@ -62,7 +64,7 @@ Did it work?:
 
 
 
-
+## Compile Issues:
 
 
 
