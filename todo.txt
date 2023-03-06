@@ -1,4 +1,5 @@
 
+more plains at spawn
 one AI trade per turn
 ai charge more for cards (they value their cards 2x more than yours)
 reduce barbarians spawns and readd your custom barb logic

@@ -1079,12 +1079,15 @@ void tryMove(CvUnit * pLoopUnit)
 		for (int i = 0; !didMove && i < (int)plots.size(); ++i)
 		{
 			CvPlot* plot = plots[i];
-			const bool shouldMoveTowards = shouldMoveToward(pLoopUnit, plot);
-			if (shouldMoveTowards)
+			if (plot != NULL)
 			{
-				unitPlot = pLoopUnit->plot();
-				doMove(pLoopUnit, isRangeAttack, plot->getX(), plot->getY());
-				didMove = unitPlot != pLoopUnit->plot();
+				const bool shouldMoveTowards = shouldMoveToward(pLoopUnit, plot);
+				if (shouldMoveTowards)
+				{
+					unitPlot = pLoopUnit->plot();
+					doMove(pLoopUnit, isRangeAttack, plot->getX(), plot->getY());
+					didMove = unitPlot != pLoopUnit->plot();
+				}
 			}
 		}
 	}

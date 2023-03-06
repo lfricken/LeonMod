@@ -3731,8 +3731,12 @@ vector<CvPlot*> CvPlot::GetAdjacentPlots(int radius)
 		// loop around the ring
 		for (int i = 0; i < perimeterLen; ++i) // start at 0 so we start at an edge turn!
 		{
-			if (GC.getMap().plotCheckInvalid(x, y))
-				plots.push_back(GC.getMap().plot(x, y));
+			if (GC.getMap().isPlot(x, y))
+			{
+				CvPlot* plot = GC.getMap().plot(x, y);
+				if (plot != NULL)
+					plots.push_back(plot);
+			}
 
 			// need to change direction, as we have reached end of this edge
 			if (i % edgeLen == 0)
