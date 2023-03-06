@@ -46,7 +46,7 @@ public:
 	static string GetActivePolicyDesc(TradingCardTypes type);
 	static string GetPassivePolicyDesc(TradingCardTypes type);
 	// Used by the AI to estimate how much value a card type has
-	static int GetEstimatedValue(TradingCardTypes type);
+	static int GetEstimatedValue(bool bFromMe, TradingCardTypes type);
 	static bool IsConditionSatisfied(TradingCardTypes type, const CvPlayer* player, bool isActive);
 	// return true if we should delete every card of this type in this players inventory
 	static bool ShouldDeleteCard(TradingCardTypes type, const CvPlayer* player);

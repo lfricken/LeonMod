@@ -184,14 +184,16 @@ PolicyTypes TradingCard::GetPassivePolicy(TradingCardTypes type)
 	}
 	return NO_POLICY;
 }
-int TradingCard::GetEstimatedValue(TradingCardTypes type)
+int TradingCard::GetEstimatedValue(bool bFromMe, TradingCardTypes type)
 {
 	const bool should_AI_Accept_Any_Deal = false; // switch to true so AI will not value cards and trade no matter what
 	if (should_AI_Accept_Any_Deal)
 		return 1;
 
 	const int era = Era(type);
-	const int estimatedValue = 40 * era + 80; // y = mx + b
+	int estimatedValue = 40 * era + 80; // y = mx + b
+	estimatedValue *= bFromMe ? 200 : 100; // a card from us is worth 2x as much
+	estimatedValue /= 100;
 	return estimatedValue;
 }
 FDataStream& operator <<(FDataStream& kStream, const TradingCardTypes& data)
