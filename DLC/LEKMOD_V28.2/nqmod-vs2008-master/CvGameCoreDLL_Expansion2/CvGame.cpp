@@ -11035,25 +11035,54 @@ void CvGame::onPlayerEnteredEra(PlayerTypes, EraTypes eEra)
 			}
 		}
 
-		// make sure we hand out enough cards
-		std::vector<CardsOfGenre>& genres = eras[eEra];
-		const int minCards = 3;		
-		const int numHandoutsNeeded = GC.ceilDiv(minCards, (int)genres.size());
-		for (int i = 0; i < numHandoutsNeeded; ++i)
-		{
-			// to each player
-			for (int i = 0; i < MAX_CIV_PLAYERS; i++)
-			{
-				const PlayerTypes eLoop = (PlayerTypes)i;
 
-				CvPlayer& rPlayer = GET_PLAYER(eLoop);
-				if (rPlayer.CardsCanHave())
+		// AI
+		// give just a single card to each AI
+		{
+			std::vector<CardsOfGenre>& genres = eras[eEra];
+			for (int h = 0; h < 1; ++h)
+			{
+				for (int p = 0; p < MAX_CIV_PLAYERS; p++)
 				{
-					// hand 1 card of each genre
-					for (int genre = 0; genre < (int)genres.size(); ++genre)
+					const PlayerTypes eLoop = (PlayerTypes)p;
+
+					CvPlayer& rPlayer = GET_PLAYER(eLoop);
+					if (!rPlayer.isHuman() && rPlayer.CardsCanHave())
 					{
-						TradingCardTypes randomEraCardId = genres[genre].getNext();
-						rPlayer.CardsAdd(randomEraCardId);
+						// hand 1 card of each genre
+						for (int genre = 0; genre < (int)genres.size(); ++genre)
+						{
+							TradingCardTypes randomEraCardId = genres[genre].getNext();
+							rPlayer.CardsAdd(randomEraCardId); // give cards for era
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		// HUMANS
+		// make sure we hand out enough cards
+		{
+			std::vector<CardsOfGenre>& genres = eras[eEra];
+			const int minCards = 3;
+			const int numHandoutsNeeded = GC.ceilDiv(minCards, (int)genres.size());
+			for (int h = 0; h < numHandoutsNeeded; ++h)
+			{
+				// to each player
+				for (int p = 0; p < MAX_CIV_PLAYERS; p++)
+				{
+					const PlayerTypes eLoop = (PlayerTypes)p;
+
+					CvPlayer& rPlayer = GET_PLAYER(eLoop);
+					if (rPlayer.isHuman() && rPlayer.CardsCanHave())
+					{
+						// hand 1 card of each genre
+						for (int genre = 0; genre < (int)genres.size(); ++genre)
+						{
+							TradingCardTypes randomEraCardId = genres[genre].getNext();
+							rPlayer.CardsAdd(randomEraCardId); // give cards for era
+						}
 					}
 				}
 			}
