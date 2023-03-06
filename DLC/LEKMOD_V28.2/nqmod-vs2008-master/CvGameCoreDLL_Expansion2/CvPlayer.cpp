@@ -7774,12 +7774,6 @@ void CvPlayer::found(int iX, int iY)
 			// 		CardsAdd((TradingCardTypes)cardId);
 			// }
 		}
-		{
-			// gives one specific card for testing
-			 	{
-					CardsAdd((TradingCardTypes)314);
-				}
-		}
 	}
 	
 
