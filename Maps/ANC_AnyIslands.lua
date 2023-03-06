@@ -68,7 +68,7 @@ end
 function GenerateMap()
 	print("GenerateMap Begin");
 
-	Map.RandSeed(9999); -- helps see changes by guaranteeing the same map gets generated
+	--Map.RandSeed(9999); -- helps see changes by guaranteeing the same map gets generated
 
 	args = ANC_CreateArgs();
 
