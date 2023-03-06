@@ -99,6 +99,8 @@ public:
 	virtual void Write(FDataStream& kStream) const;
 
 protected:
+	// controls how barbarian units behave
+	void DoTurnMoves_Barbarian();
 
 	static CvPlayerAI* m_aPlayers;
 

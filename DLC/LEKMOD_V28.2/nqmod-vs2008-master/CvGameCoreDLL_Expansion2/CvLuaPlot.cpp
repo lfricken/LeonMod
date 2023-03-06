@@ -1437,7 +1437,7 @@ int CvLuaPlot::lGetYieldWithBuild(lua_State* L)
 //int countNumAirUnits(TeamTypes ePlayer);
 int CvLuaPlot::lCountNumAirUnits(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlot::countNumAirUnits);
+	return BasicLuaMethod(L, &CvPlot::countNumNonCargoAirUnits);
 }
 //------------------------------------------------------------------------------
 //int getFoundValue(PlayerTypes eIndex);

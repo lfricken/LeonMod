@@ -227,7 +227,7 @@ public:
 	// Cargo/transport methods (units inside other units)
 	bool canLoadUnit(const CvUnit& pUnit, const CvPlot& pPlot) const;
 	void loadUnit(CvUnit& pUnit);
-	bool canLoad(const CvPlot& pPlot) const;
+	bool canPlotUnitLoadThisUnit(const CvPlot& pPlot) const;
 	void load();
 	bool shouldLoadOnMove(const CvPlot* pPlot) const;
 	bool canUnload() const;
@@ -306,6 +306,7 @@ public:
 	// true if this is a nuclear bomb of some sort
 	bool IsNuclearWeapon() const;
 	bool isNukeVictim(const CvPlot* pPlot, TeamTypes eTeam) const;
+	// use canNukeAt instead
 	bool canNuke(const CvPlot* pPlot) const;
 	bool canNukeAt(const CvPlot* pPlot, int iX, int iY) const;
 
@@ -746,11 +747,14 @@ public:
 	int getGameTurnCreated() const;
 	void setGameTurnCreated(int iNewValue);
 
+	int getHealthPercent() const;
 	int getDamage() const;
 	int setDamage(int iNewValue, PlayerTypes ePlayer = NO_PLAYER, decimal fAdditionalTextDelay = 0, const CvString* pAppendText = NULL);
 	int changeDamage(int iChange, PlayerTypes ePlayer = NO_PLAYER, decimal fAdditionalTextDelay = 0, const CvString* pAppendText = NULL);
 	static void ShowDamageDeltaText(int iDelta, CvPlot* pkPlot, decimal fAdditionalTextDelay = 0, const CvString* pAppendText = NULL);
 
+	// how many plots could this unit move?
+	int getMovesPlots() const;
 	// moves are multiplied by GC.getMOVE_DENOMINATOR, so 2 moves actually returns as 120 (probably)
 	int getMoves() const;
 	// moves are multiplied by GC.getMOVE_DENOMINATOR, so 2 moves actually returns as 120 (probably)

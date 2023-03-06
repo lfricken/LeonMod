@@ -152,6 +152,26 @@ inline int plotDistance(int iX1, int iY1, int iX2, int iY2)
 #endif
 	}
 }
+// make sure direction is mod NUM_DIRECTION_TYPES
+inline void nextXy(int iX, int iY, DirectionTypes eDirection, int* x, int* y)
+{
+	if (eDirection == NO_DIRECTION)
+	{
+		*x = iX;
+		*y = iY;
+	}
+	else
+	{
+		iX = xToHexspaceX(iX, iY);
+		iX += GC.getPlotDirectionX()[eDirection];
+		iY += GC.getPlotDirectionY()[eDirection];
+
+		// convert from hex-space coordinates to the storage array
+		iX = hexspaceXToX(iX, iY);
+		*x = iX % GC.getMap().getGridWidth();
+		*y = iY;
+	}
+}
 //
 //// 3 | 3 | 3 | 3 | 3 | 3 | 3
 //// -------------------------
@@ -170,25 +190,11 @@ inline int plotDistance(int iX1, int iY1, int iX2, int iY2)
 //// Returns the distance between plots according to the pattern above...
 //
 //// not anymore - we are using hexes now
-//
 inline CvPlot* plotDirection(int iX, int iY, DirectionTypes eDirection)
 {
-	if(eDirection == NO_DIRECTION)
-	{
-		return GC.getMap().plot(iX, iY);
-	}
-	else
-	{
-		// convert to hex-space coordinates - the coordinate system axes are E and NE (not orthogonal)
-		iX = xToHexspaceX(iX , iY);
-		iX += GC.getPlotDirectionX()[eDirection];
-		iY += GC.getPlotDirectionY()[eDirection];
-
-		// convert from hex-space coordinates to the storage array
-		iX = hexspaceXToX(iX, iY);
-
-		return GC.getMap().plot(iX, iY);
-	}
+	int x, y;
+	nextXy(iX, iY, eDirection, &x, &y);
+	return GC.getMap().plot(x, y);
 }
 
 inline CvPlot* plotXY(int iX, int iY, int iDX, int iDY)

@@ -22,11 +22,32 @@ ai cannot spread religion to humans
 do NOT allow promotion saving
 
 
+verify map edges work with barbarians
 
-spawn variation
+std::sort > stable_sort
+figure out why ai is being dumb with settlers
+when a city is damaged, it has -25% on gold, food, production
+	make sure barbarians attack cities
+
+
+policy start % odds
+	guaranteed - diplo influence for killing barbarians
+
+can you build lighthouse/water stuff when not coastal city? (should be yes)
+turn 15 cards, not on found
+kendall unit limit
+
+diplomacy STRATEGIC RESOURCES US text glitched
+add diplomacy overview entry for your player
+Map/game settings - auto check the good ones, see the default button
+
+antiquity card needs to only be activatable after they are revealed?
+do hidden antiquity sites still work at all?
+
 
 deal history screen is busted?
 do combat strength calculation tooltip serverside
+
 policy start % odds to shake up early game
 
 plot:SetImprovementType(2);
@@ -36,6 +57,10 @@ substantial trade route bonus if connected via roads
 road 1/gold, railroad 1/2 gold (hard because shit programming)
 india has bonuses to cattle, production got reduced (visual glitch where improvement) (hard to fix, need to do generify calculations)
 reorder game options - auto check the good ones, see the default button
+
+
+auto delete obsolete cards
+
 
 
 
@@ -81,6 +106,8 @@ Map
 	DO
 	get rid of grid point logic
 	extract things to functions
+	balance sea bonus resources
+	balance sea luxuries
 	map gen would join function
 	map gen script fill variable
 	map gen script snake variable

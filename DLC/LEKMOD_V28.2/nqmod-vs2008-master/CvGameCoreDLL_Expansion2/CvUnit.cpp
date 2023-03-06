@@ -2518,7 +2518,7 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, byte bMoveFlags) const
 				{
 					if(DOMAIN_SEA != eDomain || enterPlot.getTeam() != eTeam)   // sea units can enter impassable in own cultural borders
 					{
-						if(!canLoad(enterPlot))
+						if(!canPlotUnitLoadThisUnit(enterPlot))
 						{
 							return false;
 						}
@@ -2538,7 +2538,7 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, byte bMoveFlags) const
 				{
 					if(DOMAIN_SEA != eDomain || enterPlot.getTeam() != eTeam)   // sea units can enter impassable in own cultural borders
 					{
-						if(!canLoad(enterPlot))
+						if(!canPlotUnitLoadThisUnit(enterPlot))
 						{
 							return false;
 						}
@@ -2636,7 +2636,7 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, byte bMoveFlags) const
 							return false;
 						}
 					}
-					else if(!isHuman() || (plot() && plot()->isWater()) || !canLoad(enterPlot))
+					else if(!isHuman() || (plot() && plot()->isWater()) || !canPlotUnitLoadThisUnit(enterPlot))
 					{
 						return false;
 					}
@@ -4433,7 +4433,7 @@ bool CvUnit::shouldLoadOnMove(const CvPlot* pPlot) const
 
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canLoad(const CvPlot& targetPlot) const
+bool CvUnit::canPlotUnitLoadThisUnit(const CvPlot& targetPlot) const
 {
 	VALIDATE_OBJECT
 	if(NO_SPECIALUNIT != getSpecialUnitType())
@@ -4484,6 +4484,10 @@ bool CvUnit::canLoad(const CvPlot& targetPlot) const
 		}
 	}
 
+
+
+
+
 	return false;
 }
 
@@ -4499,8 +4503,9 @@ void CvUnit::load()
 
 	pPlot = plot();
 
-	if(!pPlot || !canLoad(*pPlot))
+	if(!pPlot || !canPlotUnitLoadThisUnit(*pPlot))
 	{
+		CvAssert(false);
 		return;
 	}
 
@@ -7253,7 +7258,7 @@ bool CvUnit::canRebaseAt(const CvPlot* pPlot, int iX, int iY) const
 	}
 
 	// Can't load to the target plot
-	if(!canLoad(*pToPlot))
+	if(!canPlotUnitLoadThisUnit(*pToPlot))
 	{
 		return false;
 	}
@@ -7293,7 +7298,7 @@ bool CvUnit::canRebaseAt(const CvPlot* pPlot, int iX, int iY) const
 			}
 		}
 
-		int iUnitsThere = pToPlot->countNumAirUnits(getTeam());
+		int iUnitsThere = pToPlot->countNumNonCargoAirUnits(getTeam());
 		if (iUnitsThere >= pToPlot->getPlotCity()->GetMaxAirUnits())
 		{
 			return false;
@@ -15858,6 +15863,11 @@ int CvUnit::getDamage() const
 	VALIDATE_OBJECT
 	return m_iDamage;
 }
+int CvUnit::getHealthPercent() const
+{
+	VALIDATE_OBJECT
+	return 100 * (GC.getMAX_HIT_POINTS() - getDamage()) / GC.getMAX_HIT_POINTS();
+}
 
 
 //	--------------------------------------------------------------------------------
@@ -16032,7 +16042,11 @@ int CvUnit::changeDamage(int iChange, PlayerTypes ePlayer, decimal fAdditionalTe
 #endif
 }
 
-
+int CvUnit::getMovesPlots() const
+{
+	int numPlots = (getMoves() + (GC.getMOVE_DENOMINATOR() - 1)) / GC.getMOVE_DENOMINATOR(); // rounds up
+	return numPlots;
+}
 // moves are multiplied by GC.getMOVE_DENOMINATOR, so 2 moves actually returns as 120 (probably)
 int CvUnit::getMoves() const
 {

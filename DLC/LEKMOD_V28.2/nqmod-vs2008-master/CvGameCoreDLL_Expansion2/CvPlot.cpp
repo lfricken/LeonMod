@@ -3518,34 +3518,16 @@ int CvPlot::GetAircraftCapacity() const
 		const CvCity* city = getPlotCity();
 		if (city)
 			maxAircraft += city->GetMaxAirUnits();
-
-		// units
-		const vector<const CvUnit*> units = getAllUnitsConst();
-		for (int i = 0; i < (int)units.size(); ++i)
-		{
-			const CvUnit* unit = units[i];
-			if (unit)
-				maxAircraft += unit->cargoSpace();
-		}
 	}
 	return maxAircraft;
 }
 
 bool CvPlot::CanHoldThisAircraft(const CvUnit* aircraft) const
 {
-	//const CvCity* city = this->getPlotCity();
-	//if (city)
-	//{
-	//	city->GetMaxAirUnits() > city->getair;
-	//}
-	//else // check for improvement
-
-	//const PlayerTypes originalOwner = pToPlot->GetPlayerThatBuiltImprovement();
-
 	const int maxAircraft = GetAircraftCapacity();
 
 	{ // CHECK CAPACITY
-		const int currentAircraft = countNumAirUnits(NO_TEAM);
+		const int currentAircraft = countNumNonCargoAirUnits(NO_TEAM);
 		const bool alreadyHasThisUnit = aircraft->plot() == this;
 		if (!alreadyHasThisUnit) // make sure it can hold one more
 		{
@@ -3711,7 +3693,57 @@ vector<CvUnit*> CvPlot::GetAdjacentEnemyMilitaryUnits(const TeamTypes eMyTeam, c
 
 	return result;
 }
+// all the 6 plots adjacent to this plot, will filter out plots outside bounds
+// in order, from inner plots to outer plots, returns the combination of those plots
+vector<CvPlot*> CvPlot::GetAdjacentPlotsRadiusRange(int radiusStartInclusive, int radiusEndInclusive)
+{
+	vector<CvPlot*> plots;
+	for (int radius = radiusStartInclusive; radius <= radiusEndInclusive; ++radius)
+	{
+		vector<CvPlot*> ring = GetAdjacentPlots(radius);
+		plots.insert(plots.end(), ring.begin(), ring.end());
+	}
+	return plots;
+}
+// the 6 plots adjacent to this plot, will filter out plots outside bounds, in order
+// or the radius, where 1 is the first ring, 0 is this plot, 2 is ring 2 etc.
+vector<CvPlot*> CvPlot::GetAdjacentPlots(int radius)
+{
+	vector<CvPlot*> plots;
+	if (radius <= 0)
+	{
+		plots.push_back(this);
+	}
+	if (radius > 0)
+	{
+		int x = getX();
+		int y = getY();
+		const int perimeterLen = 6 * radius;
+		const int edgeLen = radius;
 
+		// move to edge of ring
+		DirectionTypes direction = (DirectionTypes)0;
+		for (int r = 0; r < radius; ++r)
+		{
+			nextXy(x, y, direction, &x, &y);
+		}
+		direction = (DirectionTypes)(direction + 1); // 1 / 6rd turn, but we will start the loop at an edge!
+		// loop around the ring
+		for (int i = 0; i < perimeterLen; ++i) // start at 0 so we start at an edge turn!
+		{
+			if (GC.getMap().plotCheckInvalid(x, y))
+				plots.push_back(GC.getMap().plot(x, y));
+
+			// need to change direction, as we have reached end of this edge
+			if (i % edgeLen == 0)
+			{
+				direction = (DirectionTypes)((direction + 1) % NUM_DIRECTION_TYPES); // 1 / 6rd turn
+			}
+			nextXy(x, y, direction, &x, &y);
+		}
+	}
+	return plots;
+}
 //	--------------------------------------------------------------------------------
 int CvPlot::getExtraMovePathCost() const
 {
@@ -4585,7 +4617,7 @@ bool CvPlot::isVisibleEnemyUnit(PlayerTypes ePlayer) const
 }
 
 //	-----------------------------------------------------------------------------------------------
-bool CvPlot::isVisibleEnemyUnit(const CvUnit* pUnit) const
+bool CvPlot::isVisibleEnemyUnit(const CvUnit* pUnit, bool skipDead) const
 {
 	CvAssertMsg(pUnit, "Source unit must be valid");
 	const IDInfo* pUnitNode = m_units.head();
@@ -4605,6 +4637,9 @@ bool CvPlot::isVisibleEnemyUnit(const CvUnit* pUnit) const
 			if(pLoopUnit && !pLoopUnit->isInvisible(eTeam, false))
 #endif
 			{
+				bool doesNotCountBecauseDead = skipDead && pLoopUnit->IsDead();
+				if (doesNotCountBecauseDead)
+					continue;
 				if(isEnemy(pLoopUnit, eTeam, bAlwaysHostile))
 				{
 					return true;
@@ -4992,7 +5027,7 @@ bool CvPlot::isValidDomainForLocation(const CvUnit& unit) const
 		return true;
 	}
 
-	if (unit.getDomainType() == DOMAIN_AIR && unit.canLoad(*this))
+	if (unit.getDomainType() == DOMAIN_AIR && unit.canPlotUnitLoadThisUnit(*this))
 	{
 		return true;
 	}
@@ -5020,8 +5055,10 @@ bool CvPlot::isValidDomain(const DomainTypes eDomain, const PlayerTypes ePlayer)
 
 	return false;
 }
-
-//	--------------------------------------------------------------------------------
+int CvPlot::distanceTo(const CvPlot* otherPlot) const
+{
+	return plotDistance(getX(), getY(), otherPlot->getX(), otherPlot->getY());
+}
 bool CvPlot::isValidDomainForAction(const CvUnit& unit) const
 {
 	const DomainTypes eDomain = unit.getDomainType();
@@ -11664,7 +11701,7 @@ bool CvPlot::canTrain(UnitTypes eUnit, bool, bool) const
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlot::countNumAirUnits(TeamTypes eTeam) const
+int CvPlot::countNumNonCargoAirUnits(TeamTypes eTeam) const
 {
 	int iCount = 0;
 
@@ -11677,8 +11714,8 @@ int CvPlot::countNumAirUnits(TeamTypes eTeam) const
 		{
 			const bool isAirUnit = DOMAIN_AIR == pLoopUnit->getDomainType();
 			const bool isRelevantTeam = pLoopUnit->getTeam() == eTeam || NO_TEAM == eTeam;
-			const bool isWithinOtherUnit = !pLoopUnit->isCargo();
-			if (isAirUnit && isRelevantTeam && isWithinOtherUnit)
+			const bool isWithinOtherUnit = pLoopUnit->isCargo();
+			if (isAirUnit && isRelevantTeam && !isWithinOtherUnit)
 			{
 				iCount += pLoopUnit->getUnitInfo().GetAirUnitCap();
 			}

@@ -3794,6 +3794,9 @@ bool CvTeam::isAtWar(TeamTypes eIndex) const
 {
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
+	if (eIndex == BARBARIAN_TEAM && m_eID != BARBARIAN_TEAM)
+		return true; // barbarians are at war with everyone EXCEPT THEMSELVES
+
 	return m_abAtWar[eIndex];
 }
 

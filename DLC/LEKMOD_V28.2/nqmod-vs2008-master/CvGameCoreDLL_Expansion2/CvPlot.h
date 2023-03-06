@@ -324,7 +324,7 @@ public:
 	int getNumVisibleEnemyDefenders(const CvUnit* pUnit) const;
 	int getNumVisiblePotentialEnemyDefenders(const CvUnit* pUnit) const;
 	bool isVisibleEnemyUnit(PlayerTypes ePlayer) const;
-	bool isVisibleEnemyUnit(const CvUnit* pUnit) const;
+	bool isVisibleEnemyUnit(const CvUnit* pUnit, bool skipDead = true) const;
 	bool isVisibleOtherUnit(PlayerTypes ePlayer) const;
 
 	bool IsActualEnemyUnit(PlayerTypes ePlayer, bool bCombatUnitsOnly = true) const;
@@ -347,9 +347,10 @@ public:
 	bool IsTradeRoute(PlayerTypes ePlayer = NO_PLAYER) const;
 
 	bool isValidDomainForLocation(const CvUnit& unit) const;
+	// true if the unit could move here
 	bool isValidDomainForAction(const CvUnit& unit) const;
 	bool isValidDomain(const DomainTypes eDomain, const PlayerTypes ePlayer) const;
-
+	int distanceTo(const CvPlot* otherPlot) const;
 
 	inline int getX() const
 	{
@@ -452,7 +453,7 @@ public:
 	{
 		return (PlotTypes)m_ePlotType == PLOT_OCEAN;
 	};
-	// true if land units could consider this a water tile for passage
+	// true if sea units could consider this a water tile for passage
 	// could be a city, so you can't necessarily stop on it
 	bool CanBeUsedAsWater(const PlayerTypes ePlayer) const
 	{
@@ -461,12 +462,13 @@ public:
 	// true if land units could consider this a land tile
 	bool CanBeUsedAsLand() const
 	{
-		return !isWater() || IsAllowsWalkWater();
+		return (!isWater() || IsAllowsWalkWater()) && !isMountain();
 	};
 	bool isHills()          const
 	{
 		return (PlotTypes)m_ePlotType == PLOT_HILLS;
 	};
+	// flat ground (not hills or mountains)
 	bool isOpenGround()     const
 	{
 		if((PlotTypes)m_ePlotType == PLOT_HILLS || (PlotTypes)m_ePlotType == PLOT_MOUNTAIN || m_bRoughFeature) return false;
@@ -513,7 +515,10 @@ public:
 		// if true, will only consider military units, if false, will only consider civilian (strength == 0)
 		const bool militaryUnit, const bool bCheckVisibility, const bool bIgnoreBarbs, const bool ignoreEmbarked = false) const;
 	vector<CvUnit*> GetAdjacentEnemyMilitaryUnits(const TeamTypes eMyTeam, const DomainTypes eDomain = NO_DOMAIN, const bool ignoreBarbs = false) const;
+	
 
+	vector<CvPlot*> GetAdjacentPlotsRadiusRange(int radiusStartInclusive, int radiusEndInclusive);
+	vector<CvPlot*> GetAdjacentPlots(int range = 1);
 	bool isRoughGround() const
 	{
 		if(isHills())
@@ -655,7 +660,7 @@ public:
 
 	int getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUpgrade, PlayerTypes ePlayer) const;
 
-	int countNumAirUnits(TeamTypes eTeam) const;
+	int countNumNonCargoAirUnits(TeamTypes eTeam) const;
 
 	int getFoundValue(PlayerTypes eIndex);
 	bool isBestAdjacentFound(PlayerTypes eIndex);

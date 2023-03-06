@@ -1159,7 +1159,7 @@ static bool SortThemingBonus(const CvGreatWorkBuildingInMyEmpire& kEntry1, const
 /// Overall routine that orchestrates all the maneuvering of Great Works between buildings and players for one AI turn
 void CvPlayerCulture::MoveWorks (GreatWorkSlotType eType, vector<CvGreatWorkBuildingInMyEmpire> &buildings, vector<CvGreatWorkInMyEmpire> &works1, vector<CvGreatWorkInMyEmpire> &works2)
 {
-	std::sort (buildings.begin(), buildings.end(), SortThemingBonus);
+	std::stable_sort (buildings.begin(), buildings.end(), SortThemingBonus);
 
 	// First building that are not endangered
 	vector<CvGreatWorkBuildingInMyEmpire>::iterator itBuilding;

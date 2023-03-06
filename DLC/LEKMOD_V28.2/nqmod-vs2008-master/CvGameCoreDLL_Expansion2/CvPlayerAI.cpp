@@ -257,17 +257,22 @@ void CvPlayerAI::AI_unitUpdate()
 	}
 	else
 	{
-		// Update tactical AI
-		GetTacticalAI()->CommandeerUnits();
-
-		// Now let the tactical AI run.  Putting it after the operations update allows units who have
-		// just been handed off to the tactical AI to get a move in the same turn they switch between
-		// AI subsystems
-		GetTacticalAI()->Update();
-
-		// Skip homeland AI processing if a barbarian
-		if(m_eID != BARBARIAN_PLAYER)
+		if (m_eID == BARBARIAN_PLAYER)
 		{
+			DoTurnMoves_Barbarian();
+		}
+		else
+		{
+			// Update tactical AI
+			GetTacticalAI()->CommandeerUnits();
+
+			// Now let the tactical AI run.  Putting it after the operations update allows units who have
+			// just been handed off to the tactical AI to get a move in the same turn they switch between
+			// AI subsystems
+			GetTacticalAI()->Update();
+
+			// Skip homeland AI processing if a barbarian
+			
 			// Now its the homeland AI's turn.
 			GetHomelandAI()->RecruitUnits();
 			GetHomelandAI()->Update();

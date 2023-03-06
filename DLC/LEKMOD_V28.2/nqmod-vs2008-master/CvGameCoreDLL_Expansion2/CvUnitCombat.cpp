@@ -2832,7 +2832,10 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(uint uiParentEventID, const CvCom
 				const int dist = hexDistance(pkCity->plot()->getX() - pkTargetPlot->getX(), pkCity->plot()->getY() - pkTargetPlot->getY());
 				const int popToRemove = getNukePopulationDamage(pkCity, dist);
 				const int damage = kEntry.GetFinalDamage();
-				const bool willDestroy = damage >= pkCity->GetMaxHitPoints() && !pkCity->IsOriginalCapital();
+
+				// dont allow killing cities with nukes, it can lead to crashes if a nuke blows itself up, also imba
+				// if you want to destroy cities, make sure to remove the attacker from the city first!
+				const bool willDestroy = false; // damage >= pkCity->GetMaxHitPoints() && !pkCity->IsOriginalCapital();
 
 				{ // message all players about city nuke
 					string message;
@@ -2862,15 +2865,16 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(uint uiParentEventID, const CvCom
 
 				if(willDestroy)
 				{
-					auto_ptr<ICvCity1> pkDllCity(new CvDllCity(pkCity));
-					gDLL->GameplayCitySetDamage(pkDllCity.get(), 0, pkCity->getDamage()); // to stop the fires
-					gDLL->GameplayCityDestroyed(pkDllCity.get(), NO_PLAYER);
+					// this is not safe, if the nuke destroyed its parent city, this causes a crash
+					//auto_ptr<ICvCity1> pkDllCity(new CvDllCity(pkCity));
+					//gDLL->GameplayCitySetDamage(pkDllCity.get(), 0, pkCity->getDamage()); // to stop the fires
+					//gDLL->GameplayCityDestroyed(pkDllCity.get(), NO_PLAYER);
 
-					const PlayerTypes eOldOwner = pkCity->getOwner();
-					pkCity->kill();
+					//const PlayerTypes eOldOwner = pkCity->getOwner();
+					//pkCity->kill();
 
-					if (pkAttacker)
-						GET_PLAYER(pkAttacker->getOwner()).CheckForMurder(eOldOwner);
+					//if (pkAttacker)
+					//	GET_PLAYER(pkAttacker->getOwner()).CheckForMurder(eOldOwner);
 				}
 				else
 				{
@@ -2962,38 +2966,12 @@ void CvUnitCombat::GenerateNuclearExplosionDamage(CvPlot* pkTargetPlot, int iDam
 
 				if(pLoopCity != NULL)
 				{
-					bool bKillCity = false;
+					// Add damage to the city
+					int netDamage = getNukeCityHitpointDamage(pLoopCity, dist);
+					int iTotalDamage = netDamage + pLoopCity->getDamage();
 
-					// Is the city wiped out? - no capitals!
-					if(!pLoopCity->IsOriginalCapital())
-					{
-						if(iDamageLevel > 2)
-						{
-							bKillCity = true;
-						}
-						else if(iDamageLevel > 1)
-						{
-							if(pLoopCity->getPopulation() < /*5*/ GC.getNUKE_LEVEL2_ELIM_POPULATION_THRESHOLD())
-							{
-								bKillCity = true;
-							}
-						}
-					}
-
-					int iTotalDamage;
-					if(bKillCity)
-					{
-						iTotalDamage = pLoopCity->GetMaxHitPoints();
-					}
-					else
-					{
-						// Add damage to the city
-						int netDamage = getNukeCityHitpointDamage(pLoopCity, dist);
-						iTotalDamage = netDamage + pLoopCity->getDamage();
-
-						// Can't bring a city below 1 HP
-						iTotalDamage = min(iTotalDamage, pLoopCity->GetMaxHitPoints() - 1);
-					}
+					// Can't bring a city below 1 HP
+					iTotalDamage = min(iTotalDamage, pLoopCity->GetMaxHitPoints() - 1);
 
 					CvCombatMemberEntry* pkDamageEntry = AddCombatMember(pkDamageArray, piDamageMembers, iMaxDamageMembers, pLoopCity);
 					if(pkDamageEntry)
@@ -3483,7 +3461,8 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackRanged(CvUnit& kAttacker, int iX
 
 		CvCombatInfo kCombatInfo;
 		CvUnitCombat::GenerateRangedCombatInfo(kAttacker, pDefender, *pPlot, &kCombatInfo);
-		CvAssertMsg(!kAttacker.isDelayedDeath() && !pDefender->isDelayedDeath(), "Trying to battle and one of the units is already dead!");
+		if (pDefender != NULL)
+			CvAssertMsg(!kAttacker.isDelayedDeath() && !pDefender->isDelayedDeath(), "Trying to battle and one of the units is already dead!");
 
 		uint uiParentEventID = 0;
 		if(!bDoImmediate)

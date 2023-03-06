@@ -65,8 +65,7 @@ bool CvCitySiteEvaluator::CanFound(const CvPlot* pPlot, const CvPlayer* pPlayer,
 	int iRange(0), iDX(0), iDY(0);
 
 	// Used to have a Python hook: CANNOT_FOUND_CITY_CALLBACK
-
-	if(GC.getGame().isFinalInitialized())
+	if (pPlayer != NULL)
 	{
 		if (pPlayer != NULL)
 		{
