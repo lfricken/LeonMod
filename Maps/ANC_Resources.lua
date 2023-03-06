@@ -308,15 +308,15 @@ function recordResourceInfo(this)
 		return data;
 	end
 	this.getRandBonus = function(self)
-		local sum = #self.bonusPolar + #self.bonusTropical + #self.bonusWater;
+		local sum = #self.bonusPolar + #self.bonusTropical;-- + #self.bonusWater;
 		local rand = 1 + Map.Rand(sum, "rand lux");
 		local data;
 		if (rand <= #self.bonusPolar) then
 			data = self.bonusPolar[rand];
-		elseif (rand <= #self.bonusPolar + #self.bonusTropical) then
+		else--if (rand <= #self.bonusPolar + #self.bonusTropical) then
 			data = self.bonusTropical[rand - #self.bonusPolar];
-		else
-			data = self.bonusWater[rand - #self.bonusPolar - #self.bonusTropical];
+		--else
+			--data = self.bonusWater[rand - #self.bonusPolar - #self.bonusTropical];
 		end
 		return data;
 	end
