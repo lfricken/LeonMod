@@ -1,8 +1,12 @@
 
-map:
-glitch with goodies appearing in lakes, 
-half strategics
-iron and horses 
+one AI trade per turn
+ai charge more for cards (they value their cards 2x more than yours)
+reduce barbarians spawns and readd your custom barb logic
+fix melee boats cant attack past half move
+glitch with goodies appearing in lakes
+correctly round up strategic benefit calculation
+
+glitch with goodies appearing in lakes
 
 ancient era
 online
