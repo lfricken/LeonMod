@@ -305,6 +305,10 @@ void CvBarbarians::Write(FDataStream & kStream)
 //	--------------------------------------------------------------------------------
 void CvBarbarians::DoCamps()
 {
+	if (!CanBarbariansSpawn())
+	{
+		return;
+	}
 	CvGame& kGame = GC.getGame();
 
 	if (kGame.isOption(GAMEOPTION_NO_BARBARIANS))
