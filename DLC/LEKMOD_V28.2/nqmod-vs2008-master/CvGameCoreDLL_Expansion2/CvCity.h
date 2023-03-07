@@ -763,10 +763,6 @@ public:
 	int getStrengthValueT100(bool bForRangeStrike = false) const;
 	int GetPower() const;
 
-	int getDamage() const;
-	void setDamage(int iValue, bool noMessage=false);
-	void changeDamage(int iChange);
-
 	bool isMadeAttack() const;
 	void setMadeAttack(bool bNewValue);
 
@@ -813,6 +809,29 @@ public:
 	// End plot acquisition
 
 	bool isValidBuildingLocation(BuildingTypes eIndex) const;
+
+
+	// returns +20 to give a -20% modifier to all city yields
+	int getInfrastructureDamagePenalty() const;
+	// true if this city has infrastructure damage, and will suffer a penalty
+	bool getIsInfrastructureDamage() const;
+	// Before modifiers, how much max health should this city have
+	int getMaxHitPointsBase() const;
+	// Extra max hit points from things like buildings
+	int GetExtraHitPoints() const;
+	// total max hit points this city has
+	int GetMaxHitPoints() const;
+	// how much damage does this city have
+	int getDamage() const;
+	// current hit points remaining on this city
+	int getHitPointsCurrent() const;
+	// modify the extra max hit points
+	void ChangeExtraHitPoints(int iValue);
+	// set the amount of damage this city has
+	void setDamage(int iValue, bool noMessage = false);
+	// apply delta to damage of this city
+	void changeDamage(int iChange);
+
 
 	void SetThreatValue(int iThreatValue);
 	int getThreatValue() const;
@@ -892,10 +911,7 @@ public:
 	const char* GetCityBombardEffectTag() const;
 	uint GetCityBombardEffectTagHash() const;
 
-	int GetExtraHitPoints() const;
-	void ChangeExtraHitPoints(int iValue);
 
-	int GetMaxHitPoints() const;
 	const FAutoArchive& getSyncArchive() const;
 	FAutoArchive& getSyncArchive();
 	std::string debugDump(const FAutoVariableBase&) const;

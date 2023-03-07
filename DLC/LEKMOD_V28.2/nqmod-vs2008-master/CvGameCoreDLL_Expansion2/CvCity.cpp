@@ -7944,6 +7944,14 @@ int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
 	{
 		int iTotalMod = 100;
 
+		if (getIsInfrastructureDamage())
+		{
+			int iTempMod = -getInfrastructureDamagePenalty();
+			iTotalMod += iTempMod;
+			if (toolTipSink)
+				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_INFRASTRUCTURE_DAMAGE_MOD", iTempMod);
+		}
+
 		// Capital Mod for player. Used for Policies and such
 		if(isCapital())
 		{
@@ -9064,11 +9072,12 @@ int CvCity::GetFaithPerTurn() const
 
 	int iFaith = GetFaithPerTurnFromBuildings();
 	iFaith += GetBaseYieldRateFromTerrain(YIELD_FAITH);
+	iFaith += getSpecialistYieldCached(YIELD_FAITH);
+	iFaith += GetBaseYieldRateFromGreatWorks(YIELD_FAITH);
+
 	iFaith += GetFaithPerTurnFromPolicies();
 	iFaith += GetFaithPerTurnFromTraits();
 	iFaith += GetFaithPerTurnFromReligion();
-	iFaith += getSpecialistYieldCached(YIELD_FAITH);
-	iFaith += GetBaseYieldRateFromGreatWorks(YIELD_FAITH);
 
 	// Puppet?
 	int iModifier = 0;
@@ -10875,6 +10884,18 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 	int iModifier = 0;
 	int iTempMod;
 
+	// every type suffers from infrastructure damage
+	if (eIndex != YIELD_FOOD) // but food needs to do special calculation because citizens consume food
+	{
+		if (getIsInfrastructureDamage())
+		{
+			iTempMod = -getInfrastructureDamagePenalty();
+			iModifier += iTempMod;
+			if (toolTipSink)
+				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_INFRASTRUCTURE_DAMAGE_MOD", iTempMod);
+		}
+	}
+
 	// Yield Rate Modifier
 	iTempMod = getYieldRateModifier(eIndex);
 	iModifier += iTempMod;
@@ -12228,70 +12249,6 @@ int CvCity::GetPower() const
 	VALIDATE_OBJECT
 	return 8 * getStrengthValueT100() / 100; // This is the same math used to calculate Unit Power in CvUnitEntry
 }
-
-
-//	--------------------------------------------------------------------------------
-int CvCity::getDamage() const
-{
-	VALIDATE_OBJECT
-	return m_iDamage;
-}
-
-//	--------------------------------------------------------------------------------
-void CvCity::setDamage(int iValue, bool noMessage)
-{
-	VALIDATE_OBJECT
-
-	stringstream s;
-	s << "CvCity:setDamage " << m_eOwner << " " << iValue << " " << GetMaxHitPoints();
-	GC.debugState(s); // CvCity::setDamage
-
-	if(iValue < 0)
-		iValue = 0;
-	else if(iValue > GetMaxHitPoints())
-		iValue = GetMaxHitPoints();
-
-	if(iValue != getDamage())
-	{
-		int iOldValue = getDamage();
-		auto_ptr<ICvCity1> pDllCity(new CvDllCity(this));
-		gDLL->GameplayCitySetDamage(pDllCity.get(), iValue, iOldValue);
-
-		// send the popup text if the player can see this plot
-		if(!noMessage && plot()->GetActiveFogOfWarMode() == FOGOFWARMODE_OFF)
-		{
-			char text[256] = {};
-			text[0] = NULL;
-			int iNewValue = MIN(GetMaxHitPoints(),iValue);
-			int iDiff = iOldValue - iNewValue;
-			int delayT100 = 0;
-			if(iNewValue < iOldValue)
-			{
-				sprintf_s(text, "[COLOR_GREEN]+%d[ENDCOLOR]", iDiff);
-				delayT100 = GC.getPOST_COMBAT_TEXT_DELAYT100() * 2;
-			}
-			else
-			{
-				sprintf_s(text, "[COLOR_RED]%d[ENDCOLOR]", iDiff);
-			}
-
-			DLLUI->AddPopupText(m_iX, m_iY, text, delayT100 / f100);
-		}
-		m_iDamage = iValue;
-		DLLUI->setDirty(CityInfo_DIRTY_BIT, true);
-	}
-}
-
-//	--------------------------------------------------------------------------------
-void CvCity::changeDamage(int iChange)
-{
-	VALIDATE_OBJECT
-	if(0 != iChange)
-	{
-		setDamage(getDamage() + iChange);
-	}
-}
-
 //	--------------------------------------------------------------------------------
 /// Can a specific plot be bought for the city
 bool CvCity::CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost) const
@@ -13501,6 +13458,124 @@ void CvCity::DoUpdateCheapestPlotInfluence()
 
 	SetCheapestPlotInfluence(iLowestCost);
 }
+//	--------------------------------------------------------------------------------
+int CvCity::getMaxHitPointsBase() const
+{
+	int total = GC.getMAX_CITY_HIT_POINTS();
+
+	// give AI some extra city hitpoints cents they dumm
+	// but do not assume it is a bonus!
+	if (!this->isHuman())
+	{
+		total += GC.getMAX_CITY_HIT_POINTS_AI_BONUS();
+	}
+	// minor civs 2x change
+	if (GET_PLAYER(this->getOwner()).isMinorCiv())
+	{
+		total += GC.getMAX_CITY_HIT_POINTS_AI_BONUS();
+	}
+	return total;
+}
+//	--------------------------------------------------------------------------------
+bool CvCity::getIsInfrastructureDamage() const
+{
+	const int threshold = getMaxHitPointsBase();
+	const int currentHitPoints = getHitPointsCurrent();
+
+	return currentHitPoints < threshold;
+}
+//	--------------------------------------------------------------------------------
+int CvCity::GetMaxHitPoints() const
+{
+	const int total = getMaxHitPointsBase() + GetExtraHitPoints();
+	return max(1, total);
+}
+//	--------------------------------------------------------------------------------
+int CvCity::GetExtraHitPoints() const
+{
+	return m_iExtraHitPoints;
+}
+//	--------------------------------------------------------------------------------
+void CvCity::ChangeExtraHitPoints(int iValue)
+{
+	if (iValue != 0)
+	{
+		m_iExtraHitPoints += iValue;
+		FAssertMsg(m_iExtraHitPoints >= 0, "Trying to set ExtraHitPoints to a negative value");
+		if (m_iExtraHitPoints < 0)
+			m_iExtraHitPoints = 0;
+
+		int iCurrentDamage = getDamage();
+		if (iCurrentDamage > GetMaxHitPoints())
+			setDamage(iCurrentDamage);		// Call setDamage, it will clamp the value.
+	}
+}
+//	--------------------------------------------------------------------------------
+int CvCity::getDamage() const
+{
+	VALIDATE_OBJECT
+		return m_iDamage;
+}
+//	--------------------------------------------------------------------------------
+void CvCity::setDamage(int iValue, bool noMessage)
+{
+	VALIDATE_OBJECT
+
+		stringstream s;
+	s << "CvCity:setDamage " << m_eOwner << " " << iValue << " " << GetMaxHitPoints();
+	GC.debugState(s); // CvCity::setDamage
+
+	if (iValue < 0)
+		iValue = 0;
+	else if (iValue > GetMaxHitPoints())
+		iValue = GetMaxHitPoints();
+
+	if (iValue != getDamage())
+	{
+		int iOldValue = getDamage();
+		auto_ptr<ICvCity1> pDllCity(new CvDllCity(this));
+		gDLL->GameplayCitySetDamage(pDllCity.get(), iValue, iOldValue);
+
+		// send the popup text if the player can see this plot
+		if (!noMessage && plot()->GetActiveFogOfWarMode() == FOGOFWARMODE_OFF)
+		{
+			char text[256] = {};
+			text[0] = NULL;
+			int iNewValue = MIN(GetMaxHitPoints(), iValue);
+			int iDiff = iOldValue - iNewValue;
+			int delayT100 = 0;
+			if (iNewValue < iOldValue)
+			{
+				sprintf_s(text, "[COLOR_GREEN]+%d[ENDCOLOR]", iDiff);
+				delayT100 = GC.getPOST_COMBAT_TEXT_DELAYT100() * 2;
+			}
+			else
+			{
+				sprintf_s(text, "[COLOR_RED]%d[ENDCOLOR]", iDiff);
+			}
+
+			DLLUI->AddPopupText(m_iX, m_iY, text, delayT100 / f100);
+		}
+		m_iDamage = iValue;
+		DLLUI->setDirty(CityInfo_DIRTY_BIT, true);
+	}
+}
+//	--------------------------------------------------------------------------------
+void CvCity::changeDamage(int iChange)
+{
+	VALIDATE_OBJECT
+		if (0 != iChange)
+		{
+			setDamage(getDamage() + iChange);
+		}
+}
+//	--------------------------------------------------------------------------------
+int CvCity::getHitPointsCurrent() const
+{
+	return GetMaxHitPoints() - getDamage();
+}
+
+
 
 //	--------------------------------------------------------------------------------
 /// Setting the danger value threat amount
@@ -17716,49 +17791,6 @@ uint CvCity::GetCityBombardEffectTagHash() const
 	EraTypes eCityEra = GET_TEAM(getTeam()).GetCurrentEra();
 
 	return GC.getEraInfo(eCityEra)->GetCityBombardEffectTagHash();
-}
-
-
-//	---------------------------------------------------------------------------
-int CvCity::GetMaxHitPoints() const
-{
-	int total = GC.getMAX_CITY_HIT_POINTS() + GetExtraHitPoints();
-
-	// give AI some extra city hitpoints cents they dumm
-	// but do not assume it is a bonus!
-	if (!this->isHuman())
-	{
-		total += GC.getMAX_CITY_HIT_POINTS_AI_BONUS();
-	}
-	// minor civs 2x change
-	if (GET_PLAYER(this->getOwner()).isMinorCiv())
-	{
-		total += GC.getMAX_CITY_HIT_POINTS_AI_BONUS();
-	}
-
-	return max(1, total);
-}
-
-//	--------------------------------------------------------------------------------
-int CvCity::GetExtraHitPoints() const
-{
-	return m_iExtraHitPoints;
-}
-
-//	--------------------------------------------------------------------------------
-void CvCity::ChangeExtraHitPoints(int iValue)
-{
-	if (iValue != 0)
-	{
-		m_iExtraHitPoints += iValue;
-		FAssertMsg(m_iExtraHitPoints >= 0, "Trying to set ExtraHitPoints to a negative value");
-		if (m_iExtraHitPoints < 0)
-			m_iExtraHitPoints = 0;
-
-		int iCurrentDamage = getDamage();
-		if (iCurrentDamage > GetMaxHitPoints())
-			setDamage(iCurrentDamage);		// Call setDamage, it will clamp the value.
-	}
 }
 
 //	--------------------------------------------------------------------------------

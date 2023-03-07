@@ -1,46 +1,55 @@
 
-more plains at spawn
-one AI trade per turn
-ai charge more for cards (they value their cards 2x more than yours)
-reduce barbarians spawns and readd your custom barb logic
+glitches:
+	my walls wouldn't build in that one city last game
+	barbarian spawned on top of my units on turn 33?
+	rome not getting 1 culture per specialist
+	pantheon +2 trade route text update
+
 fix melee boats cant attack past half move
+cities -20% all if below max default health
+one AI trade per turn
+double cost and output of cultural influence buildings
+you can still steal workers from city states, just make the penalty higher
+more mixed plains and grassland
 glitch with goodies appearing in lakes
 correctly round up strategic benefit calculation
-
-glitch with goodies appearing in lakes
-
-ancient era
-online
-simulatneious
-
-private game
-all players found religions
-allow policy saving
-fast combat
-fast movement
-random player activation order
-ai cannot spread religion to humans
-do NOT allow promotion saving
+ignore interface scaling options
+policy start % odds to shake up early game
 
 
-verify map edges work with barbarians
 
-std::sort > stable_sort
-figure out why ai is being dumb with settlers
-when a city is damaged, it has -25% on gold, food, production
-	make sure barbarians attack cities
+
+Coast 2fd
+Ocean 1fd 1pd
+Mountain 1fd 2 gold
+Snow 2pd
+Snow with forest 1fd 2pd
+Ice 1f 1sc
+
+
+Map/game settings - auto check the good ones, see the default button
+	ancient era
+	online
+	simulatneious
+	private game
+	all players found religions
+	allow policy saving
+	fast combat
+	fast movement
+	random player activation order
+	ai cannot spread religion to humans
+	do NOT allow promotion saving
+
+
+
 
 
 policy start % odds
 	guaranteed - diplo influence for killing barbarians
 
-can you build lighthouse/water stuff when not coastal city? (should be yes)
-turn 15 cards, not on found
 kendall unit limit
 
-diplomacy STRATEGIC RESOURCES US text glitched
 add diplomacy overview entry for your player
-Map/game settings - auto check the good ones, see the default button
 
 antiquity card needs to only be activatable after they are revealed?
 do hidden antiquity sites still work at all?
@@ -48,10 +57,6 @@ do hidden antiquity sites still work at all?
 
 deal history screen is busted?
 do combat strength calculation tooltip serverside
-
-policy start % odds to shake up early game
-
-plot:SetImprovementType(2);
 
 
 substantial trade route bonus if connected via roads
@@ -66,7 +71,6 @@ auto delete obsolete cards
 
 
 
-double cost and output of cultural influence buildings
 usage of strategic resources too low
 no ancient era cards? No good way to hand them out (combine with classical)
 decouple victory point options from engine building

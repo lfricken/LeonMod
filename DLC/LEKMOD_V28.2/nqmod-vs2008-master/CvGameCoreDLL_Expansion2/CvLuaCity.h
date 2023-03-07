@@ -441,6 +441,7 @@ protected:
 	static int lSetDamage(lua_State* L);
 	static int lChangeDamage(lua_State* L);
 	static int lGetMaxHitPoints(lua_State* L);
+	static int lGetIsInfrastructureDamage(lua_State* L);
 
 	static int lCanRangeStrike(lua_State* L);
 	static int lCanRangeStrikeNow(lua_State* L);

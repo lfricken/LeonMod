@@ -343,14 +343,16 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 		elseif (string.len(cityHealth) == 3) then
 			cityHealth = "  "..cityHealth;
 		end
-		local start = "             ";
-		local seperator = "    ";
 
-		local cityLabel = cityStrengthStr;
-
+		local cityHitPointsTip = Locale.ConvertTextKey("TXT_KEY_CITY_HITPOINTS");
+		if city:GetIsInfrastructureDamage() then
+			cityHitPointsTip = cityHitPointsTip .. Locale.ConvertTextKey("TXT_KEY_INFRASTRUCTURE_DAMAGE_DETAIL");
+			cityHealth = "[COLOR_WARNING_TEXT]" .. cityHealth .. "[ENDCOLOR]";
+		end
 		
-		controls.CityHealth:SetText(cityHealth);
-		controls.CityStrength:SetText(cityLabel);
+		controls.CityHitPoints:SetText(cityHealth);
+		controls.CityHitPoints:SetToolTipString(cityHitPointsTip);
+		controls.CityStrength:SetText(cityStrengthStr);
 		
     	if isActiveTeamCity then
 			controls.EjectGarrison:SetHide(true);

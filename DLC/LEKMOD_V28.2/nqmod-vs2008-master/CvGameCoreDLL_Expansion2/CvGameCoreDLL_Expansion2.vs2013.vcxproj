@@ -182,6 +182,7 @@
     <ClCompile Include="CvExtraHelp.cpp" />
     <ClCompile Include="NonChalant_Buildings.cpp" />
     <ClCompile Include="CvTargeting.cpp" />
+    <ClCompile Include="NonChalant_City.cpp" />
     <ClCompile Include="NonChalant_Misc.cpp" />
     <ClCompile Include="NonChalant_Player.cpp" />
     <ClCompile Include="NonChalant_Plot.cpp" />

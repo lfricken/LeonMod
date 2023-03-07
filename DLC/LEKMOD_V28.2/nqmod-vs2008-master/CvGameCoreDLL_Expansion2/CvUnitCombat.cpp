@@ -2893,7 +2893,7 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(uint uiParentEventID, const CvCom
 //	-------------------------------------------------------------------------------------
 //	Generate nuclear explosion damage for all the units and cities in the radius of the specified plot.
 //	The attacker is optional, this is also called for a meltdown
-void CvUnitCombat::GenerateNuclearExplosionDamage(CvPlot* pkTargetPlot, int iDamageLevel, CvUnit* pkAttacker, CvCombatMemberEntry* pkDamageArray, int* piDamageMembers, int iMaxDamageMembers)
+void CvUnitCombat::GenerateNuclearExplosionDamage(CvPlot* pkTargetPlot, int, CvUnit* pkAttacker, CvCombatMemberEntry* pkDamageArray, int* piDamageMembers, int iMaxDamageMembers)
 {
 	int iBlastRadius = GC.getNUKE_BLAST_RADIUS();
 

@@ -439,6 +439,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(SetDamage);
 	Method(ChangeDamage);
 	Method(GetMaxHitPoints);
+	Method(GetIsInfrastructureDamage);
 	Method(CanRangeStrike);
 	Method(CanRangeStrikeNow);
 	Method(CanRangeStrikeAt);
@@ -3619,6 +3620,10 @@ int CvLuaCity::lGetMaxHitPoints(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 #endif
+}
+int CvLuaCity::lGetIsInfrastructureDamage(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvCity::getIsInfrastructureDamage);
 }
 //------------------------------------------------------------------------------
 //bool CanRangeStrike()
