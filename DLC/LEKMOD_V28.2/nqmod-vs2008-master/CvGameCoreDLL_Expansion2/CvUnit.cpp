@@ -15597,7 +15597,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 	setInfoBarDirty(true);
 
 	// if there is an enemy city nearby, alert any scripts to this
-	int iAttackRange = GC.getCITY_ATTACK_RANGE();
+	int iAttackRange = 3;// GC.getCITY_ATTACK_RANGE(); // we don't know the exact range of a "generic" city
 #ifdef AUI_HEXSPACE_DX_LOOPS
 	int iMaxDX, iDX;
 	CvPlot* pTargetPlot;

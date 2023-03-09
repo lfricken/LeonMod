@@ -766,6 +766,7 @@ public:
 	bool isMadeAttack() const;
 	void setMadeAttack(bool bNewValue);
 
+	bool IsNotValidRangeAttackPlot(int x, int y) const;
 	bool canRangeStrike() const;
 	bool CanRangeStrikeNow() const;
 	bool IsHasBuildingThatAllowsRangeStrike() const;
@@ -831,6 +832,8 @@ public:
 	void setDamage(int iValue, bool noMessage = false);
 	// apply delta to damage of this city
 	void changeDamage(int iChange);
+	// get range, 0 would be cannot shoot any tiles
+	int getRange() const;
 
 
 	void SetThreatValue(int iThreatValue);

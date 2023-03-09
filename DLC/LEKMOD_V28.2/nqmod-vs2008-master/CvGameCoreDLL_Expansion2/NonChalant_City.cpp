@@ -16,4 +16,12 @@ int CvCity::getInfrastructureDamagePenalty() const
 	return penalty;
 }
 
+int CvCity::getRange() const
+{
+	int totalRange = GC.getCITY_ATTACK_RANGE();
+
+
+
+	return totalRange;
+}
 

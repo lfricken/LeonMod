@@ -22,7 +22,7 @@ function RangedStrikeHighlight()
 	local thisTeam;
 
 	if pHeadSelectedCity and pHeadSelectedCity:CanRangeStrike() then
-		iRange = GameDefines.CITY_ATTACK_RANGE;
+		iRange = pHeadSelectedCity:Range();
 		bIndirectFireAllowed = GameDefines.CAN_CITY_USE_INDIRECT_FIRE == 1;
 		thisPlot = pHeadSelectedCity:Plot();
 		thisX = pHeadSelectedCity:GetX();
@@ -50,12 +50,21 @@ function RangedStrikeHighlight()
 				local bCanRangeStrike = true;
 
 				if pTargetPlot then
+					local plotX = pTargetPlot:GetX();
+					local plotY = pTargetPlot:GetY();
+					
 					if not bIndirectFireAllowed then
 						if not thisPlot:CanSeePlot(pTargetPlot, thisTeam, iRange - 1, NO_DIRECTION) then
 							bCanRangeStrike = false;
 						end
 					end
-					
+
+					local x = thingThatCanActuallyFire:IsNotValidRangeAttackPlot(plotX, plotY);
+					print(x);
+					if x then
+						bCanRangeStrike = false;
+					end
+
 					if bDomainOnly then
 						if thingThatCanActuallyFire:GetDomainType() == DomainTypes.DOMAIN_LAND and pTargetPlot:IsWater() then
 							bCanRangeStrike = false;
@@ -66,8 +75,6 @@ function RangedStrikeHighlight()
 
 					if bCanRangeStrike then
 						if pTargetPlot:IsVisible(thisTeam, false) then
-							local plotX = pTargetPlot:GetX();
-							local plotY = pTargetPlot:GetY();
 							local plotDistance = Map.PlotDistance(thisX, thisY, plotX, plotY);
 							if plotDistance <= iRange then
 								local hexID = ToHexFromGrid( Vector2( plotX, plotY) );

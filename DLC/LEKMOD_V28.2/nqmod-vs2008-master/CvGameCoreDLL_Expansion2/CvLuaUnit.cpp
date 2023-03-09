@@ -83,6 +83,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(CanNuke);
 	Method(CanNukeAt);
 
+	Method(IsNotValidRangeAttackPlot);
 	Method(CanRangeStrike);
 	Method(CanRangeStrikeAt);
 #ifdef DEL_RANGED_COUNTERATTACKS
@@ -1063,6 +1064,16 @@ int CvLuaUnit::lCanNukeAt(lua_State* L)
 	const bool bResult = pkUnit->canNukeAt(pkUnit->plot(), x, y);
 
 	lua_pushboolean(L, bResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaUnit::lIsNotValidRangeAttackPlot(lua_State* L)
+{
+	//CvUnit* pkUnit = GetInstance(L);
+	//const int x = lua_tointeger(L, 2);
+	//const int y = lua_tointeger(L, 3);
+
+	lua_pushboolean(L, false);
 	return 1;
 }
 //------------------------------------------------------------------------------

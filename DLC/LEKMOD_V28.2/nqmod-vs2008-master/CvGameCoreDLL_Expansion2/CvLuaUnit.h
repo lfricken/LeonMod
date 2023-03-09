@@ -83,6 +83,7 @@ protected:
 	static int lCanNuke(lua_State* L);
 	static int lCanNukeAt(lua_State* L);
 
+	static int lIsNotValidRangeAttackPlot(lua_State* L);
 	static int lCanRangeStrike(lua_State* L);
 	static int lCanRangeStrikeAt(lua_State* L);
 #ifdef DEL_RANGED_COUNTERATTACKS

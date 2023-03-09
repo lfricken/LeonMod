@@ -440,6 +440,9 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(ChangeDamage);
 	Method(GetMaxHitPoints);
 	Method(GetIsInfrastructureDamage);
+
+	Method(Range);
+	Method(IsNotValidRangeAttackPlot);
 	Method(CanRangeStrike);
 	Method(CanRangeStrikeNow);
 	Method(CanRangeStrikeAt);
@@ -3621,9 +3624,30 @@ int CvLuaCity::lGetMaxHitPoints(lua_State* L)
 	return 1;
 #endif
 }
+//------------------------------------------------------------------------------
 int CvLuaCity::lGetIsInfrastructureDamage(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvCity::getIsInfrastructureDamage);
+}
+//------------------------------------------------------------------------------
+int CvLuaCity::lRange(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iResult = pkCity->getRange();
+
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaCity::lIsNotValidRangeAttackPlot(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int x = lua_tointeger(L, 2);
+	const int y = lua_tointeger(L, 3);
+	const bool iResult = pkCity->IsNotValidRangeAttackPlot(x, y);
+
+	lua_pushboolean(L, iResult);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //bool CanRangeStrike()

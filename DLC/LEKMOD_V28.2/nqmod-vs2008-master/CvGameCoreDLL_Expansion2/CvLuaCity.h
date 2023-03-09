@@ -443,6 +443,8 @@ protected:
 	static int lGetMaxHitPoints(lua_State* L);
 	static int lGetIsInfrastructureDamage(lua_State* L);
 
+	static int lRange(lua_State* L);
+	static int lIsNotValidRangeAttackPlot(lua_State* L);
 	static int lCanRangeStrike(lua_State* L);
 	static int lCanRangeStrikeNow(lua_State* L);
 	static int lCanRangeStrikeAt(lua_State* L);

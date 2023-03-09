@@ -199,7 +199,7 @@ void CvDangerPlots::UpdateDanger(bool bPretendWarWithAllCivs, bool bIgnoreVisibi
 				continue;
 			}
 
-			int iRange = GC.getCITY_ATTACK_RANGE();
+			int iRange = pLoopCity->getRange();
 			CvPlot* pCityPlot = pLoopCity->plot();
 			AssignCityDangerValue(pLoopCity, pCityPlot);
 			CvPlot* pLoopPlot = NULL;

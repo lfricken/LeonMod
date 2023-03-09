@@ -16711,7 +16711,18 @@ void CvCity::setMadeAttack(bool bNewValue)
 	VALIDATE_OBJECT
 	m_bMadeAttack = bNewValue;
 }
+//	--------------------------------------------------------------------------------
+bool CvCity::IsNotValidRangeAttackPlot(int x, int y) const
+{
+	const CvPlot* pTargetPlot = GC.getMap().plot(x, y);
 
+	// cities can only attack within our borders
+	if (pTargetPlot->getTeam() != this->getOwner())
+	{
+		return true;
+	}
+	return false;
+}
 //	--------------------------------------------------------------------------------
 bool CvCity::canRangeStrike() const
 {
@@ -16748,7 +16759,7 @@ bool CvCity::CanRangeStrikeNow() const
 		return false;
 	}
 
-	int iRange = GC.getCITY_ATTACK_RANGE();
+	int iRange = getRange();
 	bool bIndirectFireAllowed = GC.getCAN_CITY_USE_INDIRECT_FIRE();
 	CvPlot* pPlot = plot();
 	int iX = getX();
@@ -16878,7 +16889,7 @@ bool CvCity::canRangeStrikeAt(int iX, int iY) const
 		return false;
 	}
 
-	int iAttackRange = GC.getCITY_ATTACK_RANGE();
+	int iAttackRange = getRange();
 
 	if(plotDistance(plot()->getX(), plot()->getY(), pTargetPlot->getX(), pTargetPlot->getY()) > iAttackRange)
 	{
@@ -17179,7 +17190,7 @@ void CvCity::DoNearbyEnemy()
 	if(!canRangeStrike())
 		return;
 
-	int iSearchRange = GC.getCITY_ATTACK_RANGE();
+	int iSearchRange = getRange();
 #ifndef AUI_HEXSPACE_DX_LOOPS
 	CvPlot* pBestPlot = NULL;
 #endif
