@@ -481,11 +481,7 @@ function AddBuildingButton( pCity, building )
 			local pSpecialistInfo = GameInfo.Specialists[iSpecialistID];
 			specialistName = Locale.ConvertTextKey(pSpecialistInfo.Description);
 			local ToolTipString = specialistName .. " ";						
-			-- Culture
-			local iCultureFromSpecialist = pCity:GetCultureFromSpecialist(iSpecialistID);
-			if (iCultureFromSpecialist > 0) then
-				ToolTipString = ToolTipString .. " +" .. iCultureFromSpecialist .. "[ICON_CULTURE]";
-			end
+
 			-- Yield
 			for pYieldInfo in GameInfo.Yields() do
 				local iYieldID = pYieldInfo.ID;
@@ -605,12 +601,6 @@ function AddBuildingButton( pCity, building )
 				strToolTip = strToolTip .. "[NEWLINE][NEWLINE]";
 					
 				local yields = {};
-				
-				-- Culture
-				local iCultureFromSpecialist = pCity:GetCultureFromSpecialist(iSpecialistID);
-				if (iCultureFromSpecialist > 0) then
-					table.insert(yields, tostring(iCultureFromSpecialist) .. "[ICON_CULTURE]");
-				end
 				
 				-- Yield
 				for pYieldInfo in GameInfo.Yields() do
@@ -1213,6 +1203,7 @@ function OnCityViewUpdate()
 							end
 						end
 					end
+					strToolTipText = strToolTipText .. "[NEWLINE][NEWLINE](GPP correctly handles decimals that aren't displayed)";
 					controlTable.GPBox:SetToolTipString(strToolTipText);
 					
 					if IconHookup( portraitOffset, 64, portraitAtlas, controlTable.GPImage ) then
@@ -1264,12 +1255,8 @@ function OnCityViewUpdate()
 				-- build the tooltip for slackers
 				local pSpecialistInfo = GameInfo.Specialists[slackerType];
 				local specialistName = Locale.ConvertTextKey(pSpecialistInfo.Description);
-				local ToolTipString = specialistName .. " ";						
-				-- Culture
-				local iCultureFromSpecialist = pCity:GetCultureFromSpecialist(iSpecialistID);
-				if (iCultureFromSpecialist > 0) then
-					ToolTipString = ToolTipString .. " +" .. iCultureFromSpecialist .. "[ICON_CULTURE]";
-				end
+				local ToolTipString = specialistName .. " ";
+
 				-- Yield
 				for pYieldInfo in GameInfo.Yields() do
 					local iYieldID = pYieldInfo.ID;
