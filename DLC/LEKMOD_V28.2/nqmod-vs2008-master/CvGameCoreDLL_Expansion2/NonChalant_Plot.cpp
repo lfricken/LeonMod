@@ -429,9 +429,7 @@ int CvPlot::getExtraYield
 				const bool isAyer = plot.HasImprovement(IMPROVEMENT_AYER);
 				const bool isDryDock = plot.HasImprovement(IMPROVEMENT_DOCK) || plot.HasImprovement(IMPROVEMENT_CHILE_DOCK);
 				if (eYieldType == YIELD_PRODUCTION && hasNavalTradition && isCoast && !hasLuxury && !isPolder && !isAyer && !isDryDock)
-					yieldChange += 1;
-				if (eYieldType == YIELD_GOLD && hasNavalTradition && isCoast && !hasLuxury && !isPolder && !isAyer && !isDryDock)
-					yieldChange += 1;				
+					yieldChange += 1;							
 			}
 
 			{// POLICY_NAVIGATION_SCHOOL gives +1FD to farms without resources				
@@ -1032,6 +1030,16 @@ int CvPlot::getExtraYield
 					yieldChange += 1;
 				if (eYieldType == YIELD_TOURISM && hasEpaCard && isHardwood)
 					yieldChange += 2;
+			}
+
+			{// Water Better 
+				const bool isCoast = plot.HasTerrain(TERRAIN_COAST);
+				const bool isOcean = plot.HasTerrain(TERRAIN_OCEAN);
+				const bool noFeature = plot.HasFeature(NO_FEATURE);
+				const bool isFishingBoats = plot.HasImprovement(IMPROVEMENT_FISHING_BOATS) || plot.HasImprovement(IMPROVEMENT_CHILE_FISHING_BOATS);
+				if (eYieldType == YIELD_FOOD && (isCoast || isOcean) && isFishingBoats && noResource && noFeature)
+					yieldChange += 1;
+				
 			}
 			
 
