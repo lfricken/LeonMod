@@ -665,9 +665,7 @@ BuildingAddType CvPlayer::ShouldHaveBuilding(const CvPlayer& rPlayer, const CvCi
 			const bool isRussia = rPlayer.IsCiv(CIVILIZATION_RUSSIA);
 			const bool hasPhilosophy = rPlayer.HasTech(TECH_PHILOSOPHY);
 			if (isRussia && hasPhilosophy)
-				return ADD;
-			else
-				return REMOVE;
+				return ADD;			
 		}
 	}
 
@@ -703,9 +701,7 @@ BuildingAddType CvPlayer::ShouldHaveBuilding(const CvPlayer& rPlayer, const CvCi
 		{
 			const bool hasProtectiveCard = rPlayer.HasPolicy(POLICY_CARD_ANCIENT_POLITICAL_PROTECTIVE_PASSIVE);			
 			if (hasProtectiveCard)
-				return ADD;
-			else
-				return REMOVE;
+				return ADD;			
 		}
 	}
 
@@ -729,9 +725,7 @@ BuildingAddType CvPlayer::ShouldHaveBuilding(const CvPlayer& rPlayer, const CvCi
 			const bool hasChampionCard = rPlayer.HasPolicy(POLICY_CARD_CLASSICAL_LEGENDARY_CHAMPION_PASSIVE);
 			const bool hasBarracks = rCity.HasBuildingClass(BuildingClassTypes(25));
 			if (hasChampionCard && hasBarracks)
-				return ADD;
-			else
-				return REMOVE;
+				return ADD;			
 		}
 	}
 
@@ -898,7 +892,7 @@ int CvPlayer::getSpecialistYieldHardcoded(const CvCity* pCity, const SpecialistT
 	int change = 0;
 	const CvPlayer& player = *this;
 
-	//const bool isUnemployed = eSpecialist == 0;
+	const bool isUnemployed = eSpecialist == 0;
 	const bool isWriter = eSpecialist == 1;
 	const bool isArtist = eSpecialist == 2;
 	const bool isMusician = eSpecialist == 3;
@@ -918,6 +912,11 @@ int CvPlayer::getSpecialistYieldHardcoded(const CvCity* pCity, const SpecialistT
 	// logic that does not reference the city
 
 
+	{// CIVILIZATION_ROME gives +1C to all specialists.
+		const bool isRome = player.IsCiv(CIVILIZATION_ROME);
+		if (eYield == YIELD_CULTURE && isRome && !isUnemployed)
+			change += 1;
+	}
 
 	{// POLICY_TRADE_UNIONS gives +1G +1PD to Engineer Specialists
 		const bool hasTradeUnions = player.HasPolicy(POLICY_TRADE_UNIONS);
