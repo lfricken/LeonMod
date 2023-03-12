@@ -2088,6 +2088,7 @@ void CvCity::doTurn()
 		// XXX
 	}
 
+	GetPlayer()->ResetHasBuildingClassCache();
 	if (m_bNeedsYieldUpdate)
 	{
 		m_bNeedsYieldUpdate = false;
