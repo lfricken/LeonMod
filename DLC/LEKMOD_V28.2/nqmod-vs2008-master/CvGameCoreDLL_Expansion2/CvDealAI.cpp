@@ -2275,7 +2275,7 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 			iValue += 50;
 			break;
 		default:
-			iValue += 100000;
+			iValue += 500;
 			break;
 		}
 
@@ -2310,7 +2310,7 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 				break;
 			case CvLeagueAI::ALIGNMENT_ENEMY:
 			case CvLeagueAI::ALIGNMENT_WAR:
-				iValue += 100000;
+				iValue += 500;
 				break;
 			default:
 				break;
@@ -2319,7 +2319,7 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 			MajorCivApproachTypes eOtherPlayerApproach = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false);
 			if (eOtherPlayerApproach == MAJOR_CIV_APPROACH_HOSTILE || eOtherPlayerApproach == MAJOR_CIV_APPROACH_WAR)
 			{
-				iValue += 100000;
+				iValue += 500;
 			}
 		}
 	}
@@ -2334,7 +2334,7 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 		case CvLeagueAI::DESIRE_STRONG_DISLIKE:
 		case CvLeagueAI::DESIRE_WEAK_DISLIKE:
 		case CvLeagueAI::DESIRE_NEUTRAL:
-			iValue += -100000;
+			iValue += -500;
 			break;
 		case CvLeagueAI::DESIRE_WEAK_LIKE:
 			iValue += 50;
@@ -2349,7 +2349,7 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 			iValue += 200;
 			break;
 		default:
-			iValue += -100000;
+			iValue += -500;
 			break;
 		}
 
