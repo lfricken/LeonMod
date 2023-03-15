@@ -363,9 +363,9 @@ int CvPlayer::GetExtraYieldForBuilding
 			if (eYieldType == YIELD_MAINTENANCE && !isPercentMod && hasUnionStockyarsCard && isStockyard)
 				yieldChange += 2;
 			if (eYieldType == YIELD_FOOD && !isPercentMod && hasUnionStockyarsCard && isStockyard)
-				yieldChange += 3;
+				yieldChange += 2;
 			if (eYieldType == YIELD_PRODUCTION && !isPercentMod && hasUnionStockyarsCard && isStockyard)
-				yieldChange += 3;
+				yieldChange += 2;
 		}
 		{// POLICY_CARD_INDUSTRIAL_BUILDINGS_DARTS_ELEVATOR_PASSIVE - 
 			const bool hasDartsElevatorCard = player.HasPolicy(POLICY_CARD_INDUSTRIAL_BUILDINGS_DARTS_ELEVATOR_PASSIVE);
@@ -373,9 +373,9 @@ int CvPlayer::GetExtraYieldForBuilding
 			if (eYieldType == YIELD_MAINTENANCE && !isPercentMod && hasDartsElevatorCard && isGrainElevator)
 				yieldChange += 2;
 			if (eYieldType == YIELD_FOOD && !isPercentMod && hasDartsElevatorCard && isGrainElevator)
-				yieldChange += 3;
+				yieldChange += 2;
 			if (eYieldType == YIELD_PRODUCTION && !isPercentMod && hasDartsElevatorCard && isGrainElevator)
-				yieldChange += 3;
+				yieldChange += 2;
 		}
 
 		{// POLICY_CARD_ATOMIC_BUILDINGS_CLEAN_AIR_ACT_PASSIVE - 
@@ -413,18 +413,18 @@ int CvPlayer::GetExtraYieldForBuilding
 		int numUnits = player.getNumMilitaryUnits();
 
 		if (eYieldType == YIELD_CULTURE && !isPercentMod && hasDominanceCard)
-			yieldChange += numUnits / 2;
+			yieldChange += numUnits / 3;
 		if (eYieldType == YIELD_DIPLOMATIC_SUPPORT && !isPercentMod && hasDominanceCard)
-			yieldChange += numUnits / 2;
+			yieldChange += numUnits / 3;
 	}
 	{// CARD_RENAISSANCE_BUILDINGS_EXPRESSIONALISM gives +2C +2Diplo to palace for every GW
 		const bool hasExpressionalismCard = player.HasPolicy(POLICY_CARD_RENAISSANCE_BUILDINGS_EXPRESSIONALISM_PASSIVE);
 		int numGreatWorks = player.GetNumSpecialistGreatWorks();
 
 		if (eYieldType == YIELD_CULTURE && !isPercentMod && hasExpressionalismCard)
-			yieldChange += numGreatWorks * 2;
+			yieldChange += numGreatWorks;
 		if (eYieldType == YIELD_DIPLOMATIC_SUPPORT && !isPercentMod && hasExpressionalismCard)
-			yieldChange += numGreatWorks * 2;
+			yieldChange += numGreatWorks;
 	}
 
 	{// CARD_RENAISSANCE_BUILDINGS_GRANDEUR gives +1C +1 Diplo to palace for every Wonder
@@ -437,12 +437,12 @@ int CvPlayer::GetExtraYieldForBuilding
 			yieldChange += numWonders;
 	}
 
-	{// CARD_RENAISSANCE_BUILDINGS_MEDICI_BANK gives +5%GD +1C  for each Bank
+	{// CARD_RENAISSANCE_BUILDINGS_MEDICI_BANK gives 
 		const bool hasMediciCard = player.HasPolicy(POLICY_CARD_RENAISSANCE_BUILDINGS_MEDICI_BANK_PASSIVE);
 		int numBanks = player.countNumBuildingClasses(BUILDINGCLASS_BANK);
 
 		if (eYieldType == YIELD_GOLD && isPercentMod && hasMediciCard)
-			yieldChange += numBanks * 5;
+			yieldChange += numBanks * 3;
 		if (eYieldType == YIELD_CULTURE && !isPercentMod && hasMediciCard)
 			yieldChange += numBanks;
 	}
@@ -561,13 +561,11 @@ int CvPlayer::GetExtraYieldForBuilding
 	}
 	break;
 	case BUILDINGCLASS_SHRINE:
-	{// CARD_ANCIENT_BUILDINGS_DRUIDS_PASSIVE grants +1C +1PD to Walls, Castles, Arsenals, and Military Bases to Prussia
+	{// CARD_ANCIENT_BUILDINGS_DRUIDS_PASSIVE 
 		const bool hasDruidsCard = player.HasPolicy(POLICY_CARD_ANCIENT_BUILDINGS_DRUIDS_PASSIVE);
 		const bool isShrine = eBuildingClass == BUILDINGCLASS_SHRINE;
 		if (eYieldType == YIELD_FAITH && !isPercentMod && hasDruidsCard && isShrine)
-			yieldChange += 2;
-		if (eYieldType == YIELD_MAINTENANCE && !isPercentMod && hasDruidsCard && isShrine)
-			yieldChange -= 1;
+			yieldChange += 2;		
 	}
 	break;
 	case BUILDINGCLASS_HARBOR:
@@ -635,8 +633,18 @@ int CvPlayer::GetExtraYieldForBuilding
 		const bool hasHarrowCard = player.HasPolicy(POLICY_CARD_ANCIENT_BUILDINGS_HARROW_PASSIVE);
 		const bool isStable = eBuildingClass == BUILDINGCLASS_STABLE;
 		if (eYieldType == YIELD_FOOD && !isPercentMod && hasHarrowCard && isStable)
-			yieldChange += 2;
+			yieldChange += 1;
 		if (eYieldType == YIELD_MAINTENANCE && !isPercentMod && hasHarrowCard && isStable)
+			yieldChange -= 1;
+	}
+	break;
+	case BUILDINGCLASS_STONE_WORKS:
+	{// POLICY_CARD_ANCIENT_BUILDINGS_MASONS_GUILD_PASSIVE - 
+		const bool hasMasonsCard = player.HasPolicy(POLICY_CARD_ANCIENT_BUILDINGS_MASONS_GUILD_PASSIVE);
+		const bool isStoneWorks = eBuildingClass == BUILDINGCLASS_STONE_WORKS;
+		if (eYieldType == YIELD_CULTURE && !isPercentMod && hasMasonsCard && isStoneWorks)
+			yieldChange += 1;
+		if (eYieldType == YIELD_MAINTENANCE && !isPercentMod && hasMasonsCard && isStoneWorks)
 			yieldChange -= 1;
 	}
 	break;
@@ -1061,37 +1069,29 @@ int CvPlayer::getSpecialistYieldHardcoded(const CvCity* pCity, const SpecialistT
 			change += 1;
 	}
 
-	{// CARD_RENAISSANCE_BUILDINGS_WILLIAM_SHAKSPEARE gives +1C, +1T to Writer if you have Globe Theater
+	{// CARD_RENAISSANCE_BUILDINGS_WILLIAM_SHAKSPEARE 
 		const bool hasWilliamShakespeareCard = player.HasPolicy(POLICY_CARD_RENAISSANCE_BUILDINGS_WILLIAM_SHAKSPEARE_PASSIVE);
 		const bool hasGlobeTheater = player.HasWonder(BUILDINGCLASS_GLOBE_THEATER);
 		if (eYield == YIELD_TOURISM && hasWilliamShakespeareCard && hasGlobeTheater && isWriter)
-			change += 1;
-		if (eYield == YIELD_CULTURE && hasWilliamShakespeareCard && hasGlobeTheater && isWriter)
-			change += 1;
+			change += 1;		
 	}
-	{// CARD_RENAISSANCE_BUILDINGS_MICHAEL_ANGELO gives +1C, +1T to Artist if you have Sistine Chapel
+	{// CARD_RENAISSANCE_BUILDINGS_MICHAEL_ANGELO 
 		const bool hasMichaelAngeloCard = player.HasPolicy(POLICY_CARD_RENAISSANCE_BUILDINGS_MICHAEL_ANGELO_PASSIVE);
 		const bool hasSistineChapel = player.HasWonder(BUILDINGCLASS_SISTINE_CHAPEL);
 		if (eYield == YIELD_TOURISM && hasMichaelAngeloCard && hasSistineChapel && isArtist)
-			change += 1;
-		if (eYield == YIELD_CULTURE && hasMichaelAngeloCard && hasSistineChapel && isArtist)
-			change += 1;
+			change += 1;		
 	}
-	{// CARD_RENAISSANCE_BUILDINGS_J_S_BACH gives +1C, +1T to Musician if you have Teatro Alla Scala
+	{// CARD_RENAISSANCE_BUILDINGS_J_S_BACH  
 		const bool hasBachCard = player.HasPolicy(POLICY_CARD_RENAISSANCE_BUILDINGS_J_S_BACH_PASSIVE);
 		const bool hasTeatroAllaScala = player.HasWonder(BUILDINGCLASS_UFFIZI);
 		if (eYield == YIELD_TOURISM && hasBachCard && hasTeatroAllaScala && isMusician)
-			change += 1;
-		if (eYield == YIELD_CULTURE && hasBachCard && hasTeatroAllaScala && isMusician)
-			change += 1;
+			change += 1;		
 	}
 	{// CARD_RENAISSANCE_BUILDINGS_DOUBLE_ENTRY_ACCOUNTING gives +2G Merchant. +1PD +1Diplo if Big Ben
 		const bool hasDoubleEntrCard = player.HasPolicy(POLICY_CARD_RENAISSANCE_BUILDINGS_DOUBLE_ENTRY_ACCOUNTING_PASSIVE);
 		const bool hasBigBen = player.HasWonder(BUILDINGCLASS_BIG_BEN);
 		if (eYield == YIELD_GOLD && hasDoubleEntrCard && isMerchant)
-			change += 2;
-		if (eYield == YIELD_PRODUCTION && hasDoubleEntrCard && hasBigBen && isMerchant)
-			change += 1;
+			change += 2;		
 		if (eYield == YIELD_DIPLOMATIC_SUPPORT && hasDoubleEntrCard && hasBigBen && isMerchant)
 			change += 1;
 	}
@@ -1099,7 +1099,7 @@ int CvPlayer::getSpecialistYieldHardcoded(const CvCity* pCity, const SpecialistT
 	{// CARD_RENAISSANCE_BUILDINGS_COPERNICUS_OBSERVERATORY gives +2SC to Scientist.
 		const bool hasCopernicusCard = player.HasPolicy(POLICY_CARD_RENAISSANCE_BUILDINGS_COPERNICUS_OBSERVERATORY_PASSIVE);
 		if (eYield == YIELD_SCIENCE && hasCopernicusCard && isScientist)
-			change += 2;
+			change += 1;
 	}
 
 	return change;
@@ -1203,13 +1203,9 @@ int CvPlayer::getGreatWorkYieldTotal(const CvCity* pCity, const CvGreatWork* pWo
 
 	{// CARD_INDUSTRIAL_BUILDINGS_HOWARD_CARTER gives +1C +1T to Artifacts.
 		const bool hasHowardCarterCard = player.HasPolicy(POLICY_CARD_INDUSTRIAL_BUILDINGS_HOWARD_CARTER_PASSIVE);
-		const bool hasLourve = player.HasWonder(BUILDINGCLASS_LOUVRE);
-		if (eYield == YIELD_CULTURE && hasHowardCarterCard && isArtifact)
-			change += 1;
+		const bool hasLourve = player.HasWonder(BUILDINGCLASS_LOUVRE);		
 		if (eYield == YIELD_TOURISM && hasHowardCarterCard && isArtifact)
-			change += 1;
-		if (eYield == YIELD_CULTURE && hasHowardCarterCard && isArtifact && hasLourve)
-			change += 1;
+			change += 1;		
 		if (eYield == YIELD_TOURISM && hasHowardCarterCard && isArtifact && hasLourve)
 			change += 1;
 	}

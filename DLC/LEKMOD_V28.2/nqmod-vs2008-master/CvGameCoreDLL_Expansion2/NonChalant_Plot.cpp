@@ -584,11 +584,11 @@ int CvPlot::getExtraYield
 					yieldChange += 1;
 			}
 
-			{// CARD_ANCIENT_RESOURCES_FLINT_KNAPPING - 1PD from Obsidian 1PD from Quarries
+			{// CARD_ANCIENT_RESOURCES_FLINT_KNAPPING - 
 				const bool hasFlints = player.HasPolicy(POLICY_CARD_ANCIENT_RESOURCES_FLINT_KNAPPING_PASSIVE);
 				const bool isObsidian = plot.HasResource(RESOURCE_OBSIDIAN);
 				const bool isQuarry = plot.HasImprovement(IMPROVEMENT_QUARRY);
-				if (eYieldType == YIELD_PRODUCTION && hasFlints && isObsidian && isQuarry)
+				if (eYieldType == YIELD_GOLD && hasFlints && isObsidian && isQuarry)
 						yieldChange += 1;
 				if (eYieldType == YIELD_PRODUCTION && hasFlints && isQuarry)
 					yieldChange += 1;
@@ -609,13 +609,13 @@ int CvPlot::getExtraYield
 					yieldChange += 1;
 			}
 
-			{// CARD_ANCIENT_RESOURCES_DIVINE_CREATION - +2C +4FH from Natural Wonders
+			{// CARD_ANCIENT_RESOURCES_DIVINE_CREATION - 
 				const bool hasDivineCreation = player.HasPolicy(POLICY_CARD_ANCIENT_RESOURCES_DIVINE_CREATION_PASSIVE);
 				const bool isNaturalWonder = plot.HasAnyNaturalWonder();
 				if (eYieldType == YIELD_CULTURE && hasDivineCreation && isNaturalWonder)
 					yieldChange += 2;
 				if (eYieldType == YIELD_FAITH && hasDivineCreation && isNaturalWonder)
-					yieldChange += 4;
+					yieldChange += 2;
 			}
 
 			{// CARD_ANCIENT_POLITICAL_ORTHODOXY - +1 FD to City Center
@@ -642,20 +642,20 @@ int CvPlot::getExtraYield
 					yieldChange += 4;
 			}
 
-			{// CARD_CLASSICAL_RESOURCE_LIMESTONE - +2 PD to Stone
+			{// CARD_CLASSICAL_RESOURCE_LIMESTONE - 
 				const bool hasLimtestoneCard = player.HasPolicy(POLICY_CARD_CLASSICAL_RESOURCE_LIMESTONE_PASSIVE);
 				const bool isStone = plot.HasResource(RESOURCE_STONE);
 				const bool isQuarry = plot.HasImprovement(IMPROVEMENT_QUARRY);
 				if (eYieldType == YIELD_PRODUCTION && hasLimtestoneCard && isStone && isQuarry)
-					yieldChange += 2;
+					yieldChange += 1;
 			}
 
-			{// POLICY_CARD_CLASSICAL_RESOURCE_SYCTHE_PASSIVE - +2 FD to Wheat
+			{// POLICY_CARD_CLASSICAL_RESOURCE_SYCTHE_PASSIVE - +1 FD to Wheat
 				const bool hasSycthe = player.HasPolicy(POLICY_CARD_CLASSICAL_RESOURCE_SYCTHE_PASSIVE);
 				const bool isWheat = plot.HasResource(RESOURCE_WHEAT);
 				const bool isFarm = plot.HasImprovement(IMPROVEMENT_FARM);
 				if (eYieldType == YIELD_FOOD && hasSycthe && isWheat && isFarm)
-					yieldChange += 2;
+					yieldChange += 1;
 			}
 
 			{// CARD_MEDIEVAL_RESOURCE_GILLNETS - +2 PD to Fish
@@ -665,7 +665,7 @@ int CvPlot::getExtraYield
 					yieldChange += 1;
 			}
 
-			{// CARD_MEDIEVAL_RESOURCE_PRECIOUS_METALS - +1C +1PD +1G to Metals
+			{// CARD_MEDIEVAL_RESOURCE_PRECIOUS_METALS - 
 				const bool hasPreciousCard = player.HasPolicy(POLICY_CARD_MEDIEVAL_RESOURCE_PRECIOUS_METALS_PASSIVE);
 				const bool isPreciousMetal = plot.HasResource(RESOURCE_GOLD) ||
 					plot.HasResource(RESOURCE_SILVER) ||
@@ -673,24 +673,22 @@ int CvPlot::getExtraYield
 				if (eYieldType == YIELD_CULTURE && hasPreciousCard && isPreciousMetal)
 					yieldChange += 1;				
 				if (eYieldType == YIELD_GOLD && hasPreciousCard && isPreciousMetal)
-					yieldChange += 3;
+					yieldChange += 1;
 			}
 
-			{// CARD_MEDIEVAL_RESOURCE_SILK_ROAD - +1C +1PD +1G to Silk Road
+			{// CARD_MEDIEVAL_RESOURCE_SILK_ROAD - 
 				const bool hasSilkRoadCard = player.HasPolicy(POLICY_CARD_MEDIEVAL_RESOURCE_SILK_ROAD_PASSIVE);
 				const bool isSilkyResource = plot.HasResource(RESOURCE_SILK) ||
 					plot.HasResource(RESOURCE_JADE) ||
 					plot.HasResource(RESOURCE_DYE) ||
 					plot.HasResource(RESOURCE_PERFUME);
 				if (eYieldType == YIELD_CULTURE && hasSilkRoadCard && isSilkyResource)
-					yieldChange += 1;
-				if (eYieldType == YIELD_PRODUCTION && hasSilkRoadCard && isSilkyResource)
-					yieldChange += 1;
+					yieldChange += 1;				
 				if (eYieldType == YIELD_GOLD && hasSilkRoadCard && isSilkyResource)
-					yieldChange += 2;
+					yieldChange += 1;
 			}
 
-			{// CARD_MEDIEVAL_RESOURCE_SPICE_TRADE - +1C +1FD to Spice Trade
+			{// CARD_MEDIEVAL_RESOURCE_SPICE_TRADE - 
 				const bool hasSpiceTradeCard = player.HasPolicy(POLICY_CARD_MEDIEVAL_RESOURCE_SPICE_TRADE_PASSIVE);
 				const bool isSpiceyResource = plot.HasResource(RESOURCE_SPICES) ||
 					plot.HasResource(RESOURCE_INCENSE) ||
@@ -698,11 +696,11 @@ int CvPlot::getExtraYield
 					plot.HasResource(RESOURCE_BANANA);
 				if (eYieldType == YIELD_CULTURE && hasSpiceTradeCard && isSpiceyResource)
 					yieldChange += 1;
-				if (eYieldType == YIELD_FOOD && hasSpiceTradeCard && isSpiceyResource)
+				if (eYieldType == YIELD_GOLD && hasSpiceTradeCard && isSpiceyResource)
 					yieldChange += 1;
 			}
 
-			{// CARD_MEDIEVAL_RESOURCE_VITICULTURE - +1C +2FD to Wine. +1G Farms.
+			{// CARD_MEDIEVAL_RESOURCE_VITICULTURE - 
 				const bool hasViticultureCard = player.HasPolicy(POLICY_CARD_MEDIEVAL_RESOURCE_VITICULTURE_PASSIVE);
 				const bool isWine = plot.HasResource(RESOURCE_WINE);
 				const bool isOlive = plot.HasResource(RESOURCE_OLIVE);
@@ -711,8 +709,8 @@ int CvPlot::getExtraYield
 					yieldChange += 1;
 				if (eYieldType == YIELD_CULTURE && hasViticultureCard && (isWine || isOlive))
 					yieldChange += 1;
-				if (eYieldType == YIELD_FOOD && hasViticultureCard && (isWine || isOlive))
-					yieldChange += 2;
+				if (eYieldType == YIELD_GOLD && hasViticultureCard && (isWine || isOlive))
+					yieldChange += 1;
 			}
 
 			{// CARD_ANCIENT_RESOURCES_INUITS - 
@@ -736,9 +734,7 @@ int CvPlot::getExtraYield
 				if (eYieldType == YIELD_FOOD && hasTriangularTradeCard && isTriangularResource)
 					yieldChange += 1;
 				if (eYieldType == YIELD_PRODUCTION && hasTriangularTradeCard && isTriangularResource)
-					yieldChange += 1;
-				if (eYieldType == YIELD_GOLD && hasTriangularTradeCard && isTriangularResource)
-					yieldChange += 1;
+					yieldChange += 1;				
 			}
 
 			{// CARD_INDUSTRIAL_RESOURCES_GREAT_AWAKENING - 
@@ -777,9 +773,7 @@ int CvPlot::getExtraYield
 				if (eYieldType == YIELD_PRODUCTION && hasJohnJaobAstorCard && isFursEtc)
 					yieldChange += 1;
 				if (eYieldType == YIELD_CULTURE && hasJohnJaobAstorCard && isFursEtc)
-					yieldChange += 1;
-				if (eYieldType == YIELD_GOLD && hasJohnJaobAstorCard && isFursEtc)
-					yieldChange += 1;
+					yieldChange += 1;				
 			}
 
 			{// CARD_INDUSTRIAL_RESOURCES_HYDRAULIC_FRACKING -
@@ -830,11 +824,9 @@ int CvPlot::getExtraYield
 					yieldChange += 1;
 			}
 
-			{// CARD_MODERN_RESOURCES_NITRATES - +1 FD +1 PD to Farms
+			{// CARD_MODERN_RESOURCES_NITRATES - 
 				const bool hasNitratesCard = player.HasPolicy(POLICY_CARD_MODERN_RESOURCES_NITRATES_PASSIVE);
-				const bool isFarm = plot.HasImprovement(IMPROVEMENT_FARM);
-				if (eYieldType == YIELD_PRODUCTION && hasNitratesCard && isFarm)
-					yieldChange += 1;
+				const bool isFarm = plot.HasImprovement(IMPROVEMENT_FARM);			
 				if (eYieldType == YIELD_FOOD && hasNitratesCard && isFarm)
 					yieldChange += 1;
 			}
@@ -857,7 +849,7 @@ int CvPlot::getExtraYield
 				if (eYieldType == YIELD_PRODUCTION && hasCommercialFishinCard && (isCrab || isFish))
 					yieldChange += 1;
 				if (eYieldType == YIELD_GOLD && hasCommercialFishinCard && (isCrab || isFish))
-					yieldChange += 2;
+					yieldChange += 1;
 			}
 
 			{// CARD_MODERN_RESOURCES_U_BOAT_PEN - 
