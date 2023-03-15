@@ -435,20 +435,19 @@ int CvPlot::getExtraYield
 					yieldChange += 3;
 			}
 
-			{// CIVILIZATION_MC_SCOTLAND - 1 FD 1 PD from Cattle, Sheep, After Trapping
+			{// CIVILIZATION_MC_SCOTLAND - 1 FD from Cattle, Sheep, After Trapping
 				const bool hasCattle = plot.HasResource(RESOURCE_COW);
 				const bool hasSheep = plot.HasResource(RESOURCE_SHEEP);
 				const bool isEngland = player.IsCiv(CIVILIZATION_MC_SCOTLAND);
 				const bool hasTrapping = player.HasTech(TECH_TRAPPING);
 				if (eYieldType == YIELD_FOOD && isEngland && hasTrapping && (hasCattle || hasSheep))
-					yieldChange += 1;
-				if (eYieldType == YIELD_PRODUCTION && isEngland && hasTrapping && (hasCattle || hasSheep))
-					yieldChange += 1;
+					yieldChange += 1;				
 			}
 
 			{// CIVILIZATION_RUSSIA - 1 PD from Strategic Resources (only available after you can see Horse or Iron, etc.)
 				const bool isRussia = player.IsCiv(CIVILIZATION_RUSSIA);
-				if (eYieldType == YIELD_PRODUCTION && isRussia && hasStrategic)
+				const bool hasTrapping = player.HasTech(TECH_TRAPPING);
+				if (eYieldType == YIELD_PRODUCTION && isRussia && hasStrategic && hasTrapping)
 					yieldChange += 1;
 			}
 

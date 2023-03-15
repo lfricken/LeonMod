@@ -188,6 +188,13 @@ int CvPlayer::GetExtraYieldForBuilding
 					yieldChange += (numPolicies * 2);
 			}
 
+			{// CIVILIZATION_ROME - +2 Golden Age Point per per Policy Capital.
+				const bool isRome = player.IsCiv(CIVILIZATION_ROME);
+				int numPolicies = player.GetNumPoliciesTotal();
+				if (eYieldType == YIELD_GOLDEN && !isPercentMod && isRome && isCapital)
+					yieldChange += (numPolicies * 2);
+			}
+
 			{// POLICY_COMMERCE_CLOSER - +5%G all Cities
 				int numCommerceClosers = player.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(POLICY_BRANCH_COMMERCE);
 				if (eYieldType == YIELD_GOLD && isPercentMod)
@@ -963,9 +970,11 @@ int CvPlayer::getSpecialistYieldHardcoded(const CvCity* pCity, const SpecialistT
 	// logic that does not reference the city
 
 
-	{// CIVILIZATION_ROME gives +1C to all specialists.
+	{// CIVILIZATION_ROME buffs Artist specialists.
 		const bool isRome = player.IsCiv(CIVILIZATION_ROME);
-		if (eYield == YIELD_CULTURE && isRome && !isUnemployed)
+		if (eYield == YIELD_CULTURE && isRome && isArtist)
+			change += 1;
+		if (eYield == YIELD_GOLD && isRome && isArtist)
 			change += 1;
 	}
 

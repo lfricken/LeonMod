@@ -148,6 +148,12 @@ int CvPlayer::GetExtraBuildingsForClass(BuildingClassTypes eClass) const
 		total += 1;
 	if (isInca && eClass == BuildingClassTypes(BUILDINGCLASS_FACTORY))
 		total += 1;
+	if (isEngland && eClass == BuildingClassTypes(BUILDINGCLASS_WRITERS_GUILD))
+		total += 1;
+	if (isEngland && eClass == BuildingClassTypes(BUILDINGCLASS_ARTISTS_GUILD))
+		total += 1;
+	if (isEngland && eClass == BuildingClassTypes(BUILDINGCLASS_MUSICIANS_GUILD))
+		total += 1;
 
 
 	// Rites that grant building supply
