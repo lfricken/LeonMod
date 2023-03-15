@@ -290,27 +290,23 @@ int CvPlot::getExtraYield
 					yieldChange += 2;
 			}
 
-			{// BELIEF_DANCE_AURORA - Dance of the Aurora - on tundra tiles only - gives +1 production to bonus tiles, +1 culture to luxury tiles, +1 Gold to Strategic, and +1 faith to every other tundra tile
-				const bool hasBeliefDanceOfTheAurora = city.HasBelief(BELIEF_DANCE_AURORA);
-				if (eYieldType == YIELD_FAITH && hasBeliefDanceOfTheAurora && isTundra && noResource)
-					yieldChange += 1;
+			{// BELIEF_DANCE_AURORA - Dance of the Aurora - tundra tiles only 
+				const bool hasBeliefDanceOfTheAurora = city.HasBelief(BELIEF_DANCE_AURORA);				
 				if (eYieldType == YIELD_PRODUCTION && hasBeliefDanceOfTheAurora && isTundra && hasBonus)
 					yieldChange += 1;
 				if (eYieldType == YIELD_CULTURE && hasBeliefDanceOfTheAurora && isTundra && hasLuxury)
 					yieldChange += 1;
-				if (eYieldType == YIELD_GOLD && hasBeliefDanceOfTheAurora && isTundra && hasStrategic)
+				if (eYieldType == YIELD_FAITH && hasBeliefDanceOfTheAurora && isTundra && hasStrategic)
 					yieldChange += 1;
 			}
 
-			{// BELIEF_DESERT_FOLKLORE - Desert Folklore - on Desert tiles only - gives +1 production to bonus tiles, +1 culture to luxury tiles, +1 Gold to Strategic, and +1 faith to every other Desert tile
-				const bool hasBeliefDesertFolklore = city.HasBelief(BELIEF_DESERT_FOLKLORE);
-				if (eYieldType == YIELD_FAITH && hasBeliefDesertFolklore && isDesert && noResource)
-					yieldChange += 1;
+			{// BELIEF_DESERT_FOLKLORE - Desert Folklore - on Desert tiles only - 
+				const bool hasBeliefDesertFolklore = city.HasBelief(BELIEF_DESERT_FOLKLORE);				
 				if (eYieldType == YIELD_PRODUCTION && hasBeliefDesertFolklore && isDesert && hasBonus)
 					yieldChange += 1;
 				if (eYieldType == YIELD_CULTURE && hasBeliefDesertFolklore && isDesert && hasLuxury)
 					yieldChange += 1;
-				if (eYieldType == YIELD_GOLD && hasBeliefDesertFolklore && isDesert && hasStrategic)
+				if (eYieldType == YIELD_FAITH && hasBeliefDesertFolklore && isDesert && hasStrategic)
 					yieldChange += 1;
 			}
 
@@ -321,23 +317,6 @@ int CvPlot::getExtraYield
 				if (eYieldType == YIELD_TOURISM && hasBeliefSacredWaters && (isLake || hasAnyAtoll || isOasis))
 					yieldChange += 1;
 			}			
-
-			{// BELIEF_GODDESS_HUNT - gives 1FH to Camps with Luxuries. 
-				const bool hasBeliefGoddessHunt = city.HasBelief(BELIEF_GODDESS_HUNT);
-				const bool hasCamp = plot.HasImprovement(IMPROVEMENT_CAMP);
-				if (eYieldType == YIELD_FAITH && hasBeliefGoddessHunt && hasLuxury && hasCamp)
-					yieldChange += 1;
-			}
-
-			{// BELIEF_STONE_CIRCLES - gives 1FH, +1G to Quarries with Luxuries. 
-				const bool hasBeliefStoneCircles = city.HasBelief(BELIEF_STONE_CIRCLES);
-				const bool hasQuarry = plot.HasImprovement(IMPROVEMENT_QUARRY);
-				const bool hasRockHewn = plot.HasImprovement(IMPROVEMENT_ROCK_HEWN);
-				if (eYieldType == YIELD_FAITH && hasBeliefStoneCircles && hasLuxury && (hasQuarry || hasRockHewn))
-					yieldChange += 1;
-				if (eYieldType == YIELD_GOLD && hasBeliefStoneCircles && hasLuxury && (hasQuarry || hasRockHewn))
-					yieldChange += 1;
-			}
 
 			{// BELIEF_SPIRITUALS - gives +2C +2FH to Holy Sites. +2FH to all other GP Tiles 
 				const bool hasBeliefSpirituals = city.HasBelief(BELIEF_SPIRITUALS);
