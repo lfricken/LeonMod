@@ -453,9 +453,12 @@ int CvPlot::getExtraYield
 
 			{// CIVILIZATION_FRANCE - 1 G from Strategic Resources (only available after you can see Horse or Iron, etc.)
 				const bool isFrance = player.IsCiv(CIVILIZATION_FRANCE);
+				const bool isNaturalWonder = plot.HasAnyNaturalWonder();
 				if (eYieldType == YIELD_GOLD && isFrance && hasStrategic)
 					yieldChange += 1;
-			}
+				if (eYieldType == YIELD_CULTURE && isFrance && isNaturalWonder)
+					yieldChange += 3;
+			}			
 
 			{// CIVILIZATION_INDONESIA - +1 to Atolls +2G from Coastal Luxes After Sailing
 				const bool isAtoll = plot.HasFeature(FEATURE_ATOLL);
@@ -481,12 +484,10 @@ int CvPlot::getExtraYield
 					yieldChange += 1;
 			}
 
-			{// CIVILIZATION_INDIA - 2FD 1C PD from Cattle After Animal Husbandry
+			{// CIVILIZATION_INDIA - 2FH from Cattle After Animal Husbandry
 				const bool hasCattle = plot.HasResource(RESOURCE_COW);
 				const bool isIndia = player.IsCiv(CIVILIZATION_INDIA);
-				const bool hasAnimalHusbandry = player.HasTech(TECH_ANIMAL_HUSBANDRY);
-				if (eYieldType == YIELD_CULTURE && isIndia && hasAnimalHusbandry && hasCattle)
-					yieldChange += 1;
+				const bool hasAnimalHusbandry = player.HasTech(TECH_ANIMAL_HUSBANDRY);				
 				if (eYieldType == YIELD_FAITH && isIndia && hasAnimalHusbandry && hasCattle)
 					yieldChange += 2;
 			}
@@ -512,12 +513,12 @@ int CvPlot::getExtraYield
 					yieldChange += 1;
 			}
 
-			{// CIVILIZATION_EGYPT - 2PD from Stone After Masonry
+			{// CIVILIZATION_EGYPT - 
 				const bool hasStone = plot.HasResource(RESOURCE_STONE);
 				const bool isEgypt = player.IsCiv(CIVILIZATION_EGYPT);
 				const bool hasMasonry = player.HasTech(TECH_MASONRY);
 				if (eYieldType == YIELD_PRODUCTION && isEgypt && hasMasonry && hasStone)
-					yieldChange += 2;
+					yieldChange += 1;
 			}
 
 			{// CIVILIZATION_UC_TURKEY - 1PD 1G from Wheat and Oasis After Pottery
@@ -538,9 +539,7 @@ int CvPlot::getExtraYield
 				const bool hasTheWheel = player.HasTech(TECH_THE_WHEEL);
 				const bool hasPottery = player.HasTech(TECH_POTTERY);
 				if (eYieldType == YIELD_PRODUCTION && isByzantium && hasTheWheel && hasHorse)
-					yieldChange += 1;
-				if (eYieldType == YIELD_CULTURE && isByzantium && hasTheWheel && hasHorse)
-					yieldChange += 1;
+					yieldChange += 1;				
 				if (eYieldType == YIELD_FOOD && isByzantium && hasPottery && hasMaize)
 					yieldChange += 1;
 				if (eYieldType == YIELD_GOLD && isByzantium && hasPottery && hasMaize)

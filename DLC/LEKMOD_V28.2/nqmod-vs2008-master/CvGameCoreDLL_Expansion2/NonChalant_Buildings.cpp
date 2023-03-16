@@ -970,11 +970,37 @@ int CvPlayer::getSpecialistYieldHardcoded(const CvCity* pCity, const SpecialistT
 	// logic that does not reference the city
 
 
-	{// CIVILIZATION_ROME buffs Artist specialists.
+	{// CIVILIZATION_ROME buffs Artists
 		const bool isRome = player.IsCiv(CIVILIZATION_ROME);
 		if (eYield == YIELD_CULTURE && isRome && isArtist)
 			change += 1;
 		if (eYield == YIELD_GOLD && isRome && isArtist)
+			change += 1;
+	}
+
+	{// CIVILIZATION_MC_SCOTLAND buffs Writers
+		const bool isEngland = player.IsCiv(CIVILIZATION_MC_SCOTLAND);
+		if (eYield == YIELD_CULTURE && isEngland && isWriter)
+			change += 1;		
+	}
+
+	{// CIVILIZATION_PRUSSIA buffs Engineers
+		const bool isGermany = player.IsCiv(CIVILIZATION_PRUSSIA);
+		if (eYield == YIELD_PRODUCTION && isGermany && isEngineer)
+			change += 1;
+	}
+
+	{// CIVILIZATION_IROQUOIS buffs Musicians
+		const bool isAmerica = player.IsCiv(CIVILIZATION_IROQUOIS);
+		if (eYield == YIELD_TOURISM && isAmerica && isMusician)
+			change += 1;
+	}
+
+	{// CIVILIZATION_KOREA buffs Scientists
+		const bool isKorea = player.IsCiv(CIVILIZATION_KOREA);
+		if (eYield == YIELD_SCIENCE && isKorea && isScientist)
+			change += 1;
+		if (eYield == YIELD_CULTURE && isKorea && isScientist)
 			change += 1;
 	}
 
