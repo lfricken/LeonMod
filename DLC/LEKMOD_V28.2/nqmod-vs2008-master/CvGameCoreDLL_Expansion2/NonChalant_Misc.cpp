@@ -142,7 +142,8 @@ int CvGlobals::getYIELD_PER_QUEST(const YieldTypes eYieldType, const PlayerTypes
 
 // trade route modifier
 
-int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeConnection, const YieldTypes eYieldType, 
+int CvPlayerTrade::GetTradeConnectionValueExtra(TradeConnectionType type, const TradeConnection& kTradeConnection, 
+	const YieldTypes eYieldType,
 	// If true, these yields are for the origin city, if false, they are for the destination city.
 	const bool isForOriginYields) const
 {

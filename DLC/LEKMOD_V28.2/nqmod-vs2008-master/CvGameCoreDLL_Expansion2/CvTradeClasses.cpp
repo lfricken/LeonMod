@@ -2764,7 +2764,7 @@ int CvPlayerTrade::CalcTradeConnectionValueTimes100(const TradeConnection& kTrad
 		}
 	}
 
-	iValueT100 += 100 * GetTradeConnectionValueExtra(kTradeConnection, eYield, bAsOriginPlayer);
+	iValueT100 += 100 * GetTradeConnectionValueExtra(kTradeConnection.m_eConnectionType, kTradeConnection, eYield, bAsOriginPlayer);
 
 	// reduce from other trade routes originating here FOR GOLD ONLY
 	const CvCity* pCityOrigin = CvGameTrade::GetOriginCity(kTradeConnection);
