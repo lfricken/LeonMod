@@ -519,6 +519,7 @@ function DisplayData()
 			strTurnsRemaining = v.TurnsLeft;
 		end
 		instance.TurnsLeft:SetText(strTurnsRemaining);
+		instance.TurnsLeft:SetToolTipString(strTT);	
     end
     
     Controls.MainStack:CalculateSize();

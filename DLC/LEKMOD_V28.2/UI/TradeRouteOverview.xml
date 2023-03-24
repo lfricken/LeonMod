@@ -220,16 +220,16 @@
 
 
 				<Button ID="Spacer" Anchor="L,C" Size="3,45" Style="BoxButton">
-
-
 				</Button>
+
+				
 				<Button ID="ToFood" Anchor="L,C" Size="36,45" Style="BoxButton">
 					<ShowOnMouseOver>
 						<AlphaAnim Anchor="C,C" Offset="0,0" Size="36,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
 							<Grid Size="36,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
 						</AlphaAnim>
 					</ShowOnMouseOver>
-					<Label Anchor="C,C" Offset="0.-1" Font="TwCenMT18" String="[ICON_FOOD]" ToolTip="TXT_KEY_TRO_COL_TO_FOOD_TT"/>
+					<Label Anchor="C,C" Offset="0.-1" Font="TwCenMT18" String="[ICON_FOOD]" ToolTip="Sort by this column"/>
 				</Button>
 				<Button ID="ToProduction" Anchor="L,C" Size="36,45" Style="BoxButton">
 					<ShowOnMouseOver>
@@ -237,7 +237,7 @@
 							<Grid Size="36,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
 						</AlphaAnim>
 					</ShowOnMouseOver>
-					<Label Anchor="C,C" Offset="0.-1" Font="TwCenMT18" String="[ICON_PRODUCTION]" ToolTip="TXT_KEY_TRO_COL_TO_PRODUCTION_TT"/>
+					<Label Anchor="C,C" Offset="0.-1" Font="TwCenMT18" String="[ICON_PRODUCTION]" ToolTip="Sort by this column"/>
 				</Button>
 				<Button ID="FromGPT" Anchor="L,C" Size="36,45" Style="BoxButton">
 					<ShowOnMouseOver>
@@ -245,15 +245,17 @@
 							<Grid Size="36,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
 						</AlphaAnim>
 					</ShowOnMouseOver>
-					<Label Anchor="C,C" Offset="0.-1" Font="TwCenMT18" String="[ICON_GOLD]" ToolTip="TXT_KEY_TRO_COL_FROM_GPT_TT"/>
+					<Label Anchor="C,C" Offset="0.-1" Font="TwCenMT18" String="[ICON_GOLD]" ToolTip="Sort by this column"/>
 				</Button>
+
+
 				<Button ID="FromScience" Anchor="L,C" Size="36,45" Style="BoxButton">
 				  <ShowOnMouseOver>
 					<AlphaAnim Anchor="C,C" Offset="0,0" Size="36,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
 					  <Grid Size="36,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
 					</AlphaAnim>
 				  </ShowOnMouseOver>
-				  <Label Anchor="C,C" Offset="0.-1" Font="TwCenMT18" String="[ICON_RESEARCH]" ToolTip="TXT_KEY_TRO_COL_FROM_SCIENCE_TT"/>
+				  <Label Anchor="C,C" Offset="0.-1" Font="TwCenMT18" String="[ICON_RESEARCH]" ToolTip="Sort by this column"/>
 				</Button>
 				<Button ID="ToGPT" Anchor="L,C" Size="36,45" Style="BoxButton">
 					<ShowOnMouseOver>
@@ -261,7 +263,7 @@
 							<Grid Size="36,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
 						</AlphaAnim>
 					</ShowOnMouseOver>
-					<Label Anchor="C,C" Offset="0.-1" Font="TwCenMT18" String="[ICON_CULTURE]" ToolTip="TXT_KEY_TRO_COL_TO_GPT_TT"/>
+					<Label Anchor="C,C" Offset="0.-1" Font="TwCenMT18" String="[ICON_CULTURE]" ToolTip="Sort by this column"/>
 				</Button>
 				<Button ID="ToScience" Anchor="L,C" Size="36,45" Style="BoxButton">
 				  <ShowOnMouseOver>
@@ -269,23 +271,27 @@
 					  <Grid Size="36,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
 					</AlphaAnim>
 				  </ShowOnMouseOver>
-				  <Label Anchor="C,C" Offset="0.-1" Font="TwCenMT18" String="[ICON_PEACE]" ToolTip="TXT_KEY_TRO_COL_TO_SCIENCE_TT"/>
+				  <Label Anchor="C,C" Offset="0.-1" Font="TwCenMT18" String="[ICON_PEACE]" ToolTip="Sort by this column"/>
 				</Button>
+
+
 				<Button ID="ToGolden" Anchor="L,C" Size="36,45" Style="BoxButton">
 				  <ShowOnMouseOver>
 					<AlphaAnim Anchor="C,C" Offset="0,0" Size="36,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
 					  <Grid Size="36,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
 					</AlphaAnim>
 				  </ShowOnMouseOver>
-				  <Label Anchor="C,C" Offset="0.-1" Font="TwCenMT18" String="[ICON_GOLDEN_AGE]" ToolTip="TXT_KEY_TRO_COL_TO_SCIENCE_TT"/>
+				  <Label Anchor="C,C" Offset="0.-1" Font="TwCenMT18" String="[ICON_GOLDEN_AGE]" ToolTip="Sort by this column"/>
 				</Button>
+
+
 				<Button ID="ToTourism" Anchor="L,C" Size="36,45" Style="BoxButton">
 				  <ShowOnMouseOver>
 					<AlphaAnim Anchor="C,C" Offset="0,0" Size="36,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
 					  <Grid Size="36,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
 					</AlphaAnim>
 				  </ShowOnMouseOver>
-				  <Label Anchor="C,C" Offset="0.-1" Font="TwCenMT18" String="[ICON_CULTURAL_INFLUENCE]" ToolTip="TXT_KEY_TRO_COL_TO_SCIENCE_TT"/>
+				  <Label Anchor="C,C" Offset="0.-1" Font="TwCenMT18" String="[ICON_CULTURAL_INFLUENCE]" ToolTip="Sort by this column"/>
 				</Button>
 				<Button ID="ToInsight" Anchor="L,C" Size="36,45" Style="BoxButton">
 				  <ShowOnMouseOver>
@@ -293,7 +299,7 @@
 					  <Grid Size="36,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
 					</AlphaAnim>
 				  </ShowOnMouseOver>
-				  <Label Anchor="C,C" Offset="0.-1" Font="TwCenMT18" String="[ICON_SCIENTIFIC_INFLUENCE]" ToolTip="TXT_KEY_TRO_COL_TO_SCIENCE_TT"/>
+				  <Label Anchor="C,C" Offset="0.-1" Font="TwCenMT18" String="[ICON_SCIENTIFIC_INFLUENCE]" ToolTip="Sort by this column"/>
 				</Button>
 				<Button ID="ToDiplo" Anchor="L,C" Size="36,45"  Style="BoxButton">
 				  <ShowOnMouseOver>
@@ -301,8 +307,10 @@
 					  <Grid Size="36,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
 					</AlphaAnim>
 				  </ShowOnMouseOver>
-				  <Label Anchor="C,C" Offset="0.-1" Font="TwCenMT18" String="[ICON_DIPLOMATIC_INFLUENCE]" ToolTip="TXT_KEY_TRO_COL_TO_SCIENCE_TT"/>
+				  <Label Anchor="C,C" Offset="0.-1" Font="TwCenMT18" String="[ICON_DIPLOMATIC_INFLUENCE]" ToolTip="Sort by this column"/>
 				</Button>
+
+
 				<Button ID="FromReligion" Anchor="L,C" Size="51,45" Style="BoxButton">
 					<ShowOnMouseOver>
 						<AlphaAnim Anchor="C,C" Offset="0,0" Size="51,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
