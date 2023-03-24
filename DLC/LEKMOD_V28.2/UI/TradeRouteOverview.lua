@@ -421,7 +421,9 @@ function DisplayData()
 		end
 		
 		local strTT = BuildTradeRouteToolTipString(Players[v.FromID], v.FromCity, v.ToCity, v.Domain);
-		
+		strTT = strTT or "";
+		strTT = strTT .. "tooltip needs fixing";
+
 		if (v.Domain == DomainTypes.DOMAIN_LAND) then
 			instance.Domain_Land:SetHide(false);
 			instance.Domain_Land:SetToolTipString(strTT);
@@ -438,7 +440,7 @@ function DisplayData()
 		instance.FromCivIconShadow:SetToolTipString(v.FromCiv);
 		instance.FromCivIconHighlight:SetToolTipString(v.FromCiv);
 		instance.FromCity:SetText(v.FromCityName);
-		instance.FromCity:SetToolTipString(strTT);
+		instance.FromCity:SetToolTipString(v.FromCityName);
 		
 		CivIconHookup(v.ToID, 32, instance.ToCivIcon, instance.ToCivIconBG, instance.ToCivIconShadow, false, true, instance.ToCivIconHighlight);
 		instance.ToCivIcon:SetToolTipString(v.ToCiv);
@@ -446,7 +448,7 @@ function DisplayData()
 		instance.ToCivIconShadow:SetToolTipString(v.ToCiv);
 		instance.ToCivIconHighlight:SetToolTipString(v.ToCiv);
 		instance.ToCity:SetText(v.ToCityName);
-		instance.ToCity:SetToolTipString(strTT);
+		instance.ToCity:SetToolTipString(v.ToCityName);
 		
 		local strToGPT = "";
 		if (v.ToGPT ~= 0) then
