@@ -99,6 +99,14 @@ bool CvBarbarians::CanBarbariansSpawn()
 /// Determines when to Spawn a new Barb Unit from a Camp
 bool CvBarbarians::ShouldSpawnBarbFromCamp(CvPlot * pPlot)
 {
+	const int percentOddsOfCampSpawningUnit = 33;
+	// randomly don't spawn a unit here
+	const int randSeed = GC.getGame().getGameTurn() * 49 + pPlot->getX() * 174 + pPlot->getY() * 335;
+	if (GC.rand(99, "", pPlot, randSeed) < percentOddsOfCampSpawningUnit)
+	{
+		return false;
+	}
+
 	if (m_aiPlotBarbCampSpawnCounter[pPlot->GetPlotIndex()] == 0)
 	{
 		return true;
@@ -712,43 +720,6 @@ void CvBarbarians::DoUnits(const std::vector<int>&spawnPointsX, const std::vecto
 	const CvMap& kMap = GC.getMap();
 
 
-	// more like apeshit barbarians
-	// spawn all over map every so often
-	if (GC.getGame().isOption(GAMEOPTION_RAGING_BARBARIANS))
-	{
-		const CvPlayer& barbPlayer = GET_PLAYER(BARBARIAN_PLAYER);
-		const int numUnits = barbPlayer.getNumUnits();
-		const int maxX = kMap.getGridWidth();
-		const int maxY = kMap.getGridHeight();
-		const int targetUnits = (maxX * maxY) / GC.getTILES_PER_BARB();
-		int numUnitsToSpawn = max(0, targetUnits - numUnits);
-
-		// limit spawn rate
-		if (numUnits == 0) // assume this means initial spawn, so spawn all
-		{
-			numUnitsToSpawn = numUnitsToSpawn;
-		}
-		else // respawning, so limit
-		{
-			const int minToSpawn = numUnitsToSpawn != 0 ? 1 : 0; // if we should spawn any, always spawn at least 1
-			numUnitsToSpawn = max(minToSpawn, targetUnits / 10);
-		}
-
-		const int inverseX = 10000 / maxX;
-		const int inverseY = 10000 / maxY;
-		// spawn all over map
-		for (int i = 0; i < numUnitsToSpawn; i++)
-		{
-			const int x = max(0, spawnPointsX[*spawnCounter] / inverseX) % maxX;
-			const int y = max(0, spawnPointsY[*spawnCounter] / inverseY) % maxY;
-			const CvPlot* pLoopPlot = kMap.plot(x, y);
-			const bool didSpawn = DoSpawnBarbarianUnit(pLoopPlot, false, true, false);
-			if (!didSpawn)
-				i--; // back up and try again
-			(*spawnCounter) = ((*spawnCounter) + 1) % spawnPointsX.size();
-		}
-	}
-
 	// spawn from camps, but ONLY on center plot
 	const ImprovementTypes eCamp = (ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT();
 	for (int iPlotLoop = 0; iPlotLoop < kMap.numPlots(); iPlotLoop++)
@@ -763,6 +734,37 @@ void CvBarbarians::DoUnits(const std::vector<int>&spawnPointsX, const std::vecto
 				DoSpawnBarbarianUnit(pLoopPlot, false, true, true);
 				DoCampActivationNotice(pLoopPlot);
 			}
+		}
+	}
+
+	// more like apeshit barbarians
+	// spawn all over map every so often
+	if (GC.getGame().isOption(GAMEOPTION_RAGING_BARBARIANS))
+	{
+		const CvPlayer& barbPlayer = GET_PLAYER(BARBARIAN_PLAYER);
+		const int numUnits = barbPlayer.getNumUnits();
+		const int maxX = kMap.getGridWidth();
+		const int maxY = kMap.getGridHeight();
+		const int targetUnits = (maxX * maxY) / GC.getTILES_PER_BARB();
+		// number of units till we reach our max units
+		const int numUnitsLacking = max(0, targetUnits - numUnits);
+
+		// limit spawn rate
+		const int numToSpawn = max(0, (4 + numUnitsLacking) / 5); // +4 round up
+
+		// scale
+		const int inverseX = 10000 / maxX;
+		const int inverseY = 10000 / maxY;
+		// spawn all over map
+		for (int i = 0; i < numToSpawn; i++)
+		{
+			const int x = max(0, spawnPointsX[*spawnCounter] / inverseX) % maxX;
+			const int y = max(0, spawnPointsY[*spawnCounter] / inverseY) % maxY;
+			const CvPlot* pLoopPlot = kMap.plot(x, y);
+			const bool didSpawn = DoSpawnBarbarianUnit(pLoopPlot, false, true, false);
+			if (!didSpawn)
+				i--; // back up and try again
+			(*spawnCounter) = ((*spawnCounter) + 1) % spawnPointsX.size();
 		}
 	}
 }
@@ -799,58 +801,58 @@ bool CvBarbarians::DoSpawnBarbarianUnit(const CvPlot * pPlot, bool, bool bFinish
 
 	CvGame& kGame = GC.getGame();
 
-	//// is this camp empty - first priority is to fill it
-	//const ImprovementTypes eCamp = (ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT();
-	//if (pPlot->getImprovementType() == eCamp && pPlot->GetNumCombatUnits() == 0)
-	//{
-	//	const UnitTypes eUnit = GetRandomBarbarianUnitType(GC.getMap().getArea(pPlot->getArea()), UNITAI_FAST_ATTACK);
+	// is this camp empty - first priority is to fill it
+	const ImprovementTypes eCamp = (ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT();
+	if (pPlot->getImprovementType() == eCamp && pPlot->GetNumCombatUnits() == 0)
+	{
+		const UnitTypes eUnit = GetRandomBarbarianUnitType(GC.getMap().getArea(pPlot->getArea()), UNITAI_FAST_ATTACK);
 
-	//	if (eUnit != NO_UNIT)
-	//	{
-	//		CvUnit* pUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pPlot->getX(), pPlot->getY(), UNITAI_FAST_ATTACK);
-	//		pUnit->finishMoves();
-	//		return;
-	//	}
-	//}
+		if (eUnit != NO_UNIT)
+		{
+			CvUnit* pUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pPlot->getX(), pPlot->getY(), UNITAI_FAST_ATTACK);
+			pUnit->finishMoves();
+			return;
+		}
+	}
 
-//	const int iRange = GC.getMAX_BARBARIANS_FROM_CAMP_NEARBY_RANGE();
-//	// Look at nearby Plots to see if there are already too many Barbs nearby
-//	int iNumNearbyUnits = 0;
-//
-//#ifdef AUI_HEXSPACE_DX_LOOPS
-//	int iMaxDX;
-//	for (iY = -iRange; iY <= iRange; iY++)
-//	{
-//		iMaxDX = iRange - MAX(0, iY);
-//		for (iX = -iRange - MIN(0, iY); iX <= iMaxDX; iX++) // MIN() and MAX() stuff is to reduce loops (hexspace!)
-//		{
-//			// No need for range check because loops are set up properly
-//			const CvPlot* pNearbyPlot = plotXY(pPlot->getX(), pPlot->getY(), iX, iY);
-//#else
-//	for(int iX = -iRange; iX <= iRange; iX++)
-//	{
-//		for(int iY = -iRange; iY <= iRange; iY++)
-//		{
-//			// Cut off the corners of the area we're looking at that we don't want
-//			const CvPlot* pNearbyPlot = plotXYWithRangeCheck(pPlot->getX(), pPlot->getY(), iX, iY, iRange);
-//#endif
-//
-//			if(pNearbyPlot != NULL)
-//			{
-//				if(pNearbyPlot->getNumUnits() > 0)
-//				{
-//					for (int iNearbyUnitLoop = 0; iNearbyUnitLoop < pNearbyPlot->getNumUnits(); iNearbyUnitLoop++)
-//					{
-//						const CvUnit* const unit = pNearbyPlot->getUnitByIndex(iNearbyUnitLoop);
-//						if (unit != NULL && unit->isBarbarian())
-//						{
-//							iNumNearbyUnits++;
-//						}
-//					}
-//				}
-//			}
-//		}
-//	}
+	const int iRange = GC.getMAX_BARBARIANS_FROM_CAMP_NEARBY_RANGE();
+	// Look at nearby Plots to see if there are already too many Barbs nearby
+	int iNumNearbyUnits = 0;
+
+#ifdef AUI_HEXSPACE_DX_LOOPS
+	int iMaxDX;
+	for (iY = -iRange; iY <= iRange; iY++)
+	{
+		iMaxDX = iRange - MAX(0, iY);
+		for (iX = -iRange - MIN(0, iY); iX <= iMaxDX; iX++) // MIN() and MAX() stuff is to reduce loops (hexspace!)
+		{
+			// No need for range check because loops are set up properly
+			const CvPlot* pNearbyPlot = plotXY(pPlot->getX(), pPlot->getY(), iX, iY);
+#else
+	for(int iX = -iRange; iX <= iRange; iX++)
+	{
+		for(int iY = -iRange; iY <= iRange; iY++)
+		{
+			// Cut off the corners of the area we're looking at that we don't want
+			const CvPlot* pNearbyPlot = plotXYWithRangeCheck(pPlot->getX(), pPlot->getY(), iX, iY, iRange);
+#endif
+
+			if(pNearbyPlot != NULL)
+			{
+				if(pNearbyPlot->getNumUnits() > 0)
+				{
+					for (int iNearbyUnitLoop = 0; iNearbyUnitLoop < pNearbyPlot->getNumUnits(); iNearbyUnitLoop++)
+					{
+						const CvUnit* const unit = pNearbyPlot->getUnitByIndex(iNearbyUnitLoop);
+						if (unit != NULL && unit->isBarbarian())
+						{
+							iNumNearbyUnits++;
+						}
+					}
+				}
+			}
+		}
+	}
 
 	const int randVal = kGame.getJonRandNum(50000, "Barb Unit Location Spawn Roll", pPlot, kGame.getGameTurn() * 137);
 	const int canSpawnInBordersChance = 40;
@@ -1070,8 +1072,17 @@ void tryMove(CvUnit * pLoopUnit)
 	const bool isRangeAttack = pLoopUnit->IsCanAttackRanged();
 	const int moveRange = pLoopUnit->getMovesPlots();
 
-	// get nearby plots
 	CvPlot* unitPlot = pLoopUnit->plot();
+
+	// don't move the barbarian if it's on an encampment
+	const bool isStandingOnBarbCamp = unitPlot->HasImprovement((ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT());
+	if (isStandingOnBarbCamp)
+	{
+		return; // don't move
+	}
+
+
+	// get nearby plots
 	const int randSeed = GC.getGame().getGameTurn() * 49 + unitPlot->getX() * 174 + unitPlot->getY() * 335;
 	vector<CvPlot*> plots = unitPlot->GetAdjacentPlotsRadiusRange(1, 4);
 	shuffleVector(&plots, randSeed); // randomize moves, be unpredictable!

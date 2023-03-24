@@ -767,6 +767,7 @@ protected:
 	// 0 if nobody has entered the era, 3 if 3 people have, etc.
 	std::vector<int> m_eraNumPlayersEntered;
 	// keeps track of which spawn point barbarians should consider spawning
+	// this increments every time a barb spawns so we don't accidentally spawn at the same spot
 	int m_barbSpawnCounter;
 
 	CvRandom m_mapRand;
