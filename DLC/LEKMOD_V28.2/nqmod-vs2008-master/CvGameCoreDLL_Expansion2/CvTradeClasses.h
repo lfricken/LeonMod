@@ -211,7 +211,7 @@ public:
 	// Functions invoked each player turn
 	void DoTurn(void);
 	void MoveUnits(void);
-	int GetTradeConnectionValueExtra(const TradeConnection& kTradeConnection, const YieldTypes eYieldType, const bool bIsOwner) const;
+	int GetTradeConnectionValueExtra(TradeConnectionType type, const TradeConnection& kTradeConnection, const YieldTypes eYieldType, const bool bIsOwner) const;
 
 	int GetTradeConnectionBaseValueTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer) const;
 	int GetTradeConnectionGPTValueTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer, bool bOriginCity) const;

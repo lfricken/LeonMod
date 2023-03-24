@@ -811,7 +811,7 @@ bool CvBarbarians::DoSpawnBarbarianUnit(const CvPlot * pPlot, bool, bool bFinish
 		{
 			CvUnit* pUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pPlot->getX(), pPlot->getY(), UNITAI_FAST_ATTACK);
 			pUnit->finishMoves();
-			return;
+			return true;
 		}
 	}
 
