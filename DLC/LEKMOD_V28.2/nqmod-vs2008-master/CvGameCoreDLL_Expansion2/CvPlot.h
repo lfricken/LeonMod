@@ -187,6 +187,7 @@ public:
 	CvPlot* getNearestLandPlotInternal(int iDistance) const;
 	int getNearestLandArea() const;
 	CvPlot* getNearestLandPlot() const;
+	int countNearbyPlots(int (*check)(const CvPlot&), int range, bool includeCenterPlot = true) const;
 
 	int seeFromLevel(TeamTypes eTeam) const;
 	int seeThroughLevel(bool bIncludeShubbery=true) const;
@@ -517,8 +518,8 @@ public:
 	vector<CvUnit*> GetAdjacentEnemyMilitaryUnits(const TeamTypes eMyTeam, const DomainTypes eDomain = NO_DOMAIN, const bool ignoreBarbs = false) const;
 	
 
-	vector<CvPlot*> GetAdjacentPlotsRadiusRange(int radiusStartInclusive, int radiusEndInclusive);
-	vector<CvPlot*> GetAdjacentPlots(int range = 1);
+	vector<CvPlot*> GetAdjacentPlotsRadiusRange(int radiusStartInclusive, int radiusEndInclusive) const;
+	vector<CvPlot*> GetAdjacentPlots(int range = 1) const;
 	bool isRoughGround() const
 	{
 		if(isHills())
