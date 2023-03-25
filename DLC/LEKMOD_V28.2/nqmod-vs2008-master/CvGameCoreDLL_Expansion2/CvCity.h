@@ -42,7 +42,7 @@ struct SCityExtraYields
 	vector<pair<ImprovementTypes, int>> forImprovement;
 };
 
-class CvCity
+class CvCity : public IHasXY
 {
 
 public:
@@ -335,6 +335,7 @@ public:
 	{
 		return m_iY;
 	}
+	int distTo(const IHasXY* other) const;
 
 	bool at(int iX, int iY) const;
 	bool at(CvPlot* pPlot) const;

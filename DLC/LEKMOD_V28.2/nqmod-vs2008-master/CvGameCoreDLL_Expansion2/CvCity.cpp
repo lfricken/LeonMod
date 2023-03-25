@@ -8320,6 +8320,10 @@ CvPlot* CvCity::plot() const
 	return NULL;
 }
 
+int CvCity::distTo(const IHasXY* other) const
+{
+	return plotDistance(getX(), getY(), other->getX(), other->getY());
+}
 //	--------------------------------------------------------------------------------
 bool CvCity::at(int iX,  int iY) const
 {
