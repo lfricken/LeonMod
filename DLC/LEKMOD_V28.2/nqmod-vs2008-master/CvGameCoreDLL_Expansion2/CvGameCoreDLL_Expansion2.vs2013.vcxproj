@@ -173,6 +173,7 @@
       <ProfileGuidedDatabase>$(TargetDir)\CvGameCore_Expansion2.pgd</ProfileGuidedDatabase>
       <Profile>true</Profile>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

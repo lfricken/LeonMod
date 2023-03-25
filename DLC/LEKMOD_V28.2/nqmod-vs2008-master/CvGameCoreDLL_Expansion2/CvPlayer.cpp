@@ -26716,7 +26716,7 @@ int CvPlayer::CountOwnedPlots(int (*check)(const CvPlot&)) const
 		}
 	}
 	return num;
-};
+}
 //	--------------------------------------------------------------------------------
 /// How many plots does this player own?
 int CvPlayer::GetNumPlots() const
