@@ -2764,17 +2764,17 @@ int CvPlayerTrade::CalcTradeConnectionValueTimes100(const TradeConnection& kTrad
 		}
 	}
 
-	iValueT100 += 100 * GetTradeConnectionValueExtra(kTradeConnection.m_eConnectionType, kTradeConnection, eYield, bAsOriginPlayer);
+	iValueT100 += 100 * GetTradeConnectionValueExtra(kTradeConnection, eYield, bAsOriginPlayer);
 
 	// reduce from other trade routes originating here FOR GOLD ONLY
-	const CvCity* pCityOrigin = CvGameTrade::GetOriginCity(kTradeConnection);
-	if (pCityOrigin != NULL && eYield == YIELD_GOLD)
-	{
-		// lose 20% for each one
-		const T100 factor = iPow(100 - 20, CalcNumTradeRoutesOriginatingFromExcept(pCityOrigin, kTradeConnection));
-		iValueT100 *= factor;
-		iValueT100 /= 100;
-	}
+	//const CvCity* pCityOrigin = CvGameTrade::GetOriginCity(kTradeConnection);
+	//if (pCityOrigin != NULL && eYield == YIELD_GOLD)
+	//{
+	//	// lose 20% for each one
+	//	const T100 factor = iPow((long long)100 - 20, CalcNumTradeRoutesOriginatingFromExcept(pCityOrigin, kTradeConnection));
+	//	iValueT100 *= factor;
+	//	iValueT100 /= 100;
+	//}
 
 	// dont allow fractional route values
 	iValueT100 = (iValueT100 + 50) / 100; // round

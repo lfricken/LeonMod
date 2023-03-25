@@ -4485,6 +4485,14 @@ enum TradeConnectionType
 	NUM_TRADE_CONNECTION_TYPES
 };
 
+enum TradeRouteType
+{
+	TRADEROUTE_FOOD,
+	TRADEROUTE_PROD,
+	TRADEROUTE_MINOR,
+	TRADEROUTE_MAJOR,
+};
+
 enum GreatWorkArtifactClass
 {
 	NO_GREAT_WORK_ARTIFACT_CLASS = 0,

@@ -58,6 +58,27 @@ struct TradeConnection
 		m_aPlotList.clear();
 	}
 #endif
+
+
+	// determine type of route
+	TradeRouteType GetRouteType() const
+	{
+		TradeRouteType type;
+		if (m_eConnectionType == TRADE_CONNECTION_FOOD)
+			type = TRADEROUTE_FOOD;
+		else if (m_eConnectionType == TRADE_CONNECTION_PRODUCTION)
+			type = TRADEROUTE_FOOD;
+		else
+		{
+			const CvPlayer& playerDest = GET_PLAYER(m_eDestOwner);
+			const bool isDestMinor = playerDest.isMinorCiv();
+			if (isDestMinor)
+				type = TRADEROUTE_FOOD;
+			else
+				type = TRADEROUTE_FOOD;
+		}
+		return type;
+	}
 };
 
 #define PROJECTED_MAX_TRADE_CONNECTIONS_PER_CIV 14
@@ -211,7 +232,7 @@ public:
 	// Functions invoked each player turn
 	void DoTurn(void);
 	void MoveUnits(void);
-	int GetTradeConnectionValueExtra(TradeConnectionType type, const TradeConnection& kTradeConnection, const YieldTypes eYieldType, const bool bIsOwner) const;
+	int GetTradeConnectionValueExtra(const TradeConnection& kTradeConnection, const YieldTypes eYieldType, const bool bIsOwner) const;
 
 	int GetTradeConnectionBaseValueTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer) const;
 	int GetTradeConnectionGPTValueTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer, bool bOriginCity) const;

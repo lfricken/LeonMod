@@ -75,7 +75,15 @@ struct CvUnitCaptureDefinition
 	}
 };
 
-class CvUnit
+class IHasXY
+{
+public:
+	virtual int getX() const = 0;
+	virtual int getY() const = 0;
+};
+
+
+class CvUnit : public IHasXY
 {
 
 	friend class CvUnitMission;
