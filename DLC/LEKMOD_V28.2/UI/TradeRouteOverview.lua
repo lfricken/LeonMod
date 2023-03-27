@@ -65,20 +65,8 @@ g_SortOptions = {
 		DefaultDirection = "asc",
 		CurrentDirection = nil,
 	},
-	{
-		Button = Controls.FromGPT,
-		Column = "FromGPT",
-		DefaultDirection = "desc",
-		CurrentDirection = nil,
-		SortType = "numeric",
-	},
-	{
-		Button = Controls.ToGPT,
-		Column = "ToGPT",
-		DefaultDirection = "desc",
-		CurrentDirection = nil,
-		SortType = "numeric",
-	},
+
+
 	{
 		Button = Controls.ToFood,
 		Column = "ToFood",
@@ -94,6 +82,71 @@ g_SortOptions = {
 		SortType = "numeric",
 	},
 	{
+		Button = Controls.ToGPT,
+		Column = "ToGPT",
+		DefaultDirection = "desc",
+		CurrentDirection = nil,
+		SortType = "numeric",
+	},
+
+
+	{
+		Button = Controls.Science,
+		Column = "Science",
+		DefaultDirection = "desc",
+		CurrentDirection = nil,
+		SortType = "numeric",
+	},
+	{
+		Button = Controls.Culture,
+		Column = "Culture",
+		DefaultDirection = "desc",
+		CurrentDirection = nil,
+		SortType = "numeric",
+	},
+	{
+		Button = Controls.Faith,
+		Column = "Faith",
+		DefaultDirection = "desc",
+		CurrentDirection = nil,
+		SortType = "numeric",
+	},
+
+
+	{
+		Button = Controls.Golden,
+		Column = "GoldenAgePoints",
+		DefaultDirection = "desc",
+		CurrentDirection = nil,
+		SortType = "numeric",
+	},
+
+
+	{
+		Button = Controls.ScientificInsight,
+		Column = "ScientificInsight",
+		DefaultDirection = "desc",
+		CurrentDirection = nil,
+		SortType = "numeric",
+	},
+	{
+		Button = Controls.DiplomaticSupport,
+		Column = "DiplomaticSupport",
+		DefaultDirection = "desc",
+		CurrentDirection = nil,
+		SortType = "numeric",
+	},
+	{
+		Button = Controls.CulturalInfluence,
+		Column = "Tourism",
+		DefaultDirection = "desc",
+		CurrentDirection = nil,
+		SortType = "numeric",
+	},
+
+
+
+	{
 		Button = Controls.FromReligion,
 		Column = "FromReligion",
 		DefaultDirection = "desc",
@@ -107,20 +160,8 @@ g_SortOptions = {
 		CurrentDirection = nil,
 		SortType = "numeric",
 	},
-	{
-		Button = Controls.FromScience,
-		Column = "FromScience",
-		DefaultDirection = "desc",
-		CurrentDirection = nil,
-		SortType = "numeric",
-	},
-	{
-		Button = Controls.ToScience,
-		Column = "ToScience",
-		DefaultDirection = "desc",
-		CurrentDirection = nil,
-		SortType = "numeric",
-	},
+
+
 	{
 		Button = Controls.TurnsLeft,
 		Column = "TurnsLeft",
@@ -161,14 +202,29 @@ function AlphabeticalSortFunction(field, direction, secondarySort)
 	end
 end
 
+function secVal(r)
+	local val = r.ToFood + r.ToProduction + r.ToGPT + r.Culture + r.ToScience + r.Faith + r.GoldenAgePoints + r.ScientificInsight + r.DiplomaticSupport + r.Tourism + r.ToPressure;
+	return val;
+end
+function sortFallback(a,b)
+	local va = secVal(a);
+	local vb = secVal(b);
+	
+	return tonumber(va) > tonumber(vb);
+end
+
 function NumericSortFunction(field, direction, secondarySort)
 	if(direction == "asc") then
 		return function(a,b)
 			local va = (a ~= nil and a[field] ~= nil) and a[field] or -1;
 			local vb = (b ~= nil and b[field] ~= nil) and b[field] or -1;
 			
-			if(secondarySort ~= nil and tonumber(va) == tonumber(vb)) then
-				return secondarySort(a,b);
+			if(tonumber(va) == tonumber(vb)) then
+				if (secondarySort ~= nil) then
+					return secondarySort(a,b);
+				else
+					return sortFallback(a,b);
+				end
 			else
 				return tonumber(va) < tonumber(vb);
 			end
@@ -178,8 +234,12 @@ function NumericSortFunction(field, direction, secondarySort)
 			local va = (a ~= nil and a[field] ~= nil) and a[field] or -1;
 			local vb = (b ~= nil and b[field] ~= nil) and b[field] or -1;
 
-			if(secondarySort ~= nil and tonumber(va) == tonumber(vb)) then
-				return secondarySort(a,b);
+			if(tonumber(va) == tonumber(vb)) then
+				if (secondarySort ~= nil) then
+					return secondarySort(a,b);
+				else
+					return sortFallback(a,b);
+				end
 			else
 				return tonumber(vb) < tonumber(va);
 			end
@@ -189,10 +249,11 @@ end
 
 -- Registers the sort option controls click events
 function RegisterSortOptions()
-	
 	for i,v in ipairs(g_SortOptions) do
 		if(v.Button ~= nil) then
 			v.Button:RegisterCallback(Mouse.eLClick, function() SortOptionSelected(v); end);
+		else
+			print("RegisterSortOptions button is null: " .. v.Column);
 		end
 	end
 	

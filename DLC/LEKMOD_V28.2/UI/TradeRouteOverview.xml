@@ -245,7 +245,7 @@
 					</ShowOnMouseOver>
 					<Label Anchor="C,C" Offset="0.-1" Font="TwCenMT18" String="[ICON_PRODUCTION]" ToolTip="Sort by this column"/>
 				</Button>
-				<Button ID="FromGPT" Anchor="L,C" Size="36,45" Style="BoxButton">
+				<Button ID="ToGPT" Anchor="L,C" Size="36,45" Style="BoxButton">
 					<ShowOnMouseOver>
 						<AlphaAnim Anchor="C,C" Offset="0,0" Size="36,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
 							<Grid Size="36,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
@@ -255,7 +255,7 @@
 				</Button>
 
 
-				<Button ID="FromScience" Anchor="L,C" Size="36,45" Style="BoxButton">
+				<Button ID="Science" Anchor="L,C" Size="36,45" Style="BoxButton">
 				  <ShowOnMouseOver>
 					<AlphaAnim Anchor="C,C" Offset="0,0" Size="36,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
 					  <Grid Size="36,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
@@ -263,7 +263,7 @@
 				  </ShowOnMouseOver>
 				  <Label Anchor="C,C" Offset="0.-1" Font="TwCenMT18" String="[ICON_RESEARCH]" ToolTip="Sort by this column"/>
 				</Button>
-				<Button ID="ToGPT" Anchor="L,C" Size="36,45" Style="BoxButton">
+				<Button ID="Culture" Anchor="L,C" Size="36,45" Style="BoxButton">
 					<ShowOnMouseOver>
 						<AlphaAnim Anchor="C,C" Offset="0,0" Size="36,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
 							<Grid Size="36,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
@@ -271,7 +271,7 @@
 					</ShowOnMouseOver>
 					<Label Anchor="C,C" Offset="0.-1" Font="TwCenMT18" String="[ICON_CULTURE]" ToolTip="Sort by this column"/>
 				</Button>
-				<Button ID="ToScience" Anchor="L,C" Size="36,45" Style="BoxButton">
+				<Button ID="Faith" Anchor="L,C" Size="36,45" Style="BoxButton">
 				  <ShowOnMouseOver>
 					<AlphaAnim Anchor="C,C" Offset="0,0" Size="36,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
 					  <Grid Size="36,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
@@ -281,7 +281,7 @@
 				</Button>
 
 
-				<Button ID="ToGolden" Anchor="L,C" Size="36,45" Style="BoxButton">
+				<Button ID="Golden" Anchor="L,C" Size="36,45" Style="BoxButton">
 				  <ShowOnMouseOver>
 					<AlphaAnim Anchor="C,C" Offset="0,0" Size="36,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
 					  <Grid Size="36,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
@@ -291,7 +291,7 @@
 				</Button>
 
 
-				<Button ID="ToInsight" Anchor="L,C" Size="36,45" Style="BoxButton">
+				<Button ID="ScientificInsight" Anchor="L,C" Size="36,45" Style="BoxButton">
 				  <ShowOnMouseOver>
 					<AlphaAnim Anchor="C,C" Offset="0,0" Size="36,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
 					  <Grid Size="36,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
@@ -299,7 +299,7 @@
 				  </ShowOnMouseOver>
 				  <Label Anchor="C,C" Offset="0.-1" Font="TwCenMT18" String="[ICON_SCIENTIFIC_INFLUENCE]" ToolTip="Sort by this column"/>
 				</Button>
-				<Button ID="ToDiplo" Anchor="L,C" Size="36,45"  Style="BoxButton">
+				<Button ID="DiplomaticSupport" Anchor="L,C" Size="36,45"  Style="BoxButton">
 				  <ShowOnMouseOver>
 					<AlphaAnim Anchor="C,C" Offset="0,0" Size="36,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
 					  <Grid Size="36,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
@@ -307,7 +307,7 @@
 				  </ShowOnMouseOver>
 				  <Label Anchor="C,C" Offset="0.-1" Font="TwCenMT18" String="[ICON_DIPLOMATIC_INFLUENCE]" ToolTip="Sort by this column"/>
 				</Button>
-				<Button ID="ToTourism" Anchor="L,C" Size="36,45" Style="BoxButton">
+				<Button ID="CulturalInfluence" Anchor="L,C" Size="36,45" Style="BoxButton">
 				  <ShowOnMouseOver>
 					<AlphaAnim Anchor="C,C" Offset="0,0" Size="36,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
 					  <Grid Size="36,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
