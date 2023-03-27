@@ -140,14 +140,37 @@ int CvGlobals::getYIELD_PER_QUEST(const YieldTypes eYieldType, const PlayerTypes
 }
 
 
+void addValueLine(stringstream& s, bool isGreen, const long value, const string description)
+{
+	const long absValue = abs(value);
+	s << "[NEWLINE]";
+	if (isGreen) s << "[COLOR_POSITIVE_TEXT]+" << absValue;
+	else		 s << "[COLOR_GREY]+" << absValue;
+
+	s << " " << description << "[ENDCOLOR]";
+}
+
+// will construct a string
+void appendNewLine(stringstream* ss, int* sum,
+	// The number of additional cities the player could add.
+	int numToAdd,
+	// The description of where the numToAdd amount came from.
+	string desc,
+	bool isUnlocked)
+{
+	if (ss != NULL)
+		addValueLine(*ss, isUnlocked, numToAdd, desc);
+	if (isUnlocked)
+		*sum += numToAdd;
+}
 // trade route modifier
 
 int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeConnection,
 	const YieldTypes eYieldType,
 	// If true, these yields are for the origin city, if false, they are for the destination city.
-	const bool isForOriginYields) const
+	const bool isForOriginYields, std::stringstream* tooltip) const
 {
-	int yieldChange = 0;
+	int yieldChange = 2;
 	const CvPlayer& playerOrigin = GET_PLAYER(kTradeConnection.m_eOriginOwner);
 	const CvPlayer& playerDest = GET_PLAYER(kTradeConnection.m_eDestOwner);
 	const bool isInternal = playerOrigin.GetID() == playerDest.GetID();
@@ -179,9 +202,6 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 	const int numHonorPolicies = playerOrigin.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(POLICY_BRANCH_HONOR);
 	const bool hasTheocrary = playerOrigin.HasPolicy(POLICY_THEOCRACY);
 
-	cityOrigin->plot()->countNearbyPlots(MountainTiles);
-	cityOrigin->getYieldRateTimes100(YIELD_SCIENCE, true) - cityDest->getYieldRate(YIELD_SCIENCE, true);
-
 	// determine type of route
 	TradeRouteType type = kTradeConnection.GetRouteType();
 
@@ -194,10 +214,19 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 	{
 		if (isPrimaryYielder) // only the destination city of the trade route gets these benefits
 		{
-			if (eYieldType == YIELD_GOLD && hasMint)
-				yieldChange += 2;
-			if (eYieldType == YIELD_GOLD && hasBrewery)
-				yieldChange += 2;
+			if (eYieldType == YIELD_GOLD)
+			{
+				(*tooltip) << "[COLOR_POSITIVE_TEXT]Active[ENDCOLOR] and [COLOR_GREY]possible[ENDCOLOR] yield sources:";
+
+				appendNewLine(tooltip, &yieldChange, +2, "[ICON_GOLD] from the Mint", hasMint);
+
+				if (eYieldType == YIELD_GOLD && hasBrewery)
+					yieldChange += 2;
+				if (eYieldType == YIELD_GOLD)
+					yieldChange += (numCommercePolicies * 3);
+				if (eYieldType == YIELD_GOLD && hasHimeji)
+					yieldChange += (numCommercePolicies + numHonorPolicies) * 2;
+			}
 			if (eYieldType == YIELD_PRODUCTION && hasStoneWorks)
 				yieldChange += 1;
 			if (eYieldType == YIELD_PRODUCTION && hasTextileMill)
@@ -210,20 +239,16 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 				yieldChange += 1;
 			if (eYieldType == YIELD_PRODUCTION && hasOilRefinery)
 				yieldChange += 3;
-			if (eYieldType == YIELD_GOLD && hasHimeji)
-				yieldChange += (numCommercePolicies + numHonorPolicies) * 2;
 			if (eYieldType == YIELD_DIPLOMATIC_SUPPORT && hasHimeji)
 				yieldChange += (numCommercePolicies + numHonorPolicies);
 			if (eYieldType == YIELD_PRODUCTION && hasShipyard)
 				yieldChange += 2;
 			if (eYieldType == YIELD_FAITH && hasTheocrary)
 				yieldChange += 2;
-			if (eYieldType == YIELD_GOLD)
-				yieldChange += (numCommercePolicies * 3);
 		}
 	}
 	break;
-	case TRADEROUTE_PROD:
+	case TRADEROUTE_PRODUCTION:
 	{
 		if (isPrimaryYielder) // only the destination city of the trade route gets these benefits
 		{

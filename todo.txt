@@ -1,8 +1,12 @@
 
 
+make sure route duration is calculated correctly
+GetTradeRoutes and GetTradeRoutesToYou need to use table function
+this needs to use new custom tooltip function
+function BuildTradeRouteToolTipString (pPlayer, pOriginCity, pTargetCity, eDomain)
 
-lua access yield benefits of route for player
-lua call function to generate tooltip
+show route distance
+trade route overview should display whether a trade route would be available or not because of duplicates
 see if others routes with you would correctly handle the player variable as owner for the sake of (calculate benefit for us)
 trade routes 120 hammers
 increase route distance

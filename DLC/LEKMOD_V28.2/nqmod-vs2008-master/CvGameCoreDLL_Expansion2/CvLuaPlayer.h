@@ -1030,6 +1030,7 @@ protected:
 	static int lGetInternationalTradeRouteRiverModifier(lua_State* L);
 	static int lGetInternationalTradeRouteDomainModifier(lua_State* L);
 	static int lGetInternationalTradeRouteTotal(lua_State* L);
+	static int lGetYieldForPlayerForTradeRoute(lua_State* L);
 	static int lGetInternationalTradeRouteScience(lua_State* L);
 	static int lGetPotentialTradeUnitNewHomeCity(lua_State* L);
 	static int lGetPotentialAdmiralNewPort(lua_State* L);

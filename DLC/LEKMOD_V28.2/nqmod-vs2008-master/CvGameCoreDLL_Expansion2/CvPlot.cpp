@@ -1640,7 +1640,7 @@ int CvPlot::countNearbyPlots(int (*check)(const CvPlot&), int range, bool includ
 	std::vector<CvPlot*> plots = GetAdjacentPlotsRadiusRange(start, range);
 
 	int num = 0;
-	for (int i = 0; i < plots.size(); ++i)
+	for (int i = 0; i < (int)plots.size(); ++i)
 	{
 		CvPlot* plot = plots[i];
 		if (plot != NULL)

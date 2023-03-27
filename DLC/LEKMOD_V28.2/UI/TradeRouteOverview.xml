@@ -50,34 +50,40 @@
 				<Box Anchor="L,C" Color="0,0,0,0" Offset="0,0" Size="36,34">
 					<Label Anchor="C,C" Offset="0,0" String="ToProduction" Color0="Production.255" Color1="Black.255" Font="TwCenMT20" FontStyle="Stroke" ID="ToProduction"/>
 				</Box>
-
-				<Box Anchor="L,C" Color="0,0,0,0" Offset="0,0" Size="36,34">
-					<Label Anchor="C,C" Offset="0,0" String="FromGPT" Color0="Gold.255" Color1="Black.255" Font="TwCenMT20" FontStyle="Stroke" ID="FromGPT"/>
-				</Box>
 				<Box Anchor="L,C" Color="0,0,0,0" Offset="0,0" Size="36,34">
 					<Label Anchor="C,C" Offset="0,0" String="ToGPT" Color0="Gold.255" Color1="Black.255" Font="TwCenMT20" FontStyle="Stroke" ID="ToGPT"/>
 				</Box>
-				<Box Anchor="L,C" Color="0,0,0,0" Offset="0,0" Size="36,34">
-				  <Label Anchor="C,C" Offset="0,0" Font="TwCenMT20" Color="Science" Color1="Black.255" FontStyle="Stroke" ID="FromScience"/>
-				</Box>
+
 
 				<Box Anchor="L,C" Color="0,0,0,0" Offset="0,0" Size="36,34">
-				  <Label Anchor="C,C" Offset="0,0" Font="TwCenMT20" Color="Science" Color1="Black.255" FontStyle="Stroke" ID="ToScience"/>
+					<Label Anchor="C,C" Offset="0,0" String="S" Color="Science" Color1="Black.255" Font="TwCenMT20" FontStyle="Stroke" ID="Science"/>
+				</Box>
+				<Box Anchor="L,C" Color="0,0,0,0" Offset="0,0" Size="36,34">
+				  <Label Anchor="C,C" Offset="0,0" String="C" Font="TwCenMT20" Color="Culture" Color1="Black.255" FontStyle="Stroke" ID="Culture"/>
+				</Box>
+				<Box Anchor="L,C" Color="0,0,0,0" Offset="0,0" Size="36,34">
+				  <Label Anchor="C,C" Offset="0,0" Font="TwCenMT20" Color="White" Color1="Black.255" FontStyle="Stroke" ID="Faith"/>
 				</Box>
 
-				<Box Anchor="L,C" Color="0,0,0,0" Offset="0,0" Size="36,34">
-				  <Label Anchor="C,C" Offset="0,0" Font="TwCenMT20" Color="Science" Color1="Black.255" FontStyle="Stroke" ID="ToScience"/>
-				</Box>
+
 
 				<Box Anchor="L,C" Color="0,0,0,0" Offset="0,0" Size="36,34">
-				  <Label Anchor="C,C" Offset="0,0" Font="TwCenMT20" Color="Science" Color1="Black.255" FontStyle="Stroke" ID="ToScience"/>
+				  <Label Anchor="C,C" Offset="0,0" Font="TwCenMT20" Color="White" Color1="Black.255" FontStyle="Stroke" ID="Golden"/>
+				</Box>
+
+
+
+				<Box Anchor="L,C" Color="0,0,0,0" Offset="0,0" Size="36,34">
+				  <Label Anchor="C,C" Offset="0,0" Font="TwCenMT20" Color="COLOR_VP" Color1="Black.255" FontStyle="Stroke" ID="ScientificInsight"/>
 				</Box>
 				<Box Anchor="L,C" Color="0,0,0,0" Offset="0,0" Size="36,34">
-				  <Label Anchor="C,C" Offset="0,0" Font="TwCenMT20" Color="Science" Color1="Black.255" FontStyle="Stroke" ID="ToScience"/>
+				  <Label Anchor="C,C" Offset="0,0" Font="TwCenMT20" Color="COLOR_VP" Color1="Black.255" FontStyle="Stroke" ID="DiplomaticSupport"/>
 				</Box>
 				<Box Anchor="L,C" Color="0,0,0,0" Offset="0,0" Size="36,34">
-				  <Label Anchor="C,C" Offset="0,0" Font="TwCenMT20" Color="Science" Color1="Black.255" FontStyle="Stroke" ID="ToScience"/>
+				  <Label Anchor="C,C" Offset="0,0" Font="TwCenMT20" Color="COLOR_VP" Color1="Black.255" FontStyle="Stroke" ID="CulturalInfluence"/>
 				</Box>
+
+
 
 				<Box Anchor="L,C" Color="0,0,0,0" Offset="0,0" Size="51,34">
 					<Label Anchor="C,C" Offset="0,0" String="FromReligion" Font="TwCenMT20" FontStyle="Stroke" ID="FromReligion"/>
@@ -222,7 +228,7 @@
 				<Button ID="Spacer" Anchor="L,C" Size="3,45" Style="BoxButton">
 				</Button>
 
-				
+
 				<Button ID="ToFood" Anchor="L,C" Size="36,45" Style="BoxButton">
 					<ShowOnMouseOver>
 						<AlphaAnim Anchor="C,C" Offset="0,0" Size="36,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
@@ -285,14 +291,6 @@
 				</Button>
 
 
-				<Button ID="ToTourism" Anchor="L,C" Size="36,45" Style="BoxButton">
-				  <ShowOnMouseOver>
-					<AlphaAnim Anchor="C,C" Offset="0,0" Size="36,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
-					  <Grid Size="36,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
-					</AlphaAnim>
-				  </ShowOnMouseOver>
-				  <Label Anchor="C,C" Offset="0.-1" Font="TwCenMT18" String="[ICON_CULTURAL_INFLUENCE]" ToolTip="Sort by this column"/>
-				</Button>
 				<Button ID="ToInsight" Anchor="L,C" Size="36,45" Style="BoxButton">
 				  <ShowOnMouseOver>
 					<AlphaAnim Anchor="C,C" Offset="0,0" Size="36,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
@@ -308,6 +306,14 @@
 					</AlphaAnim>
 				  </ShowOnMouseOver>
 				  <Label Anchor="C,C" Offset="0.-1" Font="TwCenMT18" String="[ICON_DIPLOMATIC_INFLUENCE]" ToolTip="Sort by this column"/>
+				</Button>
+				<Button ID="ToTourism" Anchor="L,C" Size="36,45" Style="BoxButton">
+				  <ShowOnMouseOver>
+					<AlphaAnim Anchor="C,C" Offset="0,0" Size="36,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+					  <Grid Size="36,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+					</AlphaAnim>
+				  </ShowOnMouseOver>
+				  <Label Anchor="C,C" Offset="0.-1" Font="TwCenMT18" String="[ICON_CULTURAL_INFLUENCE]" ToolTip="Sort by this column"/>
 				</Button>
 
 

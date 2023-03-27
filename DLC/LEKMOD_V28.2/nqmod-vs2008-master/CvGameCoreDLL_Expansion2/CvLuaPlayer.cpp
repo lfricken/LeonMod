@@ -3711,6 +3711,37 @@ int CvLuaPlayer::lGetInternationalTradeRouteDomainModifier(lua_State* L)
 }
 
 //------------------------------------------------------------------------------
+int CvLuaPlayer::lGetYieldForPlayerForTradeRoute(lua_State*)
+{
+	//CvPlayerAI* pkPlayer = GetInstance(L);
+	//CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
+	//CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
+	//DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
+	//YieldTypes eYield = (YieldTypes)lua_tointeger(L, 5);
+
+	//TradeConnection kTradeConnection;
+	//kTradeConnection.m_iOriginX = pOriginCity->getX();
+	//kTradeConnection.m_iOriginY = pOriginCity->getY();
+	//kTradeConnection.m_iDestX = pDestCity->getX();
+	//kTradeConnection.m_iDestY = pDestCity->getY();
+	//kTradeConnection.m_eOriginOwner = pOriginCity->getOwner();
+	//kTradeConnection.m_eDestOwner = pDestCity->getOwner();
+	//kTradeConnection.m_eDomain = eDomain;
+
+	//if (pOriginCity->getOwner() != pDestCity->getOwner())
+	//{
+	//	kTradeConnection.m_eConnectionType = TRADE_CONNECTION_INTERNATIONAL;
+	//}
+
+	//CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
+	//int iResult = 0;
+	//iResult += pPlayerTrade->CalcTradeConnectionValueTotalForPlayerTimes100(kTradeConnection, eYield);
+	//lua_pushinteger(L, iResult);
+
+	return 1;
+}
+
+//------------------------------------------------------------------------------
 int CvLuaPlayer::lGetInternationalTradeRouteTotal(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
@@ -3953,6 +3984,10 @@ int CvLuaPlayer::lGetTradeYourRoutesTTString(lua_State* L)
 						strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_FAITH_YIELD_TT", iYieldQuantity / f100);
 						break;
 
+					case YIELD_GOLDEN:
+						strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_GOLDEN_YIELD_TT", iYieldQuantity / f100);
+						break;
+
 					case YIELD_SCIENTIFIC_INSIGHT:
 						strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_SCIENTIFIC_YIELD_TT", iYieldQuantity / f100);
 						break;
@@ -3993,6 +4028,10 @@ int CvLuaPlayer::lGetTradeYourRoutesTTString(lua_State* L)
 						break;
 					case YIELD_FAITH:
 						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_FAITH_YIELD_TT", iYieldQuantity / f100);
+						break;
+
+					case YIELD_GOLDEN:
+						strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_GOLDEN_YIELD_TT", iYieldQuantity / f100);
 						break;
 
 					case YIELD_SCIENTIFIC_INSIGHT:
@@ -4242,11 +4281,121 @@ int CvLuaPlayer::lGetTradeToYouRoutesTTString(lua_State* L)
 	return 1;
 }
 
-void getDeltas(const CvCity*, const CvCity*, int& toDelta, int& fromDelta)
+void insertRouteRowYields(lua_State* L, const CvPlayer& forPlayer, const TradeConnection& kConnection, int* pIndex)
 {
-	// don't consider trade route for tourism
-	toDelta = 0; // = from->GetCityCulture()->GetNetTourism() * GET_PLAYER(from->getOwner()).GetCulture()->GetTourismModifierWithT100(to->getOwner()) / 100;
-	fromDelta = 0; // = to->GetCityCulture()->GetNetTourism() * GET_PLAYER(to->getOwner()).GetCulture()->GetTourismModifierWithT100(from->getOwner()) / 100;
+	const CvPlayer& playerOrigin = GET_PLAYER(kConnection.m_eOriginOwner);
+	const CvPlayer& playerDest = GET_PLAYER(kConnection.m_eDestOwner);
+	// true if the destination is a City State
+	const CvCity* pOriginCity = CvGameTrade::GetOriginCity(kConnection);
+	const CvCity* pDestCity = CvGameTrade::GetDestCity(kConnection);
+	const CvPlayerTrade* pTrade = forPlayer.GetTrade();
+
+
+	int iTurnsLeft = -1;
+	TradeConnection* pConnection = pTrade->GetTradeConnection(pOriginCity, pDestCity);
+	if (pConnection && pConnection->m_eDomain == kConnection.m_eDomain)
+	{
+		iTurnsLeft = pConnection->m_iTurnRouteComplete - GC.getGame().getGameTurn();
+	}
+	else
+	{
+		GC.getGame().GetGameTrade()->CalcRouteInfo(kConnection, &iTurnsLeft);
+		iTurnsLeft = -iTurnsLeft; // make negative so UI knows this isn't a real route yet
+	}
+
+
+	ReligionTypes eToReligion = NO_RELIGION;
+	int iToPressure = 0;
+	ReligionTypes eFromReligion = NO_RELIGION;
+	int iFromPressure = 0;
+
+	pOriginCity->GetCityReligions()->WouldExertTradeRoutePressureToward(pDestCity, eToReligion, iToPressure);
+	pDestCity->GetCityReligions()->WouldExertTradeRoutePressureToward(pOriginCity, eFromReligion, iFromPressure);
+
+	if (iTurnsLeft < 0)
+	{
+		int iTradeReligionModifer = playerOrigin.GetPlayerTraits()->GetTradeReligionModifier();
+		if (iTradeReligionModifer != 0)
+		{
+			iToPressure *= 100 + iTradeReligionModifer;
+			iToPressure /= 100;
+		}
+	}
+
+	// Internally pressure is now 10 times greater than what is shown to user
+	iToPressure /= GC.getRELIGION_MISSIONARY_PRESSURE_MULTIPLIER();
+	iFromPressure /= GC.getRELIGION_MISSIONARY_PRESSURE_MULTIPLIER();
+
+	std::stringstream tooltip;
+
+	lua_createtable(L, 0, 0);
+	const int t = lua_gettop(L);
+
+	lua_pushinteger(L, kConnection.m_eDomain);
+	lua_setfield(L, t, "Domain");
+	lua_pushinteger(L, playerOrigin.getCivilizationType());
+	lua_setfield(L, t, "FromCivilizationType");
+	lua_pushinteger(L, kConnection.m_eOriginOwner);
+	lua_setfield(L, t, "FromID");
+	lua_pushstring(L, pOriginCity->getName());
+	lua_setfield(L, t, "FromCityName");
+	CvLuaCity::Push(L, (CvCity*)(void*)pOriginCity); // remove const
+	lua_setfield(L, t, "FromCity");
+
+	lua_pushinteger(L, playerDest.getCivilizationType());
+	lua_setfield(L, t, "ToCivilizationType");
+	lua_pushinteger(L, kConnection.m_eDestOwner);
+	lua_setfield(L, t, "ToID");
+	lua_pushstring(L, pDestCity->getName());
+	lua_setfield(L, t, "ToCityName");
+	CvLuaCity::Push(L, (CvCity*)(void*)pDestCity); // remove const
+	lua_setfield(L, t, "ToCity");
+
+
+	lua_pushinteger(L, pTrade->CalcTradeConnectionValueTotalForPlayerTimes100(kConnection, YIELD_FOOD, &tooltip));
+	lua_setfield(L, t, "ToFood");
+	lua_pushinteger(L, pTrade->CalcTradeConnectionValueTotalForPlayerTimes100(kConnection, YIELD_PRODUCTION, &tooltip));
+	lua_setfield(L, t, "ToProduction");
+	lua_pushinteger(L, pTrade->CalcTradeConnectionValueTotalForPlayerTimes100(kConnection, YIELD_GOLD, &tooltip));
+	lua_setfield(L, t, "ToGPT");
+
+	lua_pushinteger(L, pTrade->CalcTradeConnectionValueTotalForPlayerTimes100(kConnection, YIELD_CULTURE, &tooltip));
+	lua_setfield(L, t, "Culture");
+	lua_pushinteger(L, pTrade->CalcTradeConnectionValueTotalForPlayerTimes100(kConnection, YIELD_SCIENCE, &tooltip));
+	lua_setfield(L, t, "ToScience");
+	lua_pushinteger(L, pTrade->CalcTradeConnectionValueTotalForPlayerTimes100(kConnection, YIELD_FAITH, &tooltip));
+	lua_setfield(L, t, "Faith");
+
+	lua_pushinteger(L, pTrade->CalcTradeConnectionValueTotalForPlayerTimes100(kConnection, YIELD_GOLDEN, &tooltip));
+	lua_setfield(L, t, "GoldenAgePoints");
+
+	lua_pushinteger(L, pTrade->CalcTradeConnectionValueTotalForPlayerTimes100(kConnection, YIELD_SCIENTIFIC_INSIGHT, &tooltip));
+	lua_setfield(L, t, "ScientificInsight");
+	lua_pushinteger(L, pTrade->CalcTradeConnectionValueTotalForPlayerTimes100(kConnection, YIELD_DIPLOMATIC_SUPPORT, &tooltip));
+	lua_setfield(L, t, "DiplomaticSupport");
+	lua_pushinteger(L, pTrade->CalcTradeConnectionValueTotalForPlayerTimes100(kConnection, YIELD_TOURISM, &tooltip));
+	lua_setfield(L, t, "Tourism");
+
+
+	lua_pushinteger(L, eToReligion);
+	lua_setfield(L, t, "ToReligion");
+	lua_pushinteger(L, iToPressure);
+	lua_setfield(L, t, "ToPressure");
+
+	lua_pushinteger(L, eFromReligion);
+	lua_setfield(L, t, "FromReligion");
+	lua_pushinteger(L, iFromPressure);
+	lua_setfield(L, t, "FromPressure");
+
+
+	lua_pushinteger(L, iTurnsLeft); // negative if not started yet
+	lua_setfield(L, t, "TurnsLeft");
+
+	lua_pushstring(L, GetLocalizedText(tooltip.str().c_str()));
+	lua_setfield(L, t, "Tooltip");
+
+	const int index = (*pIndex)++;
+	lua_rawseti(L, -2, index);
 }
 
 //------------------------------------------------------------------------------
@@ -4274,93 +4423,7 @@ int CvLuaPlayer::lGetTradeRoutes(lua_State* L)
 			continue;
 		}
 
-		CvCity* pFromCity = GC.getMap().plot(pConnection->m_iOriginX, pConnection->m_iOriginY)->getPlotCity();
-		CvCity* pToCity = GC.getMap().plot(pConnection->m_iDestX, pConnection->m_iDestY)->getPlotCity();
-
-		CvPlayer* pToPlayer = &GET_PLAYER(pToCity->getOwner());
-
-		lua_createtable(L, 0, 0);
-		const int t = lua_gettop(L);
-
-		lua_pushinteger(L, pConnection->m_eDomain);
-		lua_setfield(L, t, "Domain");
-		lua_pushinteger(L, pkPlayer->getCivilizationType());
-		lua_setfield(L, t, "FromCivilizationType");
-		lua_pushinteger(L , pkPlayer->GetID());
-		lua_setfield(L, t, "FromID");
-		lua_pushstring(L, pFromCity->getName());
-		lua_setfield(L, t, "FromCityName");
-		CvLuaCity::Push(L, pFromCity);
-		lua_setfield(L, t, "FromCity");
-		lua_pushinteger(L, GET_PLAYER(pConnection->m_eDestOwner).getCivilizationType());
-		lua_setfield(L, t, "ToCivilizationType");
-		lua_pushinteger(L, pToPlayer->GetID());
-		lua_setfield(L, t, "ToID");
-		lua_pushstring(L, pToCity->getName());
-		lua_setfield(L, t, "ToCityName");
-		CvLuaCity::Push(L, pToCity);
-		lua_setfield(L, t, "ToCity");
-#ifdef AUI_WARNING_FIXES
-		lua_pushinteger(L, pPlayerTrade->CalcTradeConnectionValueTimes100(*pConnection, YIELD_GOLD, true));
-		lua_setfield(L, t, "FromGPT");
-		lua_pushinteger(L, pPlayerTrade->CalcTradeConnectionValueTimes100(*pConnection, YIELD_GOLD, false));
-		lua_setfield(L, t, "ToGPT");
-		lua_pushinteger(L, pPlayerTrade->CalcTradeConnectionValueTimes100(*pConnection, YIELD_FOOD, false));
-		lua_setfield(L, t, "ToFood");
-		lua_pushinteger(L, pPlayerTrade->CalcTradeConnectionValueTimes100(*pConnection, YIELD_PRODUCTION, false));
-		lua_setfield(L, t, "ToProduction");
-		lua_pushinteger(L, pPlayerTrade->CalcTradeConnectionValueTimes100(*pConnection, YIELD_SCIENCE, true));
-		lua_setfield(L, t, "FromScience");
-		lua_pushinteger(L, pPlayerTrade->CalcTradeConnectionValueTimes100(*pConnection, YIELD_SCIENCE, false));
-#else
-		lua_pushinteger(L, pkPlayer->GetTrade()->CalcTradeConnectionValueTimes100(*pConnection, YIELD_GOLD, true));
-		lua_setfield(L, t, "FromGPT");
-		lua_pushinteger(L, pToPlayer->GetTrade()->CalcTradeConnectionValueTimes100(*pConnection, YIELD_GOLD, false));
-		lua_setfield(L, t, "ToGPT");
-		lua_pushinteger(L, pToPlayer->GetTrade()->CalcTradeConnectionValueTimes100(*pConnection, YIELD_FOOD, false));
-		lua_setfield(L, t, "ToFood");
-		lua_pushinteger(L, pToPlayer->GetTrade()->CalcTradeConnectionValueTimes100(*pConnection, YIELD_PRODUCTION, false));
-		lua_setfield(L, t, "ToProduction");
-		lua_pushinteger(L, pkPlayer->GetTrade()->CalcTradeConnectionValueTimes100(*pConnection, YIELD_SCIENCE, true));
-		lua_setfield(L, t, "FromScience");
-		lua_pushinteger(L, pToPlayer->GetTrade()->CalcTradeConnectionValueTimes100(*pConnection, YIELD_SCIENCE, false));
-#endif
-		lua_setfield(L, t, "ToScience");
-
-
-		ReligionTypes eToReligion = NO_RELIGION;
-		int iToPressure = 0;
-		ReligionTypes eFromReligion = NO_RELIGION;
-		int iFromPressure = 0;
-
-		pFromCity->GetCityReligions()->WouldExertTradeRoutePressureToward(pToCity, eToReligion, iToPressure);
-		pToCity->GetCityReligions()->WouldExertTradeRoutePressureToward(pFromCity, eFromReligion, iFromPressure);
-		
-		// Internally pressure is now 10 times greater than what is shown to user
-		iToPressure /= GC.getRELIGION_MISSIONARY_PRESSURE_MULTIPLIER();
-		iFromPressure /= GC.getRELIGION_MISSIONARY_PRESSURE_MULTIPLIER();
-
-		lua_pushinteger(L, eToReligion);
-		lua_setfield(L, t, "ToReligion");
-		lua_pushinteger(L, iToPressure);
-		lua_setfield(L, t, "ToPressure");
-		lua_pushinteger(L, eFromReligion);
-		lua_setfield(L, t, "FromReligion");
-		lua_pushinteger(L, iFromPressure);
-		lua_setfield(L, t, "FromPressure");
-
-		int iToDelta = 0;
-		int iFromDelta = 0;
-		getDeltas(pFromCity, pToCity, iToDelta, iFromDelta);
-		lua_pushinteger(L, iFromDelta);
-		lua_setfield(L, t, "FromTourism");
-		lua_pushinteger(L, iToDelta);
-		lua_setfield(L, t, "ToTourism");
-
-		lua_pushinteger(L, pConnection->m_iTurnRouteComplete - GC.getGame().getGameTurn());
-		lua_setfield(L, t, "TurnsLeft");
-
-		lua_rawseti(L, -2, index++);
+		insertRouteRowYields(L, *pkPlayer, *pConnection, &index);
 	}
 
 	return 1;
@@ -4388,24 +4451,25 @@ int CvLuaPlayer::lGetTradeRoutesAvailable(lua_State* L)
 		for (uint ui = 0; ui < MAX_CIV_PLAYERS; ui++)
 		{
 			eOtherPlayer = (PlayerTypes)ui;
+			const CvPlayer& pkOtherPlayer = GET_PLAYER(eOtherPlayer);
 
-			if (!GET_PLAYER(eOtherPlayer).isAlive())
+			if (!pkOtherPlayer.isAlive())
 			{
 				continue;
 			}
 
-			if (GET_PLAYER(eOtherPlayer).isBarbarian())
+			if (pkOtherPlayer.isBarbarian())
 			{
 				continue;
 			}
 
 #ifdef AUI_WARNING_FIXES
-			const CvPlayerTrade* pOtherPlayerTrade = GET_PLAYER(eOtherPlayer).GetTrade();
+			const CvPlayerTrade* pOtherPlayerTrade = pkOtherPlayer.GetTrade();
 #endif
 
 			int iDestCityLoop;
-			CvCity* pDestCity = NULL;
-			for (pDestCity = GET_PLAYER(eOtherPlayer).firstCity(&iDestCityLoop); pDestCity != NULL; pDestCity = GET_PLAYER(eOtherPlayer).nextCity(&iDestCityLoop))
+			const CvCity* pDestCity = NULL;
+			for (pDestCity = pkOtherPlayer.firstCity(&iDestCityLoop); pDestCity != NULL; pDestCity = pkOtherPlayer.nextCity(&iDestCityLoop))
 			{
 				// if this is the same city
 				if (pOriginCity == pDestCity)
@@ -4436,8 +4500,6 @@ int CvLuaPlayer::lGetTradeRoutesAvailable(lua_State* L)
 
 						bCheckPath = false;	// Once a trade route is valid for a domain, all further connections can assume the path is valid.
 
-						lua_createtable(L, 0, 0);
-						const int t = lua_gettop(L);
 
 						TradeConnection kConnection;
 						kConnection.m_iOriginX = pOriginCity->getX();
@@ -4449,103 +4511,7 @@ int CvLuaPlayer::lGetTradeRoutesAvailable(lua_State* L)
 						kConnection.m_eOriginOwner = pOriginCity->getOwner();
 						kConnection.m_eDestOwner = pDestCity->getOwner();
 
-						int iTurnsLeft = -1;
-						TradeConnection* pConnection = pPlayerTrade->GetTradeConnection(pOriginCity, pDestCity);
-						if (pConnection && pConnection->m_eDomain == eDomain)
-						{
-							iTurnsLeft = pConnection->m_iTurnRouteComplete - GC.getGame().getGameTurn();
-						}
-
-						lua_pushinteger(L, eDomain);
-						lua_setfield(L, t, "Domain");
-						lua_pushinteger(L, pkPlayer->getCivilizationType());
-						lua_setfield(L, t, "FromCivilizationType");
-						lua_pushinteger(L , pkPlayer->GetID());
-						lua_setfield(L, t, "FromID");
-						lua_pushstring(L, pOriginCity->getName());
-						lua_setfield(L, t, "FromCityName");
-						CvLuaCity::Push(L, pOriginCity);
-						lua_setfield(L, t, "FromCity");
-						lua_pushinteger(L, GET_PLAYER(eOtherPlayer).getCivilizationType());
-						lua_setfield(L, t, "ToCivilizationType");
-						lua_pushinteger(L, eOtherPlayer);
-						lua_setfield(L, t, "ToID");
-						lua_pushstring(L, pDestCity->getName());
-						lua_setfield(L, t, "ToCityName");
-						CvLuaCity::Push(L, pDestCity);
-						lua_setfield(L, t, "ToCity");
-#ifdef AUI_WARNING_FIXES
-						lua_pushinteger(L, pPlayerTrade->CalcTradeConnectionValueTimes100(kConnection, YIELD_GOLD, true));
-						lua_setfield(L, t, "FromGPT");
-						lua_pushinteger(L, pOtherPlayerTrade->CalcTradeConnectionValueTimes100(kConnection, YIELD_GOLD, false));
-						lua_setfield(L, t, "ToGPT");
-						lua_pushinteger(L, pOtherPlayerTrade->CalcTradeConnectionValueTimes100(kConnection, YIELD_FOOD, false));
-						lua_setfield(L, t, "ToFood");
-						lua_pushinteger(L, pOtherPlayerTrade->CalcTradeConnectionValueTimes100(kConnection, YIELD_PRODUCTION, false));
-						lua_setfield(L, t, "ToProduction");
-						lua_pushinteger(L, pOtherPlayerTrade->CalcTradeConnectionValueTimes100(kConnection, YIELD_SCIENCE, true));
-						lua_setfield(L, t, "FromScience");
-						lua_pushinteger(L, pOtherPlayerTrade->CalcTradeConnectionValueTimes100(kConnection, YIELD_SCIENCE, false));
-#else
-						lua_pushinteger(L, pkPlayer->GetTrade()->CalcTradeConnectionValueTimes100(kConnection, YIELD_GOLD, true));
-						lua_setfield(L, t, "FromGPT");
-						lua_pushinteger(L, GET_PLAYER(eOtherPlayer).GetTrade()->CalcTradeConnectionValueTimes100(kConnection, YIELD_GOLD, false));
-						lua_setfield(L, t, "ToGPT");
-						lua_pushinteger(L, GET_PLAYER(eOtherPlayer).GetTrade()->CalcTradeConnectionValueTimes100(kConnection, YIELD_FOOD, false));
-						lua_setfield(L, t, "ToFood");
-						lua_pushinteger(L, GET_PLAYER(eOtherPlayer).GetTrade()->CalcTradeConnectionValueTimes100(kConnection, YIELD_PRODUCTION, false));
-						lua_setfield(L, t, "ToProduction");
-						lua_pushinteger(L,  GET_PLAYER(eOtherPlayer).GetTrade()->CalcTradeConnectionValueTimes100(kConnection, YIELD_SCIENCE, true));
-						lua_setfield(L, t, "FromScience");
-						lua_pushinteger(L, GET_PLAYER(eOtherPlayer).GetTrade()->CalcTradeConnectionValueTimes100(kConnection, YIELD_SCIENCE, false));
-#endif
-						lua_setfield(L, t, "ToScience");
-
-						ReligionTypes eToReligion = NO_RELIGION;
-						int iToPressure = 0;
-						ReligionTypes eFromReligion = NO_RELIGION;
-						int iFromPressure = 0;
-
-						pOriginCity->GetCityReligions()->WouldExertTradeRoutePressureToward(pDestCity, eToReligion, iToPressure);
-						pDestCity->GetCityReligions()->WouldExertTradeRoutePressureToward(pOriginCity, eFromReligion, iFromPressure);
-
-						if (iTurnsLeft < 0)
-						{
-							int iTradeReligionModifer = pkPlayer->GetPlayerTraits()->GetTradeReligionModifier();
-							if (iTradeReligionModifer != 0)
-							{
-								iToPressure *= 100 + iTradeReligionModifer;
-								iToPressure /= 100;
-							}
-						}
-
-						// Internally pressure is now 10 times greater than what is shown to user
-						iToPressure /= GC.getRELIGION_MISSIONARY_PRESSURE_MULTIPLIER();
-						iFromPressure /= GC.getRELIGION_MISSIONARY_PRESSURE_MULTIPLIER();
-
-						lua_pushinteger(L, eToReligion);
-						lua_setfield(L, t, "ToReligion");
-						lua_pushinteger(L, iToPressure);
-						lua_setfield(L, t, "ToPressure");
-						lua_pushinteger(L, eFromReligion);
-						lua_setfield(L, t, "FromReligion");
-						lua_pushinteger(L, iFromPressure);
-						lua_setfield(L, t, "FromPressure");
-
-						int iToDelta = 0;
-						int iFromDelta = 0;
-						getDeltas(pOriginCity, pDestCity, iToDelta, iFromDelta);
-						lua_pushinteger(L, iFromDelta);
-						lua_setfield(L, t, "FromTourism");
-						lua_pushinteger(L, iToDelta);
-						lua_setfield(L, t, "ToTourism");
-
-						lua_pushinteger(L, iTurnsLeft);
-						lua_setfield(L, t, "TurnsLeft");
-
-						lua_rawseti(L, -2, index++);
-
-
+						insertRouteRowYields(L, *pkPlayer, kConnection, &index);
 					}
 				}
 			}
@@ -4584,95 +4550,7 @@ int CvLuaPlayer::lGetTradeRoutesToYou(lua_State* L)
 			continue;
 		}
 
-		CvCity* pFromCity = GC.getMap().plot(pConnection->m_iOriginX, pConnection->m_iOriginY)->getPlotCity();
-		CvCity* pToCity = GC.getMap().plot(pConnection->m_iDestX, pConnection->m_iDestY)->getPlotCity();
-
-		CvPlayer* pFromPlayer = &GET_PLAYER(pFromCity->getOwner());
-		CvPlayer* pToPlayer = &GET_PLAYER(pToCity->getOwner());
-
-		lua_createtable(L, 0, 0);
-		const int t = lua_gettop(L);
-
-		lua_pushinteger(L, pConnection->m_eDomain);
-		lua_setfield(L, t, "Domain");
-		lua_pushinteger(L, pkPlayer->getCivilizationType());
-		lua_setfield(L, t, "FromCivilizationType");
-		lua_pushinteger(L , pFromCity->getOwner());
-		lua_setfield(L, t, "FromID");
-		lua_pushstring(L, pFromCity->getName());
-		lua_setfield(L, t, "FromCityName");
-		CvLuaCity::Push(L, pFromCity);
-		lua_setfield(L, t, "FromCity");
-		lua_pushinteger(L, GET_PLAYER(pConnection->m_eDestOwner).getCivilizationType());
-		lua_setfield(L, t, "ToCivilizationType");
-		lua_pushinteger(L, pToCity->getOwner());
-		lua_setfield(L, t, "ToID");
-		lua_pushstring(L, pToCity->getName());
-		lua_setfield(L, t, "ToCityName");
-		CvLuaCity::Push(L, pToCity);
-		lua_setfield(L, t, "ToCity");
-#ifdef AUI_WARNING_FIXES
-		const CvPlayerTrade* pFromPlayerTrade = pFromPlayer->GetTrade();
-		const CvPlayerTrade* pToPlayerTrade = pToPlayer->GetTrade();
-		lua_pushinteger(L, pFromPlayerTrade->CalcTradeConnectionValueTimes100(*pConnection, YIELD_GOLD, true));
-		lua_setfield(L, t, "FromGPT");
-		lua_pushinteger(L, pToPlayerTrade->CalcTradeConnectionValueTimes100(*pConnection, YIELD_GOLD, false));
-		lua_setfield(L, t, "ToGPT");
-		lua_pushinteger(L, pToPlayerTrade->CalcTradeConnectionValueTimes100(*pConnection, YIELD_FOOD, false));
-		lua_setfield(L, t, "ToFood");
-		lua_pushinteger(L, pToPlayerTrade->CalcTradeConnectionValueTimes100(*pConnection, YIELD_PRODUCTION, false));
-		lua_setfield(L, t, "ToProduction");
-		lua_pushinteger(L, pFromPlayerTrade->CalcTradeConnectionValueTimes100(*pConnection, YIELD_SCIENCE, true));
-		lua_setfield(L, t, "FromScience");
-		lua_pushinteger(L, pToPlayerTrade->CalcTradeConnectionValueTimes100(*pConnection, YIELD_SCIENCE, false));
-#else
-		lua_pushinteger(L, pFromPlayer->GetTrade()->CalcTradeConnectionValueTimes100(*pConnection, YIELD_GOLD, true));
-		lua_setfield(L, t, "FromGPT");
-		lua_pushinteger(L, pToPlayer->GetTrade()->CalcTradeConnectionValueTimes100(*pConnection, YIELD_GOLD, false));
-		lua_setfield(L, t, "ToGPT");
-		lua_pushinteger(L, pToPlayer->GetTrade()->CalcTradeConnectionValueTimes100(*pConnection, YIELD_FOOD, false));
-		lua_setfield(L, t, "ToFood");
-		lua_pushinteger(L, pToPlayer->GetTrade()->CalcTradeConnectionValueTimes100(*pConnection, YIELD_PRODUCTION, false));
-		lua_setfield(L, t, "ToProduction");
-		lua_pushinteger(L, pFromPlayer->GetTrade()->CalcTradeConnectionValueTimes100(*pConnection, YIELD_SCIENCE, true));
-		lua_setfield(L, t, "FromScience");
-		lua_pushinteger(L, pToPlayer->GetTrade()->CalcTradeConnectionValueTimes100(*pConnection, YIELD_SCIENCE, false));
-#endif
-		lua_setfield(L, t, "ToScience");
-
-		ReligionTypes eToReligion = NO_RELIGION;
-		int iToPressure = 0;
-		ReligionTypes eFromReligion = NO_RELIGION;
-		int iFromPressure = 0;
-
-		pFromCity->GetCityReligions()->WouldExertTradeRoutePressureToward(pToCity, eToReligion, iToPressure);
-		pToCity->GetCityReligions()->WouldExertTradeRoutePressureToward(pFromCity, eFromReligion, iFromPressure);
-
-		// Internally pressure is now 10 times greater than what is shown to user
-		iToPressure /= GC.getRELIGION_MISSIONARY_PRESSURE_MULTIPLIER();
-		iFromPressure /= GC.getRELIGION_MISSIONARY_PRESSURE_MULTIPLIER();
-
-		lua_pushinteger(L, eToReligion);
-		lua_setfield(L, t, "ToReligion");
-		lua_pushinteger(L, iToPressure);
-		lua_setfield(L, t, "ToPressure");
-		lua_pushinteger(L, eFromReligion);
-		lua_setfield(L, t, "FromReligion");
-		lua_pushinteger(L, iFromPressure);
-		lua_setfield(L, t, "FromPressure");
-
-		int iToDelta = 0;
-		int iFromDelta = 0;
-		getDeltas(pFromCity, pToCity, iToDelta, iFromDelta);
-		lua_pushinteger(L, iFromDelta);
-		lua_setfield(L, t, "FromTourism");
-		lua_pushinteger(L, iToDelta);
-		lua_setfield(L, t, "ToTourism");
-
-		lua_pushinteger(L, GC.getGame().getGameTurn() - pConnection->m_iTurnRouteComplete);
-		lua_setfield(L, t, "TurnsLeft");
-
-		lua_rawseti(L, -2, index++);
+		insertRouteRowYields(L, *pkPlayer, *pConnection, &index);
 	}
 
 	return 1;

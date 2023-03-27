@@ -449,35 +449,87 @@ function DisplayData()
 		instance.ToCivIconHighlight:SetToolTipString(v.ToCiv);
 		instance.ToCity:SetText(v.ToCityName);
 		instance.ToCity:SetToolTipString(v.ToCityName);
-		
-		local strToGPT = "";
-		if (v.ToGPT ~= 0) then
-			strToGPT = Locale.ConvertTextKey("TXT_KEY_TRO_GPT_ENTRY",  v.ToGPT / 100);
-			instance.ToGPT:SetToolTipString(strTT);	
-		end
-		instance.ToGPT:SetText(strToGPT);
 
-		local strFromGPT = "";		
-		if (v.FromGPT ~= 0) then
-			strFromGPT = Locale.ConvertTextKey("TXT_KEY_TRO_GPT_ENTRY",  v.FromGPT / 100);
-			instance.FromGPT:SetToolTipString(strTT);	
-		end
-		instance.FromGPT:SetText(strFromGPT);
+		local routeInfoStr = v.Tooltip;
+		local str;
 		
-		local strToFood = "";
+		str = "";
 		if (v.ToFood ~= 0) then
-			strToFood = round(v.ToFood / 100, 1);
-			instance.ToFood:SetToolTipString(strTT);	
+			str = round(v.ToFood / 100, 1);
+			instance.ToFood:SetToolTipString(routeInfoStr);
 		end
-		instance.ToFood:SetText(strToFood);
+		instance.ToFood:SetText(str);
 		
-		local strToProduction = "";
+		str = "";
 		if (v.ToProduction ~= 0) then
-			strToProduction = round(v.ToProduction / 100, 1);
-			instance.ToProduction:SetToolTipString(strTT);	
+			str = round(v.ToProduction / 100, 1);
+			instance.ToProduction:SetToolTipString(routeInfoStr);
 		end
-		instance.ToProduction:SetText(strToProduction);
+		instance.ToProduction:SetText(str);
+
+		str = "";
+		if (v.ToGPT ~= 0) then
+			str = Locale.ConvertTextKey("TXT_KEY_TRO_GPT_ENTRY", v.ToGPT / 100);
+			instance.ToGPT:SetToolTipString(routeInfoStr);
+		end
+		instance.ToGPT:SetText(str);
+
+
 		
+		str = "";			
+		if(v.ToScience ~= 0) then
+			str = v.ToScience / 100;
+			instance.Science:SetToolTipString(routeInfoStr);
+		end
+		instance.Science:SetText(str);
+		
+		str = "";
+		if (v.Culture ~= 0) then
+			str = Locale.ConvertTextKey("TXT_KEY_TRO_GPT_ENTRY", v.Culture / 100);
+			instance.Culture:SetToolTipString(routeInfoStr);
+		end
+		instance.Culture:SetText(str);
+		
+		str = "";
+		if (v.Faith ~= 0) then
+			str = Locale.ConvertTextKey("TXT_KEY_TRO_GPT_ENTRY", v.Faith / 100);
+			instance.Faith:SetToolTipString(routeInfoStr);
+		end
+		instance.Faith:SetText(str);
+		
+
+
+		str = "";
+		if (v.GoldenAgePoints ~= 0) then
+			str = Locale.ConvertTextKey("TXT_KEY_TRO_GPT_ENTRY", v.GoldenAgePoints / 100);
+		end
+		instance.Golden:SetText(str);
+
+
+
+		str = "";
+		val = v.ScientificInsight;
+		if (val ~= 0) then
+			str = round(val / 100, 1);
+		end
+		instance.ScientificInsight:SetText(str);
+
+		str = "";
+		val = v.DiplomaticSupport;
+		if (val ~= 0) then
+			str = round(val / 100, 1);
+		end
+		instance.DiplomaticSupport:SetText(str);
+
+		str = "";
+		val = v.Tourism;
+		if (val ~= 0) then
+			str = round(val / 100, 1);
+		end
+		instance.CulturalInfluence:SetText(str);
+
+
+		-- Religion
 		local strToPressure = "";
 		if (v.ToReligion > 0 and v.ToPressure ~= 0) then
 			local religion = GameInfo.Religions[v.ToReligion];
@@ -495,31 +547,20 @@ function DisplayData()
 			instance.FromReligion:SetToolTipString(strTT);	
 		end
 		instance.FromReligion:SetText(strFromPressure);
-		
-		local fromScience = "";
-		local toScience = "";
-		
-		if (v.FromID ~= v.ToID) then
-		
-			if(v.FromScience ~= 0) then
-				fromScience = v.FromScience / 100;
-				instance.FromScience:SetToolTipString(strTT);	
-			end
-			
-			if(v.ToScience ~= 0) then
-				toScience = v.ToScience / 100;
-				instance.ToScience:SetToolTipString(strTT);	
-			end
-		end
-		instance.FromScience:SetText(fromScience);
-		instance.ToScience:SetText(toScience);
-		
+
+
+		-- Turns Remaining
+		local color = "[COLOR_WHITE]";
+		strTT = "This trade route would take this many turns.";
 		local strTurnsRemaining = "";
-		if (v.TurnsLeft ~= nil and v.TurnsLeft >= 0) then
-			strTurnsRemaining = v.TurnsLeft;
-		end
+		local val = v.TurnsLeft or 0;
+		if (val >= 0) then
+			color = "[COLOR_YELLOW]";
+			strTT = "This trade route is active and has this many turns remaining.";
+		end		
+		strTurnsRemaining = color .. math.abs(val) .. "[ENDCOLOR]";
+		instance.TurnsLeft:SetToolTipString(strTT);
 		instance.TurnsLeft:SetText(strTurnsRemaining);
-		instance.TurnsLeft:SetToolTipString(strTT);	
     end
     
     Controls.MainStack:CalculateSize();
