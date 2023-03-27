@@ -255,10 +255,10 @@ end
 
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
-function BuildTradeRouteToolTipString (pPlayer, pOriginCity, pTargetCity, eDomain)
-	local strResult;
+function BuildTradeRouteToolTipString (pPlayer, pOriginCity, pTargetCity, eDomain, conType)
+	local strResult = pPlayer:GetTradeRouteToolTip(pOriginCity, pTargetCity, eDomain, false, conType);
 
-	-- shortcut for using gold currently
+	--[[ shortcut for using gold currently
 	if (pPlayer:GetInternationalTradeRouteTotal(pOriginCity, pTargetCity, true, true) > 0) then
 		local strGoldToolTip = BuildTradeRouteGoldToolTipString(pOriginCity, pTargetCity, eDomain);
 		local strScienceToolTip = BuildTradeRouteScienceToolTipString(pOriginCity, pTargetCity, eDomain);
@@ -270,7 +270,7 @@ function BuildTradeRouteToolTipString (pPlayer, pOriginCity, pTargetCity, eDomai
 		
 			strResult = strResult .. strScienceToolTip;
 		end
-	end
+	end]]
 	
 	return strResult;
 end

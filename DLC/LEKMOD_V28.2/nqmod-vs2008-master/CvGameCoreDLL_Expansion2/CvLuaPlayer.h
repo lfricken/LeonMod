@@ -1012,6 +1012,7 @@ protected:
 	// end Espionage Methods
 
 	// International Trade
+	static int lGetTradeRouteToolTip(lua_State* L);
 	static int lGetTradeRouteRange(lua_State* L);
 	static int lGetInternationalTradeRoutePlotToolTip(lua_State* L);
 	static int lGetInternationalTradeRoutePlotMouseoverToolTip(lua_State* L);

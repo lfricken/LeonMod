@@ -6362,8 +6362,10 @@ void CvPlayer::GetTradeRouteProjectInfo(int* iCount, int* iProgress) const
 		iPreviousCostsT100 += nextCostT100;
 	}
 	const int hammersTowardsNext = iHaveHammersT100 / 100 - iPreviousCostsT100 / 100; // divide first or we will incorrectly round up
+	
 	*iCount = (i - 1);
-	*iProgress = hammersTowardsNext;
+	if (iProgress != NULL)
+		*iProgress = hammersTowardsNext;
 }
 
 

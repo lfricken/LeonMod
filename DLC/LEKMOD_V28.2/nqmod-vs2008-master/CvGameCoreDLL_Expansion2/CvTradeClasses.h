@@ -67,15 +67,15 @@ struct TradeConnection
 		if (m_eConnectionType == TRADE_CONNECTION_FOOD)
 			type = TRADEROUTE_FOOD;
 		else if (m_eConnectionType == TRADE_CONNECTION_PRODUCTION)
-			type = TRADEROUTE_FOOD;
+			type = TRADEROUTE_PRODUCTION;
 		else
 		{
 			const CvPlayer& playerDest = GET_PLAYER(m_eDestOwner);
 			const bool isDestMinor = playerDest.isMinorCiv();
 			if (isDestMinor)
-				type = TRADEROUTE_FOOD;
+				type = TRADEROUTE_MINOR;
 			else
-				type = TRADEROUTE_FOOD;
+				type = TRADEROUTE_MAJOR;
 		}
 		return type;
 	}
@@ -105,6 +105,7 @@ public:
 
 	bool CanCreateTradeRoute(const CvCity* pOriginCity, const CvCity* pDestCity, DomainTypes eDomain, TradeConnectionType eConnectionType, bool bIgnoreExisting, bool bCheckPath = true) const;
 	bool CanCreateTradeRoute(PlayerTypes eOriginPlayer, PlayerTypes eDestPlayer, DomainTypes eDomainRestriction) const;
+	bool TryCreateTradeRoute(DomainTypes eDomain, const CvCity* pOriginCity, const CvCity* pDestCity, TradeConnectionType type, TradeConnection* con) const;
 	bool CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, TradeConnectionType eConnectionType, int& iRouteID);
 	bool CalcRouteInfo(const TradeConnection& kTradeConnection, int* numTurns = NULL, int* pCircuits = NULL, CvAStarNode** pPathfinderNodeOut = NULL) const;
 
@@ -246,6 +247,7 @@ public:
 	int GetTradeConnectionDomainValueModifierTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield) const;
 	int GetTradeConnectionRiverValueModifierTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer) const;
 
+	string GetTradeRouteTooltip(const TradeConnection& kTradeConnection) const;
 	int CalcTradeConnectionValueTotalForPlayerTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, std::stringstream* tooltip) const;
 	int CalcTradeConnectionValueTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer, std::stringstream* tooltip = NULL) const;
 

@@ -1008,7 +1008,8 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetCoupChanceOfSuccess);
 	Method(IsMyDiplomatVisitingThem);
 	Method(IsOtherDiplomatVisitingMe);
-
+	
+	Method(GetTradeRouteToolTip);
 	Method(GetTradeRouteRange);
 	Method(GetInternationalTradeRoutePlotToolTip);
 	Method(GetInternationalTradeRoutePlotMouseoverToolTip);
@@ -4331,6 +4332,9 @@ void insertRouteRowYields(lua_State* L, const CvPlayer& forPlayer, const TradeCo
 	lua_createtable(L, 0, 0);
 	const int t = lua_gettop(L);
 
+
+	lua_pushinteger(L, kConnection.m_eConnectionType);
+	lua_setfield(L, t, "TradeConnectionType");
 	lua_pushinteger(L, kConnection.m_eDomain);
 	lua_setfield(L, t, "Domain");
 	lua_pushinteger(L, playerOrigin.getCivilizationType());
@@ -11492,6 +11496,33 @@ int CvLuaPlayer::lIsOtherDiplomatVisitingMe(lua_State* L)
 
 	const bool bValue = pkPlayerEspionage->IsOtherDiplomatVisitingMe(eOtherPlayer);
 	lua_pushboolean(L, bValue);
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetTradeRouteToolTip(lua_State* L)
+{
+	const CvPlayerAI* pkPlayer = NULL;// GetInstance(L);
+	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
+	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
+	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
+	bool asDestination = lua_toboolean(L, 5);
+	TradeConnectionType type = (TradeConnectionType)lua_toboolean(L, 6);
+
+	if (asDestination)
+		pkPlayer = &GET_PLAYER(pDestCity->getOwner());
+	else
+		pkPlayer = &GET_PLAYER(pOriginCity->getOwner());
+
+	TradeConnection con;
+	CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
+	string tooltip = "";
+	if (GC.getGame().GetGameTrade()->TryCreateTradeRoute(eDomain, pOriginCity, pDestCity, type, &con))
+	{
+		tooltip = pPlayerTrade->GetTradeRouteTooltip(con);
+	}
+
+	lua_pushstring(L, tooltip.c_str());
 	return 1;
 }
 //------------------------------------------------------------------------------

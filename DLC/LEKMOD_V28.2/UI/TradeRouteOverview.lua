@@ -481,9 +481,8 @@ function DisplayData()
 			print("v.ToCity is nil");
 		end
 		
-		local strTT = BuildTradeRouteToolTipString(Players[v.FromID], v.FromCity, v.ToCity, v.Domain);
+		local strTT = v.Tooltip;
 		strTT = strTT or "";
-		strTT = strTT .. "tooltip needs fixing";
 
 		if (v.Domain == DomainTypes.DOMAIN_LAND) then
 			instance.Domain_Land:SetHide(false);

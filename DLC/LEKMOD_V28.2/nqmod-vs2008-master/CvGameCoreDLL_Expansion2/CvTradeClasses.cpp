@@ -367,6 +367,23 @@ bool CvGameTrade::CalcRouteInfo(const TradeConnection& kTradeConnection, int* nu
 	}
 	return true;
 }
+bool CvGameTrade::TryCreateTradeRoute(DomainTypes eDomain, const CvCity* pOriginCity, const CvCity* pDestCity, TradeConnectionType type, TradeConnection* con) const
+{
+	if (!CanCreateTradeRoute(pOriginCity, pDestCity, eDomain, type, true, true))
+	{
+		return false;
+	}
+	con->m_iOriginX = pOriginCity->getX();
+	con->m_iOriginY = pOriginCity->getY();
+	con->m_eOriginOwner = pOriginCity->getOwner();
+	con->m_iDestX = pDestCity->getX();
+	con->m_iDestY = pDestCity->getY();
+	con->m_eDestOwner = pDestCity->getOwner();
+	con->m_eDomain = eDomain;
+	con->m_eConnectionType = type;
+	con->m_unitID = -1;
+	return true;
+}
 //	--------------------------------------------------------------------------------
 bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, TradeConnectionType eConnectionType, int& iRouteID)
 {
@@ -379,11 +396,6 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 
 	PlayerTypes eOriginPlayer = pOriginCity->getOwner();
 	PlayerTypes eDestPlayer = pDestCity->getOwner();
-
-	int iOriginX = pOriginCity->getX();
-	int iOriginY = pOriginCity->getY();
-	int iDestX = pDestCity->getX();
-	int iDestY = pDestCity->getY();
 
 	int iNewTradeRouteIndex = GetEmptyTradeRouteIndex();
 	CvAssertMsg(iNewTradeRouteIndex < (int)m_aTradeConnections.size(), "iNewTradeRouteIndex out of bounds");
@@ -398,15 +410,7 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 
 	iRouteID = m_iNextID;
 	m_aTradeConnections[iNewTradeRouteIndex].m_iID = m_iNextID;
-	m_aTradeConnections[iNewTradeRouteIndex].m_iOriginX = pOriginCity->getX();
-	m_aTradeConnections[iNewTradeRouteIndex].m_iOriginY = pOriginCity->getY();
-	m_aTradeConnections[iNewTradeRouteIndex].m_eOriginOwner = pOriginCity->getOwner();
-	m_aTradeConnections[iNewTradeRouteIndex].m_iDestX = pDestCity->getX();
-	m_aTradeConnections[iNewTradeRouteIndex].m_iDestY = pDestCity->getY();
-	m_aTradeConnections[iNewTradeRouteIndex].m_eDestOwner = pDestCity->getOwner();
-	m_aTradeConnections[iNewTradeRouteIndex].m_eDomain = eDomain;
-	m_aTradeConnections[iNewTradeRouteIndex].m_eConnectionType = eConnectionType;
-	m_aTradeConnections[iNewTradeRouteIndex].m_unitID = -1;
+	TryCreateTradeRoute(eDomain, pOriginCity, pDestCity, eConnectionType, &m_aTradeConnections[iNewTradeRouteIndex]);
 
 	// increment m_iNextID for the next connection
 	m_iNextID += 1;
@@ -2595,6 +2599,15 @@ int CvPlayerTrade::GetTradeConnectionRiverValueModifierTimes100(const TradeConne
 	return iModifier;
 }
 
+string CvPlayerTrade::GetTradeRouteTooltip(const TradeConnection& kTradeConnection) const
+{
+	stringstream ss;
+	for (int i = 0; i < NUM_YIELD_TYPES; ++i)
+	{
+		CalcTradeConnectionValueTotalForPlayerTimes100(kTradeConnection, (YieldTypes)i, &ss);
+	}
+	return GetLocalizedText(ss.str().c_str());
+}
 int CvPlayerTrade::CalcTradeConnectionValueTotalForPlayerTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, std::stringstream* tooltip) const
 {
 	const CvCity* cityOrigin = CvGameTrade::GetOriginCity(kTradeConnection);
@@ -3706,106 +3719,12 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayerTrade::GetTradeRouteRange(DomainTypes eDomain, const CvCity* pOriginCity) const
-{
-	int iRange = 0;
-
-	int iBaseRange = 0;
-	switch (eDomain)
-	{
-	case DOMAIN_SEA:
-		iBaseRange = 16;
-		break;
-	case DOMAIN_LAND:
-		iBaseRange = 12;
-		break;
-	default:
-		CvAssertMsg(false, "Undefined domain for trade route range");
-		return -1;
-		break;
-	}
-
-	int iTraitRange = 0;
-	switch (eDomain)
-	{
-	case DOMAIN_SEA:
-		// not implemented
-		iTraitRange = 0;
-		break;
-	case DOMAIN_LAND:
-		iTraitRange = m_pPlayer->GetPlayerTraits()->GetLandTradeRouteRangeBonus();
-		break;
-	}
-
-	CvPlayerTechs* pMyPlayerTechs = m_pPlayer->GetPlayerTechs();
-	CvTeamTechs* pMyTeamTechs = GET_TEAM(GET_PLAYER(m_pPlayer->GetID()).getTeam()).GetTeamTechs();
-	CvTechEntry* pTechInfo = NULL; 
-
-	int iExtendedRange = 0;
-#ifdef AUI_WARNING_FIXES
-	for (uint iTechLoop = 0; iTechLoop < pMyPlayerTechs->GetTechs()->GetNumTechs(); iTechLoop++)
-#else
-	for(int iTechLoop = 0; iTechLoop < pMyPlayerTechs->GetTechs()->GetNumTechs(); iTechLoop++)
-#endif
-	{
-		TechTypes eTech = (TechTypes)iTechLoop;
-		if (!pMyTeamTechs->HasTech(eTech))
-		{
-			continue;
-		}
-
-		pTechInfo = pMyPlayerTechs->GetTechs()->GetEntry(eTech);
-		CvAssertMsg(pTechInfo, "null tech entry");
-		if (pTechInfo)
-		{
-			iExtendedRange += pTechInfo->GetTradeRouteDomainExtraRange(eDomain);
-		}
-	}
-	
-	int iRangeModifier = 0;
-#ifdef AUI_WARNING_FIXES
-	for (uint iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
-#else
-	for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
-#endif
-	{
-		BuildingTypes eBuilding = (BuildingTypes)GET_PLAYER(pOriginCity->getOwner()).getCivilizationInfo().getCivilizationBuildings(iI);
-		if(eBuilding != NO_BUILDING)
-		{
-			CvBuildingEntry* pBuildingEntry = GC.GetGameBuildings()->GetEntry(eBuilding);
-			if (!pBuildingEntry)
-			{
-				continue;
-			}
-
-			if (pBuildingEntry && pOriginCity->GetCityBuildings()->GetNumBuilding((BuildingTypes)pBuildingEntry->GetID()))
-			{
-				if (pBuildingEntry->GetTradeRouteSeaDistanceModifier() > 0 && eDomain == DOMAIN_SEA)
-				{
-					iRangeModifier += pBuildingEntry->GetTradeRouteSeaDistanceModifier();
-				}
-				else if (pBuildingEntry->GetTradeRouteLandDistanceModifier() > 0 && eDomain == DOMAIN_LAND)
-				{
-					iRangeModifier += pBuildingEntry->GetTradeRouteLandDistanceModifier();
-				}
-			}
-		}
-	}
-
-	iRange = iBaseRange;
-	iRange += iTraitRange;
-	iRange += iExtendedRange;
-	iRange = (iRange * (100 + iRangeModifier)) / 100;
-	return iRange;
-}
-
-//	--------------------------------------------------------------------------------
 int CvPlayerTrade::GetTradeRouteSpeed(DomainTypes eDomain) const
 {
 	switch (eDomain)
 	{
 	case DOMAIN_SEA:
-		return 4;
+		return 2;
 		break;
 	case DOMAIN_LAND:
 		return 2;
@@ -3903,8 +3822,7 @@ uint CvPlayerTrade::GetNumTradeRoutesPossible() const
 	iNumRoutes /= 100;
 
 	int iExtraRoutes;
-	int hammerProgress;
-	m_pPlayer->GetTradeRouteProjectInfo(&iExtraRoutes, &hammerProgress);
+	m_pPlayer->GetTradeRouteProjectInfo(&iExtraRoutes);
 
 	return iNumRoutes + iExtraRoutes;
 }
