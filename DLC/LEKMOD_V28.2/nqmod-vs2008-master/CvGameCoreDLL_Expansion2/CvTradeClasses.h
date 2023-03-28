@@ -64,6 +64,8 @@ struct TradeConnection
 		m_aPlotList.clear();
 	}
 #endif
+	// true if this route has any yield greater than 0
+	bool HasAnyYield() const;
 	int GetNumEnemyUnitsOnRoute() const;
 	static int RouteRangeFractionT100(int routeCost, int rangeInTiles, int maxFactorT100);
 	CvPlot* GetRoutePlot(int idx) const;
@@ -250,6 +252,7 @@ public:
 	int CalcTradeConnectionValueTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, 
 		bool bAsOriginPlayer, std::stringstream* tooltip = NULL, bool isTurnUpdate = false) const;
 
+	void UpdateYieldsFor(TradeConnection* con, bool isTurnUpdate) const;
 	// updates the all the values for the trade routes that go to and from this player
 	void UpdateTradeConnectionValues(bool isTurnUpdate = false);
 

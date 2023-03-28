@@ -101,6 +101,17 @@ bool TradeConnection::isPathStillValid() const
 	}
 	return true;
 }
+bool TradeConnection::HasAnyYield() const
+{
+	for (int i = 0; i < NUM_YIELD_TYPES; ++i)
+	{
+		if (m_aiOriginYields[i] > 0 || m_aiDestYields > 0)
+		{
+			return true;
+		}
+	}
+	return false;
+}
 int TradeConnection::GetNumEnemyUnitsOnRoute() const
 {
 	int numEnemies = 0;
@@ -465,6 +476,7 @@ bool CvGameTrade::TryCreateTradeRoute(DomainTypes eDomain, const CvCity* pOrigin
 	con->m_eConnectionType = type;
 	con->m_unitID = -1;
 
+	const CvPlayerTrade* pTrade = GET_PLAYER(pOriginCity->getOwner()).GetTrade();
 	int numTurns;
 	int iCircuitsToComplete;
 	CvAStarNode* pPathfinderNode = NULL;
@@ -476,7 +488,6 @@ bool CvGameTrade::TryCreateTradeRoute(DomainTypes eDomain, const CvCity* pOrigin
 		con->m_iTurnRouteComplete = numTurns + GC.getGame().getGameTurn();
 
 		// calculate range factor right off the bat
-		const CvPlayerTrade* pTrade = GET_PLAYER(pOriginCity->getOwner()).GetTrade();
 		const int rangeInTiles = pTrade->GetTradeRouteRange(con->m_eDomain, pOriginCity);
 		const int rangeFactor = TradeConnection::RouteRangeFractionT100(con->m_routeCost, rangeInTiles, pTrade->GetRangeFactorT100());
 		con->m_rangeFactor = rangeFactor;
@@ -507,6 +518,13 @@ bool CvGameTrade::TryCreateTradeRoute(DomainTypes eDomain, const CvCity* pOrigin
 	con->m_bTradeUnitMovingForward = true;
 	con->m_iCircuitsCompleted = 0;
 
+	// make sure this trade route actually yields something, otherhwise we shouldn't let the player create it
+	pTrade->UpdateYieldsFor(con, true);
+	if (!con->HasAnyYield())
+	{
+		return false;
+	}
+
 	return true;
 }
 //	--------------------------------------------------------------------------------
@@ -535,7 +553,8 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 
 	iRouteID = m_iNextID;
 	m_aTradeConnections[iNewTradeRouteIndex].m_iID = m_iNextID;
-	TryCreateTradeRoute(eDomain, pOriginCity, pDestCity, eConnectionType, &m_aTradeConnections[iNewTradeRouteIndex]);
+	if (!TryCreateTradeRoute(eDomain, pOriginCity, pDestCity, eConnectionType, &m_aTradeConnections[iNewTradeRouteIndex]))
+		return false;
 
 	// increment m_iNextID for the next connection
 	m_iNextID += 1;
@@ -2942,7 +2961,51 @@ int CvPlayerTrade::CalcTradeConnectionValueTimes100(const TradeConnection& kTrad
 
 	return iValueT100;	
 }
+void CvPlayerTrade::UpdateYieldsFor(TradeConnection* con, bool isTurnUpdate) const
+{
+	if (con->m_eOriginOwner == m_pPlayer->GetID())
+	{
+		if (isTurnUpdate || !con->m_hasEverBeenCalculated)
+		{
+			const CvCity* pCityOrigin = CvGameTrade::GetOriginCity(*con);
 
+			con->m_hasEverBeenCalculated = true;
+			int pirateFactor = 100;
+			if (con->GetNumEnemyUnitsOnRoute() > 0)
+			{
+				int penaltyT100 = -50;
+				pirateFactor += penaltyT100;
+				CvNotifications* pNotifications = GET_PLAYER(pCityOrigin->getOwner()).GetNotifications();
+
+				string message = GetLocalizedText("{TXT_KEY_NOTIFICATION_TRADEROUTE_PIRATES}");
+				string summary = GetLocalizedText("{TXT_KEY_NOTIFICATION_TRADEROUTE_PIRATES_SUMMARY}");
+
+				pNotifications->Add(NOTIFICATION_TRADE_ROUTE_BROKEN, message.c_str(), summary.c_str(),
+					pCityOrigin->getX(), pCityOrigin->getY(), -1);
+
+			}
+			con->m_pirateFactor = pirateFactor;
+
+
+			const int rangeInTiles = GetTradeRouteRange(con->m_eDomain, pCityOrigin);
+			const int rangeFactor = TradeConnection::RouteRangeFractionT100(con->m_routeCost, rangeInTiles, GetRangeFactorT100());
+			con->m_rangeFactor = rangeFactor;
+		}
+
+		for (uint uiYields = 0; uiYields < NUM_YIELD_TYPES; uiYields++)
+		{
+			con->m_aiOriginYields[uiYields] = CalcTradeConnectionValueTimes100(*con, (YieldTypes)uiYields, true, NULL, isTurnUpdate);
+		}
+	}
+
+	if (con->m_eDestOwner == m_pPlayer->GetID())
+	{
+		for (uint uiYields = 0; uiYields < NUM_YIELD_TYPES; uiYields++)
+		{
+			con->m_aiDestYields[uiYields] = CalcTradeConnectionValueTimes100(*con, (YieldTypes)uiYields, false, NULL, isTurnUpdate);
+		}
+	}
+}
 //	--------------------------------------------------------------------------------
 void CvPlayerTrade::UpdateTradeConnectionValues(bool isTurnUpdate)
 {
@@ -2953,49 +3016,7 @@ void CvPlayerTrade::UpdateTradeConnectionValues(bool isTurnUpdate)
 			continue;
 
 		TradeConnection* pConnection = &(pTrade->m_aTradeConnections[i]);
-
-		if (pConnection->m_eOriginOwner == m_pPlayer->GetID())
-		{
-			if (isTurnUpdate || !pConnection->m_hasEverBeenCalculated)
-			{
-				const CvCity* pCityOrigin = CvGameTrade::GetOriginCity(*pConnection);
-
-				pConnection->m_hasEverBeenCalculated = true;
-				int pirateFactor = 100;
-				if (pConnection->GetNumEnemyUnitsOnRoute() > 0)
-				{
-					int penaltyT100 = -50;
-					pirateFactor += penaltyT100;
-					CvNotifications* pNotifications = GET_PLAYER(pCityOrigin->getOwner()).GetNotifications();
-
-					string message = GetLocalizedText("{TXT_KEY_NOTIFICATION_TRADEROUTE_PIRATES}");
-					string summary = GetLocalizedText("{TXT_KEY_NOTIFICATION_TRADEROUTE_PIRATES_SUMMARY}");
-
-					pNotifications->Add(NOTIFICATION_TRADE_ROUTE_BROKEN, message.c_str(), summary.c_str(),
-						pCityOrigin->getX(), pCityOrigin->getY(), -1);
-
-				}
-				pConnection->m_pirateFactor = pirateFactor;
-
-
-				const int rangeInTiles = GetTradeRouteRange(pConnection->m_eDomain, pCityOrigin);
-				const int rangeFactor = TradeConnection::RouteRangeFractionT100(pConnection->m_routeCost, rangeInTiles, GetRangeFactorT100());
-				pConnection ->m_rangeFactor = rangeFactor;
-			}
-
-			for (uint uiYields = 0; uiYields < NUM_YIELD_TYPES; uiYields++)
-			{
-				pConnection->m_aiOriginYields[uiYields] = CalcTradeConnectionValueTimes100(*pConnection, (YieldTypes)uiYields, true, NULL, isTurnUpdate);
-			}
-		}
-
-		if (pConnection->m_eDestOwner == m_pPlayer->GetID())
-		{
-			for (uint uiYields = 0; uiYields < NUM_YIELD_TYPES; uiYields++)
-			{
-				pConnection->m_aiDestYields[uiYields] = CalcTradeConnectionValueTimes100(*pConnection, (YieldTypes)uiYields, false, NULL, isTurnUpdate);
-			}
-		}
+		UpdateYieldsFor(pConnection, isTurnUpdate);
 	}
 }
 int CvPlayerTrade::CalcNumTradeRoutesOriginatingFromExcept(const CvCity* const pCity, const TradeConnection& except) const
