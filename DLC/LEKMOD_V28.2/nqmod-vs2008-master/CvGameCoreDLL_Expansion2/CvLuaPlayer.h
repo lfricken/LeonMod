@@ -53,6 +53,7 @@ protected:
 	static int lChooseTech(lua_State* L);
 
 	static int lKillUnits(lua_State* L);
+	static int lGet(lua_State* L);
 	static int lIsHuman(lua_State* L);
 	static int lIsBarbarian(lua_State* L);
 	static int lGetName(lua_State* L);

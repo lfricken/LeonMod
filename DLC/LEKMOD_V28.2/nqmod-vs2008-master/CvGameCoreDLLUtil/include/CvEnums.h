@@ -4495,6 +4495,12 @@ enum TradeRouteType
 	TRADEROUTE_MAJOR,
 };
 
+enum TradeRouteClassType
+{
+	TRADEROUTECLASS_INTERNAL,
+	TRADEROUTECLASS_EXTERNAL,
+};
+
 enum GreatWorkArtifactClass
 {
 	NO_GREAT_WORK_ARTIFACT_CLASS = 0,

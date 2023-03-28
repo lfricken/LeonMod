@@ -402,6 +402,15 @@ int CvPlayerTrade::GetRangeFactorT100() const
 	return 250;
 }
 
+int CvPlayerTrade::GetNumRoutesAllowed(TradeRouteClassType type) const
+{
+	int numAllowed = (((GetNumTradeRoutesPossible() + 1) * 100) / 2) / 100; // since we round down, +1 forces a round up
+	//const CvPlayer& player = *m_pPlayer;
+
+
+
+	return numAllowed;
+}
 //	--------------------------------------------------------------------------------
 int CvPlayerTrade::GetTradeRouteRange(DomainTypes eDomain, const CvCity* pOriginCity) const
 {

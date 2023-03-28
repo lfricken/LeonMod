@@ -101,6 +101,17 @@ bool TradeConnection::isPathStillValid() const
 	}
 	return true;
 }
+TradeRouteClassType TradeConnection::GetClass() const
+{
+	if (m_eOriginOwner == m_eDestOwner)
+	{
+		return TRADEROUTECLASS_INTERNAL;
+	}
+	else
+	{
+		return TRADEROUTECLASS_EXTERNAL;
+	}
+}
 bool TradeConnection::HasAnyYield() const
 {
 	for (int i = 0; i < NUM_YIELD_TYPES; ++i)
@@ -298,6 +309,7 @@ bool CvGameTrade::CanCreateTradeRoute(const CvCity* pOriginCity, const CvCity* p
 		int iDestX = pDestCity->getX();
 		int iDestY = pDestCity->getY();
 
+
 		// check for duplicate routes
 		for (uint i = 0; i < (int)m_aTradeConnections.size(); i++)
 		{
@@ -307,6 +319,17 @@ bool CvGameTrade::CanCreateTradeRoute(const CvCity* pOriginCity, const CvCity* p
 				return false;
 			}
 		}
+
+		// is internal
+		CvPlayerTrade* ownerTrade = GET_PLAYER(pOriginCity->getOwner()).GetTrade();
+		const TradeRouteClassType classType = pDestCity->getOwner() == pOriginCity->getOwner() ? TRADEROUTECLASS_INTERNAL : TRADEROUTECLASS_EXTERNAL;
+
+		bool wouldGoOverLimit = ownerTrade->GetNumRoutes(classType) >= ownerTrade->GetNumRoutesAllowed(classType);
+		if (wouldGoOverLimit)
+		{
+			return false;
+		}
+
 		if (IsDuplicate(pOriginCity, pDestCity, eDomain, eConnectionType))
 		{
 			return false;
@@ -3889,9 +3912,36 @@ int CvPlayerTrade::GetTradeRouteSpeed(DomainTypes eDomain) const
 	CvAssertMsg(false, "Undefined domain for trade route speed");
 	return -1;
 }
-
+int CvPlayerTrade::GetNumRoutes(TradeRouteClassType type) const
+{
+	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
+	int iResult = 0;
+	for (uint ui = 0; ui < pTrade->m_aTradeConnections.size(); ui++)
+	{
+		if (pTrade->IsTradeRouteIndexEmpty(ui))
+		{
+			continue;
+		}
+		const TradeConnection* pTradeConnection = &(pTrade->m_aTradeConnections[ui]);
+		if (type == TRADEROUTECLASS_INTERNAL)
+		{
+			if (pTradeConnection->m_eOriginOwner == this->m_pPlayer->GetID() && pTradeConnection->m_eOriginOwner == pTradeConnection->m_eDestOwner)
+			{
+				iResult++;
+			}
+		}
+		if (type == TRADEROUTECLASS_EXTERNAL)
+		{
+			if (pTradeConnection->m_eOriginOwner == this->m_pPlayer->GetID() && pTradeConnection->m_eOriginOwner != pTradeConnection->m_eDestOwner)
+			{
+				iResult++;
+			}
+		}
+	}
+	return iResult;
+}
 //	--------------------------------------------------------------------------------
-uint CvPlayerTrade::GetNumTradeRoutesPossible() const
+int CvPlayerTrade::GetNumTradeRoutesPossible() const
 {
 	int iNumRoutes = 0;
 

@@ -59,6 +59,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(ChooseTech);
 
 	Method(KillUnits);
+	Method(Get);
 	Method(IsHuman);
 	Method(IsBarbarian);
 	Method(GetName);
@@ -1200,6 +1201,31 @@ int CvLuaPlayer::lChooseTech(lua_State* L)
 	TechTypes iTechJustDiscovered = (TechTypes)lua_tointeger(L, 4);
 
 	pkPlayer->chooseTech(iDiscover, strText, iTechJustDiscovered);
+	return 1;
+}
+int CvLuaPlayer::lGet(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	string valName1 = lua_tostring(L, 2);
+	string valName2 = lua_tostring(L, 3);
+
+	if (valName1 == "GetNumRoutes")
+	{
+		TradeRouteClassType type = valName2 == "TRADEROUTECLASS_INTERNAL" ? TRADEROUTECLASS_INTERNAL : TRADEROUTECLASS_EXTERNAL;
+		int ret = pkPlayer->GetTrade()->GetNumRoutes(type);
+		lua_pushinteger(L, ret);
+	}
+	else if (valName1 == "GetNumRoutesAllowed")
+	{
+		TradeRouteClassType type = valName2 == "TRADEROUTECLASS_INTERNAL" ? TRADEROUTECLASS_INTERNAL : TRADEROUTECLASS_EXTERNAL;
+		int ret = pkPlayer->GetTrade()->GetNumRoutesAllowed(type);
+		lua_pushinteger(L, ret);
+	}
+	else
+	{
+
+		lua_pushinteger(L, -1);
+	}
 	return 1;
 }
 //------------------------------------------------------------------------------

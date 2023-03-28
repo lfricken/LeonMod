@@ -1255,6 +1255,10 @@ function InternationalTradeRoutesTipHandler( control )
 		strTT = strTT .. strToYouTradeRoutes;
 	end
 	
+	strTT = strTT .. "[NEWLINE][NEWLINE]Routes are limited by type:"
+	strTT = strTT .. "[NEWLINE][ICON_BULLET]Internal: " .. pPlayer:Get("GetNumRoutes", "TRADEROUTECLASS_INTERNAL") .. "/" .. pPlayer:Get("GetNumRoutesAllowed", "TRADEROUTECLASS_INTERNAL");
+	strTT = strTT .. "[NEWLINE][ICON_BULLET]External: " .. pPlayer:Get("GetNumRoutes", "TRADEROUTECLASS_EXTERNAL") .. "/" .. pPlayer:Get("GetNumRoutesAllowed", "TRADEROUTECLASS_EXTERNAL");
+
 	--print(strText);
 	if(strText ~= "") then
 		tipControlTable.TopPanelMouseover:SetHide(false);

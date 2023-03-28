@@ -65,6 +65,8 @@ struct TradeConnection
 		m_aPlotList.clear();
 	}
 #endif
+	
+	TradeRouteClassType GetClass() const;
 	// true if this route has any yield greater than 0
 	bool HasAnyYield() const;
 	int GetNumEnemyUnitsOnRoute() const;
@@ -302,7 +304,10 @@ public:
 	int GetTradeRouteRange(DomainTypes eDomain, const CvCity* pOriginCity) const;
 	int GetTradeRouteSpeed(DomainTypes eDomain) const;
 
-	uint GetNumTradeRoutesPossible() const;
+	// number of routes the player has of this classtype
+	int GetNumRoutes(TradeRouteClassType type) const;
+	int GetNumRoutesAllowed(TradeRouteClassType type) const;
+	int GetNumTradeRoutesPossible() const;
 	int GetNumTradeRoutesUsed(bool bContinueTraining) const;
 	int GetNumTradeRoutesRemaining(bool bContinueTraining) const;
 
