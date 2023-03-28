@@ -65,20 +65,8 @@ g_SortOptions = {
 		DefaultDirection = "asc",
 		CurrentDirection = nil,
 	},
-	{
-		Button = Controls.FromGPT,
-		Column = "FromGPT",
-		DefaultDirection = "desc",
-		CurrentDirection = nil,
-		SortType = "numeric",
-	},
-	{
-		Button = Controls.ToGPT,
-		Column = "ToGPT",
-		DefaultDirection = "desc",
-		CurrentDirection = nil,
-		SortType = "numeric",
-	},
+
+
 	{
 		Button = Controls.ToFood,
 		Column = "ToFood",
@@ -94,6 +82,71 @@ g_SortOptions = {
 		SortType = "numeric",
 	},
 	{
+		Button = Controls.ToGPT,
+		Column = "ToGPT",
+		DefaultDirection = "desc",
+		CurrentDirection = nil,
+		SortType = "numeric",
+	},
+
+
+	{
+		Button = Controls.Science,
+		Column = "Science",
+		DefaultDirection = "desc",
+		CurrentDirection = nil,
+		SortType = "numeric",
+	},
+	{
+		Button = Controls.Culture,
+		Column = "Culture",
+		DefaultDirection = "desc",
+		CurrentDirection = nil,
+		SortType = "numeric",
+	},
+	{
+		Button = Controls.Faith,
+		Column = "Faith",
+		DefaultDirection = "desc",
+		CurrentDirection = nil,
+		SortType = "numeric",
+	},
+
+
+	{
+		Button = Controls.Golden,
+		Column = "GoldenAgePoints",
+		DefaultDirection = "desc",
+		CurrentDirection = nil,
+		SortType = "numeric",
+	},
+
+
+	{
+		Button = Controls.ScientificInsight,
+		Column = "ScientificInsight",
+		DefaultDirection = "desc",
+		CurrentDirection = nil,
+		SortType = "numeric",
+	},
+	{
+		Button = Controls.DiplomaticSupport,
+		Column = "DiplomaticSupport",
+		DefaultDirection = "desc",
+		CurrentDirection = nil,
+		SortType = "numeric",
+	},
+	{
+		Button = Controls.CulturalInfluence,
+		Column = "Tourism",
+		DefaultDirection = "desc",
+		CurrentDirection = nil,
+		SortType = "numeric",
+	},
+
+
+
+	{
 		Button = Controls.FromReligion,
 		Column = "FromReligion",
 		DefaultDirection = "desc",
@@ -107,23 +160,18 @@ g_SortOptions = {
 		CurrentDirection = nil,
 		SortType = "numeric",
 	},
-	{
-		Button = Controls.FromScience,
-		Column = "FromScience",
-		DefaultDirection = "desc",
-		CurrentDirection = nil,
-		SortType = "numeric",
-	},
-	{
-		Button = Controls.ToScience,
-		Column = "ToScience",
-		DefaultDirection = "desc",
-		CurrentDirection = nil,
-		SortType = "numeric",
-	},
+
+
 	{
 		Button = Controls.TurnsLeft,
 		Column = "TurnsLeft",
+		DefaultDirection = "asc",
+		CurrentDirection = nil,
+		SortType = "numeric",
+	},
+	{
+		Button = Controls.NumEnemiesOnRoute,
+		Column = "NumEnemiesOnRoute",
 		DefaultDirection = "asc",
 		CurrentDirection = nil,
 		SortType = "numeric",
@@ -161,14 +209,29 @@ function AlphabeticalSortFunction(field, direction, secondarySort)
 	end
 end
 
+function secVal(r)
+	local val = r.ToFood + r.ToProduction + r.ToGPT + r.Culture + r.ToScience + r.Faith + r.GoldenAgePoints + r.ScientificInsight + r.DiplomaticSupport + r.Tourism + r.ToPressure;
+	return val;
+end
+function sortFallback(a,b)
+	local va = secVal(a);
+	local vb = secVal(b);
+	
+	return tonumber(va) > tonumber(vb);
+end
+
 function NumericSortFunction(field, direction, secondarySort)
 	if(direction == "asc") then
 		return function(a,b)
 			local va = (a ~= nil and a[field] ~= nil) and a[field] or -1;
 			local vb = (b ~= nil and b[field] ~= nil) and b[field] or -1;
 			
-			if(secondarySort ~= nil and tonumber(va) == tonumber(vb)) then
-				return secondarySort(a,b);
+			if(tonumber(va) == tonumber(vb)) then
+				if (secondarySort ~= nil) then
+					return secondarySort(a,b);
+				else
+					return sortFallback(a,b);
+				end
 			else
 				return tonumber(va) < tonumber(vb);
 			end
@@ -178,8 +241,12 @@ function NumericSortFunction(field, direction, secondarySort)
 			local va = (a ~= nil and a[field] ~= nil) and a[field] or -1;
 			local vb = (b ~= nil and b[field] ~= nil) and b[field] or -1;
 
-			if(secondarySort ~= nil and tonumber(va) == tonumber(vb)) then
-				return secondarySort(a,b);
+			if(tonumber(va) == tonumber(vb)) then
+				if (secondarySort ~= nil) then
+					return secondarySort(a,b);
+				else
+					return sortFallback(a,b);
+				end
 			else
 				return tonumber(vb) < tonumber(va);
 			end
@@ -189,10 +256,11 @@ end
 
 -- Registers the sort option controls click events
 function RegisterSortOptions()
-	
 	for i,v in ipairs(g_SortOptions) do
 		if(v.Button ~= nil) then
 			v.Button:RegisterCallback(Mouse.eLClick, function() SortOptionSelected(v); end);
+		else
+			print("RegisterSortOptions button is null: " .. v.Column);
 		end
 	end
 	
@@ -420,8 +488,9 @@ function DisplayData()
 			print("v.ToCity is nil");
 		end
 		
-		local strTT = BuildTradeRouteToolTipString(Players[v.FromID], v.FromCity, v.ToCity, v.Domain);
-		
+		local strTT = v.Tooltip;
+		strTT = strTT or "";
+
 		if (v.Domain == DomainTypes.DOMAIN_LAND) then
 			instance.Domain_Land:SetHide(false);
 			instance.Domain_Land:SetToolTipString(strTT);
@@ -438,7 +507,7 @@ function DisplayData()
 		instance.FromCivIconShadow:SetToolTipString(v.FromCiv);
 		instance.FromCivIconHighlight:SetToolTipString(v.FromCiv);
 		instance.FromCity:SetText(v.FromCityName);
-		instance.FromCity:SetToolTipString(strTT);
+		instance.FromCity:SetToolTipString(v.FromCityName);
 		
 		CivIconHookup(v.ToID, 32, instance.ToCivIcon, instance.ToCivIconBG, instance.ToCivIconShadow, false, true, instance.ToCivIconHighlight);
 		instance.ToCivIcon:SetToolTipString(v.ToCiv);
@@ -446,36 +515,88 @@ function DisplayData()
 		instance.ToCivIconShadow:SetToolTipString(v.ToCiv);
 		instance.ToCivIconHighlight:SetToolTipString(v.ToCiv);
 		instance.ToCity:SetText(v.ToCityName);
-		instance.ToCity:SetToolTipString(strTT);
-		
-		local strToGPT = "";
-		if (v.ToGPT ~= 0) then
-			strToGPT = Locale.ConvertTextKey("TXT_KEY_TRO_GPT_ENTRY",  v.ToGPT / 100);
-			instance.ToGPT:SetToolTipString(strTT);	
-		end
-		instance.ToGPT:SetText(strToGPT);
+		instance.ToCity:SetToolTipString(v.ToCityName);
 
-		local strFromGPT = "";		
-		if (v.FromGPT ~= 0) then
-			strFromGPT = Locale.ConvertTextKey("TXT_KEY_TRO_GPT_ENTRY",  v.FromGPT / 100);
-			instance.FromGPT:SetToolTipString(strTT);	
-		end
-		instance.FromGPT:SetText(strFromGPT);
+		local routeInfoStr = v.Tooltip;
+		local str;
 		
-		local strToFood = "";
+		str = "";
 		if (v.ToFood ~= 0) then
-			strToFood = round(v.ToFood / 100, 1);
-			instance.ToFood:SetToolTipString(strTT);	
+			str = round(v.ToFood / 100, 1);
+			instance.ToFood:SetToolTipString(routeInfoStr);
 		end
-		instance.ToFood:SetText(strToFood);
+		instance.ToFood:SetText(str);
 		
-		local strToProduction = "";
+		str = "";
 		if (v.ToProduction ~= 0) then
-			strToProduction = round(v.ToProduction / 100, 1);
-			instance.ToProduction:SetToolTipString(strTT);	
+			str = round(v.ToProduction / 100, 1);
+			instance.ToProduction:SetToolTipString(routeInfoStr);
 		end
-		instance.ToProduction:SetText(strToProduction);
+		instance.ToProduction:SetText(str);
+
+		str = "";
+		if (v.ToGPT ~= 0) then
+			str = Locale.ConvertTextKey("TXT_KEY_TRO_GPT_ENTRY", v.ToGPT / 100);
+			instance.ToGPT:SetToolTipString(routeInfoStr);
+		end
+		instance.ToGPT:SetText(str);
+
+
 		
+		str = "";			
+		if(v.ToScience ~= 0) then
+			str = v.ToScience / 100;
+			instance.Science:SetToolTipString(routeInfoStr);
+		end
+		instance.Science:SetText(str);
+		
+		str = "";
+		if (v.Culture ~= 0) then
+			str = Locale.ConvertTextKey("TXT_KEY_TRO_GPT_ENTRY", v.Culture / 100);
+			instance.Culture:SetToolTipString(routeInfoStr);
+		end
+		instance.Culture:SetText(str);
+		
+		str = "";
+		if (v.Faith ~= 0) then
+			str = Locale.ConvertTextKey("TXT_KEY_TRO_GPT_ENTRY", v.Faith / 100);
+			instance.Faith:SetToolTipString(routeInfoStr);
+		end
+		instance.Faith:SetText(str);
+		
+
+
+		str = "";
+		if (v.GoldenAgePoints ~= 0) then
+			str = Locale.ConvertTextKey("TXT_KEY_TRO_GPT_ENTRY", v.GoldenAgePoints / 100);
+		end
+		instance.Golden:SetText(str);
+
+
+
+		str = "";
+		val = v.ScientificInsight;
+		if (val ~= 0) then
+			str = round(val / 100, 1);
+		end
+		instance.ScientificInsight:SetText(str);
+
+		str = "";
+		val = v.DiplomaticSupport;
+		if (val ~= 0) then
+			str = round(val / 100, 1);
+		end
+		instance.DiplomaticSupport:SetText(str);
+
+		str = "";
+		val = v.Tourism;
+		if (val ~= 0) then
+			str = round(val / 100, 1);
+		end
+		instance.CulturalInfluence:SetText(str);
+
+
+		-- Religion
 		local strToPressure = "";
 		if (v.ToReligion > 0 and v.ToPressure ~= 0) then
 			local religion = GameInfo.Religions[v.ToReligion];
@@ -493,30 +614,36 @@ function DisplayData()
 			instance.FromReligion:SetToolTipString(strTT);	
 		end
 		instance.FromReligion:SetText(strFromPressure);
-		
-		local fromScience = "";
-		local toScience = "";
-		
-		if (v.FromID ~= v.ToID) then
-		
-			if(v.FromScience ~= 0) then
-				fromScience = v.FromScience / 100;
-				instance.FromScience:SetToolTipString(strTT);	
-			end
-			
-			if(v.ToScience ~= 0) then
-				toScience = v.ToScience / 100;
-				instance.ToScience:SetToolTipString(strTT);	
-			end
-		end
-		instance.FromScience:SetText(fromScience);
-		instance.ToScience:SetText(toScience);
-		
+
+
+		-- Turns Remaining
+		local color = "[COLOR_WHITE]";
+		strTT = "This route would take this many turns.";
 		local strTurnsRemaining = "";
-		if (v.TurnsLeft ~= nil and v.TurnsLeft >= 0) then
-			strTurnsRemaining = v.TurnsLeft;
+		local val = v.TurnsLeft or 0;
+		if (val >= 0) then
+			color = "[COLOR_YELLOW]";
+			strTT = "This route is active and has this many turns remaining.";
 		end
+		if (v.IsDuplicate) then
+			color = "[COLOR_WARNING_TEXT]";
+			strTT = "There is already an existing route with this destination city.";
+		end
+		strTurnsRemaining = color .. math.abs(val) .. "[ENDCOLOR]";
+		instance.TurnsLeft:SetToolTipString(strTT);
 		instance.TurnsLeft:SetText(strTurnsRemaining);
+
+
+
+		str = "";
+		strTT = "";
+		val = v.NumEnemiesOnRoute;
+		if (val ~= 0) then
+			str = val;
+			strTT = Locale.ConvertTextKey("TXT_KEY_TRADEROUTE_TOOLTIP_PENALTY");
+		end
+		instance.NumEnemiesOnRoute:SetToolTipString(strTT);
+		instance.NumEnemiesOnRoute:SetText(str);
     end
     
     Controls.MainStack:CalculateSize();

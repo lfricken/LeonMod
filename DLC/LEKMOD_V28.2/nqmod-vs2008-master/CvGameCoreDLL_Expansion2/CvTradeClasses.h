@@ -44,7 +44,14 @@ struct TradeConnection
 #endif
 	bool m_bTradeUnitMovingForward;
 	TradeConnectionPlotList m_aPlotList;
+	// expected to be 100 per tile normally, lower for roads, higher for something bad
+	int m_routeCost;
+	// this is deprecated/dead
+	bool m_hasEverBeenCalculated;
+	int m_pirateFactor;
+	int m_rangeFactor;
 	int m_unitID;
+
 	int m_iCircuitsCompleted;
 	int m_iCircuitsToComplete;
 	int m_iTurnRouteComplete;
@@ -58,10 +65,22 @@ struct TradeConnection
 		m_aPlotList.clear();
 	}
 #endif
+	// true if this route has any yield greater than 0
+	bool HasAnyYield() const;
+	int GetNumEnemyUnitsOnRoute() const;
+	// returns 100 if this should yield full, or 50 if half etc., due to range penalty
+	static int RouteRangeFractionT100(int routeCost, int rangeInTiles, int maxFactorT100);
+	CvPlot* GetRoutePlot(int idx) const;
+	// determine type of route
+	TradeRouteType GetRouteType() const;
+private:
+	// if this route requires 10, and the range is 5, this would return 200 signifying
+	// that this route requires 200% range
+	static int RouteRangeFactorT100(int routeCost, int rangeInTiles);
 };
 
-#define PROJECTED_MAX_TRADE_CONNECTIONS_PER_CIV 14
-#define LIKELY_NUM_OF_PLAYERS 12
+#define PROJECTED_MAX_TRADE_CONNECTIONS_PER_CIV 30
+#define LIKELY_NUM_OF_PLAYERS 16
 #define PROJECTED_MAX_TRADE_CONNECTIONS (PROJECTED_MAX_TRADE_CONNECTIONS_PER_CIV * LIKELY_NUM_OF_PLAYERS)
 
 typedef FStaticVector<TradeConnection, PROJECTED_MAX_TRADE_CONNECTIONS, false, c_eCiv5GameplayDLL > TradeConnectionList;
@@ -84,7 +103,13 @@ public:
 
 	bool CanCreateTradeRoute(const CvCity* pOriginCity, const CvCity* pDestCity, DomainTypes eDomain, TradeConnectionType eConnectionType, bool bIgnoreExisting, bool bCheckPath = true) const;
 	bool CanCreateTradeRoute(PlayerTypes eOriginPlayer, PlayerTypes eDestPlayer, DomainTypes eDomainRestriction) const;
-	bool CreateTradeRoute (CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, TradeConnectionType eConnectionType, int& iRouteID);
+	bool IsDuplicate(const CvCity* pOriginCity, const CvCity* pDestCity, DomainTypes eDomain, TradeConnectionType eConnectionType) const;
+
+	
+	bool TryCreateTradeRoute(DomainTypes eDomain, const CvCity* pOriginCity, const CvCity* pDestCity, TradeConnectionType type, TradeConnection* con, bool skipCheck = false) const;
+	bool CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, TradeConnectionType eConnectionType, int& iRouteID);
+	bool CalcRouteInfo(const CvCity* pOriginCity, const CvCity* pDestCity, DomainTypes domain, int* numTurns = NULL, 
+		int* pCircuits = NULL, CvAStarNode** pPathfinderNodeOut = NULL) const;
 
 	bool IsValidTradeRoutePath(const CvCity* pOriginCity, const CvCity* pDestCity, DomainTypes eDomain) const;
 	CvPlot* GetPlotAdjacentToWater(const CvPlot* pTarget, const CvPlot* pOrigin) const;
@@ -211,7 +236,7 @@ public:
 	// Functions invoked each player turn
 	void DoTurn(void);
 	void MoveUnits(void);
-	int GetTradeConnectionValueExtra(const TradeConnection& kTradeConnection, const YieldTypes eYieldType, const bool bIsOwner) const;
+	int GetTradeConnectionValueExtra(const TradeConnection& kTradeConnection, const YieldTypes eYieldType, const bool bIsOwner, std::stringstream* tooltip) const;
 
 	int GetTradeConnectionBaseValueTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer) const;
 	int GetTradeConnectionGPTValueTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer, bool bOriginCity) const;
@@ -223,9 +248,16 @@ public:
 	int GetTradeConnectionOtherTraitValueTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer) const;
 	int GetTradeConnectionDomainValueModifierTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield) const;
 	int GetTradeConnectionRiverValueModifierTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer) const;
-	int CalcTradeConnectionValueTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer) const;
 
-	void UpdateTradeConnectionValues(); // updates the all the values for the trade routes that go to and from this player
+	string GetTradeRouteTooltip(const TradeConnection& kTradeConnection) const;
+	int CalcTradeConnectionValueTotalForPlayerTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, std::stringstream* tooltip) const;
+	int CalcTradeConnectionValueTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, 
+		bool bAsOriginPlayer, std::stringstream* tooltip = NULL, bool isTurnUpdate = false) const;
+
+	// set yields into the TradeConnection
+	void UpdateYieldsFor(TradeConnection* con, bool isTurnUpdate, bool forceCorrectYieldCalculation) const;
+	// updates the all the values for the trade routes that go to and from this player
+	void UpdateTradeConnectionValues(bool isTurnUpdate = false);
 
 	int GetTradeValuesAtCityTimes100(const CvCity* const pCity, YieldTypes eYield) const;
 	// number of trade routes that start here
@@ -243,7 +275,9 @@ public:
 
 	bool CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, TradeConnectionType eConnectionType);
 
-	TradeConnection* GetTradeConnection(const CvCity* pOriginCity, const CvCity* pDestCity);
+	// additional max range a route can go (but suffer a penalty)
+	int GetRangeFactorT100() const;
+	TradeConnection* GetTradeConnection(const CvCity* pOriginCity, const CvCity* pDestCity) const;
 	int GetNumberOfCityStateTradeRoutes() const;
 
 	bool IsPreviousTradeRoute(const CvCity* pOriginCity, const CvCity* pDestCity, DomainTypes eDomain, TradeConnectionType eConnectionType) const;

@@ -277,7 +277,7 @@ public:
 	// How much route project increases per.
 	int GetTradeRouteCostIncrease() const;
 	// How many extra routes we have. Hammer progress toward next route.
-	void GetTradeRouteProjectInfo(int* iCount, int* iProgress) const;
+	void GetTradeRouteProjectInfo(int* iCount, int* iProgress = NULL) const;
 
 
 	int GetNationalGamesCost(const int ith) const;

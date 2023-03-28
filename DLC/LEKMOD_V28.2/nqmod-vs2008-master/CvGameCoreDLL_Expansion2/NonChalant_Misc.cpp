@@ -92,7 +92,7 @@ int CvGlobals::getYIELD_PER_QUEST(const YieldTypes eYieldType, const PlayerTypes
 	// player specific changes
 	if (ePlayer != NO_PLAYER)
 	{
-		const CvPlayer& player = GET_PLAYER(ePlayer);		
+		const CvPlayer& player = GET_PLAYER(ePlayer);
 		if (eYieldType == YIELD_DIPLOMATIC_SUPPORT)
 		{
 			//POLICY_PATRONAGE_FINISHER grants 50% more Diplo Points from Completing Quests
@@ -102,7 +102,7 @@ int CvGlobals::getYIELD_PER_QUEST(const YieldTypes eYieldType, const PlayerTypes
 				value *= 150;
 				value /= 100;
 			}
-		}		
+		}
 		if (eYieldType == YIELD_DIPLOMATIC_SUPPORT)
 		{
 			//PENTAGON grants 50% more Diplo Points from Completing Quests
@@ -137,145 +137,6 @@ int CvGlobals::getYIELD_PER_QUEST(const YieldTypes eYieldType, const PlayerTypes
 	}
 
 	return value;
-}
-
-
-// trade route modifier
-
-int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeConnection, const YieldTypes eYieldType, 
-	// If true, these yields are for the origin city, if false, they are for the destination city.
-	const bool isForOriginYields) const
-{
-	int yieldChange = 0;
-	const CvPlayer& playerOrigin = GET_PLAYER(kTradeConnection.m_eOriginOwner);
-	const CvPlayer& playerDest = GET_PLAYER(kTradeConnection.m_eDestOwner);
-	const bool isInternal = playerOrigin.GetID() == playerDest.GetID();
-	// true if the destination is a City State
-	const bool isDestMinor = playerDest.isMinorCiv();
-	const CvCity* cityOrigin = CvGameTrade::GetOriginCity(kTradeConnection);
-	const CvCity* cityDest = CvGameTrade::GetDestCity(kTradeConnection);
-	if (!cityOrigin || !cityDest) return 0;
-
-	// how many tiles between the 2 cities
-	//const int tradeDistance = kTradeConnection.m_aPlotList.size();
-	const bool hasMerchantConfederacy = playerOrigin.HasPolicy(POLICY_MERCHANT_CONFEDERACY);
-	const bool hasMerchantsGuild = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_CARAVANSARY);
-	const bool hasMarket = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_MARKET);
-	const bool hasBank = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_BANK);
-	const bool hasStockExchange = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_STOCK_EXCHANGE);
-	const bool hasMint = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_MINT);
-	const bool hasBrewery = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_BREWERY);
-	const bool hasStoneWorks = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_STONE_WORKS);
-	const bool hasTextileMill = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_TEXTILE);
-	const bool hasGrocer = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_GROCER);
-	const bool hasCenserMaker = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_CENSER);
-	const bool hasGemcutter = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_GEMCUTTER);
-	const bool hasOilRefinery = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_REFINERY);
-	const bool hasShipyard = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_SHIPYARD);
-	const bool hasHimeji = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_HIMEJI_CASTLE);
-	int numExplorationPolicies = playerOrigin.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(POLICY_BRANCH_EXPLORATION);	
-	int numCommercePolicies = playerOrigin.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(POLICY_BRANCH_COMMERCE);
-	int numHonorPolicies = playerOrigin.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(POLICY_BRANCH_HONOR);
-	const bool hasTheocrary = playerOrigin.HasPolicy(POLICY_THEOCRACY);
-
-	if (isInternal) // true if this is an internal trade route
-	{
-		if (!isForOriginYields) // only the destination city of the trade route gets these benefits
-		{
-			if (eYieldType == YIELD_GOLD && hasMint)
-				yieldChange += 2;
-			if (eYieldType == YIELD_GOLD && hasBrewery)
-				yieldChange += 2;
-			if (eYieldType == YIELD_PRODUCTION && hasStoneWorks)
-				yieldChange += 1;
-			if (eYieldType == YIELD_PRODUCTION && hasTextileMill)
-				yieldChange += 1;
-			if (eYieldType == YIELD_FOOD && hasGrocer)
-				yieldChange += 1;
-			if (eYieldType == YIELD_CULTURE && hasCenserMaker)
-				yieldChange += 1;
-			if (eYieldType == YIELD_CULTURE && hasGemcutter)
-				yieldChange += 1;
-			if (eYieldType == YIELD_PRODUCTION && hasOilRefinery)
-				yieldChange += 3;
-			if (eYieldType == YIELD_GOLD && hasHimeji)
-				yieldChange += (numCommercePolicies + numHonorPolicies) * 2;
-			if (eYieldType == YIELD_DIPLOMATIC_SUPPORT && hasHimeji)
-				yieldChange += (numCommercePolicies + numHonorPolicies);
-
-			{ // POLICY_FREE_THOUGHT +6SC +2FD from Trade Routes
-				const bool hasFreeThought = playerOrigin.HasPolicy(POLICY_FREE_THOUGHT);
-				if (eYieldType == YIELD_FOOD && hasFreeThought)
-					yieldChange += 2;
-				if (eYieldType == YIELD_SCIENCE && hasFreeThought)
-					yieldChange += 6;
-			}
-			if (eYieldType == YIELD_PRODUCTION && hasShipyard)
-				yieldChange += 2;
-			if (eYieldType == YIELD_FAITH && hasTheocrary)
-				yieldChange += 2;
-			if (eYieldType == YIELD_GOLD)
-				yieldChange += (numCommercePolicies * 3);
-		}
-	}
-	else
-	{
-		if (isForOriginYields) // only the origin city of the trade route gets these benefits
-		{
-			if (isDestMinor) // destination is City State
-			{
-				if (eYieldType == YIELD_DIPLOMATIC_SUPPORT && hasMerchantConfederacy)
-					yieldChange += 2;
-				if (eYieldType == YIELD_FOOD && hasMerchantConfederacy)
-					yieldChange += 2;
-				if (eYieldType == YIELD_PRODUCTION && hasMerchantConfederacy)
-					yieldChange += 2;
-				if (eYieldType == YIELD_CULTURE && hasMerchantConfederacy)
-					yieldChange += 2;
-				if (eYieldType == YIELD_FOOD)
-					yieldChange += numExplorationPolicies;
-				if (eYieldType == YIELD_PRODUCTION)
-					yieldChange += numExplorationPolicies;
-				if (eYieldType == YIELD_FAITH && hasTheocrary)
-					yieldChange += 2;
-				{ // POLICY_FREE_THOUGHT +6SC +2FD from Trade Routes
-					const bool hasFreeThought = playerOrigin.HasPolicy(POLICY_FREE_THOUGHT);
-					if (eYieldType == YIELD_FOOD && hasFreeThought)
-						yieldChange += 2;
-					if (eYieldType == YIELD_SCIENCE && hasFreeThought)
-						yieldChange += 6;
-				}
-			}
-			else // destination is another civ
-			{
-				if (eYieldType == YIELD_FOOD)
-					yieldChange += numExplorationPolicies;
-				if (eYieldType == YIELD_PRODUCTION)
-					yieldChange += numExplorationPolicies;
-				if (eYieldType == YIELD_FAITH && hasTheocrary)
-					yieldChange += 2;
-			}
-			
-
-			{ // POLICY_FREE_THOUGHT +6SC +2FD from Trade Routes
-				const bool hasFreeThought = playerOrigin.HasPolicy(POLICY_FREE_THOUGHT);
-				if (eYieldType == YIELD_FOOD && hasFreeThought)
-					yieldChange += 2;
-				if (eYieldType == YIELD_SCIENCE && hasFreeThought)
-					yieldChange += 6;
-			}
-
-			{ // diplomatic support from trade route buildings
-				const int numDiploSupportBoosters = hasMerchantsGuild + hasMarket + hasBank + hasShipyard + hasStockExchange + hasMint + hasBrewery + hasStoneWorks
-					+ hasTextileMill + hasGrocer + hasCenserMaker + hasGemcutter + (hasOilRefinery * 2);
-				if (eYieldType == YIELD_DIPLOMATIC_SUPPORT)
-					yieldChange += numDiploSupportBoosters;
-			}
-		}
-	}
-
-
-	return yieldChange;
 }
 
 

@@ -11,7 +11,7 @@
 
 int CvCity::getInfrastructureDamagePenalty() const
 {
-	int penalty = 2;
+	int penalty = 20;
 
 	return penalty;
 }

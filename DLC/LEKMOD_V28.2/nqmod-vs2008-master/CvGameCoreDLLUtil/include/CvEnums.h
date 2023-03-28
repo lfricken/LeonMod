@@ -1400,6 +1400,7 @@ enum TurnTimerTypes
 	NO_TURNTIMER = -1,
 };
 
+// ancient era is 0
 enum EraTypes							
 {
 	NO_ERA = -1,
@@ -4484,6 +4485,14 @@ enum TradeConnectionType
 	TRADE_CONNECTION_FOOD,
 	TRADE_CONNECTION_PRODUCTION,
 	NUM_TRADE_CONNECTION_TYPES
+};
+
+enum TradeRouteType
+{
+	TRADEROUTE_FOOD,
+	TRADEROUTE_PRODUCTION,
+	TRADEROUTE_MINOR,
+	TRADEROUTE_MAJOR,
 };
 
 enum GreatWorkArtifactClass

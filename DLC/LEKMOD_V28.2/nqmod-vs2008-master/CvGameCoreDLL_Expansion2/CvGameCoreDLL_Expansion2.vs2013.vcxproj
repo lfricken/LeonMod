@@ -173,6 +173,7 @@
       <ProfileGuidedDatabase>$(TargetDir)\CvGameCore_Expansion2.pgd</ProfileGuidedDatabase>
       <Profile>true</Profile>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -186,6 +187,7 @@
     <ClCompile Include="NonChalant_Misc.cpp" />
     <ClCompile Include="NonChalant_Player.cpp" />
     <ClCompile Include="NonChalant_Plot.cpp" />
+    <ClCompile Include="NonChalant_Trade.cpp" />
     <ClCompile Include="NonChalant_TradingCards.cpp" />
     <ClCompile Include="NonChalant_TradingCards_Policies.cpp" />
     <ClCompile Include="_precompile.cpp">

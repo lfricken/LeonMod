@@ -1634,8 +1634,22 @@ CvPlot* CvPlot::getNearestLandPlot() const
 {
 	return getNearestLandPlotInternal(0);
 }
+int CvPlot::countNearbyPlots(int (*check)(const CvPlot&), int range, bool includeCenterPlot) const
+{
+	int start = includeCenterPlot ? 0 : 1;
+	std::vector<CvPlot*> plots = GetAdjacentPlotsRadiusRange(start, range);
 
-
+	int num = 0;
+	for (int i = 0; i < (int)plots.size(); ++i)
+	{
+		CvPlot* plot = plots[i];
+		if (plot != NULL)
+		{
+			num += check(*plot);
+		}
+	}
+	return num;
+}
 //	--------------------------------------------------------------------------------
 int CvPlot::seeFromLevel(TeamTypes eTeam) const
 {
@@ -3695,7 +3709,7 @@ vector<CvUnit*> CvPlot::GetAdjacentEnemyMilitaryUnits(const TeamTypes eMyTeam, c
 }
 // all the 6 plots adjacent to this plot, will filter out plots outside bounds
 // in order, from inner plots to outer plots, returns the combination of those plots
-vector<CvPlot*> CvPlot::GetAdjacentPlotsRadiusRange(int radiusStartInclusive, int radiusEndInclusive)
+vector<CvPlot*> CvPlot::GetAdjacentPlotsRadiusRange(int radiusStartInclusive, int radiusEndInclusive) const
 {
 	vector<CvPlot*> plots;
 	for (int radius = radiusStartInclusive; radius <= radiusEndInclusive; ++radius)
@@ -3707,12 +3721,12 @@ vector<CvPlot*> CvPlot::GetAdjacentPlotsRadiusRange(int radiusStartInclusive, in
 }
 // the 6 plots adjacent to this plot, will filter out plots outside bounds, in order
 // or the radius, where 1 is the first ring, 0 is this plot, 2 is ring 2 etc.
-vector<CvPlot*> CvPlot::GetAdjacentPlots(int radius)
+vector<CvPlot*> CvPlot::GetAdjacentPlots(int radius) const
 {
 	vector<CvPlot*> plots;
 	if (radius <= 0)
 	{
-		plots.push_back(this);
+		plots.push_back((CvPlot*)(void*)this); // hack to push as const
 	}
 	if (radius > 0)
 	{

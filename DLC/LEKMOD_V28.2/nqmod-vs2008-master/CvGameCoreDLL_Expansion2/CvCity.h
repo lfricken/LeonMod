@@ -42,7 +42,7 @@ struct SCityExtraYields
 	vector<pair<ImprovementTypes, int>> forImprovement;
 };
 
-class CvCity
+class CvCity : public IHasXY
 {
 
 public:
@@ -335,6 +335,7 @@ public:
 	{
 		return m_iY;
 	}
+	int distTo(const IHasXY* other) const;
 
 	bool at(int iX, int iY) const;
 	bool at(CvPlot* pPlot) const;
@@ -357,10 +358,11 @@ public:
 	int getGameTurnLastExpanded() const;
 	void setGameTurnLastExpanded(int iNewValue);
 
+	// number of citizens, like 5
 	int getPopulation() const;
 	void setPopulation(int iNewValue, bool bReassignPop = true);
 	void changePopulation(int iChange, bool bReassignPop = true);
-
+	// the population we might display, like 1.5 million
 	long getRealPopulation() const;
 
 	int getHighestPopulation() const;

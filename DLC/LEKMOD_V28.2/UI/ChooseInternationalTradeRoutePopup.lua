@@ -211,9 +211,10 @@ function RefreshData()
 			strOutput = table.concat(theirBonuses, "[NEWLINE]");
 		end
 		
+		print("TYPE: " .. v.TradeConnectionType);
 		tradeRoute.Bonuses = strOutput;
 		tradeRoute.TargetPlayerId = pTargetPlayer:GetID();
-		tradeRoute.ToolTip = BuildTradeRouteToolTipString(pPlayer, pOriginCity, pTargetCity, eDomain);
+		tradeRoute.ToolTip = BuildTradeRouteToolTipString(pPlayer, pOriginCity, pTargetCity, eDomain, v.TradeConnectionType);
 		tradeRoute.eDomain = eDomain;
 		
 		if (v.OldTradeRoute) then
