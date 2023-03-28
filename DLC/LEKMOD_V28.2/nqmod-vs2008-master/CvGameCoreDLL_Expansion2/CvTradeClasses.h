@@ -99,6 +99,9 @@ public:
 
 	bool CanCreateTradeRoute(const CvCity* pOriginCity, const CvCity* pDestCity, DomainTypes eDomain, TradeConnectionType eConnectionType, bool bIgnoreExisting, bool bCheckPath = true) const;
 	bool CanCreateTradeRoute(PlayerTypes eOriginPlayer, PlayerTypes eDestPlayer, DomainTypes eDomainRestriction) const;
+	bool IsDuplicate(const CvCity* pOriginCity, const CvCity* pDestCity, DomainTypes eDomain, TradeConnectionType eConnectionType) const;
+
+	
 	bool TryCreateTradeRoute(DomainTypes eDomain, const CvCity* pOriginCity, const CvCity* pDestCity, TradeConnectionType type, TradeConnection* con, bool skipCheck = false) const;
 	bool CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, TradeConnectionType eConnectionType, int& iRouteID);
 	bool CalcRouteInfo(const CvCity* pOriginCity, const CvCity* pDestCity, DomainTypes domain, int* numTurns = NULL, 

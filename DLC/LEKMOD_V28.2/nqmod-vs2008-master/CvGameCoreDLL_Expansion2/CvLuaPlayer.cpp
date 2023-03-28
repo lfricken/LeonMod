@@ -4306,6 +4306,7 @@ int CvLuaPlayer::lGetTradeToYouRoutesTTString(lua_State* L)
 
 void insertRouteRowYields(lua_State* L, const CvPlayer& forPlayer, const TradeConnection& kConnection, int* pIndex)
 {
+	const CvGameTrade& trade = *GC.getGame().GetGameTrade();
 	const CvPlayer& playerOrigin = GET_PLAYER(kConnection.m_eOriginOwner);
 	const CvPlayer& playerDest = GET_PLAYER(kConnection.m_eDestOwner);
 	// true if the destination is a City State
@@ -4313,17 +4314,28 @@ void insertRouteRowYields(lua_State* L, const CvPlayer& forPlayer, const TradeCo
 	const CvCity* pDestCity = CvGameTrade::GetDestCity(kConnection);
 	const CvPlayerTrade* pTrade = forPlayer.GetTrade();
 
-
+	bool isExisting = false;
 	int iTurnsLeft = -1;
-	TradeConnection* pConnection = pTrade->GetTradeConnection(pOriginCity, pDestCity);
+	const TradeConnection* pConnection = pTrade->GetTradeConnection(pOriginCity, pDestCity);
 	if (pConnection && pConnection->m_eDomain == kConnection.m_eDomain)
 	{
 		iTurnsLeft = pConnection->m_iTurnRouteComplete - GC.getGame().getGameTurn();
+		isExisting = true;
 	}
 	else
 	{
 		GC.getGame().GetGameTrade()->CalcRouteInfo(pOriginCity, pDestCity, kConnection.m_eDomain, &iTurnsLeft);
 		iTurnsLeft = -iTurnsLeft; // make negative so UI knows this isn't a real route yet
+	}
+
+	// flag not yet existing routes as possible duplicates
+	bool isDuplicate = false;
+	if (!isExisting)
+	{
+		if (trade.IsDuplicate(pOriginCity, pDestCity, kConnection.m_eDomain, kConnection.m_eConnectionType))
+		{
+			isDuplicate = true;
+		}
 	}
 
 
@@ -4357,6 +4369,9 @@ void insertRouteRowYields(lua_State* L, const CvPlayer& forPlayer, const TradeCo
 
 	lua_pushinteger(L, kConnection.m_eConnectionType);
 	lua_setfield(L, t, "TradeConnectionType");
+
+	lua_pushboolean(L, isDuplicate);
+	lua_setfield(L, t, "IsDuplicate");
 
 	const int numEnemies = kConnection.GetNumEnemyUnitsOnRoute();
 	lua_pushinteger(L, numEnemies);

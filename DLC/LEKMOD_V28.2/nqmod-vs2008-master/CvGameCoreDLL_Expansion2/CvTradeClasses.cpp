@@ -287,12 +287,17 @@ bool CvGameTrade::CanCreateTradeRoute(const CvCity* pOriginCity, const CvCity* p
 		int iDestY = pDestCity->getY();
 
 		// check for duplicate routes
-		for (uint i = 0; i < m_aTradeConnections.size(); i++)
+		for (uint i = 0; i < (int)m_aTradeConnections.size(); i++)
 		{
-			if (m_aTradeConnections[i].m_iOriginX == iOriginX && m_aTradeConnections[i].m_iOriginY == iOriginY && m_aTradeConnections[i].m_iDestX == iDestX && m_aTradeConnections[i].m_iDestY == iDestY)
+			const bool destinationMatches = m_aTradeConnections[i].m_iDestX == iDestX && m_aTradeConnections[i].m_iDestY == iDestY;
+			if (m_aTradeConnections[i].m_iOriginX == iOriginX && m_aTradeConnections[i].m_iOriginY == iOriginY && destinationMatches)
 			{
 				return false;
 			}
+		}
+		if (IsDuplicate(pOriginCity, pDestCity, eDomain, eConnectionType))
+		{
+			return false;
 		}
 	}
 
@@ -302,6 +307,21 @@ bool CvGameTrade::CanCreateTradeRoute(const CvCity* pOriginCity, const CvCity* p
 	}
 
 	return true;
+}
+bool CvGameTrade::IsDuplicate(const CvCity* pOriginCity, const CvCity* pDestCity, DomainTypes, TradeConnectionType) const
+{
+	const int iDestX = pDestCity->getX();
+	const int iDestY = pDestCity->getY();
+	for (uint i = 0; i < (int)m_aTradeConnections.size(); i++)
+	{
+		const bool destinationMatches = m_aTradeConnections[i].m_iDestX == iDestX && m_aTradeConnections[i].m_iDestY == iDestY;
+		const bool ownerMatches = m_aTradeConnections[i].m_eOriginOwner == pOriginCity->getOwner();
+		if (destinationMatches && ownerMatches)
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 //	--------------------------------------------------------------------------------
@@ -410,14 +430,14 @@ bool CvGameTrade::CalcRouteInfo(const CvCity* pOriginCity, const CvCity* pDestCi
 	int iCircuitsToComplete = 1; // how many circuits do we want this trade route to run to reach the target turns
 	if (iTurnsPerCircuit != 0)
 	{
-		iCircuitsToComplete = max(iTargetTurns / iTurnsPerCircuit, 2);
+		iCircuitsToComplete = max(iTargetTurns / iTurnsPerCircuit, 1);
 	}
 
-	const int toComplete = (iTurnsPerCircuit * iCircuitsToComplete);
+	//const int toComplete = (iTurnsPerCircuit * iCircuitsToComplete);
 
 	if (numTurns != NULL)
 	{
-		*numTurns = toComplete;
+		*numTurns = iTargetTurns + routeLength / 4;// toComplete;
 	}
 	if (pCircuits != NULL)
 	{
@@ -462,7 +482,6 @@ bool CvGameTrade::TryCreateTradeRoute(DomainTypes eDomain, const CvCity* pOrigin
 		con->m_rangeFactor = rangeFactor;
 
 
-		const CvCity* pCityOrigin = CvGameTrade::GetOriginCity(*con);
 
 		int pirateFactor = 100;
 		if (con->GetNumEnemyUnitsOnRoute() > 0)
@@ -1655,10 +1674,10 @@ bool CvGameTrade::MoveUnit (int iIndex)
 	int iMoves = GET_PLAYER(kTradeConnection.m_eOriginOwner).GetTrade()->GetTradeRouteSpeed(kTradeConnection.m_eDomain);
 	for (int i = 0; i < iMoves; i++)
 	{
-		if (kTradeConnection.m_iCircuitsCompleted >= kTradeConnection.m_iCircuitsToComplete)
-		{
-			break;
-		}
+		//if (kTradeConnection.m_iCircuitsCompleted >= kTradeConnection.m_iCircuitsToComplete)
+		//{
+		//	break;
+		//}
 
 		bool bAbleToStep = StepUnit(iIndex);
 		if (!bAbleToStep)
@@ -2195,9 +2214,10 @@ void CvPlayerTrade::MoveUnits (void)
 			pTrade->MoveUnit(ui);
 			if (!pTrade->IsTradeRouteIndexEmpty(ui))
 			{
-				const bool circuitsComplete = pTradeConnection->m_iCircuitsCompleted >= pTradeConnection->m_iCircuitsToComplete;
+				const int turnsRemaining = pTradeConnection->m_iTurnRouteComplete - GC.getGame().getGameTurn();
+				//const bool circuitsComplete = pTradeConnection->m_iCircuitsCompleted >= pTradeConnection->m_iCircuitsToComplete;
 				// check to see if the trade route is still active but the circuit is completed
-				if (circuitsComplete || !pTradeConnection->isPathStillValid())
+				if (turnsRemaining <= 0 || !pTradeConnection->isPathStillValid())
 				{
 					m_aRecentlyExpiredConnections.push_back(*pTradeConnection);
 
@@ -3835,10 +3855,10 @@ int CvPlayerTrade::GetTradeRouteSpeed(DomainTypes eDomain) const
 	switch (eDomain)
 	{
 	case DOMAIN_SEA:
-		return 2;
+		return 3;
 		break;
 	case DOMAIN_LAND:
-		return 2;
+		return 3;
 		break;
 	}
 

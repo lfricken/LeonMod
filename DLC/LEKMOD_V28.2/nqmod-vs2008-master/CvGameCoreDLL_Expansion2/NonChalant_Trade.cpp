@@ -239,7 +239,7 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 				{ // city strength
 					int ourStrength = cityOrigin->getStrengthValueT100();
 					int theirStrength = cityDest->getStrengthValueT100();
-					int strengthDiff = (ourStrength - theirStrength);
+					int strengthDiff = max(0, (ourStrength - theirStrength));
 					int amount = (50 + iSquareRoot(strengthDiff)) / 100; // avoid insane via square root
 					appendNewLine(tooltip, &yieldChange, +amount, "[ICON_DIPLOMATIC_SUPPORT] from having more [ICON_STRENGTH] City Strength", amount > 0);
 				}

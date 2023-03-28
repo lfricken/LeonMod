@@ -618,13 +618,17 @@ function DisplayData()
 
 		-- Turns Remaining
 		local color = "[COLOR_WHITE]";
-		strTT = "This trade route would take this many turns.";
+		strTT = "This route would take this many turns.";
 		local strTurnsRemaining = "";
 		local val = v.TurnsLeft or 0;
 		if (val >= 0) then
 			color = "[COLOR_YELLOW]";
-			strTT = "This trade route is active and has this many turns remaining.";
-		end		
+			strTT = "This route is active and has this many turns remaining.";
+		end
+		if (v.IsDuplicate) then
+			color = "[COLOR_WARNING_TEXT]";
+			strTT = "There is already an existing route with this destination city.";
+		end
 		strTurnsRemaining = color .. math.abs(val) .. "[ENDCOLOR]";
 		instance.TurnsLeft:SetToolTipString(strTT);
 		instance.TurnsLeft:SetText(strTurnsRemaining);
