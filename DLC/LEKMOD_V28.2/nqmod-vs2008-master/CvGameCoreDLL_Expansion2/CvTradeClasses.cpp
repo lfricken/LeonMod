@@ -460,7 +460,20 @@ bool CvGameTrade::TryCreateTradeRoute(DomainTypes eDomain, const CvCity* pOrigin
 		const int rangeInTiles = pTrade->GetTradeRouteRange(con->m_eDomain, pOriginCity);
 		const int rangeFactor = TradeConnection::RouteRangeFractionT100(con->m_routeCost, rangeInTiles, pTrade->GetRangeFactorT100());
 		con->m_rangeFactor = rangeFactor;
-		con->m_pirateFactor = 100;
+
+
+		const CvCity* pCityOrigin = CvGameTrade::GetOriginCity(*con);
+
+		int pirateFactor = 100;
+		if (con->GetNumEnemyUnitsOnRoute() > 0)
+		{
+			int penaltyT100 = -50;
+			pirateFactor += penaltyT100;
+		}
+		con->m_pirateFactor = pirateFactor;
+
+
+		con->m_hasEverBeenCalculated = false;
 	}
 	else
 	{
@@ -2683,7 +2696,7 @@ int CvPlayerTrade::CalcTradeConnectionValueTimes100(const TradeConnection& kTrad
 			(*tooltip) << GetLocalizedText("TXT_KEY_TRADEROUTE_TOOLTIP_RANGE_PENALTY_DETAILED", kTradeConnection.m_rangeFactor - 100);
 		}
 
-		if (kTradeConnection.m_pirateFactor < 100)
+		if (kTradeConnection.m_pirateFactor != 100)
 		{
 			(*tooltip) << GetLocalizedText("TXT_KEY_TRADEROUTE_TOOLTIP_PIRATE_PENALTY_DETAILED", kTradeConnection.m_pirateFactor - 100);
 		}
@@ -2892,14 +2905,18 @@ int CvPlayerTrade::CalcTradeConnectionValueTimes100(const TradeConnection& kTrad
 	//	iValueT100 /= 100;
 	//}
 
-	iValueT100 *= kTradeConnection.m_pirateFactor;
-	iValueT100 /= 100;
+	// don't do this during a normal calculation so that we can see the true yield
+	if (isTurnUpdate)
+	{
+		iValueT100 *= kTradeConnection.m_pirateFactor;
+		iValueT100 /= 100;
+	}
 
 	iValueT100 *= kTradeConnection.m_rangeFactor;
 	iValueT100 /= 100;
 
 	// dont allow fractional route values
-	iValueT100 = (iValueT100 + 50) / 100; // round
+	iValueT100 = iValueT100 / 100; // round down (intentionally not properly!)
 	iValueT100 *= 100;
 
 
@@ -2917,35 +2934,35 @@ void CvPlayerTrade::UpdateTradeConnectionValues(bool isTurnUpdate)
 
 		TradeConnection* pConnection = &(pTrade->m_aTradeConnections[i]);
 
-		if (isTurnUpdate || !pConnection->m_hasEverBeenCalculated)
-		{
-			const CvCity* pCityOrigin = CvGameTrade::GetOriginCity(*pConnection);
-
-			pConnection->m_hasEverBeenCalculated = true;
-			int pirateFactor = 100;
-			if (pConnection->GetNumEnemyUnitsOnRoute() > 0)
-			{
-				int penaltyT100 = -50;
-				pirateFactor += penaltyT100;
-				CvNotifications* pNotifications = GET_PLAYER(pCityOrigin->getOwner()).GetNotifications();
-
-				string message = GetLocalizedText("{TXT_KEY_NOTIFICATION_TRADEROUTE_PIRATES}");
-				string summary = GetLocalizedText("{TXT_KEY_NOTIFICATION_TRADEROUTE_PIRATES}");
-
-				pNotifications->Add(NOTIFICATION_TRADE_ROUTE_BROKEN, message.c_str(), summary.c_str(),
-					pCityOrigin->getX(), pCityOrigin->getY(), -1);
-
-			}
-			pConnection->m_pirateFactor = pirateFactor;
-
-
-			const int rangeInTiles = GetTradeRouteRange(pConnection->m_eDomain, pCityOrigin);
-			const int rangeFactor = TradeConnection::RouteRangeFractionT100(pConnection->m_routeCost, rangeInTiles, GetRangeFactorT100());
-			pConnection ->m_rangeFactor = rangeFactor;
-		}
-
 		if (pConnection->m_eOriginOwner == m_pPlayer->GetID())
 		{
+			if (isTurnUpdate || !pConnection->m_hasEverBeenCalculated)
+			{
+				const CvCity* pCityOrigin = CvGameTrade::GetOriginCity(*pConnection);
+
+				pConnection->m_hasEverBeenCalculated = true;
+				int pirateFactor = 100;
+				if (pConnection->GetNumEnemyUnitsOnRoute() > 0)
+				{
+					int penaltyT100 = -50;
+					pirateFactor += penaltyT100;
+					CvNotifications* pNotifications = GET_PLAYER(pCityOrigin->getOwner()).GetNotifications();
+
+					string message = GetLocalizedText("{TXT_KEY_NOTIFICATION_TRADEROUTE_PIRATES}");
+					string summary = GetLocalizedText("{TXT_KEY_NOTIFICATION_TRADEROUTE_PIRATES_SUMMARY}");
+
+					pNotifications->Add(NOTIFICATION_TRADE_ROUTE_BROKEN, message.c_str(), summary.c_str(),
+						pCityOrigin->getX(), pCityOrigin->getY(), -1);
+
+				}
+				pConnection->m_pirateFactor = pirateFactor;
+
+
+				const int rangeInTiles = GetTradeRouteRange(pConnection->m_eDomain, pCityOrigin);
+				const int rangeFactor = TradeConnection::RouteRangeFractionT100(pConnection->m_routeCost, rangeInTiles, GetRangeFactorT100());
+				pConnection ->m_rangeFactor = rangeFactor;
+			}
+
 			for (uint uiYields = 0; uiYields < NUM_YIELD_TYPES; uiYields++)
 			{
 				pConnection->m_aiOriginYields[uiYields] = CalcTradeConnectionValueTimes100(*pConnection, (YieldTypes)uiYields, true, NULL, isTurnUpdate);

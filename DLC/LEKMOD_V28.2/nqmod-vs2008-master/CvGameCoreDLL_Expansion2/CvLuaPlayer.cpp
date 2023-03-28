@@ -4083,12 +4083,13 @@ int CvLuaPlayer::lGetTradeYourRoutesTTString(lua_State* L)
 				}
 			}
 
+			string pirate = "";
 			if (pConnection->GetNumEnemyUnitsOnRoute() > 0)
 			{
-				strBuffer << GetLocalizedText("[ICON_PIRATE]");
+				pirate = GetLocalizedText("[ICON_PIRATE]");
 			}
 
-			strBuffer << pOriginCity->getNameKey();
+			strBuffer << (pirate + (string)GetLocalizedText(pOriginCity->getNameKey())).c_str();
 			if (strOriginYieldsStr != "")
 			{
 				strBuffer << strOriginYieldsStr;
