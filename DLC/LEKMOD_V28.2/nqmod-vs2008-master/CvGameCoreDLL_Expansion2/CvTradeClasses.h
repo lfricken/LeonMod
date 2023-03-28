@@ -46,6 +46,7 @@ struct TradeConnection
 	TradeConnectionPlotList m_aPlotList;
 	// expected to be 100 per tile normally, lower for roads, higher for something bad
 	int m_routeCost;
+	// this is deprecated/dead
 	bool m_hasEverBeenCalculated;
 	int m_pirateFactor;
 	int m_rangeFactor;
@@ -67,6 +68,7 @@ struct TradeConnection
 	// true if this route has any yield greater than 0
 	bool HasAnyYield() const;
 	int GetNumEnemyUnitsOnRoute() const;
+	// returns 100 if this should yield full, or 50 if half etc., due to range penalty
 	static int RouteRangeFractionT100(int routeCost, int rangeInTiles, int maxFactorT100);
 	CvPlot* GetRoutePlot(int idx) const;
 	// determine type of route
@@ -252,7 +254,8 @@ public:
 	int CalcTradeConnectionValueTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, 
 		bool bAsOriginPlayer, std::stringstream* tooltip = NULL, bool isTurnUpdate = false) const;
 
-	void UpdateYieldsFor(TradeConnection* con, bool isTurnUpdate) const;
+	// set yields into the TradeConnection
+	void UpdateYieldsFor(TradeConnection* con, bool isTurnUpdate, bool forceCorrectYieldCalculation) const;
 	// updates the all the values for the trade routes that go to and from this player
 	void UpdateTradeConnectionValues(bool isTurnUpdate = false);
 

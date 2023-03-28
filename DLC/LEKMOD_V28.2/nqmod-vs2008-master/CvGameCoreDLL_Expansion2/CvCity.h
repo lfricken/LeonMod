@@ -358,10 +358,11 @@ public:
 	int getGameTurnLastExpanded() const;
 	void setGameTurnLastExpanded(int iNewValue);
 
+	// number of citizens, like 5
 	int getPopulation() const;
 	void setPopulation(int iNewValue, bool bReassignPop = true);
 	void changePopulation(int iChange, bool bReassignPop = true);
-
+	// the population we might display, like 1.5 million
 	long getRealPopulation() const;
 
 	int getHighestPopulation() const;

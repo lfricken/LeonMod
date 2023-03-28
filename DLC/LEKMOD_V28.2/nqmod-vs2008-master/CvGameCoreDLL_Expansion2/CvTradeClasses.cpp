@@ -105,7 +105,8 @@ bool TradeConnection::HasAnyYield() const
 {
 	for (int i = 0; i < NUM_YIELD_TYPES; ++i)
 	{
-		if (m_aiOriginYields[i] > 0 || m_aiDestYields > 0)
+		const bool wouldBenefitOwner = m_aiOriginYields[i] > 0 || (m_eOriginOwner == m_eDestOwner && m_aiDestYields[i] > 0);
+		if (wouldBenefitOwner)
 		{
 			return true;
 		}
@@ -519,7 +520,7 @@ bool CvGameTrade::TryCreateTradeRoute(DomainTypes eDomain, const CvCity* pOrigin
 	con->m_iCircuitsCompleted = 0;
 
 	// make sure this trade route actually yields something, otherhwise we shouldn't let the player create it
-	pTrade->UpdateYieldsFor(con, true);
+	pTrade->UpdateYieldsFor(con, false, true);
 	if (!con->HasAnyYield())
 	{
 		return false;
@@ -2732,7 +2733,9 @@ int CvPlayerTrade::CalcTradeConnectionValueTimes100(const TradeConnection& kTrad
 	{
 		if (kTradeConnection.m_rangeFactor != 100)
 		{
-			(*tooltip) << GetLocalizedText("TXT_KEY_TRADEROUTE_TOOLTIP_RANGE_PENALTY_DETAILED", kTradeConnection.m_rangeFactor - 100);
+			const CvCity* cityOrigin = CvGameTrade::GetOriginCity(kTradeConnection);
+			const int rangeInTiles = GetTradeRouteRange(kTradeConnection.m_eDomain, cityOrigin);
+			(*tooltip) << GetLocalizedText("TXT_KEY_TRADEROUTE_TOOLTIP_RANGE_PENALTY_DETAILED", kTradeConnection.m_rangeFactor - 100, kTradeConnection.m_routeCost / 100, rangeInTiles);
 		}
 
 		if (kTradeConnection.m_pirateFactor != 100)
@@ -2961,11 +2964,11 @@ int CvPlayerTrade::CalcTradeConnectionValueTimes100(const TradeConnection& kTrad
 
 	return iValueT100;	
 }
-void CvPlayerTrade::UpdateYieldsFor(TradeConnection* con, bool isTurnUpdate) const
+void CvPlayerTrade::UpdateYieldsFor(TradeConnection* con, bool isTurnUpdate, bool forceCorrectYieldCalculation) const
 {
 	if (con->m_eOriginOwner == m_pPlayer->GetID())
 	{
-		if (isTurnUpdate || !con->m_hasEverBeenCalculated)
+		if (isTurnUpdate)
 		{
 			const CvCity* pCityOrigin = CvGameTrade::GetOriginCity(*con);
 
@@ -2994,7 +2997,7 @@ void CvPlayerTrade::UpdateYieldsFor(TradeConnection* con, bool isTurnUpdate) con
 
 		for (uint uiYields = 0; uiYields < NUM_YIELD_TYPES; uiYields++)
 		{
-			con->m_aiOriginYields[uiYields] = CalcTradeConnectionValueTimes100(*con, (YieldTypes)uiYields, true, NULL, isTurnUpdate);
+			con->m_aiOriginYields[uiYields] = CalcTradeConnectionValueTimes100(*con, (YieldTypes)uiYields, true, NULL, isTurnUpdate || forceCorrectYieldCalculation);
 		}
 	}
 
@@ -3002,7 +3005,7 @@ void CvPlayerTrade::UpdateYieldsFor(TradeConnection* con, bool isTurnUpdate) con
 	{
 		for (uint uiYields = 0; uiYields < NUM_YIELD_TYPES; uiYields++)
 		{
-			con->m_aiDestYields[uiYields] = CalcTradeConnectionValueTimes100(*con, (YieldTypes)uiYields, false, NULL, isTurnUpdate);
+			con->m_aiDestYields[uiYields] = CalcTradeConnectionValueTimes100(*con, (YieldTypes)uiYields, false, NULL, isTurnUpdate || forceCorrectYieldCalculation);
 		}
 	}
 }
@@ -3016,7 +3019,7 @@ void CvPlayerTrade::UpdateTradeConnectionValues(bool isTurnUpdate)
 			continue;
 
 		TradeConnection* pConnection = &(pTrade->m_aTradeConnections[i]);
-		UpdateYieldsFor(pConnection, isTurnUpdate);
+		UpdateYieldsFor(pConnection, isTurnUpdate, true);
 	}
 }
 int CvPlayerTrade::CalcNumTradeRoutesOriginatingFromExcept(const CvCity* const pCity, const TradeConnection& except) const

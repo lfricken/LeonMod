@@ -450,6 +450,11 @@ public:
 	{
 		return (PlotTypes)m_ePlotType;
 	}
+	bool isOcean() const
+	{
+		return (PlotTypes)m_ePlotType == PLOT_OCEAN;
+	};
+	// FALSE FOR LAKES! true for ocean
 	bool isWater()          const
 	{
 		return (PlotTypes)m_ePlotType == PLOT_OCEAN;
