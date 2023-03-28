@@ -91,8 +91,12 @@
 				<Box Anchor="L,C" Color="0,0,0,0" Offset="0,0" Size="51,34">
 					<Label Anchor="C,C" Offset="0,0" String="ToReligion" Font="TwCenMT20" FontStyle="Stroke" ID="ToReligion"/>
 				</Box>
-				<Box Anchor="L,C" Color="0,0,0,0" Offset="0,0" Size="35,34">
+				<Box Anchor="L,C" Color="0,0,0,0" Offset="0,0" Size="36,34">
 					<Label Anchor="C,C" Offset="0,0" Font="TwCenMT20" FontStyle="Stroke" ID="TurnsLeft"/>
+				</Box>
+
+				<Box Anchor="L,C" Color="0,0,0,0" Offset="0,0" Size="36,34">
+					<Label Anchor="C,C" Offset="0,0" Font="TwCenMT20" Color="255.0.0.255" Color1="Black.255" FontStyle="Stroke"  ID="NumEnemiesOnRoute"/>
 				</Box>
 			</Stack>
 	  <Grid ID="Divider" Style="Grid9Bar" Padding="0,0" Anchor="L,B" Size="940,1" Offset="0,0"/>
@@ -179,6 +183,8 @@
 				<Box Anchor="L,T" Size="50,459" Color="0,0,0,0"/>
 				<Box Anchor="L,T" Size="1,459" Color="18,108,98,255"/>
 				<Box Anchor="L,T" Size="35,459" Color="1,26,23,255"/>
+				<Box Anchor="L,T" Size="1,459" Color="18,108,98,255"/>
+				<Box Anchor="L,T" Size="35,459" Color="0,0,0,0"/>
 				<Box Anchor="L,T" Size="1,459" Color="18,108,98,255"/>
 			</Stack>
 			<!-- Column Headers -->
@@ -340,6 +346,14 @@
 						</AlphaAnim>
 					</ShowOnMouseOver>
 					<Label Anchor="C,C" Offset="0,-1" Font="TwCenMT18" String="TXT_KEY_TRO_COL_TURNS_REMAINING" ToolTip="TXT_KEY_TRO_COL_TURNS_REMAINING_TT"/>
+				</Button>
+				<Button ID="NumEnemiesOnRoute" Anchor="L,C" Size="36,45" Style="BoxButton">
+					<ShowOnMouseOver>
+						<AlphaAnim Anchor="C,C" Offset="0,0" Size="36,30" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+							<Grid Size="36,45" Anchor="C,C" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+						</AlphaAnim>
+					</ShowOnMouseOver>
+					<Label Anchor="C,C" Offset="0,-1" Font="TwCenMT18" String="[ICON_PIRATE]" ToolTip="TXT_KEY_TRADEROUTE_PIRATES"/>
 				</Button>
 			</Stack>
 			<!-- City List -->

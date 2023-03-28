@@ -169,6 +169,13 @@ g_SortOptions = {
 		CurrentDirection = nil,
 		SortType = "numeric",
 	},
+	{
+		Button = Controls.NumEnemiesOnRoute,
+		Column = "NumEnemiesOnRoute",
+		DefaultDirection = "asc",
+		CurrentDirection = nil,
+		SortType = "numeric",
+	},
 };
 
 g_SortFunction = nil;
@@ -621,6 +628,18 @@ function DisplayData()
 		strTurnsRemaining = color .. math.abs(val) .. "[ENDCOLOR]";
 		instance.TurnsLeft:SetToolTipString(strTT);
 		instance.TurnsLeft:SetText(strTurnsRemaining);
+
+
+
+		str = "";
+		strTT = "";
+		val = v.NumEnemiesOnRoute;
+		if (val ~= 0) then
+			str = val;
+			strTT = Locale.ConvertTextKey("TXT_KEY_TRADEROUTE_TOOLTIP_PENALTY");
+		end
+		instance.NumEnemiesOnRoute:SetToolTipString(strTT);
+		instance.NumEnemiesOnRoute:SetText(str);
     end
     
     Controls.MainStack:CalculateSize();

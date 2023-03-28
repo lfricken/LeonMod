@@ -3363,24 +3363,15 @@ int CvLuaPlayer::lGetPotentialInternationalTradeRouteDestinations(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	CvUnit* pkUnit = CvLuaUnit::GetInstance(L, 2, false);
 	CvPlot* pkUnitPlot = pkUnit->plot();
-
 	CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
 
-	int iOriginX = pkUnitPlot->getX();
-	int iOriginY = pkUnitPlot->getY();
-	CvCity* pOriginCity = pkUnitPlot->getPlotCity();
+	const CvCity* pOriginCity = pkUnitPlot->getPlotCity();
 
 	lua_createtable(L, 0, 0);
 	int index = 1;
 
 	if (pkUnit->canMakeTradeRoute(pkUnitPlot))
 	{
-		TradeConnection kTradeConnection;
-		kTradeConnection.m_eOriginOwner = pkPlayer->GetID();
-		kTradeConnection.m_iOriginX = iOriginX;
-		kTradeConnection.m_iOriginY = iOriginY;
-		kTradeConnection.m_eDomain = pkUnit->getDomainType();
-
 		PlayerTypes ePlayer = NO_PLAYER;
 		for (uint ui = 0; ui < MAX_CIV_PLAYERS; ui++)
 		{
@@ -3400,8 +3391,10 @@ int CvLuaPlayer::lGetPotentialInternationalTradeRouteDestinations(lua_State* L)
 
 			int iCityLoop;
 			CvCity* pLoopCity = NULL;
+			// destination city
 			for(pLoopCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
 			{
+				const CvCity* pDestCity = pLoopCity;
 				int iLoopCityX = pLoopCity->getX();
 				int iLoopCityY = pLoopCity->getY();
 
@@ -3410,10 +3403,12 @@ int CvLuaPlayer::lGetPotentialInternationalTradeRouteDestinations(lua_State* L)
 					TradeConnectionType eConnectionType = (TradeConnectionType)uiConnectionType;
 					if (pkUnit->canMakeTradeRouteAt(pkUnitPlot, iLoopCityX, iLoopCityY, eConnectionType))
 					{
-						kTradeConnection.m_iDestX = iLoopCityX;
-						kTradeConnection.m_iDestY = iLoopCityY;
-						kTradeConnection.m_eDestOwner = ePlayer;
-						kTradeConnection.m_eConnectionType = eConnectionType;
+						TradeConnection kTradeConnection;
+						if (!GC.getGame().GetGameTrade()->TryCreateTradeRoute(
+							pkUnit->getDomainType(), pOriginCity, pDestCity, eConnectionType, &kTradeConnection))
+						{
+							continue;
+						}
 
 						lua_createtable(L, 0, 0);
 						const int t = lua_gettop(L);
@@ -3423,6 +3418,12 @@ int CvLuaPlayer::lGetPotentialInternationalTradeRouteDestinations(lua_State* L)
 						lua_setfield(L, t, "Y");
 						lua_pushinteger(L, uiConnectionType);
 						lua_setfield(L, t, "TradeConnectionType");
+
+						const int numEnemies = kTradeConnection.GetNumEnemyUnitsOnRoute();
+						lua_pushinteger(L, numEnemies);
+						lua_setfield(L, t, "NumEnemiesOnRoute");
+
+						
 						
 						ReligionTypes eToReligion = NO_RELIGION;
 						int iToPressureAmount = 0;
@@ -3481,22 +3482,22 @@ int CvLuaPlayer::lGetPotentialInternationalTradeRouteDestinations(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetInternationalTradeRouteBaseBonus(lua_State* L)
 {
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
-	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
-	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
-	bool bOrigin = lua_toboolean(L, 4);
+	//CvPlayerAI* pkPlayer = GetInstance(L);
+	//CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
+	//CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
+	//CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
+	//bool bOrigin = lua_toboolean(L, 4);
 
-	TradeConnection kTradeConnection;
-	kTradeConnection.m_iOriginX = pOriginCity->getX();
-	kTradeConnection.m_iOriginY = pOriginCity->getY();
-	kTradeConnection.m_iDestX = pDestCity->getX();
-	kTradeConnection.m_iDestY = pDestCity->getY();
-	kTradeConnection.m_eOriginOwner = pOriginCity->getOwner();
-	kTradeConnection.m_eDestOwner = pDestCity->getOwner();
+	//TradeConnection kTradeConnection;
+	//kTradeConnection.m_iOriginX = pOriginCity->getX();
+	//kTradeConnection.m_iOriginY = pOriginCity->getY();
+	//kTradeConnection.m_iDestX = pDestCity->getX();
+	//kTradeConnection.m_iDestY = pDestCity->getY();
+	//kTradeConnection.m_eOriginOwner = pOriginCity->getOwner();
+	//kTradeConnection.m_eDestOwner = pDestCity->getOwner();
 
-	int iResult = pPlayerTrade->GetTradeConnectionBaseValueTimes100(kTradeConnection, YIELD_GOLD, bOrigin);
-	lua_pushinteger(L, iResult);
+	//int iResult = pPlayerTrade->GetTradeConnectionBaseValueTimes100(kTradeConnection, YIELD_GOLD, bOrigin);
+	//lua_pushinteger(L, iResult);
 
 	return 1;
 }
@@ -3507,22 +3508,22 @@ int CvLuaPlayer::lGetInternationalTradeRouteBaseBonus(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetInternationalTradeRouteGPTBonus(lua_State* L)
 {
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
-	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
-	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
-	bool bOrigin = lua_toboolean(L, 4);
+	//CvPlayerAI* pkPlayer = GetInstance(L);
+	//CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
+	//CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
+	//CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
+	//bool bOrigin = lua_toboolean(L, 4);
 
-	TradeConnection kTradeConnection;
-	kTradeConnection.m_iOriginX = pOriginCity->getX();
-	kTradeConnection.m_iOriginY = pOriginCity->getY();
-	kTradeConnection.m_iDestX = pDestCity->getX();
-	kTradeConnection.m_iDestY = pDestCity->getY();
-	kTradeConnection.m_eOriginOwner = pOriginCity->getOwner();
-	kTradeConnection.m_eDestOwner = pDestCity->getOwner();
+	//TradeConnection kTradeConnection;
+	//kTradeConnection.m_iOriginX = pOriginCity->getX();
+	//kTradeConnection.m_iOriginY = pOriginCity->getY();
+	//kTradeConnection.m_iDestX = pDestCity->getX();
+	//kTradeConnection.m_iDestY = pDestCity->getY();
+	//kTradeConnection.m_eOriginOwner = pOriginCity->getOwner();
+	//kTradeConnection.m_eDestOwner = pDestCity->getOwner();
 
-	int iResult = pPlayerTrade->GetTradeConnectionGPTValueTimes100(kTradeConnection, YIELD_GOLD, true, bOrigin);
-	lua_pushinteger(L, iResult);
+	//int iResult = pPlayerTrade->GetTradeConnectionGPTValueTimes100(kTradeConnection, YIELD_GOLD, true, bOrigin);
+	//lua_pushinteger(L, iResult);
 
 	return 1;
 }
@@ -3530,22 +3531,22 @@ int CvLuaPlayer::lGetInternationalTradeRouteGPTBonus(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetInternationalTradeRouteResourceBonus(lua_State* L)
 {
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
-	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
-	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
-	bool bOrigin = lua_toboolean(L, 4);
+	//CvPlayerAI* pkPlayer = GetInstance(L);
+	//CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
+	//CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
+	//CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
+	//bool bOrigin = lua_toboolean(L, 4);
 
-	TradeConnection kTradeConnection;
-	kTradeConnection.m_iOriginX = pOriginCity->getX();
-	kTradeConnection.m_iOriginY = pOriginCity->getY();
-	kTradeConnection.m_iDestX = pDestCity->getX();
-	kTradeConnection.m_iDestY = pDestCity->getY();
-	kTradeConnection.m_eOriginOwner = pOriginCity->getOwner();
-	kTradeConnection.m_eDestOwner = pDestCity->getOwner();
+	//TradeConnection kTradeConnection;
+	//kTradeConnection.m_iOriginX = pOriginCity->getX();
+	//kTradeConnection.m_iOriginY = pOriginCity->getY();
+	//kTradeConnection.m_iDestX = pDestCity->getX();
+	//kTradeConnection.m_iDestY = pDestCity->getY();
+	//kTradeConnection.m_eOriginOwner = pOriginCity->getOwner();
+	//kTradeConnection.m_eDestOwner = pDestCity->getOwner();
 
-	int iResult = pPlayerTrade->GetTradeConnectionResourceValueTimes100(kTradeConnection, YIELD_GOLD, bOrigin);
-	lua_pushinteger(L, iResult);
+	//int iResult = pPlayerTrade->GetTradeConnectionResourceValueTimes100(kTradeConnection, YIELD_GOLD, bOrigin);
+	//lua_pushinteger(L, iResult);
 
 	return 1;
 }
@@ -3562,21 +3563,21 @@ int CvLuaPlayer::lGetInternationalTradeRouteResourceTraitModifier(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetInternationalTradeRouteExclusiveBonus(lua_State* L)
 {
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
-	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
-	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
+	//CvPlayerAI* pkPlayer = GetInstance(L);
+	//CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
+	//CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
+	//CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
 
-	TradeConnection kTradeConnection;
-	kTradeConnection.m_iOriginX = pOriginCity->getX();
-	kTradeConnection.m_iOriginY = pOriginCity->getY();
-	kTradeConnection.m_iDestX = pDestCity->getX();
-	kTradeConnection.m_iDestY = pDestCity->getY();
-	kTradeConnection.m_eOriginOwner = pOriginCity->getOwner();
-	kTradeConnection.m_eDestOwner = pDestCity->getOwner();
+	//TradeConnection kTradeConnection;
+	//kTradeConnection.m_iOriginX = pOriginCity->getX();
+	//kTradeConnection.m_iOriginY = pOriginCity->getY();
+	//kTradeConnection.m_iDestX = pDestCity->getX();
+	//kTradeConnection.m_iDestY = pDestCity->getY();
+	//kTradeConnection.m_eOriginOwner = pOriginCity->getOwner();
+	//kTradeConnection.m_eDestOwner = pDestCity->getOwner();
 
-	int iResult = pPlayerTrade->GetTradeConnectionExclusiveValueTimes100(kTradeConnection, YIELD_GOLD);
-	lua_pushinteger(L, iResult);
+	//int iResult = pPlayerTrade->GetTradeConnectionExclusiveValueTimes100(kTradeConnection, YIELD_GOLD);
+	//lua_pushinteger(L, iResult);
 
 	return 1;	
 }
@@ -3584,121 +3585,121 @@ int CvLuaPlayer::lGetInternationalTradeRouteExclusiveBonus(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetInternationalTradeRouteYourBuildingBonus(lua_State* L)
 {
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
-	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
-	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
-	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
-	bool bOrigin = lua_toboolean(L, 5);
+	//CvPlayerAI* pkPlayer = GetInstance(L);
+	//CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
+	//CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
+	//CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
+	//DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
+	//bool bOrigin = lua_toboolean(L, 5);
 
-	TradeConnection kTradeConnection;
-	kTradeConnection.m_iOriginX = pOriginCity->getX();
-	kTradeConnection.m_iOriginY = pOriginCity->getY();
-	kTradeConnection.m_iDestX = pDestCity->getX();
-	kTradeConnection.m_iDestY = pDestCity->getY();
-	kTradeConnection.m_eOriginOwner = pOriginCity->getOwner();
-	kTradeConnection.m_eDestOwner = pDestCity->getOwner();
-	kTradeConnection.m_eDomain = eDomain;
+	//TradeConnection kTradeConnection;
+	//kTradeConnection.m_iOriginX = pOriginCity->getX();
+	//kTradeConnection.m_iOriginY = pOriginCity->getY();
+	//kTradeConnection.m_iDestX = pDestCity->getX();
+	//kTradeConnection.m_iDestY = pDestCity->getY();
+	//kTradeConnection.m_eOriginOwner = pOriginCity->getOwner();
+	//kTradeConnection.m_eDestOwner = pDestCity->getOwner();
+	//kTradeConnection.m_eDomain = eDomain;
 
-	int iResult = pPlayerTrade->GetTradeConnectionYourBuildingValueTimes100(kTradeConnection, YIELD_GOLD, bOrigin);
-	lua_pushinteger(L, iResult);
+	//int iResult = pPlayerTrade->GetTradeConnectionYourBuildingValueTimes100(kTradeConnection, YIELD_GOLD, bOrigin);
+	//lua_pushinteger(L, iResult);
 	return 1;	
 }
 
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetInternationalTradeRouteTheirBuildingBonus(lua_State* L)
 {
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
-	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
-	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
-	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
-	bool bOrigin = lua_toboolean(L, 5);
+	//CvPlayerAI* pkPlayer = GetInstance(L);
+	//CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
+	//CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
+	//CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
+	//DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
+	//bool bOrigin = lua_toboolean(L, 5);
 
-	TradeConnection kTradeConnection;
-	kTradeConnection.m_iOriginX = pOriginCity->getX();
-	kTradeConnection.m_iOriginY = pOriginCity->getY();
-	kTradeConnection.m_iDestX = pDestCity->getX();
-	kTradeConnection.m_iDestY = pDestCity->getY();
-	kTradeConnection.m_eOriginOwner = pOriginCity->getOwner();
-	kTradeConnection.m_eDestOwner = pDestCity->getOwner();
-	kTradeConnection.m_eDomain = eDomain;
+	//TradeConnection kTradeConnection;
+	//kTradeConnection.m_iOriginX = pOriginCity->getX();
+	//kTradeConnection.m_iOriginY = pOriginCity->getY();
+	//kTradeConnection.m_iDestX = pDestCity->getX();
+	//kTradeConnection.m_iDestY = pDestCity->getY();
+	//kTradeConnection.m_eOriginOwner = pOriginCity->getOwner();
+	//kTradeConnection.m_eDestOwner = pDestCity->getOwner();
+	//kTradeConnection.m_eDomain = eDomain;
 
-	int iResult = pPlayerTrade->GetTradeConnectionTheirBuildingValueTimes100(kTradeConnection, YIELD_GOLD, bOrigin);
-	lua_pushinteger(L, iResult);
+	//int iResult = pPlayerTrade->GetTradeConnectionTheirBuildingValueTimes100(kTradeConnection, YIELD_GOLD, bOrigin);
+	//lua_pushinteger(L, iResult);
 	return 1;	
 }
 
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetInternationalTradeRoutePolicyBonus(lua_State* L)
 {
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
-	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
-	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
-	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
+	//CvPlayerAI* pkPlayer = GetInstance(L);
+	//CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
+	//CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
+	//CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
+	//DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
 
-	TradeConnection kTradeConnection;
-	kTradeConnection.m_iOriginX = pOriginCity->getX();
-	kTradeConnection.m_iOriginY = pOriginCity->getY();
-	kTradeConnection.m_iDestX = pDestCity->getX();
-	kTradeConnection.m_iDestY = pDestCity->getY();
-	kTradeConnection.m_eOriginOwner = pOriginCity->getOwner();
-	kTradeConnection.m_eDestOwner = pDestCity->getOwner();
-	kTradeConnection.m_eDomain = eDomain;
-	kTradeConnection.m_eConnectionType = TRADE_CONNECTION_INTERNATIONAL;
+	//TradeConnection kTradeConnection;
+	//kTradeConnection.m_iOriginX = pOriginCity->getX();
+	//kTradeConnection.m_iOriginY = pOriginCity->getY();
+	//kTradeConnection.m_iDestX = pDestCity->getX();
+	//kTradeConnection.m_iDestY = pDestCity->getY();
+	//kTradeConnection.m_eOriginOwner = pOriginCity->getOwner();
+	//kTradeConnection.m_eDestOwner = pDestCity->getOwner();
+	//kTradeConnection.m_eDomain = eDomain;
+	//kTradeConnection.m_eConnectionType = TRADE_CONNECTION_INTERNATIONAL;
 
-	int iResult = pPlayerTrade->GetTradeConnectionPolicyValueTimes100(kTradeConnection, YIELD_GOLD);
-	lua_pushinteger(L, iResult);
+	//int iResult = pPlayerTrade->GetTradeConnectionPolicyValueTimes100(kTradeConnection, YIELD_GOLD);
+	//lua_pushinteger(L, iResult);
 	return 1;
 }
 
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetInternationalTradeRouteOtherTraitBonus(lua_State* L)
 {
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
-	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
-	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
-	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
-	bool bOrigin = lua_toboolean(L, 5);
+	//CvPlayerAI* pkPlayer = GetInstance(L);
+	//CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
+	//CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
+	//CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
+	//DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
+	//bool bOrigin = lua_toboolean(L, 5);
 
-	TradeConnection kTradeConnection;
-	kTradeConnection.m_iOriginX = pOriginCity->getX();
-	kTradeConnection.m_iOriginY = pOriginCity->getY();
-	kTradeConnection.m_iDestX = pDestCity->getX();
-	kTradeConnection.m_iDestY = pDestCity->getY();
-	kTradeConnection.m_eOriginOwner = pOriginCity->getOwner();
-	kTradeConnection.m_eDestOwner = pDestCity->getOwner();
-	kTradeConnection.m_eDomain = eDomain;
-	kTradeConnection.m_eConnectionType = TRADE_CONNECTION_INTERNATIONAL;
+	//TradeConnection kTradeConnection;
+	//kTradeConnection.m_iOriginX = pOriginCity->getX();
+	//kTradeConnection.m_iOriginY = pOriginCity->getY();
+	//kTradeConnection.m_iDestX = pDestCity->getX();
+	//kTradeConnection.m_iDestY = pDestCity->getY();
+	//kTradeConnection.m_eOriginOwner = pOriginCity->getOwner();
+	//kTradeConnection.m_eDestOwner = pDestCity->getOwner();
+	//kTradeConnection.m_eDomain = eDomain;
+	//kTradeConnection.m_eConnectionType = TRADE_CONNECTION_INTERNATIONAL;
 
-	int iResult = pPlayerTrade->GetTradeConnectionOtherTraitValueTimes100(kTradeConnection, YIELD_GOLD, bOrigin);
-	lua_pushinteger(L, iResult);
+	//int iResult = pPlayerTrade->GetTradeConnectionOtherTraitValueTimes100(kTradeConnection, YIELD_GOLD, bOrigin);
+	//lua_pushinteger(L, iResult);
 	return 1;	
 }
 
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetInternationalTradeRouteRiverModifier(lua_State* L)
 {
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
-	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
-	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
-	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
-	bool bOrigin = lua_toboolean(L, 5);
+	//CvPlayerAI* pkPlayer = GetInstance(L);
+	//CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
+	//CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
+	//CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
+	//DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
+	//bool bOrigin = lua_toboolean(L, 5);
 
-	TradeConnection kTradeConnection;
-	kTradeConnection.m_iOriginX = pOriginCity->getX();
-	kTradeConnection.m_iOriginY = pOriginCity->getY();
-	kTradeConnection.m_iDestX = pDestCity->getX();
-	kTradeConnection.m_iDestY = pDestCity->getY();
-	kTradeConnection.m_eOriginOwner = pOriginCity->getOwner();
-	kTradeConnection.m_eDestOwner = pDestCity->getOwner();
-	kTradeConnection.m_eDomain = eDomain;
+	//TradeConnection kTradeConnection;
+	//kTradeConnection.m_iOriginX = pOriginCity->getX();
+	//kTradeConnection.m_iOriginY = pOriginCity->getY();
+	//kTradeConnection.m_iDestX = pDestCity->getX();
+	//kTradeConnection.m_iDestY = pDestCity->getY();
+	//kTradeConnection.m_eOriginOwner = pOriginCity->getOwner();
+	//kTradeConnection.m_eDestOwner = pDestCity->getOwner();
+	//kTradeConnection.m_eDomain = eDomain;
 
-	int iResult = pPlayerTrade->GetTradeConnectionRiverValueModifierTimes100(kTradeConnection, YIELD_GOLD, bOrigin);
-	lua_pushinteger(L, iResult);
+	//int iResult = pPlayerTrade->GetTradeConnectionRiverValueModifierTimes100(kTradeConnection, YIELD_GOLD, bOrigin);
+	//lua_pushinteger(L, iResult);
 	return 1;	
 }
 
@@ -3743,61 +3744,61 @@ int CvLuaPlayer::lGetYieldForPlayerForTradeRoute(lua_State*)
 }
 
 //------------------------------------------------------------------------------
-int CvLuaPlayer::lGetInternationalTradeRouteTotal(lua_State* L)
+int CvLuaPlayer::lGetInternationalTradeRouteTotal(lua_State*)
 {
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
-	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
-	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
-	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
-	bool bOrigin = lua_toboolean(L, 5);
+	//CvPlayerAI* pkPlayer = GetInstance(L);
+	//CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
+	//CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
+	//CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
+	//DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
+	//bool bOrigin = lua_toboolean(L, 5);
 
-	TradeConnection kTradeConnection;
-	kTradeConnection.m_iOriginX = pOriginCity->getX();
-	kTradeConnection.m_iOriginY = pOriginCity->getY();
-	kTradeConnection.m_iDestX = pDestCity->getX();
-	kTradeConnection.m_iDestY = pDestCity->getY();
-	kTradeConnection.m_eOriginOwner = pOriginCity->getOwner();
-	kTradeConnection.m_eDestOwner = pDestCity->getOwner();
-	kTradeConnection.m_eDomain = eDomain;
+	//TradeConnection kTradeConnection;
+	//kTradeConnection.m_iOriginX = pOriginCity->getX();
+	//kTradeConnection.m_iOriginY = pOriginCity->getY();
+	//kTradeConnection.m_iDestX = pDestCity->getX();
+	//kTradeConnection.m_iDestY = pDestCity->getY();
+	//kTradeConnection.m_eOriginOwner = pOriginCity->getOwner();
+	//kTradeConnection.m_eDestOwner = pDestCity->getOwner();
+	//kTradeConnection.m_eDomain = eDomain;
 
-	if (pOriginCity->getOwner() != pDestCity->getOwner())
-	{
-		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_INTERNATIONAL;
-	}
+	//if (pOriginCity->getOwner() != pDestCity->getOwner())
+	//{
+	//	kTradeConnection.m_eConnectionType = TRADE_CONNECTION_INTERNATIONAL;
+	//}
 
-	int iResult = pPlayerTrade->CalcTradeConnectionValueTimes100(kTradeConnection, YIELD_GOLD, bOrigin);
-	lua_pushinteger(L, iResult);
+	//int iResult = pPlayerTrade->CalcTradeConnectionValueTimes100(kTradeConnection, YIELD_GOLD, bOrigin);
+	//lua_pushinteger(L, iResult);
 
 	return 1;	
 }
 
 //------------------------------------------------------------------------------
-int CvLuaPlayer::lGetInternationalTradeRouteScience(lua_State* L)
+int CvLuaPlayer::lGetInternationalTradeRouteScience(lua_State*)
 {
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
-	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
-	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
-	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
-	bool bOrigin = lua_toboolean(L, 5);
+	//CvPlayerAI* pkPlayer = GetInstance(L);
+	//CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
+	//CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
+	//CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
+	//DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
+	//bool bOrigin = lua_toboolean(L, 5);
 
-	TradeConnection kTradeConnection;
-	kTradeConnection.m_iOriginX = pOriginCity->getX();
-	kTradeConnection.m_iOriginY = pOriginCity->getY();
-	kTradeConnection.m_iDestX = pDestCity->getX();
-	kTradeConnection.m_iDestY = pDestCity->getY();
-	kTradeConnection.m_eOriginOwner = pOriginCity->getOwner();
-	kTradeConnection.m_eDestOwner = pDestCity->getOwner();
-	kTradeConnection.m_eDomain = eDomain;
+	//TradeConnection kTradeConnection;
+	//kTradeConnection.m_iOriginX = pOriginCity->getX();
+	//kTradeConnection.m_iOriginY = pOriginCity->getY();
+	//kTradeConnection.m_iDestX = pDestCity->getX();
+	//kTradeConnection.m_iDestY = pDestCity->getY();
+	//kTradeConnection.m_eOriginOwner = pOriginCity->getOwner();
+	//kTradeConnection.m_eDestOwner = pDestCity->getOwner();
+	//kTradeConnection.m_eDomain = eDomain;
 
-	if (pOriginCity->getOwner() != pDestCity->getOwner())
-	{
-		kTradeConnection.m_eConnectionType = TRADE_CONNECTION_INTERNATIONAL;
-	}
+	//if (pOriginCity->getOwner() != pDestCity->getOwner())
+	//{
+	//	kTradeConnection.m_eConnectionType = TRADE_CONNECTION_INTERNATIONAL;
+	//}
 
-	int iResult = pPlayerTrade->CalcTradeConnectionValueTimes100(kTradeConnection, YIELD_SCIENCE, bOrigin);
-	lua_pushinteger(L, iResult);
+	//int iResult = pPlayerTrade->CalcTradeConnectionValueTimes100(kTradeConnection, YIELD_SCIENCE, bOrigin);
+	//lua_pushinteger(L, iResult);
 
 	return 1;	
 }
@@ -3920,7 +3921,7 @@ int CvLuaPlayer::lGetTradeYourRoutesTTString(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
-	CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
+	//CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
 
 	CvString strResult = "";	
 
@@ -3955,7 +3956,7 @@ int CvLuaPlayer::lGetTradeYourRoutesTTString(lua_State* L)
 			for (uint uiYield = 0; uiYield < NUM_YIELD_TYPES; uiYield++)
 			{
 				YieldTypes eYield = (YieldTypes)uiYield;
-				int iYieldQuantity = pPlayerTrade->CalcTradeConnectionValueTimes100(*pConnection, eYield, true);
+				int iYieldQuantity = pConnection->m_aiOriginYields[eYield];
 				if (iYieldQuantity != 0)
 				{
 					if (strOriginYieldsStr != "") 
@@ -4006,7 +4007,7 @@ int CvLuaPlayer::lGetTradeYourRoutesTTString(lua_State* L)
 			for (uint uiYield = 0; uiYield < NUM_YIELD_TYPES; uiYield++)
 			{
 				YieldTypes eYield = (YieldTypes)uiYield;
-				int iYieldQuantity = pPlayerTrade->CalcTradeConnectionValueTimes100(*pConnection, eYield, false);
+				int iYieldQuantity = pConnection->m_aiDestYields[eYield];
 				if (iYieldQuantity != 0)
 				{
 					switch (eYield)
@@ -4032,7 +4033,7 @@ int CvLuaPlayer::lGetTradeYourRoutesTTString(lua_State* L)
 						break;
 
 					case YIELD_GOLDEN:
-						strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_GOLDEN_YIELD_TT", iYieldQuantity / f100);
+						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_GOLDEN_YIELD_TT", iYieldQuantity / f100);
 						break;
 
 					case YIELD_SCIENTIFIC_INSIGHT:
@@ -4082,6 +4083,11 @@ int CvLuaPlayer::lGetTradeYourRoutesTTString(lua_State* L)
 				}
 			}
 
+			if (pConnection->GetNumEnemyUnitsOnRoute() > 0)
+			{
+				strBuffer << GetLocalizedText("[ICON_PIRATE]");
+			}
+
 			strBuffer << pOriginCity->getNameKey();
 			if (strOriginYieldsStr != "")
 			{
@@ -4125,7 +4131,7 @@ int CvLuaPlayer::lGetTradeToYouRoutesTTString(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
-	CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
+	//CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
 
 	CvString strResult = "";	
 
@@ -4197,7 +4203,7 @@ int CvLuaPlayer::lGetTradeToYouRoutesTTString(lua_State* L)
 			for (uint uiYield = 0; uiYield < NUM_YIELD_TYPES; uiYield++)
 			{
 				YieldTypes eYield = (YieldTypes)uiYield;
-				int iYieldQuantity = pPlayerTrade->CalcTradeConnectionValueTimes100(*pConnection, eYield, false);
+				int iYieldQuantity = pConnection->m_aiDestYields[eYield];
 				if (iYieldQuantity != 0)
 				{
 					if (strDestYieldsStr != "") 
@@ -4215,6 +4221,7 @@ int CvLuaPlayer::lGetTradeToYouRoutesTTString(lua_State* L)
 					case YIELD_GOLD:
 						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_GOLD_YIELD_TT", iYieldQuantity / 100);
 						break;
+
 					case YIELD_SCIENCE:
 						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_SCIENCE_YIELD_TT", iYieldQuantity / 100);
 						break;
@@ -4223,6 +4230,20 @@ int CvLuaPlayer::lGetTradeToYouRoutesTTString(lua_State* L)
 						break;
 					case YIELD_FAITH:
 						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_FAITH_YIELD_TT", iYieldQuantity / 100);
+						break;
+
+					case YIELD_GOLDEN:
+						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_GOLDEN_YIELD_TT", iYieldQuantity / f100);
+						break;
+
+					case YIELD_SCIENTIFIC_INSIGHT:
+						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_SCIENTIFIC_YIELD_TT", iYieldQuantity / f100);
+						break;
+					case YIELD_DIPLOMATIC_SUPPORT:
+						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_DIPLO_YIELD_TT", iYieldQuantity / f100);
+						break;
+					case YIELD_TOURISM:
+						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_TOURISM_YIELD_TT", iYieldQuantity / f100);
 						break;
 					}
 				}
@@ -4300,7 +4321,7 @@ void insertRouteRowYields(lua_State* L, const CvPlayer& forPlayer, const TradeCo
 	}
 	else
 	{
-		GC.getGame().GetGameTrade()->CalcRouteInfo(kConnection, &iTurnsLeft);
+		GC.getGame().GetGameTrade()->CalcRouteInfo(pOriginCity, pDestCity, kConnection.m_eDomain, &iTurnsLeft);
 		iTurnsLeft = -iTurnsLeft; // make negative so UI knows this isn't a real route yet
 	}
 
@@ -4335,6 +4356,11 @@ void insertRouteRowYields(lua_State* L, const CvPlayer& forPlayer, const TradeCo
 
 	lua_pushinteger(L, kConnection.m_eConnectionType);
 	lua_setfield(L, t, "TradeConnectionType");
+
+	const int numEnemies = kConnection.GetNumEnemyUnitsOnRoute();
+	lua_pushinteger(L, numEnemies);
+	lua_setfield(L, t, "NumEnemiesOnRoute");
+
 	lua_pushinteger(L, kConnection.m_eDomain);
 	lua_setfield(L, t, "Domain");
 	lua_pushinteger(L, playerOrigin.getCivilizationType());
@@ -4506,16 +4532,10 @@ int CvLuaPlayer::lGetTradeRoutesAvailable(lua_State* L)
 
 
 						TradeConnection kConnection;
-						kConnection.m_iOriginX = pOriginCity->getX();
-						kConnection.m_iOriginY = pOriginCity->getY();
-						kConnection.m_iDestX = pDestCity->getX();
-						kConnection.m_iDestY = pDestCity->getY();
-						kConnection.m_eConnectionType = eConnection;
-						kConnection.m_eDomain = eDomain;
-						kConnection.m_eOriginOwner = pOriginCity->getOwner();
-						kConnection.m_eDestOwner = pDestCity->getOwner();
-
-						insertRouteRowYields(L, *pkPlayer, kConnection, &index);
+						if (GC.getGame().GetGameTrade()->TryCreateTradeRoute(eDomain, pOriginCity, pDestCity, eConnection, &kConnection))
+						{
+							insertRouteRowYields(L, *pkPlayer, kConnection, &index);
+						}
 					}
 				}
 			}
@@ -11507,7 +11527,7 @@ int CvLuaPlayer::lGetTradeRouteToolTip(lua_State* L)
 	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
 	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
 	bool asDestination = lua_toboolean(L, 5);
-	TradeConnectionType type = (TradeConnectionType)lua_toboolean(L, 6);
+	TradeConnectionType type = (TradeConnectionType)lua_tointeger(L, 6);
 
 	if (asDestination)
 		pkPlayer = &GET_PLAYER(pDestCity->getOwner());

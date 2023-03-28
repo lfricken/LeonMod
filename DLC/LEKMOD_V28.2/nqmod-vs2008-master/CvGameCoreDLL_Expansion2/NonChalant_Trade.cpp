@@ -33,7 +33,11 @@
 #include "LintFree.h"
 
 
-
+void appendNewLineOnly(stringstream* ss)
+{
+	if (ss != NULL)
+		(*ss) << "[NEWLINE]";
+}
 
 void addValueLine(stringstream& s, bool isGreen, const long value, const string description)
 {
@@ -65,7 +69,7 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 	// If true, these yields are for the origin city, if false, they are for the destination city.
 	const bool isForOriginYields, std::stringstream* tooltip) const
 {
-	int yieldChange = 2;
+	int yieldChange = 0;
 	const CvPlayer& playerOrigin = GET_PLAYER(kTradeConnection.m_eOriginOwner);
 	const CvPlayer& playerDest = GET_PLAYER(kTradeConnection.m_eDestOwner);
 	const bool isInternal = playerOrigin.GetID() == playerDest.GetID();
@@ -96,12 +100,21 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 	const int numCommercePolicies = playerOrigin.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(POLICY_BRANCH_COMMERCE);
 	const int numHonorPolicies = playerOrigin.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(POLICY_BRANCH_HONOR);
 	const bool hasTheocrary = playerOrigin.HasPolicy(POLICY_THEOCRACY);
+	const int era = playerOrigin.GetCurrentEra();
 
 	// determine type of route
 	TradeRouteType type = kTradeConnection.GetRouteType();
 
 	// internal trade routes benefit the destination, external benefit the source, this is true in both circumstances and false in the rest
 	const bool isPrimaryYielder = (isInternal && !isForOriginYields) || (!isInternal && isForOriginYields);
+	
+	// 
+	bool isTooltipStart = tooltip != NULL && isPrimaryYielder && eYieldType == YIELD_FOOD;
+	if (isTooltipStart)
+	{
+		(*tooltip) << "{TXT_KEY_TRADEROUTE_TOOLTIP_HEADER}";
+	}
+
 
 	switch (type)
 	{
@@ -111,20 +124,19 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 		{
 			if (eYieldType == YIELD_FOOD)
 			{
-				if (tooltip != NULL)
-					(*tooltip) << "[COLOR_POSITIVE_TEXT]Active[ENDCOLOR] and [COLOR_GREY]possible[ENDCOLOR] yield sources:";
-
-				appendNewLine(tooltip, &yieldChange, +2, "[ICON_FOOD] from the {TXT_KEY_BUILDING_GROCER}", hasGrocer);
+				appendNewLine(tooltip, &yieldChange, 3 + era, "[ICON_FOOD] Base (3 + 1 per era)", true);
+				appendNewLine(tooltip, &yieldChange, +1, "[ICON_FOOD] from the {TXT_KEY_BUILDING_GROCER}", hasGrocer);
+				appendNewLineOnly(tooltip);
 			}
 			if (eYieldType == YIELD_PRODUCTION)
 			{
 				appendNewLine(tooltip, &yieldChange, +1, "[ICON_PRODUCTION] from the {TXT_KEY_CIV5_BUILDINGS_STONE_WORKS}", hasStoneWorks);
 				appendNewLine(tooltip, &yieldChange, +1, "[ICON_PRODUCTION] from the {TXT_KEY_BUILDING_TEXTILE}", hasTextileMill);
 				appendNewLine(tooltip, &yieldChange, +3, "[ICON_PRODUCTION] from the {TXT_KEY_BUILDING_REFINERY}", hasOilRefinery);
+				appendNewLineOnly(tooltip);
 			}
 			if (eYieldType == YIELD_GOLD)
 			{
-
 				appendNewLine(tooltip, &yieldChange, +2, "[ICON_GOLD] from the {TXT_KEY_BUILDING_MINT}", hasMint);
 				appendNewLine(tooltip, &yieldChange, +2, "[ICON_GOLD] from the {TXT_KEY_BUILDING_BREWERY}", hasBrewery);
 
@@ -152,16 +164,21 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 	{
 		if (isPrimaryYielder) // only the destination city of the trade route gets these benefits
 		{
+			if (eYieldType == YIELD_FOOD)
+			{
+				appendNewLine(tooltip, &yieldChange, +1, "[ICON_FOOD] from the {TXT_KEY_BUILDING_GROCER}", hasGrocer);
+				appendNewLineOnly(tooltip);
+			}
+			if (eYieldType == YIELD_PRODUCTION)
+			{
+				appendNewLine(tooltip, &yieldChange, 4 + era, "[ICON_PRODUCTION] Base (4 + 1 per era)", true);
+				appendNewLine(tooltip, &yieldChange, +1, "[ICON_PRODUCTION] from the {TXT_KEY_CIV5_BUILDINGS_STONE_WORKS}", hasStoneWorks);
+			}
 			if (eYieldType == YIELD_GOLD && hasMint)
 				yieldChange += 2;
 			if (eYieldType == YIELD_GOLD && hasBrewery)
 				yieldChange += 2;
-			if (eYieldType == YIELD_PRODUCTION && hasStoneWorks)
-				yieldChange += 1;
-			if (eYieldType == YIELD_PRODUCTION && hasTextileMill)
-				yieldChange += 1;
-			if (eYieldType == YIELD_FOOD && hasGrocer)
-				yieldChange += 1;
+
 			if (eYieldType == YIELD_CULTURE && hasCenserMaker)
 				yieldChange += 1;
 			if (eYieldType == YIELD_CULTURE && hasGemcutter)
@@ -185,6 +202,11 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 	{
 		if (isPrimaryYielder) // only the origin city of the trade route gets these benefits
 		{
+			if (eYieldType == YIELD_FAITH)
+			{
+				appendNewLine(tooltip, &yieldChange, +2, "[ICON_PEACE] from {TXT_KEY_POLICY_THEOCRACY}", hasTheocrary);
+			}
+
 			if (eYieldType == YIELD_DIPLOMATIC_SUPPORT && hasMerchantConfederacy)
 				yieldChange += 2;
 			if (eYieldType == YIELD_FOOD && hasMerchantConfederacy)
@@ -197,14 +219,30 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 				yieldChange += numExplorationPolicies;
 			if (eYieldType == YIELD_PRODUCTION)
 				yieldChange += numExplorationPolicies;
-			if (eYieldType == YIELD_FAITH && hasTheocrary)
-				yieldChange += 2;
+
 			{ // POLICY_FREE_THOUGHT +6SC +2FD from Trade Routes
 				const bool hasFreeThought = playerOrigin.HasPolicy(POLICY_FREE_THOUGHT);
 				if (eYieldType == YIELD_FOOD && hasFreeThought)
 					yieldChange += 2;
 				if (eYieldType == YIELD_SCIENCE && hasFreeThought)
 					yieldChange += 6;
+			}
+			if (eYieldType == YIELD_GOLD)
+			{
+				int gold = (10 + (100 * GC.getPercentTurnsDoneT10000()) / 10000) / 2;
+				appendNewLine(tooltip, &yieldChange, +gold, "[ICON_GOLD] from 50% x (10 + Percent Game Done)", true);
+
+
+			}
+			if (eYieldType == YIELD_DIPLOMATIC_SUPPORT)
+			{
+				{ // city strength
+					int ourStrength = cityOrigin->getStrengthValueT100();
+					int theirStrength = cityDest->getStrengthValueT100();
+					int strengthDiff = (ourStrength - theirStrength);
+					int amount = (50 + iSquareRoot(strengthDiff)) / 100; // avoid insane via square root
+					appendNewLine(tooltip, &yieldChange, +amount, "[ICON_DIPLOMATIC_SUPPORT] from having more [ICON_STRENGTH] City Strength", amount > 0);
+				}
 			}
 		}
 	}
@@ -215,10 +253,22 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 		{
 			if (eYieldType == YIELD_FOOD)
 				yieldChange += numExplorationPolicies;
+
 			if (eYieldType == YIELD_PRODUCTION)
-				yieldChange += numExplorationPolicies;
+			{
+				appendNewLine(tooltip, &yieldChange, +numExplorationPolicies, "[ICON_PRODUCTION] from +1 per {TXT_KEY_POLICY_BRANCH_EXPLORATION} policy", numExplorationPolicies > 0);
+			}
+
 			if (eYieldType == YIELD_FAITH && hasTheocrary)
 				yieldChange += 2;
+
+			if (eYieldType == YIELD_GOLD)
+			{
+				int gold = 10 + (100 * GC.getPercentTurnsDoneT10000()) / 10000;
+				appendNewLine(tooltip, &yieldChange, +gold, "[ICON_GOLD] from 10 + Percent Game Done", true);
+
+
+			}
 		}
 	}
 	break;
@@ -248,7 +298,10 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 
 	return yieldChange;
 }
-
+int CvPlayerTrade::GetRangeFactorT100() const
+{
+	return 250;
+}
 
 //	--------------------------------------------------------------------------------
 int CvPlayerTrade::GetTradeRouteRange(DomainTypes eDomain, const CvCity* pOriginCity) const

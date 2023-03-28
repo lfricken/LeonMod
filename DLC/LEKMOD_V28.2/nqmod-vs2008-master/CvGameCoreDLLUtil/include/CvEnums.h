@@ -1400,6 +1400,7 @@ enum TurnTimerTypes
 	NO_TURNTIMER = -1,
 };
 
+// ancient era is 0
 enum EraTypes							
 {
 	NO_ERA = -1,

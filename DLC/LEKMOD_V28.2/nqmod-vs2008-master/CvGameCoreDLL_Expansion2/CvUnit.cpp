@@ -6833,79 +6833,81 @@ bool CvUnit::IsPlunderBlockedByOpposingTrait() const
 #endif
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canPlunderTradeRoute(const CvPlot* pPlot, bool bOnlyTestVisibility) const
+bool CvUnit::canPlunderTradeRoute(const CvPlot*, bool) const
 {
-	if (!IsCombatUnit())
-	{
-		return false;
-	}
-
-	if (pPlot == NULL)
-	{
-		return false;
-	}
-
-	if (isEmbarked())
-	{
-		return false;
-	}
-
-	if (GET_PLAYER(m_eOwner).GetTrade()->ContainsOpposingPlayerTradeUnit(pPlot))
-	{
-		if (!bOnlyTestVisibility)
-		{
-			// any trade units?
-			std::vector<int> aiTradeUnitsAtPlot;
-			aiTradeUnitsAtPlot = GET_PLAYER(m_eOwner).GetTrade()->GetOpposingTradeUnitsAtPlot(pPlot, true);
-			if (aiTradeUnitsAtPlot.size() <= 0)
-			{
-				return false;
-			}
-
-			// is owned by a player?
-			PlayerTypes eTradeUnitOwner = GC.getGame().GetGameTrade()->GetOwnerFromID(aiTradeUnitsAtPlot[0]);
-			if (eTradeUnitOwner == NO_PLAYER)
-			{
-				// invalid TradeUnit
-				return false;
-			}
-
-			// we must be at war already
-			TeamTypes eTeam = GET_PLAYER(eTradeUnitOwner).getTeam();
-			if (!GET_TEAM(GET_PLAYER(m_eOwner).getTeam()).isAtWar(eTeam))
-			{
-				return false;
-			}
-
-			// the unit isn't plunder immunite
-#ifdef NQ_UNIT_IMMUNE_TO_PLUNDER_FROM_TRAIT
-			DomainTypes eDomain = GC.getGame().GetGameTrade()->GetDomainFromID(aiTradeUnitsAtPlot[0]);
-			if (eDomain == DOMAIN_SEA && GET_PLAYER(eTradeUnitOwner).GetPlayerTraits()->IsSeaTradeRoutesArePlunderImmune())
-			{
-				return false;
-			}
-#endif
-			// there must not be adjacent units that you are at war with
-			for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-			{
-				const CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), (DirectionTypes)iI);
-				if (pAdjacentPlot != NULL)
-				{
-					TeamTypes otherTeam = pAdjacentPlot->getTeam();
-					if (GET_TEAM(GET_PLAYER(m_eOwner).getTeam()).isAtWar(otherTeam))
-					{
-						return false;
-					}
-				}
-			}
-		}
-
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return false; // NEVER allow pillage!
+//
+//	if (!IsCombatUnit())
+//	{
+//		return false;
+//	}
+//
+//	if (pPlot == NULL)
+//	{
+//		return false;
+//	}
+//
+//	if (isEmbarked())
+//	{
+//		return false;
+//	}
+//
+//	if (GET_PLAYER(m_eOwner).GetTrade()->ContainsOpposingPlayerTradeUnit(pPlot))
+//	{
+//		if (!bOnlyTestVisibility)
+//		{
+//			// any trade units?
+//			std::vector<int> aiTradeUnitsAtPlot;
+//			aiTradeUnitsAtPlot = GET_PLAYER(m_eOwner).GetTrade()->GetOpposingTradeUnitsAtPlot(pPlot, true);
+//			if (aiTradeUnitsAtPlot.size() <= 0)
+//			{
+//				return false;
+//			}
+//
+//			// is owned by a player?
+//			PlayerTypes eTradeUnitOwner = GC.getGame().GetGameTrade()->GetOwnerFromID(aiTradeUnitsAtPlot[0]);
+//			if (eTradeUnitOwner == NO_PLAYER)
+//			{
+//				// invalid TradeUnit
+//				return false;
+//			}
+//
+//			// we must be at war already
+//			TeamTypes eTeam = GET_PLAYER(eTradeUnitOwner).getTeam();
+//			if (!GET_TEAM(GET_PLAYER(m_eOwner).getTeam()).isAtWar(eTeam))
+//			{
+//				return false;
+//			}
+//
+//			// the unit isn't plunder immunite
+//#ifdef NQ_UNIT_IMMUNE_TO_PLUNDER_FROM_TRAIT
+//			DomainTypes eDomain = GC.getGame().GetGameTrade()->GetDomainFromID(aiTradeUnitsAtPlot[0]);
+//			if (eDomain == DOMAIN_SEA && GET_PLAYER(eTradeUnitOwner).GetPlayerTraits()->IsSeaTradeRoutesArePlunderImmune())
+//			{
+//				return false;
+//			}
+//#endif
+//			// there must not be adjacent units that you are at war with
+//			for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+//			{
+//				const CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), (DirectionTypes)iI);
+//				if (pAdjacentPlot != NULL)
+//				{
+//					TeamTypes otherTeam = pAdjacentPlot->getTeam();
+//					if (GET_TEAM(GET_PLAYER(m_eOwner).getTeam()).isAtWar(otherTeam))
+//					{
+//						return false;
+//					}
+//				}
+//			}
+//		}
+//
+//		return true;
+//	}
+//	else
+//	{
+//		return false;
+//	}
 }
 
 //	--------------------------------------------------------------------------------
