@@ -18,7 +18,7 @@
 #include "LintFree.h"
 #include "CvGameCoreUtils.h"
 
-#define MAX_NOTIFICATIONS 250
+#define MAX_NOTIFICATIONS 2000
 
 #ifdef AUI_WARNING_FIXES
 static int V1_IndexToHash[] =

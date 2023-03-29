@@ -5944,7 +5944,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 			{
 				if(GC.getGame().isFinalInitialized()/* && !(gDLL->GetWorldBuilderMode())*/)
 				{
-					announceTechToPlayers(eIndex);
+					//announceTechToPlayers(eIndex);
 
 					// Resources discovered in a player's territory
 #ifdef AUI_WARNING_FIXES
@@ -6074,7 +6074,8 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 					{
 						if(GET_PLAYER(ePlayer).GetPlayerTechs()->IsResearch() && (GET_PLAYER(ePlayer).GetPlayerTechs()->GetCurrentResearch() == NO_TECH))
 						{
-							strBuffer = GetLocalizedText("TXT_KEY_MISC_WHAT_TO_RESEARCH_NEXT");
+							strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_DISCOVERED_TECH", pkTechInfo->GetTextKey());
+							
 							GET_PLAYER(ePlayer).chooseTech(0, strBuffer, eIndex);
 						}
 					}
@@ -6129,11 +6130,11 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 				// Notification in MP games
 				if(bDontShowRewardPopup)// || GC.getGame().isNetworkMultiPlayer())
 				{
-					Localization::String localizedText = Localization::Lookup("TXT_KEY_MISC_YOU_DISCOVERED_TECH");
-					localizedText << pkTechInfo->GetTextKey();
-					AddNotification(NOTIFICATION_TECH_AWARD, localizedText.toUTF8(), localizedText.toUTF8(), -1, -1, 0, (int) eIndex);
+					//Localization::String localizedText = Localization::Lookup("TXT_KEY_MISC_YOU_DISCOVERED_TECH");
+					//localizedText << pkTechInfo->GetTextKey();
+					//AddNotification(NOTIFICATION_TECH_AWARD, localizedText.toUTF8(), localizedText.toUTF8(), -1, -1, 0, (int) eIndex);
 				}
-				// Popup in SP games
+				// Popup
 				else if(GetID() == GC.getGame().getActiveTeam())
 				{
 					CvPopupInfo kPopup(BUTTONPOPUP_TECH_AWARD, GC.getGame().getActivePlayer(), 0, eIndex);

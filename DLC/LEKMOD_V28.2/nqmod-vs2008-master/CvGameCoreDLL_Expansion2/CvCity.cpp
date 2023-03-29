@@ -2377,7 +2377,6 @@ int CvCity::GetLastMajorTaskTurn() const
 void CvCity::chooseProduction(UnitTypes eTrainUnit, BuildingTypes eConstructBuilding, ProjectTypes eCreateProject, bool /*bFinish*/, bool /*bFront*/)
 {
 	VALIDATE_OBJECT
-	CvString strTooltip = GetLocalizedText("TXT_KEY_NOTIFICATION_NEW_CONSTRUCTION", getNameKey());
 
 #ifdef AUI_CITY_FIX_PUPPET_CHOOSE_PRODUCTION_NOTIFICATION
 	if (isProductionAutomated() || IsPuppet())
@@ -2391,22 +2390,27 @@ void CvCity::chooseProduction(UnitTypes eTrainUnit, BuildingTypes eConstructBuil
 		OrderTypes eOrder = NO_ORDER;
 		int iItemID = -1;
 
+		string name = "[ICON_CITY] itself";
 		if(eTrainUnit != NO_UNIT)
 		{
 			eOrder = ORDER_TRAIN;
 			iItemID = eTrainUnit;
+			name = GC.getUnitInfo(eTrainUnit)->GetDescription();
 		}
 		else if(eConstructBuilding != NO_BUILDING)
 		{
 			eOrder = ORDER_CONSTRUCT;
 			iItemID = eConstructBuilding;
+			name = GC.getBuildingInfo(eConstructBuilding)->GetDescription();
 		}
 		else if(eCreateProject != NO_PROJECT)
 		{
 			eOrder = ORDER_CREATE;
 			iItemID = eCreateProject;
+			name = GC.getProjectInfo(eCreateProject)->GetDescription();
 		}
 
+		CvString strTooltip = GetLocalizedText("TXT_KEY_NOTIFICATION_NEW_CONSTRUCTION", getNameKey(), name.c_str());
 		pNotifications->Add(NOTIFICATION_PRODUCTION, strTooltip, strTooltip, getX(), getY(), eOrder, iItemID);
 	}
 }
@@ -11773,12 +11777,12 @@ void CvCity::setName(const char* szNewValue, bool bFound)
 void CvCity::doFoundMessage()
 {
 	VALIDATE_OBJECT
-	if(getOwner() == GC.getGame().getActivePlayer())
-	{
-		Localization::String localizedText = Localization::Lookup("TXT_KEY_MISC_CITY_HAS_BEEN_FOUNDED");
-		localizedText << getNameKey();
-		GC.messageCity(0, GetIDInfo(), getOwner(), false, -1, localizedText.toUTF8(), NULL /*ARTFILEMGR.getInterfaceArtInfo("WORLDBUILDER_CITY_EDIT")->getPath()*/, MESSAGE_TYPE_MAJOR_EVENT, NULL, NO_COLOR, getX(), getY());
-	}
+	//if(getOwner() == GC.getGame().getActivePlayer())
+	//{
+	//	Localization::String localizedText = Localization::Lookup("TXT_KEY_MISC_CITY_HAS_BEEN_FOUNDED");
+	//	localizedText << getNameKey();
+	//	GC.messageCity(0, GetIDInfo(), getOwner(), false, -1, localizedText.toUTF8(), NULL /*ARTFILEMGR.getInterfaceArtInfo("WORLDBUILDER_CITY_EDIT")->getPath()*/, MESSAGE_TYPE_MAJOR_EVENT, NULL, NO_COLOR, getX(), getY());
+	//}
 
 	Localization::String localizedText = Localization::Lookup("TXT_KEY_MISC_CITY_IS_FOUNDED");
 	localizedText << getNameKey();

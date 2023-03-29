@@ -7849,7 +7849,7 @@ void CvPlayer::found(int iX, int iY)
 		}
 		pCity->GetCityStrategyAI()->DoTurn();
 		pCity->chooseProduction();
-		pCity->doFoundMessage();
+		//pCity->doFoundMessage();
 
 		// If this is the first city (or we still aren't getting tech for some other reason notify the player)
 		if(GetPlayerTechs()->GetCurrentResearch() == NO_TECH && GetScienceTimes100() > 0)
@@ -7862,7 +7862,7 @@ void CvPlayer::found(int iX, int iY)
 	}
 	else
 	{
-		pCity->doFoundMessage();
+		//pCity->doFoundMessage();
 
 		// AI civ, may need to redo city specializations
 		GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_CITY_FOUNDED);
