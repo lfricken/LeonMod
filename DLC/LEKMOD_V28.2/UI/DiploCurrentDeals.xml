@@ -67,8 +67,12 @@
 							<Stack ID="ThemPocketStack" Hidden="1"/>
 							<Stack ID="UsPocketLeaderStack" Hidden="1"/>
 							<Stack ID="ThemPocketLeaderStack" Hidden="1"/>
+							<Stack ID="UsPocketCardsStack" Hidden="1"/>
+							<Stack ID="ThemPocketCardsStack" Hidden="1"/>
 							<Stack ID="UsPocketCitiesStack" Hidden="1"/>
 							<Stack ID="ThemPocketCitiesStack" Hidden="1"/>
+							<Stack ID="UsPocketLumpStack" Hidden="1"/>
+							<Stack ID="ThemPocketLumpStack" Hidden="1"/>
 							<Stack ID="UsPocketStrategicStack" Hidden="1"/>
 							<Stack ID="ThemPocketStrategicStack" Hidden="1"/>
 							<Stack ID="UsPocketLuxuryStack" Hidden="1"/>
@@ -81,10 +85,14 @@
 							<GridButton ID="ThemPocketThirdPartyPeace" Hidden="1"/>
 							<GridButton ID="UsPocketThirdPartyWar" Hidden="1"/>
 							<GridButton ID="ThemPocketThirdPartyWar" Hidden="1"/>
+							<GridButton ID="UsPocketCards" Hidden="1"/>
+							<GridButton ID="ThemPocketCards" Hidden="1"/>
 							<GridButton ID="UsPocketCities" Hidden="1"/>
 							<GridButton ID="ThemPocketCities" Hidden="1"/>
 							<GridButton ID="UsPocketLuxury" Hidden="1"/>
 							<GridButton ID="ThemPocketLuxury" Hidden="1"/>
+							<GridButton ID="UsPocketLump" Hidden="1"/>
+							<GridButton ID="ThemPocketLump" Hidden="1"/>
 							<GridButton ID="UsPocketStrategic" Hidden="1"/>
 							<GridButton ID="ThemPocketStrategic" Hidden="1"/>
 							<GridButton ID="UsPocketVote" Hidden="1"/>
@@ -106,12 +114,14 @@
 							<GridButton ID="UsPocketResearchAgreement" Hidden="1"/>
 							<GridButton ID="ThemPocketResearchAgreement" Hidden="1"/>
 							<Button ID="UsPocketLeaderClose"/>
+							<Button ID="UsPocketCardsClose"/>
 							<Button ID="UsPocketCitiesClose"/>
 							<Button ID="UsPocketOtherPlayer"/>
 							<Button ID="UsPocketOtherPlayerPeace"/>
 							<Button ID="UsPocketOtherPlayerWar"/>
 							<Stack ID="UsPocketOtherPlayerStack"/>
 							<Button ID="ThemPocketLeaderClose"/>
+							<Button ID="ThemPocketCardsClose"/>
 							<Button ID="ThemPocketCitiesClose"/>
 							<Button ID="ThemPocketOtherPlayer"/>
 							<Button ID="ThemPocketOtherPlayerPeace"/>
@@ -144,6 +154,9 @@
 									<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="5" Hidden="0" ID="UsTableLuxuryStack">
 										<Label Anchor="L,C" Offset="5,0" String="TXT_KEY_DIPLO_LUXURY_RESOURCES" Font="TwCenMT14"/>
 									</Stack>
+									<Stack Anchor="L,T" Offset="0,4" Size="128,0" StackGrowth="Bottom" Padding="5" Hidden="0" ID="UsTableLumpStack">
+										<Label Anchor="L,C" Offset="5,0" String="TXT_KEY_DIPLO_ITEMS_LUMP_RESOURCES" Font="TwCenMT14"/>
+									</Stack>
 									<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="5" Hidden="0" ID="UsTableStrategicStack">
 										<Label Anchor="L,C" Offset="5,0" String="TXT_KEY_DIPLO_STRATEGIC_RESOURCES" Font="TwCenMT14"/>
 									</Stack>
@@ -156,6 +169,7 @@
 									<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_RESCH_AGREEMENT" ID="UsTableResearchAgreement"/>
 									<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_TRADE_AGREEMENT" ID="UsTableTradeAgreement"/>
 									<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_DECLARATION_OF_FRIENDSHIP" ID="UsTableDoF"/>
+									<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="5" Hidden="0" ID="UsTableCardsStack"/>
 									<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="5" Hidden="0" ID="UsTableCitiesStack"/>
 									<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="5" Hidden="0" ID="UsTableDeclareWarStack">
 										<Box Color="255,255,255,0" Size="194,18">
@@ -199,6 +213,9 @@
 									<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="5" Hidden="0" ID="ThemTableLuxuryStack">
 										<Label Anchor="L,C" Offset="5,0" String="TXT_KEY_DIPLO_LUXURY_RESOURCES" Font="TwCenMT14"/>
 									</Stack>
+									<Stack Anchor="L,T" Offset="0,4" Size="128,0" StackGrowth="Bottom" Padding="5" Hidden="0" ID="ThemTableLumpStack">
+										<Label Anchor="L,C" Offset="5,0" String="TXT_KEY_DIPLO_ITEMS_LUMP_RESOURCES" Font="TwCenMT14"/>
+									</Stack>
 									<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="5" Hidden="0" ID="ThemTableStrategicStack">
 										<Label Anchor="L,C" Offset="5,0" String="TXT_KEY_DIPLO_STRATEGIC_RESOURCES" Font="TwCenMT14"/>
 									</Stack>
@@ -211,6 +228,7 @@
 									<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_RESCH_AGREEMENT" ID="ThemTableResearchAgreement"/>
 									<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_TRADE_AGREEMENT" ID="ThemTableTradeAgreement"/>
 									<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_DECLARATION_OF_FRIENDSHIP" ID="ThemTableDoF"/>
+									<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="5" Hidden="0" ID="ThemTableCardsStack"/>
 									<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="5" Hidden="0" ID="ThemTableCitiesStack"/>
 									<Stack Anchor="L,T" Offset="0,0" Size="128,0" StackGrowth="Bottom" Padding="5" Hidden="0" ID="ThemTableDeclareWarStack">
 										<Box Color="255,255,255,0" Size="194,18">
@@ -261,6 +279,11 @@
 	<!--=======================================================================================================================-->
 	<!--    These instances are not used, but are here so that we can use the original DiploTrade.lua logic   -->
 	<!--=======================================================================================================================-->
+	<Instance Name="CardInstance">
+		<Button Style="TradeItemButton" ID="Button">
+			<Label Offset="5,0" Anchor="L,C" ID="CardName"/>
+		</Button>
+	</Instance>
 	<Instance Name="CityInstance">
 		<Button Style="TradeItemButtonSmall" ID="Button">
 			<Label Offset="5,0" Anchor="L,C" ID="CityName"/>

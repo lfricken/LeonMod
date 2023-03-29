@@ -2,7 +2,7 @@
 -- Diplomatic
 -------------------------------------------------
 include( "IconSupport" );
-include( "TradeLogic" );
+include( "TradeLogic.lua" );
 --OpenDealReview();
 
 local m_Deal = UI.GetScratchDeal(); 
