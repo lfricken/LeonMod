@@ -429,10 +429,16 @@ int CvPlot::getExtraYield
 					yieldChange += 2;
 			}
 
-			{// BUILDINGCLASS_PORCELAIN_TOWER - 3SC per Lucury
+			{// BUILDINGCLASS_PORCELAIN_TOWER - 
 				const bool hasPorcelinTower = player.HasWonder(BUILDINGCLASS_PORCELAIN_TOWER);
 				if (eYieldType == YIELD_SCIENCE && hasPorcelinTower && hasLuxury)
-					yieldChange += 3;
+					yieldChange += 1;
+			}
+
+			{// BUILDINGCLASS_MAUSOLEUM_HALICARNASSUS - 1G per Luxury
+				const bool hasMausoleum = player.HasWonder(BUILDINGCLASS_MAUSOLEUM_HALICARNASSUS);
+				if (eYieldType == YIELD_GOLD && hasMausoleum && hasLuxury)
+					yieldChange += 1;
 			}
 
 			{// CIVILIZATION_MC_SCOTLAND - 1 FD from Cattle, Sheep, After Trapping
