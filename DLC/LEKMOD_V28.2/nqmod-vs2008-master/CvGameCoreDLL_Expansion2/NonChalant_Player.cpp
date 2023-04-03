@@ -108,11 +108,7 @@ int CvPlayer::GetExtraBuildingsForClass(BuildingClassTypes eClass) const
 		total += 1;
 	if (hasMilitaryTradidion && eClass == BuildingClassTypes(BUILDINGCLASS_FORGE))
 		total += 1;
-
-	// Mausoleum +1 Stoneworks Supply
-	const bool hasMausoleum = player.HasWonder(BUILDINGCLASS_MAUSOLEUM_HALICARNASSUS);
-	if (hasMausoleum && eClass == BuildingClassTypes(BUILDINGCLASS_STONE_WORKS))
-		total += 1;
+	
 
 	// All Unique Buildings that have a % Limit get +1 Supply
 	// All Civillizations Listed (if needed later)
