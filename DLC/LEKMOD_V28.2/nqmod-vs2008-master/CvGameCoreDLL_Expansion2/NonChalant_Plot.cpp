@@ -166,10 +166,10 @@ int CvPlot::getExtraYield
 						yieldChange += 2 + min(20, numFollowersGlobal / 12);
 				}
 
-				{// BELIEF_MITHRAEA - Holy City - 3 food and 1 food per 6 followers (max 30)
+				{// BELIEF_MITHRAEA - Holy City - 3 food and 1 food per 8 followers (max 20)
 					const bool hasBeliefMithraea = city.HasBelief(BELIEF_MITHRAEA);
 					if (eYieldType == YIELD_FOOD && hasBeliefMithraea && isHolyCity) // && isCityCenter
-						yieldChange += 3 + min(30, numFollowersGlobal / 6);
+						yieldChange += 3 + min(20, numFollowersGlobal / 8);
 				}
 
 				{// BELIEF_HEATHEN_CONVERSION - renamed religious troubarods - Trade Routes - 3 faith, 3 diplo points, +2 trade routes

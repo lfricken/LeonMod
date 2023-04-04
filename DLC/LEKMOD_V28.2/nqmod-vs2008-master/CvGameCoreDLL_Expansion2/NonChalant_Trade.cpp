@@ -490,7 +490,11 @@ int CvPlayerTrade::GetNumRoutesAllowed(TradeRouteClassType type) const
 		if (type == TRADEROUTECLASS_INTERNAL && hasIronworks)
 			numAllowed += 1;
 	}
-
+	{
+		const bool isOttomons = player.IsCiv(CIVILIZATION_UC_TURKEY);
+		if (type == TRADEROUTECLASS_EXTERNAL && isOttomons)
+			numAllowed += 1;
+	}
 
 	return numAllowed;
 }
