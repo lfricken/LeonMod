@@ -386,13 +386,6 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 	//			yieldChange += 6;
 	//	}
 
-	//	{ // diplomatic support from trade route buildings
-	//		const int numDiploSupportBoosters = hasMerchantsGuild + hasMarket + hasBank + hasShipyard + hasStockExchange + hasMint + hasBrewery + hasStoneWorks
-	//			+ hasTextileMill + hasGrocer + hasCenserMaker + hasGemcutter + (hasOilRefinery * 2);
-	//		if (eYieldType == YIELD_DIPLOMATIC_SUPPORT)
-	//			yieldChange += numDiploSupportBoosters;
-	//	}
-	//}
 
 
 	return yieldChange;
@@ -509,10 +502,10 @@ int CvPlayerTrade::GetTradeRouteRange(DomainTypes eDomain, const CvCity* pOrigin
 	switch (eDomain)
 	{
 	case DOMAIN_SEA:
-		iBaseRange = 16;
+		iBaseRange = 10;
 		break;
 	case DOMAIN_LAND:
-		iBaseRange = 16;
+		iBaseRange = 10;
 		break;
 	default:
 		CvAssertMsg(false, "Undefined domain for trade route range");
@@ -577,11 +570,11 @@ int CvPlayerTrade::GetTradeRouteRange(DomainTypes eDomain, const CvCity* pOrigin
 			}
 		}
 	}
-
+	
 	iRange = iBaseRange;
 	iRange += iTraitRange;
 	iRange += iExtendedRange;
-	iRange = (iRange * (100 + iRangeModifier)) / 100;
+	iRange += iRangeModifier;	
 	return iRange;
 }
 
