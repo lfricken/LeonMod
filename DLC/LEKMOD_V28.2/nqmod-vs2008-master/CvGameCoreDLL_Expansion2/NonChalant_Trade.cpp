@@ -405,8 +405,91 @@ int CvPlayerTrade::GetRangeFactorT100() const
 int CvPlayerTrade::GetNumRoutesAllowed(TradeRouteClassType type) const
 {
 	int numAllowed = (((GetNumTradeRoutesPossible() + 1) * 100) / 2) / 100; // since we round down, +1 forces a round up
-	//const CvPlayer& player = *m_pPlayer;
+	const CvPlayer& player = *m_pPlayer;
+	
+	int numCities = player.getNumCities();
 
+	// Buildings Internal Trade Route Capacity = 2/3 of cities have building.
+	{  
+		int numLevel1TradeBuildings = player.countNumBuildingClasses(BuildingClassTypes(BUILDINGCLASS_CARAVANSARY));
+		if (type == TRADEROUTECLASS_INTERNAL && (numLevel1TradeBuildings * 3 >= numCities * 2))
+			numAllowed += 1;
+	}
+	{
+		int numLevel2TradeBuildings = player.countNumBuildingClasses(BuildingClassTypes(BUILDINGCLASS_MARKET || BUILDINGCLASS_MINT || BUILDINGCLASS_BREWERY));
+		if (type == TRADEROUTECLASS_INTERNAL && (numLevel2TradeBuildings * 3 >= numCities * 2))
+			numAllowed += 1;
+	}
+	{
+		int numLevel3TradeBuildings = player.countNumBuildingClasses(BuildingClassTypes(BUILDINGCLASS_BANK));
+		if (type == TRADEROUTECLASS_INTERNAL && (numLevel3TradeBuildings * 3 >= numCities * 2))
+			numAllowed += 1;
+	}
+	{
+		int numLevel4TradeBuildings = player.countNumBuildingClasses(BuildingClassTypes(BUILDINGCLASS_STOCK_EXCHANGE));
+		if (type == TRADEROUTECLASS_INTERNAL && (numLevel4TradeBuildings * 3 >= numCities * 2))
+			numAllowed += 1;
+	}
+
+	// Buildings External Trade Route Capacity  = 1/3 of cities have building.
+	{
+		int numLevel1TradeBuildings = player.countNumBuildingClasses(BuildingClassTypes(BUILDINGCLASS_CARAVANSARY));
+		if (type == TRADEROUTECLASS_EXTERNAL && (numLevel1TradeBuildings * 3 >= numCities))
+			numAllowed += 1;
+	}
+	{
+		int numLevel2TradeBuildings = player.countNumBuildingClasses(BuildingClassTypes(BUILDINGCLASS_MARKET || BUILDINGCLASS_MINT || BUILDINGCLASS_BREWERY));
+		if (type == TRADEROUTECLASS_EXTERNAL && (numLevel2TradeBuildings * 3 >= numCities))
+			numAllowed += 1;
+	}
+	{
+		int numLevel3TradeBuildings = player.countNumBuildingClasses(BuildingClassTypes(BUILDINGCLASS_BANK));
+		if (type == TRADEROUTECLASS_EXTERNAL && (numLevel3TradeBuildings * 3 >= numCities))
+			numAllowed += 1;
+	}
+	{
+		int numLevel4TradeBuildings = player.countNumBuildingClasses(BuildingClassTypes(BUILDINGCLASS_STOCK_EXCHANGE));
+		if (type == TRADEROUTECLASS_EXTERNAL && (numLevel4TradeBuildings * 3 >= numCities))
+			numAllowed += 1;
+	}
+
+	// Wonders Trade Route Capacity
+	{
+		const bool hasColossus = player.HasWonder(BUILDINGCLASS_COLOSSUS);		
+		if (type == TRADEROUTECLASS_EXTERNAL && hasColossus)
+			numAllowed += 1;
+	}
+	{
+		const bool hasMausoleum = player.HasWonder(BUILDINGCLASS_MAUSOLEUM_HALICARNASSUS);
+		if (type == TRADEROUTECLASS_EXTERNAL && hasMausoleum)
+			numAllowed += 1;
+	}
+	{
+		const bool hasEastIndia = player.HasWonder(BUILDINGCLASS_NATIONAL_TREASURY);
+		if (type == TRADEROUTECLASS_EXTERNAL && hasEastIndia)
+			numAllowed += 1;
+	}
+	// Rome UB gets +1 additional
+	{
+		const bool hasEastIndia = player.HasWonder(BUILDINGCLASS_NATIONAL_TREASURY);
+		const bool isRome = player.IsCiv(CIVILIZATION_ROME);
+		if (type == TRADEROUTECLASS_EXTERNAL && hasEastIndia)
+			numAllowed += 1;	}
+	{
+		const bool hasPetra = player.HasWonder(BUILDINGCLASS_PETRA);
+		if (type == TRADEROUTECLASS_INTERNAL && hasPetra)
+			numAllowed += 1;
+	}
+	{
+		const bool hasAlthing = player.HasWonder(BUILDINGCLASS_ALTHING);
+		if (type == TRADEROUTECLASS_INTERNAL && hasAlthing)
+			numAllowed += 1;
+	}
+	{
+		const bool hasIronworks = player.HasWonder(BUILDINGCLASS_IRONWORKS);
+		if (type == TRADEROUTECLASS_INTERNAL && hasIronworks)
+			numAllowed += 1;
+	}
 
 
 	return numAllowed;
