@@ -127,6 +127,7 @@ public:
 	int GetWorkerSpeedModifier() const;
 	int GetAfraidMinorPerTurnInfluence() const;
 	int GetLandTradeRouteRangeBonus() const;
+	int GetSeaTradeRouteRangeBonus() const;
 	int GetTradeReligionModifier() const;
 	int GetTradeBuildingModifier() const;
 	
@@ -283,6 +284,7 @@ protected:
 	int m_iWorkerSpeedModifier;
 	int m_iAfraidMinorPerTurnInfluence;
 	int m_iLandTradeRouteRangeBonus;
+	int m_iSeaTradeRouteRangeBonus;
 	int m_iTradeReligionModifier;
 	int m_iTradeBuildingModifier;
 
@@ -698,6 +700,10 @@ public:
 	{
 		return m_iLandTradeRouteRangeBonus;
 	}
+	int GetSeaTradeRouteRangeBonus() const
+	{
+		return m_iSeaTradeRouteRangeBonus;
+	}
 	int GetTradeReligionModifier() const
 	{
 		return m_iTradeReligionModifier;
@@ -1011,6 +1017,7 @@ private:
 	int m_iWorkerSpeedModifier;
 	int m_iAfraidMinorPerTurnInfluence; 
 	int m_iLandTradeRouteRangeBonus;
+	int m_iSeaTradeRouteRangeBonus;
 	int m_iTradeReligionModifier;
 	int m_iTradeBuildingModifier;
 	// Saved

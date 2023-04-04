@@ -147,6 +147,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_iWorkerSpeedModifier(0),
 	m_iAfraidMinorPerTurnInfluence(0),
 	m_iLandTradeRouteRangeBonus(0),
+	m_iSeaTradeRouteRangeBonus(0),
 	m_iTradeReligionModifier(0),
 	m_iTradeBuildingModifier(0),
 	m_eCombatBonusImprovement(NO_IMPROVEMENT),
@@ -603,6 +604,12 @@ int CvTraitEntry::GetAfraidMinorPerTurnInfluence() const
 int CvTraitEntry::GetLandTradeRouteRangeBonus() const
 {
 	return m_iLandTradeRouteRangeBonus;
+}
+
+
+int CvTraitEntry::GetSeaTradeRouteRangeBonus() const
+{
+	return m_iSeaTradeRouteRangeBonus;
 }
 
 int CvTraitEntry::GetTradeReligionModifier() const
@@ -1116,6 +1123,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iWorkerSpeedModifier					= kResults.GetInt("WorkerSpeedModifier");
 	m_iAfraidMinorPerTurnInfluence			= kResults.GetInt("AfraidMinorPerTurnInfluence");
 	m_iLandTradeRouteRangeBonus				= kResults.GetInt("LandTradeRouteRangeBonus");
+	m_iSeaTradeRouteRangeBonus				 = kResults.GetInt("SeaTradeRouteRangeBonus");
 	m_iTradeReligionModifier				= kResults.GetInt("TradeReligionModifier");
 	m_iTradeBuildingModifier				= kResults.GetInt("TradeBuildingModifier");
 
@@ -1671,6 +1679,7 @@ void CvPlayerTraits::InitPlayerTraits()
 			m_iWorkerSpeedModifier += trait->GetWorkerSpeedModifier();
 			m_iAfraidMinorPerTurnInfluence += trait->GetAfraidMinorPerTurnInfluence();
 			m_iLandTradeRouteRangeBonus += trait->GetLandTradeRouteRangeBonus();
+			m_iSeaTradeRouteRangeBonus += trait->GetSeaTradeRouteRangeBonus();
 			m_iTradeReligionModifier += trait->GetTradeReligionModifier();
 			m_iTradeBuildingModifier += trait->GetTradeBuildingModifier();
 
@@ -1989,6 +1998,7 @@ void CvPlayerTraits::Reset()
 	m_iWorkerSpeedModifier = 0;
 	m_iAfraidMinorPerTurnInfluence = 0;
 	m_iLandTradeRouteRangeBonus = 0;
+	m_iSeaTradeRouteRangeBonus = 0;
 	m_iTradeReligionModifier = 0;
 	m_iTradeBuildingModifier = 0;
 
@@ -3161,11 +3171,13 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	if (uiVersion >= 15)
 	{
 		kStream >> m_iLandTradeRouteRangeBonus;
+		kStream >> m_iSeaTradeRouteRangeBonus;
 		kStream >> m_iTradeReligionModifier;
 	}
 	else
 	{
 		m_iLandTradeRouteRangeBonus = 0;
+		m_iSeaTradeRouteRangeBonus = 0;
 		m_iTradeReligionModifier = 0;
 	}
 
@@ -3454,6 +3466,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << m_iWorkerSpeedModifier;
 	kStream << m_iAfraidMinorPerTurnInfluence;
 	kStream << m_iLandTradeRouteRangeBonus;
+	kStream << m_iSeaTradeRouteRangeBonus;
 	kStream << m_iTradeReligionModifier;
 	kStream << m_iTradeBuildingModifier;
 
