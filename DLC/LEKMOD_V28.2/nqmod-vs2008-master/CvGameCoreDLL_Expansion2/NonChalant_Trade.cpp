@@ -409,6 +409,7 @@ int CvPlayerTrade::GetNumRoutesAllowed(TradeRouteClassType type) const
 	
 	int numCities = player.getNumCities();
 
+	// Building Grant Trade Routes +4/+4 = 8 Possible Internal + External
 	// Buildings Internal Trade Route Capacity = 2/3 of cities have building.
 	{  
 		int numLevel1TradeBuildings = player.countNumBuildingClasses(BuildingClassTypes(BUILDINGCLASS_CARAVANSARY));
@@ -430,7 +431,6 @@ int CvPlayerTrade::GetNumRoutesAllowed(TradeRouteClassType type) const
 		if (type == TRADEROUTECLASS_INTERNAL && (numLevel4TradeBuildings * 3 >= numCities * 2))
 			numAllowed += 1;
 	}
-
 	// Buildings External Trade Route Capacity  = 1/3 of cities have building.
 	{
 		int numLevel1TradeBuildings = player.countNumBuildingClasses(BuildingClassTypes(BUILDINGCLASS_CARAVANSARY));
@@ -453,7 +453,7 @@ int CvPlayerTrade::GetNumRoutesAllowed(TradeRouteClassType type) const
 			numAllowed += 1;
 	}
 
-	// Wonders Trade Route Capacity
+	// Wonders Trade Route Capacity +2/+2 possible from World and +1/+1 possible from National
 	{
 		const bool hasColossus = player.HasWonder(BUILDINGCLASS_COLOSSUS);		
 		if (type == TRADEROUTECLASS_EXTERNAL && hasColossus)
@@ -464,17 +464,6 @@ int CvPlayerTrade::GetNumRoutesAllowed(TradeRouteClassType type) const
 		if (type == TRADEROUTECLASS_EXTERNAL && hasMausoleum)
 			numAllowed += 1;
 	}
-	{
-		const bool hasEastIndia = player.HasWonder(BUILDINGCLASS_NATIONAL_TREASURY);
-		if (type == TRADEROUTECLASS_EXTERNAL && hasEastIndia)
-			numAllowed += 1;
-	}
-	// Rome UB gets +1 additional
-	{
-		const bool hasEastIndia = player.HasWonder(BUILDINGCLASS_NATIONAL_TREASURY);
-		const bool isRome = player.IsCiv(CIVILIZATION_ROME);
-		if (type == TRADEROUTECLASS_EXTERNAL && hasEastIndia)
-			numAllowed += 1;	}
 	{
 		const bool hasPetra = player.HasWonder(BUILDINGCLASS_PETRA);
 		if (type == TRADEROUTECLASS_INTERNAL && hasPetra)
@@ -490,6 +479,19 @@ int CvPlayerTrade::GetNumRoutesAllowed(TradeRouteClassType type) const
 		if (type == TRADEROUTECLASS_INTERNAL && hasIronworks)
 			numAllowed += 1;
 	}
+	{
+		const bool hasEastIndia = player.HasWonder(BUILDINGCLASS_NATIONAL_TREASURY);
+		if (type == TRADEROUTECLASS_EXTERNAL && hasEastIndia)
+			numAllowed += 1;
+	}
+	// Civ Rome Unique Building gets +1 additional
+	{
+		const bool hasGrandCanal = player.HasWonder(BUILDINGCLASS_NATIONAL_TREASURY);
+		const bool isRome = player.IsCiv(CIVILIZATION_ROME);
+		if (type == TRADEROUTECLASS_EXTERNAL && hasGrandCanal && isRome)
+			numAllowed += 1;
+	}	
+	// Traits - Ottomons +1 additional
 	{
 		const bool isOttomons = player.IsCiv(CIVILIZATION_UC_TURKEY);
 		if (type == TRADEROUTECLASS_EXTERNAL && isOttomons)
@@ -521,9 +523,8 @@ int CvPlayerTrade::GetTradeRouteRange(DomainTypes eDomain, const CvCity* pOrigin
 	int iTraitRange = 0;
 	switch (eDomain)
 	{
-	case DOMAIN_SEA:
-		// not implemented
-		iTraitRange = 0;
+	case DOMAIN_SEA:		
+		iTraitRange = m_pPlayer->GetPlayerTraits()->GetSeaTradeRouteRangeBonus();
 		break;
 	case DOMAIN_LAND:
 		iTraitRange = m_pPlayer->GetPlayerTraits()->GetLandTradeRouteRangeBonus();
