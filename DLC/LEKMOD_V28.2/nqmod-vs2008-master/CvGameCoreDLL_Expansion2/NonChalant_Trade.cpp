@@ -505,7 +505,7 @@ int CvPlayerTrade::GetTradeRouteRange(DomainTypes eDomain, const CvCity* pOrigin
 		iBaseRange = 10;
 		break;
 	case DOMAIN_LAND:
-		iBaseRange = 10;
+		iBaseRange = 6;
 		break;
 	default:
 		CvAssertMsg(false, "Undefined domain for trade route range");
