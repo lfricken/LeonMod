@@ -95,25 +95,77 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 	// how many tiles between the 2 cities
 	//const int tradeDistance = kTradeConnection.m_aPlotList.size();
 	//const int cityCrowsDistance = cityDest->distTo(cityDest);
-	const bool hasMerchantConfederacy = playerOrigin.HasPolicy(POLICY_MERCHANT_CONFEDERACY);
-	const bool hasMerchantsGuild = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_CARAVANSARY);
+	
+	const bool hasEastIndia = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_NATIONAL_TREASURY);
+	
+	const bool hasCaravansary = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_CARAVANSARY);
 	const bool hasMarket = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_MARKET);
-	const bool hasBank = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_BANK);
-	const bool hasStockExchange = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_STOCK_EXCHANGE);
 	const bool hasMint = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_MINT);
 	const bool hasBrewery = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_BREWERY);
-	const bool hasStoneWorks = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_STONE_WORKS);
-	const bool hasTextileMill = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_TEXTILE);
+	const bool hasBank = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_BANK);
+	const bool hasSeaport = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_SEAPORT);
+	const bool hasStockExchange = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_STOCK_EXCHANGE);
+
+	const bool toCaravansary = cityDest->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_CARAVANSARY);
+	const bool toMarket = cityDest->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_MARKET);
+	const bool toMint = cityDest->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_MINT);
+	const bool toBrewery = cityDest->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_BREWERY);
+	const bool toBank = cityDest->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_BANK);
+	const bool toSeaport = cityDest->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_SEAPORT);
+	const bool toStockExchange = cityDest->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_STOCK_EXCHANGE);
+	
+	const bool hasGranary = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_GRANARY);
+	const bool hasFishery = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_FISHERY);
+	const bool hasHuntersHaven = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_HUNTERS_HAVEN);
 	const bool hasGrocer = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_GROCER);
+	const bool hasGrainElevator = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_GRAIN_ELEVATOR);
+	const bool hasStockyards= cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_STOCKYARDS);
+
+	const bool toGranary = cityDest->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_GRANARY);
+	const bool toFishery = cityDest->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_FISHERY);
+	const bool toHuntersHaven = cityDest->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_HUNTERS_HAVEN);
+	const bool toGrocer = cityDest->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_GROCER);
+	const bool toGrainElevator = cityDest->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_GRAIN_ELEVATOR);
+	const bool toStockyards = cityDest->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_STOCKYARDS);
+	
+	const bool hasStoneWorks = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_STONE_WORKS);
+	const bool hasStable = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_STABLE);
+	const bool hasForge = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_FORGE);
+	const bool hasFactory = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_FACTORY);
+	const bool hasShipyard = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_SHIPYARD);
+	const bool hasTextileMill = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_TEXTILE);
+	const bool hasOilRefinery = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_REFINERY);
+	const bool hasNuclearPlant = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_NUCLEAR_PLANT);
+
+	const bool toStoneWorks = cityDest->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_STONE_WORKS);
+	const bool toStable = cityDest->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_STABLE);
+	const bool toForge = cityDest->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_FORGE);
+	const bool toFactory = cityDest->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_FACTORY);
+	const bool toShipyard = cityDest->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_SHIPYARD);
+	const bool toTextileMill = cityDest->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_TEXTILE);
+	const bool toOilRefinery = cityDest->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_REFINERY);
+	const bool toNuclearPlant = cityDest->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_NUCLEAR_PLANT);
+	
 	const bool hasCenserMaker = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_CENSER);
 	const bool hasGemcutter = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_GEMCUTTER);
-	const bool hasOilRefinery = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_REFINERY);
-	const bool hasShipyard = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_SHIPYARD);
+
+	const bool toCenserMaker = cityDest->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_CENSER);
+	const bool toGemcutter = cityDest->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_GEMCUTTER);
+
+	const bool hasCivilService = playerOrigin.HasTech(TECH_CIVIL_SERVICE);
+	const bool hasRefrigeration = playerOrigin.HasTech(TECH_REFRIGERATION);
+	const bool hasMetalCasting = playerOrigin.HasTech(TECH_METAL_CASTING);
+	const bool hasCombustion = playerOrigin.HasTech(TECH_COMBUSTION);
+
+	const bool hasTheocrary = playerOrigin.HasPolicy(POLICY_THEOCRACY);
+	const bool hasJustice = playerOrigin.HasPolicy(POLICY_LEGALISM);
+	const bool hasMerchantConfederacy = playerOrigin.HasPolicy(POLICY_MERCHANT_CONFEDERACY);	
+	
 	const bool hasHimeji = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_HIMEJI_CASTLE);
 	const int numExplorationPolicies = playerOrigin.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(POLICY_BRANCH_EXPLORATION);
 	const int numCommercePolicies = playerOrigin.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(POLICY_BRANCH_COMMERCE);
 	const int numHonorPolicies = playerOrigin.GetPlayerPolicies()->GetNumPoliciesOwnedInBranch(POLICY_BRANCH_HONOR);
-	const bool hasTheocrary = playerOrigin.HasPolicy(POLICY_THEOCRACY);
+	
 	const int era = playerOrigin.GetCurrentEra();
 
 	// determine type of route
@@ -138,63 +190,50 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 		{
 			if (eYieldType == YIELD_FOOD)
 			{
-				appendNewLine(tooltip, &yieldChange, 3 + era, "[ICON_FOOD] Base (3 + 1 per era)", true);
-				appendNewLine(tooltip, &yieldChange, +1, "[ICON_FOOD] from the {TXT_KEY_BUILDING_GROCER}", hasGrocer);
+				appendNewLine(tooltip, &yieldChange, 3, "[ICON_FOOD] Base", true);
+				appendNewLine(tooltip, &yieldChange, +1, "[ICON_FOOD] from the Granary", (hasGranary && !toGranary) || (!hasGranary && toGranary));
+				appendNewLine(tooltip, &yieldChange, +1, "[ICON_FOOD] from the Hunter's Haven", (hasHuntersHaven && !toHuntersHaven) || (!hasHuntersHaven && toHuntersHaven));
+				appendNewLine(tooltip, &yieldChange, +1, "[ICON_FOOD] from the Fishery", (hasFishery && !toFishery) || (!hasFishery && toFishery));
+				appendNewLine(tooltip, &yieldChange, +1, "[ICON_FOOD] from the Grocer", (hasGrocer && !toGrocer) || (!hasGrocer && toGrocer));
+				appendNewLine(tooltip, &yieldChange, +1, "[ICON_FOOD] from the Brewery", (hasBrewery && !toBrewery) || (!hasBrewery && toBrewery));
+				appendNewLine(tooltip, &yieldChange, +1, "[ICON_FOOD] from the Grain Elevator", (hasGrainElevator && !toGrainElevator) || (!hasGrainElevator && toGrainElevator));
+				appendNewLine(tooltip, &yieldChange, +1, "[ICON_FOOD] from the Stockyards", (hasStockyards && !toStockyards) || (!hasStockyards && toStockyards));
+				appendNewLine(tooltip, &yieldChange, +1, "[ICON_FOOD] from Civil Service", hasCivilService);
+				appendNewLine(tooltip, &yieldChange, +1, "[ICON_FOOD] from Refrigeration", hasRefrigeration);
 				appendNewLineOnly(tooltip);
-			}
-			//if (eYieldType == YIELD_PRODUCTION)
-			//{
-			//	appendNewLine(tooltip, &yieldChange, +1, "[ICON_PRODUCTION] from the {TXT_KEY_CIV5_BUILDINGS_STONE_WORKS}", hasStoneWorks);
-			//	appendNewLine(tooltip, &yieldChange, +1, "[ICON_PRODUCTION] from the {TXT_KEY_BUILDING_TEXTILE}", hasTextileMill);
-			//	appendNewLine(tooltip, &yieldChange, +3, "[ICON_PRODUCTION] from the {TXT_KEY_BUILDING_REFINERY}", hasOilRefinery);
-			//	appendNewLineOnly(tooltip);
-			//}
-			//if (eYieldType == YIELD_GOLD)
-			//{
-			//	appendNewLine(tooltip, &yieldChange, +2, "[ICON_GOLD] from the {TXT_KEY_BUILDING_MINT}", hasMint);
-			//	appendNewLine(tooltip, &yieldChange, +2, "[ICON_GOLD] from the {TXT_KEY_BUILDING_BREWERY}", hasBrewery);
-			//	appendNewLineOnly(tooltip);
-
-			//	if (eYieldType == YIELD_GOLD)
-			//		yieldChange += (numCommercePolicies * 3);
-			//	if (eYieldType == YIELD_GOLD && hasHimeji)
-			//		yieldChange += (numCommercePolicies + numHonorPolicies) * 2;
-			//}
+			}			
+			
+			int ourMountainNumber = cityOrigin->plot()->countNearbyPlots(MountainsAndHills, 3);
+			int theirMountainNumber = cityDest->plot()->countNearbyPlots(MountainsAndHills, 3);
+			int diffMountains = max(0, 100 * (ourMountainNumber - theirMountainNumber));
+			int ourWaterNumber = cityOrigin->plot()->countNearbyPlots(Water, 3);
+			int theirWaterNumber = cityDest->plot()->countNearbyPlots(Water, 3);
+			int diffWater = max(0, 100 * (ourWaterNumber - theirWaterNumber));
+			
 			if (eYieldType == YIELD_FAITH)
 			{
-				{
-					int our = cityOrigin->plot()->countNearbyPlots(MountainsAndHills, 3);
-					int their = cityDest->plot()->countNearbyPlots(MountainsAndHills, 3);
-					int diff = max(0, 100 * (our - their));
-					int amount = (50 + iSquareRoot(diff)) / 100; // avoid insane via square root
-					if (diff > 0) amount = max(1, amount);
-					appendNewLine(tooltip, &yieldChange, +amount, "[ICON_FAITH] from our city having more Mountains (x2) and Hills", amount > 0);
-				}
+				int faithAmount = (50 + iSquareRoot(diffMountains)) / 100; // avoid insane via square root
+				if (diffMountains < diffWater)  faithAmount = 0; // either mountains or water boost, not both
+				if (diffMountains < 300) faithAmount = 0; // 3 minimum differential in mountains/hills
+						{
+							appendNewLine(tooltip, &yieldChange, +faithAmount, "[ICON_FAITH] from our city having more Mountains (x2) and Hills", faithAmount > 0);
+						}				
 
-				appendNewLine(tooltip, &yieldChange, +2, "[ICON_FAITH] from {TXT_KEY_POLICY_THEOCRACY}", hasTheocrary);
+				appendNewLine(tooltip, &yieldChange, +3, "[ICON_FAITH] from {TXT_KEY_POLICY_THEOCRACY}", (hasTheocrary && faithAmount > 0));
 				appendNewLineOnly(tooltip);
 			}
 			if (eYieldType == YIELD_GOLDEN)
 			{
-				{
-					int our = cityOrigin->plot()->countNearbyPlots(Water, 3);
-					int their = cityDest->plot()->countNearbyPlots(Water, 3);
-					int diff = max(0, 100 * (our - their));
-					int amount = (50 + iSquareRoot(diff)) / 100; // avoid insane via square root
-					if (diff > 0) amount = max(1, amount);
-					appendNewLine(tooltip, &yieldChange, +amount, "[ICON_GOLDEN] from our city having more Water", amount > 0);
-				}
-			}
+				int goldenAmount = (50 + iSquareRoot(diffWater)) / 100; // avoid insane via square root
+				if (diffWater < diffMountains) goldenAmount = 0;	// either mountains or water boost, not both				
+				if ((ourWaterNumber - theirWaterNumber) < 300) goldenAmount = 0; // 3 minimum differential in water
+							{
+								appendNewLine(tooltip, &yieldChange, +goldenAmount, "[ICON_GOLDEN] from our city having more Water", goldenAmount > 0);
+							}			
 
-			//if (eYieldType == YIELD_CULTURE && hasCenserMaker)
-			//	yieldChange += 1;
-			//if (eYieldType == YIELD_CULTURE && hasGemcutter)
-			//	yieldChange += 1;
-
-			//if (eYieldType == YIELD_DIPLOMATIC_SUPPORT && hasHimeji)
-			//	yieldChange += (numCommercePolicies + numHonorPolicies);
-			//if (eYieldType == YIELD_PRODUCTION && hasShipyard)
-			//	yieldChange += 2;
+				appendNewLine(tooltip, &yieldChange, +3, "[ICON_GOLDEN] from {TXT_KEY_POLICY_LEGALISM}", (hasJustice && goldenAmount > 0));
+				appendNewLineOnly(tooltip);
+			}			
 		}
 	}
 	break;
