@@ -159,6 +159,8 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 
 	const bool hasTheocrary = playerOrigin.HasPolicy(POLICY_THEOCRACY);
 	const bool hasJustice = playerOrigin.HasPolicy(POLICY_LEGALISM);
+	const bool hasFreeThought = playerOrigin.HasPolicy(POLICY_FREE_THOUGHT);
+	const bool hasCollectiveRule = playerOrigin.HasPolicy(POLICY_COLLECTIVE_RULE);
 	const bool hasMerchantConfederacy = playerOrigin.HasPolicy(POLICY_MERCHANT_CONFEDERACY);	
 	
 	const bool hasHimeji = cityOrigin->GetCityBuildings()->HasBuildingClass(BUILDINGCLASS_HIMEJI_CASTLE);
@@ -213,8 +215,8 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 			if (eYieldType == YIELD_FAITH)
 			{
 				int faithAmount = (50 + iSquareRoot(diffMountains)) / 100; // avoid insane via square root
-				if (diffMountains < diffWater)  faithAmount = 0; // either mountains or water boost, not both
-				if (diffMountains < 300) faithAmount = 0; // 3 minimum differential in mountains/hills
+				if (diffMountains <= diffWater)  faithAmount = 0; // one or the other boosted, not both
+				if (diffMountains <= 200) faithAmount = 0; // 3 minimum differential
 						{
 							appendNewLine(tooltip, &yieldChange, +faithAmount, "[ICON_FAITH] from our city having more Mountains (x2) and Hills", faithAmount > 0);
 						}				
@@ -225,8 +227,8 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 			if (eYieldType == YIELD_GOLDEN)
 			{
 				int goldenAmount = (50 + iSquareRoot(diffWater)) / 100; // avoid insane via square root
-				if (diffWater < diffMountains) goldenAmount = 0;	// either mountains or water boost, not both				
-				if ((ourWaterNumber - theirWaterNumber) < 300) goldenAmount = 0; // 3 minimum differential in water
+				if (diffWater <= diffMountains) goldenAmount = 0; // one or the other boosted, not both				
+				if (diffWater <= 200) goldenAmount = 0; // 3 minimum differential
 							{
 								appendNewLine(tooltip, &yieldChange, +goldenAmount, "[ICON_GOLDEN] from our city having more Water", goldenAmount > 0);
 							}			
@@ -241,65 +243,52 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 	{
 		if (isPrimaryYielder) // only the destination city of the trade route gets these benefits
 		{
-			if (eYieldType == YIELD_FOOD)
-			{
-				appendNewLine(tooltip, &yieldChange, +1, "[ICON_FOOD] from the {TXT_KEY_BUILDING_GROCER}", hasGrocer);
-				appendNewLineOnly(tooltip);
-			}
 			if (eYieldType == YIELD_PRODUCTION)
 			{
-				appendNewLine(tooltip, &yieldChange, 4 + era, "[ICON_PRODUCTION] Base (4 + 1 per era)", true);
-				appendNewLine(tooltip, &yieldChange, +1, "[ICON_PRODUCTION] from the {TXT_KEY_CIV5_BUILDINGS_STONE_WORKS}", hasStoneWorks);
+				appendNewLine(tooltip, &yieldChange, 3, "[ICON_PRODUCTION] Base", true);
+				appendNewLine(tooltip, &yieldChange, +1, "[ICON_PRODUCTION] from the Stoneworks", (hasStoneWorks && !toStoneWorks) || (!hasStoneWorks && toStoneWorks));
+				appendNewLine(tooltip, &yieldChange, +1, "[ICON_PRODUCTION] from the Stable", (hasStable && !toStable) || (!hasStable && toStable));
+				appendNewLine(tooltip, &yieldChange, +1, "[ICON_PRODUCTION] from the Forge", (hasForge && !toForge) || (!hasForge && toForge));
+				appendNewLine(tooltip, &yieldChange, +1, "[ICON_PRODUCTION] from the Mint", (hasMint && !toMint) || (!hasMint && toMint));
+				appendNewLine(tooltip, &yieldChange, +1, "[ICON_PRODUCTION] from the Factory", (hasFactory && !toFactory) || (!hasFactory && toFactory));
+				appendNewLine(tooltip, &yieldChange, +1, "[ICON_PRODUCTION] from the Textile Mill", (hasTextileMill && !toTextileMill) || (!hasTextileMill && toTextileMill));
+				appendNewLine(tooltip, &yieldChange, +1, "[ICON_PRODUCTION] from the Shipyard", (hasShipyard && !toShipyard) || (!hasShipyard && toShipyard));
+				appendNewLine(tooltip, &yieldChange, +1, "[ICON_PRODUCTION] from Metal Casting", hasMetalCasting);
+				appendNewLine(tooltip, &yieldChange, +1, "[ICON_PRODUCTION] from Combustion", hasCombustion);				
 				appendNewLineOnly(tooltip);
-			}
-			if (eYieldType == YIELD_FAITH)
-			{
-				appendNewLine(tooltip, &yieldChange, +2, "[ICON_PEACE] from {TXT_KEY_POLICY_THEOCRACY}", hasTheocrary);
-				appendNewLineOnly(tooltip);
-			}
+			}			
+			
+			int ourCulture = cityOrigin->getYieldRateTimes100(YIELD_CULTURE, true);
+			int theirCulture = cityDest->getYieldRateTimes100(YIELD_CULTURE, true);
+			int diffCulture = max(0, (ourCulture - theirCulture)) / 4;
+			int ourPopulation = cityOrigin->getPopulation();
+			int theirPopulation = cityDest->getPopulation();
+			int diffPopulation = max(0, 100 * (theirPopulation - ourPopulation)) / 2;
+									
 			if (eYieldType == YIELD_CULTURE)
 			{
-				{
-					int our = cityOrigin->getYieldRateTimes100(YIELD_CULTURE, true);
-					int their = cityDest->getYieldRateTimes100(YIELD_CULTURE, true);
-					int diff = max(0, (our - their)) / 4;
-					int amount = (50 + iSquareRoot(diff)) / 100; // avoid insane via square root
-					if (diff > 0) amount = max(1, amount);
-					appendNewLine(tooltip, &yieldChange, +amount, "[ICON_CULTURE] from our city having more Culture", amount > 0);
+				int cultureAmount = (50 + iSquareRoot(diffCulture)) / 100; // avoid insane via square root
+				if (diffCulture <= diffPopulation) cultureAmount = 0; // one or the other boosted, not both
+				if (diffCulture <= 200) cultureAmount = 0; // 3 minimum differential
+				{					
+					appendNewLine(tooltip, &yieldChange, +cultureAmount, "[ICON_CULTURE] from our city having more Culture", cultureAmount > 0);
 				}
+				appendNewLine(tooltip, &yieldChange, +2, "[ICON_CULTURE] from Collective Rule", (hasCollectiveRule && cultureAmount > 0));
+				appendNewLine(tooltip, &yieldChange, +1, "[ICON_CULTURE] from Gemcutter", (hasGemcutter && !toGemcutter) || (!hasGemcutter && toGemcutter));
+				appendNewLine(tooltip, &yieldChange, +1, "[ICON_CULTURE] from Censer Maker", (hasCenserMaker && !toCenserMaker) || (!toCenserMaker && toCenserMaker));
 				appendNewLineOnly(tooltip);
 			}
 			if (eYieldType == YIELD_SCIENTIFIC_INSIGHT)
 			{
-				{
-					int our = cityOrigin->getPopulation();
-					int their = cityDest->getPopulation();
-					int diff = max(0, 100 * (their - our)) / 2;
-					int amount = (50 + iSquareRoot(diff)) / 100; // avoid insane via square root
-					if (diff > 0) amount = max(1, amount);
-					appendNewLine(tooltip, &yieldChange, +amount, "[ICON_SCIENTIFIC_INSIGHT] from the origin city having fewer Citizens", amount > 0);
+				int insightAmount = (50 + iSquareRoot(diffPopulation)) / 100; // avoid insane via square root
+				if (diffPopulation <= diffCulture) insightAmount = 0;
+				if (diffPopulation <= 200) insightAmount = 0;
+				{						
+						appendNewLine(tooltip, &yieldChange, +insightAmount, "[ICON_SCIENTIFIC_INSIGHT] from the origin city having fewer Citizens", insightAmount > 0);
 				}
-			}
-			//if (eYieldType == YIELD_GOLD && hasMint)
-			//	yieldChange += 2;
-			//if (eYieldType == YIELD_GOLD && hasBrewery)
-			//	yieldChange += 2;
-
-			//if (eYieldType == YIELD_CULTURE && hasCenserMaker)
-			//	yieldChange += 1;
-			//if (eYieldType == YIELD_CULTURE && hasGemcutter)
-			//	yieldChange += 1;
-			//if (eYieldType == YIELD_PRODUCTION && hasOilRefinery)
-			//	yieldChange += 3;
-			//if (eYieldType == YIELD_GOLD && hasHimeji)
-			//	yieldChange += (numCommercePolicies + numHonorPolicies) * 2;
-			//if (eYieldType == YIELD_DIPLOMATIC_SUPPORT && hasHimeji)
-			//	yieldChange += (numCommercePolicies + numHonorPolicies);
-			//if (eYieldType == YIELD_PRODUCTION && hasShipyard)
-			//	yieldChange += 2;
-
-			//if (eYieldType == YIELD_GOLD)
-			//	yieldChange += (numCommercePolicies * 3);
+				appendNewLine(tooltip, &yieldChange, +2, "[ICON_SCIENTIFIC_INSIGHT] from Free Thought", (hasFreeThought && insightAmount > 0));
+				appendNewLineOnly(tooltip);
+			}			
 		}
 	}
 	break;
