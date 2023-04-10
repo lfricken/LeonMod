@@ -552,14 +552,14 @@ int CvPlot::getExtraYield
 					yieldChange += 1;
 			}
 
-			{// CIVILIZATION_IROQUOIS - 2G 1 C from Lakes After Trappingislake
+			{// CIVILIZATION_IROQUOIS -1 C from Lakes etc After Trapping
 				const bool isLake = plot.isLake();
+				const bool isDeer = plot.HasResource(RESOURCE_DEER);
+				const bool isBison = plot.HasResource(RESOURCE_BISON);
 				const bool isAmerica = player.IsCiv(CIVILIZATION_IROQUOIS);
 				const bool hasTrapping = player.HasTech(TECH_TRAPPING);
-				if (eYieldType == YIELD_CULTURE && hasTrapping && isAmerica && isLake)
-					yieldChange += 1;
-				if (eYieldType == YIELD_GOLD && hasTrapping && isAmerica && isLake)
-					yieldChange += 1;
+				if (eYieldType == YIELD_CULTURE && hasTrapping && isAmerica && (isLake || isDeer || isBison))
+					yieldChange += 1;				
 			}
 
 			{// CIVILIZATION_PRUSSIA - 2G from Luxuries
