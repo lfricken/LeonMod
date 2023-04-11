@@ -214,8 +214,8 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 				appendNewLine(tooltip, &yieldChange, +1, "[ICON_FOOD] from the Brewery", (hasBrewery && !toBrewery) || (!hasBrewery && toBrewery));
 				appendNewLine(tooltip, &yieldChange, +1, "[ICON_FOOD] from the Grain Elevator", (hasGrainElevator && !toGrainElevator) || (!hasGrainElevator && toGrainElevator));
 				appendNewLine(tooltip, &yieldChange, +1, "[ICON_FOOD] from the Stockyards", (hasStockyards && !toStockyards) || (!hasStockyards && toStockyards));
-				appendNewLine(tooltip, &yieldChange, +1, "[ICON_FOOD] from Civil Service", hasCivilService);
-				appendNewLine(tooltip, &yieldChange, +1, "[ICON_FOOD] from Refrigeration", hasRefrigeration);
+				appendNewLine(tooltip, &yieldChange, +1, "[ICON_FOOD] from Civil Service Technology", hasCivilService);
+				appendNewLine(tooltip, &yieldChange, +1, "[ICON_FOOD] from Refrigeration Technology", hasRefrigeration);
 				appendNewLineOnly(tooltip);
 			}			
 			
@@ -232,10 +232,10 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 				if (diffMountains <= diffWater)  faithAmount = 0; // one or the other boosted, not both
 				if (diffMountains <= 200) faithAmount = 0; // 3 minimum differential
 						{
-							appendNewLine(tooltip, &yieldChange, +faithAmount +numEastIndia +numOttomon, "[ICON_FAITH] from our city having more Mountains (x2) and Hills", faithAmount > 0);
+							appendNewLine(tooltip, &yieldChange, +faithAmount +numEastIndia +numOttomon, "[ICON_FAITH] from our City having more Mountains (x2) and Hills", faithAmount > 0);
 						}				
 
-				appendNewLine(tooltip, &yieldChange, +3, "[ICON_FAITH] from {TXT_KEY_POLICY_THEOCRACY}", (hasTheocrary && faithAmount > 0));
+				appendNewLine(tooltip, &yieldChange, +3, "[ICON_FAITH] from {TXT_KEY_POLICY_THEOCRACY} Policy", (hasTheocrary && faithAmount > 0));
 				appendNewLineOnly(tooltip);
 			}
 			if (eYieldType == YIELD_GOLDEN)
@@ -244,10 +244,10 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 				if (diffWater <= diffMountains) goldenAmount = 0; // one or the other boosted, not both				
 				if (diffWater <= 200) goldenAmount = 0; // 3 minimum differential
 							{
-								appendNewLine(tooltip, &yieldChange, +goldenAmount +numEastIndia +numOttomon, "[ICON_GOLDEN] from our city having more Water", goldenAmount > 0);
+								appendNewLine(tooltip, &yieldChange, +goldenAmount +numEastIndia +numOttomon, "[ICON_GOLDEN] from our City having more Water", goldenAmount > 0);
 							}			
 
-				appendNewLine(tooltip, &yieldChange, +3, "[ICON_GOLDEN] from {TXT_KEY_POLICY_LEGALISM}", (hasJustice && goldenAmount > 0));
+				appendNewLine(tooltip, &yieldChange, +3, "[ICON_GOLDEN] from {TXT_KEY_POLICY_LEGALISM} Policy", (hasJustice && goldenAmount > 0));
 				appendNewLineOnly(tooltip);
 			}			
 		}
@@ -270,8 +270,8 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 				appendNewLine(tooltip, &yieldChange, +1, "[ICON_PRODUCTION] from the Factory", (hasFactory && !toFactory) || (!hasFactory && toFactory));
 				appendNewLine(tooltip, &yieldChange, +1, "[ICON_PRODUCTION] from the Textile Mill", (hasTextileMill && !toTextileMill) || (!hasTextileMill && toTextileMill));
 				appendNewLine(tooltip, &yieldChange, +1, "[ICON_PRODUCTION] from the Shipyard", (hasShipyard && !toShipyard) || (!hasShipyard && toShipyard));
-				appendNewLine(tooltip, &yieldChange, +1, "[ICON_PRODUCTION] from Metal Casting", hasMetalCasting);
-				appendNewLine(tooltip, &yieldChange, +1, "[ICON_PRODUCTION] from Combustion", hasCombustion);
+				appendNewLine(tooltip, &yieldChange, +1, "[ICON_PRODUCTION] from Metal Casting Technology", hasMetalCasting);
+				appendNewLine(tooltip, &yieldChange, +1, "[ICON_PRODUCTION] from Combustion Technology", hasCombustion);
 				appendNewLine(tooltip, &yieldChange, +commerceBonus, "[ICON_PRODUCTION] from Commerce Policies", commerceBonus > 0);
 				appendNewLineOnly(tooltip);
 			}			
@@ -291,7 +291,7 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 				{					
 					appendNewLine(tooltip, &yieldChange, +cultureAmount +numEastIndia +numOttomon, "[ICON_CULTURE] from our city having more Culture", cultureAmount > 0);
 				}
-				appendNewLine(tooltip, &yieldChange, +2, "[ICON_CULTURE] from Collective Rule", (hasCollectiveRule && cultureAmount > 0));
+				appendNewLine(tooltip, &yieldChange, +2, "[ICON_CULTURE] from Collective Rule Policy", (hasCollectiveRule && cultureAmount > 0));
 				appendNewLine(tooltip, &yieldChange, +1, "[ICON_CULTURE] from Gemcutter", (hasGemcutter && !toGemcutter) || (!hasGemcutter && toGemcutter));
 				appendNewLine(tooltip, &yieldChange, +1, "[ICON_CULTURE] from Censer Maker", (hasCenserMaker && !toCenserMaker) || (!toCenserMaker && toCenserMaker));
 				appendNewLineOnly(tooltip);
@@ -350,13 +350,14 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 	{
 		if (isPrimaryYielder) // only the origin city of the trade route gets these benefits
 		{			
-			const int caravansaryNum = 2 + (2 * (toCaravansary));
-			const int marketNum = 2 + (2 * (toMarket + toMint + toBrewery));
-			const int mintNum = 2 + (2 * (toMarket + toMint + toBrewery));
-			const int breweryNum = 2 + (2 * (toMarket + toMint + toBrewery));
-			const int bankNum = 2 + (2 * (toBank + toSeaport));
-			const int seaportNum = 2 + (2 * (toBank + toSeaport));
-			const int stockExchangeNum = 2 + (2 * (toStockExchange));
+			const int caravansaryNum = 1 + (2 * (toCaravansary));
+			const int marketNum = 1 + (2 * (toMarket + toMint + toBrewery));
+			const int mintNum = 1 + (2 * (toMarket + toMint + toBrewery));
+			const int breweryNum = 1 + (2 * (toMarket + toMint + toBrewery));
+			const int bankNum = 1 + (2 * (toBank + toSeaport));
+			const int seaportNum = 1 + (2 * (toBank + toSeaport));
+			const int stockExchangeNum = 1+ (2 * (toStockExchange));
+			int rangeBonus = (tradeDistance / 8);
 			int explorationRangeBonus = (numExplorationPolicies * (tradeDistance/ 8));
 			
 
@@ -366,14 +367,15 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 				// appendNewLine(tooltip, &yieldChange, +gold, "[ICON_GOLD] from 10 + Percent Game Done", true);
 
 				appendNewLine(tooltip, &yieldChange, 5 + numEgypt, "[ICON_GOLD] Base", true);
+				appendNewLine(tooltip, &yieldChange, +rangeBonus, "[ICON_GOLD] from every 8 Tiles Range Bonus", rangeBonus > 0);
+				appendNewLine(tooltip, &yieldChange, +explorationRangeBonus, "[ICON_GOLD] from Exploration Policy", explorationRangeBonus > 0);
 				appendNewLine(tooltip, &yieldChange, +caravansaryNum, "[ICON_GOLD] from Caravansary", hasCaravansary);
 				appendNewLine(tooltip, &yieldChange, +marketNum, "[ICON_GOLD] from Market", hasMarket);
 				appendNewLine(tooltip, &yieldChange, +mintNum, "[ICON_GOLD] from Mint", hasMint);
 				appendNewLine(tooltip, &yieldChange, +breweryNum, "[ICON_GOLD] from Brewery", hasBrewery);
 				appendNewLine(tooltip, &yieldChange, +bankNum, "[ICON_GOLD] from Bank", hasBank);
 				appendNewLine(tooltip, &yieldChange, +seaportNum, "[ICON_GOLD] from Seaport", hasSeaport);
-				appendNewLine(tooltip, &yieldChange, +stockExchangeNum, "[ICON_GOLD] from Stock Exchange", hasStockExchange);
-				appendNewLine(tooltip, &yieldChange, +explorationRangeBonus, "[ICON_GOLD] from Stock Exchange", explorationRangeBonus > 0);
+				appendNewLine(tooltip, &yieldChange, +stockExchangeNum, "[ICON_GOLD] from Stock Exchange", hasStockExchange);				
 				appendNewLineOnly(tooltip);
 
 			}
@@ -385,9 +387,9 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 					int diffScience = max(0, (theirScience - ourScience)) / 2;
 					int amountScience = (50 + iSquareRoot(diffScience)) / 100; // avoid insane via square root
 				{	if (diffScience > 0) amountScience = max(1, amountScience);
-					appendNewLine(tooltip, &yieldChange, +amountScience +numEastIndia +numOttomon, "[ICON_RESEARCH] from our city having less Science", amountScience > 0);
+					appendNewLine(tooltip, &yieldChange, +amountScience +numEastIndia +numOttomon, "[ICON_RESEARCH] from our City having less Science", amountScience > 0);
 				}
-				appendNewLine(tooltip, &yieldChange, +8, "[ICON_RESEARCH] from Humanism", (hasHumanism&& amountScience > 0));
+				appendNewLine(tooltip, &yieldChange, +8, "[ICON_RESEARCH] from Humanism Policy", (hasHumanism&& amountScience > 0));
 				appendNewLineOnly(tooltip);
 			}			
 			if (eYieldType == YIELD_TOURISM)
@@ -398,7 +400,7 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 					int diffTourism = max(0, (ourTourism - theirTourism)) / 4;
 					int amountTourism = (50 + iSquareRoot(diffTourism)) / 100; // avoid insane via square root
 				{	if (diffTourism > 0) amountTourism = max(1, amountTourism);
-					appendNewLine(tooltip, &yieldChange, +amountTourism +numEastIndia +numOttomon, "[ICON_CULTURAL_INFLUENCE] from our city having more Culture", amountTourism > 0);
+					appendNewLine(tooltip, &yieldChange, +amountTourism +numEastIndia +numOttomon, "[ICON_CULTURAL_INFLUENCE] from our City having more Culture", amountTourism > 0);
 				}
 				appendNewLine(tooltip, &yieldChange, +3, "[ICON_CULTURAL_INFLUENCE] from 2 Aesthetics Policies", (hasAethetics2 && (amountTourism > 0)));
 			}
