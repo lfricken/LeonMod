@@ -512,6 +512,57 @@ int CvPlayerTrade::GetNumRoutesAllowed(TradeRouteClassType type) const
 		if (type == TRADEROUTECLASS_INTERNAL && hasIndustry4)
 			numAllowed += 1;
 	}
+	// Rites 
+	{
+		const bool hasMedeivalRite1 = player.HasPolicy(POLICY_CARD_MEDIEVAL_TRADE_INTERNAL_ACTIVE);
+		if (type == TRADEROUTECLASS_INTERNAL && hasMedeivalRite1)
+			numAllowed += 1;
+	}
+	{
+		const bool hasMedeivalRite2 = player.HasPolicy(POLICY_CARD_MEDIEVAL_TRADE_EXTERNAL_ACTIVE);
+		if (type == TRADEROUTECLASS_EXTERNAL && hasMedeivalRite2)
+			numAllowed += 1;
+	}
+	{
+		const bool hasRenassainceRite1 = player.HasPolicy(POLICY_CARD_RENAISSANCE_TRADE_INTERNAL_ACTIVE);
+		if (type == TRADEROUTECLASS_INTERNAL && hasRenassainceRite1)
+			numAllowed += 1;
+	}
+	{
+		const bool hasRenaissanceRite2 = player.HasPolicy(POLICY_CARD_RENAISSANCE_TRADE_EXTERNAL_ACTIVE);
+		if (type == TRADEROUTECLASS_EXTERNAL && hasRenaissanceRite2)
+			numAllowed += 1;
+	}
+	{
+		const bool hasIndustrialRite1 = player.HasPolicy(POLICY_CARD_INDUSTRIAL_TRADE_INTERNAL_ACTIVE);
+		if (type == TRADEROUTECLASS_INTERNAL && hasIndustrialRite1)
+			numAllowed += 1;
+	}
+	{
+		const bool hasIndustrialRite2 = player.HasPolicy(POLICY_CARD_INDUSTRIAL_TRADE_EXTERNAL_ACTIVE);
+		if (type == TRADEROUTECLASS_EXTERNAL && hasIndustrialRite2)
+			numAllowed += 1;
+	}
+	{
+		const bool hasModernRite1 = player.HasPolicy(POLICY_CARD_MODERN_TRADE_INTERNAL_ACTIVE);
+		if (type == TRADEROUTECLASS_INTERNAL && hasModernRite1)
+			numAllowed += 1;
+	}
+	{
+		const bool hasModernRite2 = player.HasPolicy(POLICY_CARD_MODERN_TRADE_EXTERNAL_ACTIVE);
+		if (type == TRADEROUTECLASS_EXTERNAL && hasModernRite2)
+			numAllowed += 1;
+	}
+	{
+		const bool hasAtomicRite1 = player.HasPolicy(POLICY_CARD_ATOMIC_TRADE_INTERNAL_ACTIVE);
+		if (type == TRADEROUTECLASS_INTERNAL && hasAtomicRite1)
+			numAllowed += 1;
+	}
+	{
+		const bool hasAtomicRite2 = player.HasPolicy(POLICY_CARD_ATOMIC_TRADE_EXTERNAL_ACTIVE);
+		if (type == TRADEROUTECLASS_EXTERNAL && hasAtomicRite2)
+			numAllowed += 1;
+	}
 	// Civ Rome Unique Building gets +1 additional
 	{
 		const bool hasGrandCanal = player.HasWonder(BUILDINGCLASS_NATIONAL_TREASURY);
