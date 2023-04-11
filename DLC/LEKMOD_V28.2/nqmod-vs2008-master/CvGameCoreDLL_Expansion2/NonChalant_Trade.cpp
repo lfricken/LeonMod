@@ -357,8 +357,7 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 			const int bankNum = 1 + (2 * (toBank + toSeaport));
 			const int seaportNum = 1 + (2 * (toBank + toSeaport));
 			const int stockExchangeNum = 1+ (2 * (toStockExchange));
-			int rangeBonus = (tradeDistance / 8);
-			int explorationRangeBonus = (numExplorationPolicies * (tradeDistance/ 8));
+			int rangeBonus = (tradeDistance / (8 - numExplorationPolicies));		
 			
 
 			if (eYieldType == YIELD_GOLD)
@@ -367,8 +366,7 @@ int CvPlayerTrade::GetTradeConnectionValueExtra(const TradeConnection& kTradeCon
 				// appendNewLine(tooltip, &yieldChange, +gold, "[ICON_GOLD] from 10 + Percent Game Done", true);
 
 				appendNewLine(tooltip, &yieldChange, 5 + numEgypt, "[ICON_GOLD] Base", true);
-				appendNewLine(tooltip, &yieldChange, +rangeBonus, "[ICON_GOLD] from every 8 Tiles Range Bonus", rangeBonus > 0);
-				appendNewLine(tooltip, &yieldChange, +explorationRangeBonus, "[ICON_GOLD] from Exploration Policy", explorationRangeBonus > 0);
+				appendNewLine(tooltip, &yieldChange, +rangeBonus, "[ICON_GOLD] from every (8 - Exploration Policies) Tiles Traveresed", rangeBonus > 0);				
 				appendNewLine(tooltip, &yieldChange, +caravansaryNum, "[ICON_GOLD] from Caravansary", hasCaravansary);
 				appendNewLine(tooltip, &yieldChange, +marketNum, "[ICON_GOLD] from Market", hasMarket);
 				appendNewLine(tooltip, &yieldChange, +mintNum, "[ICON_GOLD] from Mint", hasMint);
