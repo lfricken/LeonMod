@@ -76,8 +76,14 @@ function ANC_LandAndSea(this)
 
 	-- randomly throw some islands
 	for i, plot in ANC_Plots() do
-		if (not this.plotIsLocked[i] and this.plotTypes[i] == PlotTypes.PLOT_OCEAN and (Map.Rand(1000, "RandIsland") < 6)) then
+		if (not this.plotIsLocked[i] and this.plotTypes[i] == PlotTypes.PLOT_OCEAN and (Map.Rand(1000, "RandIsland") < 8)) then
 			this.plotTypes[i] = PlotTypes.PLOT_LAND;
+			-- make each island 7 tiles
+			local xy = GetXy(i, this.maxX);
+			local islandIdxs = GetIndexesAround(xy[1], xy[2], this.maxX, this.maxY, 0, 1);
+			for k,plotIdx in pairs(islandIdxs) do
+				this.plotTypes[plotIdx] = PlotTypes.PLOT_LAND;
+			end
 		end
 	end
 
