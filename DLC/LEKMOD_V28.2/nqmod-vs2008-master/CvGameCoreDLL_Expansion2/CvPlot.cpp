@@ -316,6 +316,22 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
 	m_sBuilderAIScratchPadValue = 0;
 	m_eBuilderAIScratchPadRoute = NO_ROUTE;
 
+	m_extraYields.clear();
+	for (int iI = 0; iI < NUM_YIELD_TYPES; ++iI)
+		m_extraYields.push_back(0); // all 0
+
+	if (iX != 0 && iY != 0)
+	{
+		const int willPlotGetBoosted = GC.getGame().getJonRandUnsafe().get(100, CvRandom::MutateSeed, "plot rand yield");
+		if (willPlotGetBoosted < 40) // % chance
+		{
+			const int numTypesOfYields = GC.getGame().m_allowedYieldBonuses.size();
+			const int randYield = GC.getGame().getJonRandUnsafe().get(numTypesOfYields, CvRandom::MutateSeed, "plot extra yield");
+			const int yieldType = GC.getGame().m_allowedYieldBonuses[randYield];
+			m_extraYields[yieldType] = 1;
+		}
+	}
+
 	m_plotCity.reset();
 	m_workingCity.reset();
 	m_workingCityOverride.reset();
@@ -10691,6 +10707,7 @@ void CvPlot::read(FDataStream& kStream)
 	kStream >> m_eBuilderAIScratchPadRoute;
 	kStream >> m_iLandmass;
 	kStream >> m_uiTradeRouteBitFlags;
+	kStream >> m_extraYields;
 
 	// the following members specify bit packing and do not resolve to
 	// any serializable type.
@@ -10915,6 +10932,7 @@ void CvPlot::write(FDataStream& kStream) const
 	kStream << m_eBuilderAIScratchPadRoute;
 	kStream << m_iLandmass;
 	kStream << m_uiTradeRouteBitFlags;
+	kStream << m_extraYields;
 
 	kStream << m_bStartingPlot;
 	kStream << m_bHills;

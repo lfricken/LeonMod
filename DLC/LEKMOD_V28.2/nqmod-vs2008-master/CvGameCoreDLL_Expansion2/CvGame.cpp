@@ -295,8 +295,27 @@ void CvGame::init(HandicapTypes eHandicap)
 	randomPolicyRebateT100.clear();
 	for (int i = 0; i < numPolicies; ++i)
 	{
-		int rand = GC.rand(GC.getPOLICY_REBATE_VARIATION_T100() * 2, "policy cost", NULL, (i + 57) * 5333);
+		// 1 should yield [-1, 0, 1]
+		int rand = GC.rand(GC.getPOLICY_REBATE_VARIATION_T100() * 2 + 1, "policy cost", NULL, (i + 57) * 5333);
 		randomPolicyRebateT100.push_back(rand);
+	}
+
+	int count = 0;
+	const int numTypesOfYields = 3; // also see in CvPlot.cpp
+	const int maxYieldTypeInclusive = YIELD_FAITH;
+	m_allowedYieldBonuses.clear();
+	while (m_allowedYieldBonuses.size() < numTypesOfYields)
+	{
+		count++;
+		const int randYield = GC.getGame().getJonRandUnsafe().get(maxYieldTypeInclusive + 1, CvRandom::MutateSeed, "plot allowed yield");
+
+		bool alreadyContains = false;
+		for (int i = 0; i < (int)m_allowedYieldBonuses.size(); ++i)
+			alreadyContains |= m_allowedYieldBonuses[i] == randYield;
+
+		if (!alreadyContains &&
+			randYield != YIELD_CULTURE)
+			m_allowedYieldBonuses.push_back(randYield);
 	}
 
 	if(isOption(GAMEOPTION_LOCK_MODS))
@@ -1304,6 +1323,11 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 
 
 	m_eHandicap = eHandicap;
+
+	if (bConstructorCall)
+	{
+
+	}
 
 	if(!bConstructorCall)
 	{
@@ -9970,7 +9994,7 @@ void CvGame::testVictory()
 			for (iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
 				maxPoints += GET_TEAM((TeamTypes)iTeamLoop).GetScore();
 
-			const int rand = 1 + GC.rand(maxPoints - 1, "winner"); // range [1, maxPoints]
+			const int rand = 1 + GC.rand(maxPoints + 1, "winner"); // range [1, maxPoints]
 			int sumPoints = 0;
 			for (iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
 			{
@@ -10047,7 +10071,7 @@ CvRandom& CvGame::getJonRandUnsafe()
 //	--------------------------------------------------------------------------------
 /// Get a synchronous random number in the range of 0...iNum-1
 /// Allows for logging.
-int CvGame::getJonRandNum(unsigned short usMaxExclusive, const char*, const CvPlot* plot, const unsigned long other) const
+int CvGame::getJonRandNum(unsigned short usMaxExclusive, const char* pszLog, const CvPlot* plot, const unsigned long other) const
 {
 	int x = 1;
 	int y = 1;
@@ -10056,14 +10080,14 @@ int CvGame::getJonRandNum(unsigned short usMaxExclusive, const char*, const CvPl
 		x = plot->getX();
 		y = plot->getY();
 	}
-	return m_jonRand.getSafe(usMaxExclusive, GC.getFakeSeed(x, y, ((unsigned short)15139 * (unsigned short)other) + (unsigned short)usMaxExclusive));
+	return m_jonRand.getSafe(usMaxExclusive, GC.getFakeSeed(x, y, ((unsigned short)15139 * (unsigned short)other) + (unsigned short)usMaxExclusive), pszLog);
 }
 
-int CvGame::getJonRandNumExtraSafe(unsigned short usMaxExclusive, const char*, const unsigned long other) const
+int CvGame::getJonRandNumExtraSafe(unsigned short usMaxExclusive, const char* pszLog, const unsigned long other) const
 {
 	int x = 1;
 	int y = 1;
-	return m_jonRand.getSafe(usMaxExclusive, GC.getFakeSeed(x, y, ((unsigned short)15139 * (unsigned short)other) + (unsigned short)usMaxExclusive));
+	return m_jonRand.getSafe(usMaxExclusive, GC.getFakeSeed(x, y, ((unsigned short)15139 * (unsigned short)other) + (unsigned short)usMaxExclusive), pszLog);
 }
 
 #ifdef AUI_BINOM_RNG

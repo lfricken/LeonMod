@@ -1003,6 +1003,7 @@ protected:
 #endif
 
 	uint m_uiTradeRouteBitFlags;
+	std::vector<int> m_extraYields;
 
 
 	FAutoArchiveClassContainer<CvPlot> m_syncArchive; // this must appear before the first auto variable in the class

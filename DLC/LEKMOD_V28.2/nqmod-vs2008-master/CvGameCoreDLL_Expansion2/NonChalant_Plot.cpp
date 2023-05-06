@@ -47,11 +47,35 @@ int CvPlot::getExtraYield
 )
 {
 	int yieldChange = 0;
-	if (tileOwner == NO_PLAYER)
-		return 0;
+
+	yieldChange += m_extraYields[eYieldType];
 
 
 	const CvPlot& plot = *this;
+	// true if this tile has any atoll on it
+	const bool hasAnyAtoll = plot.HasAnyAtoll();
+
+	// does not depend on player` 
+
+	{ // don't stack lake and atoll yields
+		if (plot.isLake())
+		{
+			if (eYieldType == YIELD_FOOD) // glitch with 4 food? not sure why
+				yieldChange -= 1;
+			if (hasAnyAtoll)
+			{
+				// remove whatever the lake would have given
+				const CvYieldInfo& kYield = *GC.getYieldInfo(eYieldType);
+				yieldChange -= kYield.getLakeChange();
+			}
+		}
+	}
+
+
+	if (tileOwner == NO_PLAYER)
+		return yieldChange;
+
+
 	// city that is/could work this tile
 	const CvCity* pWorkingCity = plot.getWorkingCity();
 	// true if a is/could work this tile
@@ -64,8 +88,6 @@ int CvPlot::getExtraYield
 	const bool hasAnyImprovement = eImprovement != NO_IMPROVEMENT;
 	// true if this is the actual city tile (not just a surrounding tile)
 	const bool isCityCenter = plot.getPlotCity() != NULL;
-	// true if this tile has any atoll on it
-	const bool hasAnyAtoll = plot.HasAnyAtoll();
 	const CvImprovementEntry* pImprovement = NULL;
 	string improvementName = ""; // <ImprovementType>
 	if (hasAnyImprovement)
@@ -1018,17 +1040,6 @@ int CvPlot::getExtraYield
 			}
 			
 
-		}
-	}
-
-	// does not depend on player` 
-
-	{ // don't stack lake and atoll yields
-		if (plot.isLake() && hasAnyAtoll)
-		{
-			// remove whatever the lake would have given
-			const CvYieldInfo& kYield = *GC.getYieldInfo(eYieldType);
-			yieldChange -= kYield.getLakeChange();
 		}
 	}
 
