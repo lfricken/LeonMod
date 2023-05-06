@@ -425,8 +425,8 @@ bool compareEntries(const CvCompetitionEntry& lhs, const CvCompetitionEntry& rhs
 		seed += 98615 * lhs.iScore;
 		seed += 321891373 * lhs.ePlayer;
 		seed += 96429789 * rhs.ePlayer;
-		int randomTieResolution = GC.rand(1, "Competition Tie Resolution", NULL, seed);
-		return (bool)randomTieResolution;
+		int randomTieResolution = GC.rand(100, "Competition Tie Resolution", NULL, seed);
+		return (randomTieResolution < 50);
 	}
 	else // higher values go earlier in the array
 		return lhs.iScore > rhs.iScore;

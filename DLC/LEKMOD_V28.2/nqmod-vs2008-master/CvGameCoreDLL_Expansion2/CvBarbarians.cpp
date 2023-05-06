@@ -102,7 +102,7 @@ bool CvBarbarians::ShouldSpawnBarbFromCamp(CvPlot * pPlot)
 	const int percentOddsOfCampSpawningUnit = 33;
 	// randomly don't spawn a unit here
 	const int randSeed = GC.getGame().getGameTurn() * 49 + pPlot->getX() * 174 + pPlot->getY() * 335;
-	if (GC.rand(99, "", pPlot, randSeed) < percentOddsOfCampSpawningUnit)
+	if (GC.rand(100, "", pPlot, randSeed) < percentOddsOfCampSpawningUnit)
 	{
 		return false;
 	}

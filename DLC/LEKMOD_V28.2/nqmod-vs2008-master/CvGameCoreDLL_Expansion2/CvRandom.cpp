@@ -94,7 +94,7 @@ void CvRandom::reset(unsigned long ulSeed)
 	m_ulRandomSeed = ulSeed;
 	m_ulResetCount++;
 }
-
+// returns in range [0, maxExclusive
 unsigned short rngFromSeed(unsigned short usMaxExclusive, unsigned long seed)
 {
 	// do this 3 times, otherwise slight changes in seed seem to
@@ -104,11 +104,6 @@ unsigned short rngFromSeed(unsigned short usMaxExclusive, unsigned long seed)
 	seed = (RANDOM_A * seed) + RANDOM_C;
 	unsigned short us = ((unsigned short)((((seed >> RANDOM_SHIFT) & MAX_UNSIGNED_SHORT) * ((unsigned long)usMaxExclusive)) / (MAX_UNSIGNED_SHORT + 1)));
 	return us;
-}
-
-unsigned short CvRandom::getSafe(unsigned short usMaxExclusive, const unsigned long extraSeed) const
-{
-	return rngFromSeed(usMaxExclusive, m_ulRandomSeed + extraSeed);
 }
 
 void log(unsigned short usMaxExclusive, unsigned short newVal, unsigned long seed, const bool isSync, const char* pszLog)
@@ -134,7 +129,12 @@ void log(unsigned short usMaxExclusive, unsigned short newVal, unsigned long see
 	}
 }
 
-
+unsigned short CvRandom::getSafe(unsigned short usMaxExclusive, const unsigned long extraSeed, const char* pszLog) const
+{
+	short val = rngFromSeed(usMaxExclusive, m_ulRandomSeed + extraSeed);
+	log(usMaxExclusive, val, extraSeed, false, pszLog);
+	return val;
+}
 
 unsigned short CvRandom::get(unsigned short usMaxExclusive, const unsigned long extraSeed, const char* pszLog)
 {

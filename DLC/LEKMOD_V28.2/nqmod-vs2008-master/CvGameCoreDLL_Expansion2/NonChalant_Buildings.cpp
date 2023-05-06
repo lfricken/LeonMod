@@ -950,7 +950,7 @@ int CvPlayer::getSpecialistYieldHardcoded(const CvCity* pCity, const SpecialistT
 	int change = 0;
 	const CvPlayer& player = *this;
 
-	const bool isUnemployed = eSpecialist == 0;
+	//const bool isUnemployed = eSpecialist == 0;
 	const bool isWriter = eSpecialist == 1;
 	const bool isArtist = eSpecialist == 2;
 	const bool isMusician = eSpecialist == 3;

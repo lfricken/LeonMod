@@ -4746,7 +4746,7 @@ void CvPlayer::DoTurnResources()
 		if (resourceInfo != NULL)
 		{
 			const int grossGain = resourceVariation * getNumResourceGross(e);
-			const int roll = GC.rand(max(0, resourceVariation - 1), "rand resource gen", NULL, (i * 23509) + randSeed);
+			const int roll = GC.rand(max(0, resourceVariation), "rand resource gen", NULL, (i * 23509) + randSeed);
 			if (roll == 0)
 			{
 				const bool consideredCumulative = resourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC;

@@ -2572,9 +2572,9 @@ int CvGlobals::ceilDiv(int numerator, int denominator) const
 {
 	return (((100 * numerator) / denominator) + 99) / 100;
 }
-int CvGlobals::rand(int maxInclusive, string log, const CvPlot* plot, const unsigned long other)
+int CvGlobals::rand(int maxExclusive, string log, const CvPlot* plot, const unsigned long other)
 {
-	return this->getGame().getJonRandNum(maxInclusive + 1, log.c_str(), plot, other);
+	return this->getGame().getJonRandNum(maxExclusive, log.c_str(), plot, other);
 }
 void CvGlobals::tooltipAdd(stringstream* pss, const YieldTypes eYield, const int iAmount, const bool includeText, const bool includeIcon)
 {

@@ -41,7 +41,7 @@ public:
 
 	// Will cause the random number generator to mutate.
 	static const unsigned long MutateSeed = 0;
-	unsigned short getSafe(unsigned short usNum, const unsigned long extraSeed) const;
+	unsigned short getSafe(unsigned short usNum, const unsigned long extraSeed, const char* pszLog = NULL) const;
 	unsigned short get(unsigned short usNum, unsigned long extraSeed, const char* pszLog = NULL);  //  Returns value from 0 to num-1 inclusive.
 
 #ifdef AUI_BINOM_RNG
