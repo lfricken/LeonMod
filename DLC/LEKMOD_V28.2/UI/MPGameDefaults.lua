@@ -9,7 +9,7 @@ function ResetMultiplayerOptions()
 	PreGame.SetCivilizationAdjective( 0, "");
 	
 		-- Default Map Size
-	local worldSize = GameInfo.Worlds["WORLDSIZE_SMALL"];
+	local worldSize = GameInfo.Worlds["WORLDSIZE_STANDARD"];
 	if(worldSize == nil) then
 		worldSize = GameInfo.Worlds()(); -- Get first world size found.
 	end
@@ -20,7 +20,7 @@ function ResetMultiplayerOptions()
 	-- Default Map Type
 	PreGame.SetLoadWBScenario(false);
 	PreGame.SetRandomMapScript(false);
-	local mapScript = GameInfo.MapScripts{FileName = "Assets\\Maps\\Continents.lua"}();
+	local mapScript = GameInfo.MapScripts{FileName = "Assets\\Maps\\ANC_AnyIslands.lua"}();
 	if(mapScript ~= nil) then
 		PreGame.SetMapScript(mapScript.FileName);
 	else
@@ -32,7 +32,7 @@ function ResetMultiplayerOptions()
 	end
 
 	-- Default Game Pace
-	PreGame.SetGameSpeed(3);
+	PreGame.SetGameSpeed(4); -- 4 is online
 
 	-- Default Start Era
 	PreGame.SetEra(0);
@@ -42,14 +42,17 @@ function ResetMultiplayerOptions()
 
 	PreGame.ResetGameOptions();
 	PreGame.ResetMapOptions();
+
+	PreGame.SetPrivateGame(true);
+	PreGame.SetPitbossTurnTime( "300" );
 	
 	-- Default Game Options
 	if (PreGame.IsHotSeatGame()) then
 		PreGame.SetGameOption("GAMEOPTION_DYNAMIC_TURNS", false);
 		PreGame.SetGameOption("GAMEOPTION_SIMULTANEOUS_TURNS", false);
 	else
-		PreGame.SetGameOption("GAMEOPTION_DYNAMIC_TURNS", true);
-		PreGame.SetGameOption("GAMEOPTION_SIMULTANEOUS_TURNS", false);
+		PreGame.SetGameOption("GAMEOPTION_DYNAMIC_TURNS", false);
+		PreGame.SetGameOption("GAMEOPTION_SIMULTANEOUS_TURNS", true);
 	end
 end
 
