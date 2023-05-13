@@ -323,7 +323,7 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
 	if (iX != 0 && iY != 0)
 	{
 		const int willPlotGetBoosted = GC.getGame().getJonRandUnsafe().get(100, CvRandom::MutateSeed, "plot rand yield");
-		if (willPlotGetBoosted < 40) // % chance
+		if (willPlotGetBoosted < GC.getPLOT_YIELD_VARIATION_T100()) // % chance
 		{
 			const int numTypesOfYields = GC.getGame().m_allowedYieldBonuses.size();
 			const int randYield = GC.getGame().getJonRandUnsafe().get(numTypesOfYields, CvRandom::MutateSeed, "plot extra yield");

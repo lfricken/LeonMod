@@ -1012,6 +1012,10 @@ public:
 	int getTOURISM_CITY_CAPITAL_ADJUST() const;
 	// how much can policy cost vary per policy
 	T100 getPOLICY_REBATE_VARIATION_T100() const;
+	// how much can buildings vary in cost?
+	T100 getBUILDING_COST_VARIATION_T100() const;
+	// odds that a plot gets boosted
+	T100 getPLOT_YIELD_VARIATION_T100() const;
 	// How much future policies cost once you have enough to get ideology
 	T100 getPOLICY_MOD_LATE_GAME() const;
 	// how much stuff the great scientist gives
@@ -9769,6 +9773,8 @@ protected:
 	int m_iCOMBAT_CAPTURE_MAX_CHANCE;
 	int m_iCOMBAT_CAPTURE_RATIO_MULTIPLIER;
 	int m_iPOLICY_REBATE_VARIATION_T100;
+	int m_iBUILDING_COST_VARIATION_T100;
+	int m_iPLOT_YIELD_VARIATION_T100;
 
 	// -- flodats --
 

@@ -1576,8 +1576,7 @@ int CvPlayerTechs::GetResearchCostIncreasePercentT100() const
 	}
 	// NQMP GJS - new Dictatorship of the Proletariat i.e. Communism END
 
-	bool bIncludePuppets = (GC.getGame().isOption("GAMEOPTION_FAST_HAND"));
-	iMod = iMod * m_pPlayer->GetMaxEffectiveCities(bIncludePuppets);
+	iMod = iMod * m_pPlayer->GetMaxEffectiveCities(false);
 
 	return iMod;
 }

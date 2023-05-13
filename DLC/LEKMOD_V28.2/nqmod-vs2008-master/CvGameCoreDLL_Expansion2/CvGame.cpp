@@ -296,10 +296,11 @@ void CvGame::init(HandicapTypes eHandicap)
 	for (int i = 0; i < numPolicies; ++i)
 	{
 		// 1 should yield [-1, 0, 1]
-		int rand = GC.rand(GC.getPOLICY_REBATE_VARIATION_T100() * 2 + 1, "policy cost", NULL, (i + 57) * 5333);
+		const int rand = GC.getGame().getJonRandUnsafe().get((unsigned short)GC.getPOLICY_REBATE_VARIATION_T100() * 2 + 1, CvRandom::MutateSeed, "policy cost");
 		randomPolicyRebateT100.push_back(rand);
 	}
 
+	// random plot bonuses
 	int count = 0;
 	const int numTypesOfYields = 3; // also see in CvPlot.cpp
 	const int maxYieldTypeInclusive = YIELD_FAITH;
@@ -317,6 +318,22 @@ void CvGame::init(HandicapTypes eHandicap)
 			randYield != YIELD_CULTURE)
 			m_allowedYieldBonuses.push_back(randYield);
 	}
+
+	// random building costs
+	m_randomBuildingPercentages.clear();
+	for (int i = 0; i < (int)GC.getNumBuildingInfos(); ++i)
+	{
+		const CvBuildingEntry* info = GC.getBuildingInfo((BuildingTypes)i);
+		if (info)
+		{
+		}
+		// range [-var, +var]
+		m_randomBuildingPercentages.push_back(0);
+		const int randYield = GC.getGame().getJonRandUnsafe().get((unsigned short)GC.getBUILDING_COST_VARIATION_T100() * 2 + 1, CvRandom::MutateSeed, "build fluctuation") - GC.getBUILDING_COST_VARIATION_T100();
+		m_randomBuildingPercentages[i] = randYield;
+	}
+
+
 
 	if(isOption(GAMEOPTION_LOCK_MODS))
 	{
@@ -10548,6 +10565,10 @@ void CvGame::Read(FDataStream& kStream)
 	kStream >> m_voteSelections;
 	kStream >> m_votesTriggered;
 	kStream >> randomPolicyRebateT100;
+	kStream >> m_allowedYieldBonuses;
+	kStream >> m_randomBuildingPercentages;
+
+
 	kStream >> m_competitions;
 	kStream >> m_barbSpawnX;
 	kStream >> m_barbSpawnY;
@@ -10787,6 +10808,10 @@ void CvGame::Write(FDataStream& kStream) const
 	kStream << m_voteSelections;
 	kStream << m_votesTriggered;
 	kStream << randomPolicyRebateT100;
+	kStream << m_allowedYieldBonuses;
+	kStream << m_randomBuildingPercentages;
+
+
 	kStream << m_competitions;
 	kStream << m_barbSpawnX;
 	kStream << m_barbSpawnY;

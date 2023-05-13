@@ -9109,6 +9109,10 @@ int CvPlayer::getProductionNeeded(BuildingTypes eBuilding) const
 		iProductionNeeded /= 100;
 	}
 
+	// cost fluctuation
+	iProductionNeeded *= 100 + GC.getGame().m_randomBuildingPercentages[eBuilding];
+	iProductionNeeded /= 100;
+
 	return std::max(1, iProductionNeeded);
 }
 

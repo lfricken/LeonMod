@@ -620,8 +620,12 @@ public:
 	bool IsArchaeologyTriggered() const;
 	int GetNumArchaeologySites() const;
 	int GetNumHiddenArchaeologySites() const;
+	// idx > policy value
 	std::vector<int> randomPolicyRebateT100;
+	// idx > eg. YIELD_SCIENCE
 	std::vector<int> m_allowedYieldBonuses;
+	// idx > percentageT100 variation for each building
+	std::vector<int> m_randomBuildingPercentages;
 	
 #if defined (CAN_PARADROP_HALF_TIMER) || defined (CAN_SET_INTERCEPT_HALF_TIMER)
 	FTimer  m_endTurnTimer;
