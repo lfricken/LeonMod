@@ -2187,7 +2187,7 @@ void CvEconomicAI::DisbandExtraWorkers()
 	bool bInDeficit = m_pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney);
 
 	int iGoldSpentOnUnits = m_pPlayer->GetTreasury()->GetExpensePerTurnUnitMaintenance();
-	int iAverageGoldPerUnit = iGoldSpentOnUnits / (max(1,m_pPlayer->getNumUnits()));
+	int iAverageGoldPerUnit = iGoldSpentOnUnits / (max(1, m_pPlayer->getNumUnits()));
 
 	if(!bInDeficit && iAverageGoldPerUnit <= 4)
 	{
@@ -2200,7 +2200,7 @@ void CvEconomicAI::DisbandExtraWorkers()
 	int iNumWorkers = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_WORKER, true, false);
 	int iNumCities = m_pPlayer->getNumCities();
 
-	T100 fCurrentRatio = (iNumWorkers * 100) / iNumCities;
+	T100 fCurrentRatio = (iNumWorkers * 100) / max(1, iNumCities);
 	if(fCurrentRatio <= fWorstCaseRatio || iNumWorkers == 1)
 	{
 		return;
