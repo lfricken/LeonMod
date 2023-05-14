@@ -7396,7 +7396,16 @@ CvLeague* CvGameLeagues::GetActiveLeague()
 	return pLeague;
 #endif
 }
-
+bool CvGameLeagues::IsProjectComplete(LeagueProjectTypes prj) const
+{
+	for (int i = 0; i < m_vActiveLeagues.size(); ++i)
+	{
+		const CvLeague& league = m_vActiveLeagues[i];
+		if (league.IsProjectComplete(prj))
+			return true;
+	}
+	return false;
+}
 int CvGameLeagues::GenerateResolutionUniqueID()
 {
 	return ++m_iGeneratedIDCount;

@@ -1621,6 +1621,9 @@ enum LeagueNameTypes
 enum LeagueProjectTypes
 {
 	NO_LEAGUE_PROJECT = -1,
+	LEAGUE_PROJECT_INTERNATIONAL_SPACE_STATION,
+	LEAGUE_PROJECT_WORLD_FAIR,
+	LEAGUE_PROJECT_WORLD_GAMES,
 };
 
 enum LeagueProjectRewardTypes

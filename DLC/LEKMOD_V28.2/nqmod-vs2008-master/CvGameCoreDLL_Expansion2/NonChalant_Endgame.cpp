@@ -172,6 +172,18 @@ int HasConquestTrophy(TeamTypes eTeam)
 		return numCapitals * GC.getTROPHY_PER_CAPITAL();
 	return 0;
 }
+bool IsIssComplete()
+{
+	return GC.getGame().GetGameLeagues()->IsProjectComplete(LEAGUE_PROJECT_INTERNATIONAL_SPACE_STATION);
+}
+bool IsFairComplete()
+{
+	return GC.getGame().GetGameLeagues()->IsProjectComplete(LEAGUE_PROJECT_WORLD_FAIR);
+}
+bool IsGamesComplete()
+{
+	return GC.getGame().GetGameLeagues()->IsProjectComplete(LEAGUE_PROJECT_WORLD_GAMES);
+}
 int CvGame::GetTrophyPoints(string* tooltip) const
 {
 	int points = 0;
@@ -180,9 +192,27 @@ int CvGame::GetTrophyPoints(string* tooltip) const
 	{
 		ss = new stringstream();
 	}
+		// ;
 
 
-	delete ss;
+	if (ss)
+	{
+		*ss << "[NEWLINE]Global Sources:[NEWLINE]";
+	}
+	// space station
+	appendTrophyLine(ss, &points, "from the {TXT_KEY_LEAGUE_PROJECT_INTERNATIONAL_SPACE_STATION}", +2, IsIssComplete());
+	// world fair
+	appendTrophyLine(ss, &points, "from the {TXT_KEY_LEAGUE_PROJECT_WORLD_FAIR}", +1, IsFairComplete());
+	// world games
+	appendTrophyLine(ss, &points, "from the {TXT_KEY_LEAGUE_PROJECT_WORLD_GAMES}", +1, IsGamesComplete());
+
+
+
+	if (ss)
+	{
+		*tooltip += ss->str();
+		delete ss;
+	}
 	return points;
 }
 int CvTeam::GetTrophyPoints(string* tooltip) const
@@ -194,18 +224,21 @@ int CvTeam::GetTrophyPoints(string* tooltip) const
 		ss = new stringstream();
 	}
 
-	*ss << "The number of {VICTORY_POINTS} you have. Earn enough (an unknown amount) before the "
+	if (ss)
+	{
+		*ss << "The number of {TROPHYS} you have. Earn enough (an unknown amount) before the "
 			"game ends to achieve victory. Each player can win independently. Global sources of points benefit everyone.[NEWLINE]";
-	*ss << "[NEWLINE]";
+		*ss << "[NEWLINE]";
+	}
 
+	// conquest
+	appendTrophyLine(ss, &points, "from 1 per [ICON_CAPITAL] Capital controlled", HasConquestTrophy(GetID()), HasConquestTrophy(GetID()) > 0);
 	// scientific insight
 	appendTrophyLine(ss, &points, "from obtaining enough {SCIENTIFIC_INSIGHT}", GC.getTROPHY_PER_SCIENCE(), HasScientificTrophy(GetID()) > 0);
 	// diplomatic support
 	appendTrophyLine(ss, &points, "from earning enough {DIPLOMATIC_SUPPORT}", GC.getTROPHY_PER_DIPLOMATIC(), HasDiplomaticTrophy(GetID()) > 0);
 	// cultural influence
 	appendTrophyLine(ss, &points, "from exerting enough {CULTURAL_INFLUENCE}", GC.getTROPHY_PER_TOURISM(), HasTourismTrophy(GetID()) > 0);
-	// conquest
-	appendTrophyLine(ss, &points, "from 1 per [ICON_CAPITAL] Capital controlled", HasConquestTrophy(GetID()), HasConquestTrophy(GetID()) > 0);
 	// un election
 	appendTrophyLine(ss, &points, "from being elected [ICON_VICTORY_DIPLOMACY] World Leader", GC.getTROPHY_PER_UNITED_NATIONS(), HasUnitedNationsTrophy(GetID()) > 0);
 
@@ -213,8 +246,11 @@ int CvTeam::GetTrophyPoints(string* tooltip) const
 
 
 
-	*tooltip += ss->str();
-	delete ss;
+	if (ss)
+	{
+		*tooltip += ss->str();
+		delete ss;
+	}
 
 	// include globals in this team
 	points += GC.getGame().GetTrophyPoints(tooltip);

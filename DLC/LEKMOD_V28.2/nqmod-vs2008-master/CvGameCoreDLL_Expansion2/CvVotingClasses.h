@@ -727,6 +727,8 @@ public:
 	CvLeague* GetLeague(LeagueTypes eLeague);
 	CvLeague* GetActiveLeague();
 #endif
+	// has any league completed this
+	bool IsProjectComplete(LeagueProjectTypes prj) const;
 
 	int GenerateResolutionUniqueID();
 

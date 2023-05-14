@@ -124,7 +124,7 @@ function UpdateData()
 			-----------------------------
 			-- Update Trophys
 			-----------------------------
-			Controls.TrophysString:SetText(Locale.ConvertTextKey("[ICON_VICTORY_POINTS]" .. pPlayer:GetTopPanelTrophys()));
+			Controls.TrophysString:SetText(Locale.ConvertTextKey("[ICON_TROPHYS]" .. pPlayer:GetTopPanelTrophys()));
 			
 			-----------------------------
 			-- Update Golden Age Info
