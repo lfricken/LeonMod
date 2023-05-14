@@ -30,6 +30,11 @@
 #include "CvInfosSerializationHelper.h"
 #include "CvCityManager.h"
 
+const int chanceGameEndsAfterFutureTechIsDiscovered = 100;
+const int chanceGameEndsBeforeThat = 0;
+
+
+
 
 void addValue(stringstream& s, bool isGreen, const long value, const string description)
 {
@@ -83,6 +88,7 @@ int HasUnitedNationsTrophy(TeamTypes eTeam)
 	}
 	return 0;
 }
+// Has filled diplo track
 int HasDiplomaticTrophy(TeamTypes eTeam)
 {
 	int totalTeamPoints = 0;
@@ -147,6 +153,7 @@ int HasScientificTrophy(TeamTypes eTeam)
 		return GC.getTROPHY_PER_SCIENCE();
 	return 0;
 }
+// +1 per capital owned
 int HasConquestTrophy(TeamTypes eTeam)
 {
 	int numCapitals = 0;
@@ -178,21 +185,29 @@ int CvTeam::GetTrophyPoints(string* tooltip) const
 	delete pSs;
 	return points;
 }
+bool CvTeam::HasEnoughTrophysToWin() const
+{
+
+}
 
 
 
 int chanceGameEndsThisTurnT100()
 {
+	// TODO
+	// increase based on rockets launched
+	// increase if international space station
+
 	if (GC.getGame().GetIsTechDiscovered(80)) // TECH_FUTURE_TECH
 	{
-		return 100;
+		return chanceGameEndsAfterFutureTechIsDiscovered;
 	}
-	return 0;
+	return chanceGameEndsBeforeThat;
 }
 bool shouldGameEnd()
 {
 	int chance = chanceGameEndsThisTurnT100();
-	int roll = GC.rand(99, "", NULL, 1);
+	int roll = GC.rand(100, "", NULL, 1);
 	if (roll < chance)
 	{
 		return true;
@@ -231,8 +246,8 @@ void CvGame::doEndGame()
 		int trophies = GET_TEAM(eTeam).GetTrophyPoints(NULL);
 		scores.push_back(TeamScore(eTeam, trophies));
 	}
-	sort(scores.begin(), scores.end(), compare);
-	TeamTypes eWinner = scores[0].Team;
+	//sort(scores.begin(), scores.end(), compare);
+	//TeamTypes trueWinnerTeam = scores[0].Team;
 
 
 	showEndGameSequence();

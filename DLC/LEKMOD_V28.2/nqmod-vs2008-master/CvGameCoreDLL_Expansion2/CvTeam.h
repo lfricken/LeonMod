@@ -393,6 +393,7 @@ public:
 
 	// gets the nonchalant version of victory points
 	int GetTrophyPoints(string* tooltip) const;
+	bool HasEnoughTrophysToWin() const;
 
 
 	void verifySpyUnitsValidPlot();
