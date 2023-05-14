@@ -128,7 +128,7 @@ int HasTourismTrophy(TeamTypes eTeam)
 		return GC.getTROPHY_PER_TOURISM();
 	return 0;
 }
-int HasScientificTrophy(TeamTypes eTeam)
+bool HasScientificTrophy(TeamTypes eTeam)
 {
 	bool allHaveScience = true;
 	bool hasTeamMembers = false;
@@ -150,8 +150,8 @@ int HasScientificTrophy(TeamTypes eTeam)
 		}
 	}
 	if (hasTeamMembers && allHaveScience)
-		return GC.getTROPHY_PER_SCIENCE();
-	return 0;
+		return true;
+	return false;
 }
 // +1 per capital owned
 int HasConquestTrophy(TeamTypes eTeam)
@@ -172,22 +172,60 @@ int HasConquestTrophy(TeamTypes eTeam)
 		return numCapitals * GC.getTROPHY_PER_CAPITAL();
 	return 0;
 }
-int CvTeam::GetTrophyPoints(string* tooltip) const
+int CvGame::GetTrophyPoints(string* tooltip) const
 {
 	int points = 0;
-	stringstream* pSs = NULL;
+	stringstream* ss = NULL;
 	if (tooltip != NULL)
 	{
-		pSs = new stringstream();
+		ss = new stringstream();
 	}
 
 
-	delete pSs;
+	delete ss;
+	return points;
+}
+int CvTeam::GetTrophyPoints(string* tooltip) const
+{
+	int points = 0;
+	stringstream* ss = NULL;
+	if (tooltip != NULL)
+	{
+		ss = new stringstream();
+	}
+
+	*ss << "The number of {VICTORY_POINTS} you have. Earn enough (an unknown amount) before the "
+			"game ends to achieve victory. Each player can win independently. Global sources of points benefit everyone.[NEWLINE]";
+	*ss << "[NEWLINE]";
+
+	// scientific insight
+	appendTrophyLine(ss, &points, "from obtaining enough {SCIENTIFIC_INSIGHT}", GC.getTROPHY_PER_SCIENCE(), HasScientificTrophy(GetID()) > 0);
+	// diplomatic support
+	appendTrophyLine(ss, &points, "from earning enough {DIPLOMATIC_SUPPORT}", GC.getTROPHY_PER_DIPLOMATIC(), HasDiplomaticTrophy(GetID()) > 0);
+	// cultural influence
+	appendTrophyLine(ss, &points, "from exerting enough {CULTURAL_INFLUENCE}", GC.getTROPHY_PER_TOURISM(), HasTourismTrophy(GetID()) > 0);
+	// conquest
+	appendTrophyLine(ss, &points, "from 1 per [ICON_CAPITAL] Capital controlled", HasConquestTrophy(GetID()), HasConquestTrophy(GetID()) > 0);
+	// un election
+	appendTrophyLine(ss, &points, "from being elected [ICON_VICTORY_DIPLOMACY] World Leader", GC.getTROPHY_PER_UNITED_NATIONS(), HasUnitedNationsTrophy(GetID()) > 0);
+
+
+
+
+
+	*tooltip += ss->str();
+	delete ss;
+
+	// include globals in this team
+	points += GC.getGame().GetTrophyPoints(tooltip);
 	return points;
 }
 bool CvTeam::HasEnoughTrophysToWin() const
 {
+	const int teamTrophies = GetTrophyPoints(NULL);
 
+	// TODO dynamic points to win
+	return (teamTrophies) > 10;
 }
 
 
@@ -197,6 +235,7 @@ int chanceGameEndsThisTurnT100()
 	// TODO
 	// increase based on rockets launched
 	// increase if international space station
+	// instead should be based on some non tech stuff as well since last tech could be avoided via cheese
 
 	if (GC.getGame().GetIsTechDiscovered(80)) // TECH_FUTURE_TECH
 	{
@@ -207,6 +246,7 @@ int chanceGameEndsThisTurnT100()
 bool shouldGameEnd()
 {
 	int chance = chanceGameEndsThisTurnT100();
+	// TODO - better random seed
 	int roll = GC.rand(100, "", NULL, 1);
 	if (roll < chance)
 	{
@@ -220,32 +260,32 @@ struct TeamScore
 	TeamTypes Team;
 	int TrophyScore;
 };
-bool compare(const TeamScore& lhs, const TeamScore& rhs)
-{
-	// randomly determine a tie
-	if (lhs.TrophyScore == rhs.TrophyScore)
-	{
-		unsigned long seed = 0;
-		seed += 345621594 * lhs.TrophyScore;
-		seed += 98615 * lhs.Team;
-		seed += 321891373 * rhs.TrophyScore;
-		seed += 96429789 * rhs.Team;
-		int randomTieResolution = GC.rand(1, "Winner Tie Resolution", NULL, seed);
-		return (bool)randomTieResolution;
-	}
-	else // higher values go earlier in the array
-		return lhs.TrophyScore > rhs.TrophyScore;
-}
+//bool compare(const TeamScore& lhs, const TeamScore& rhs)
+//{
+//	// randomly determine a tie
+//	if (lhs.TrophyScore == rhs.TrophyScore)
+//	{
+//		unsigned long seed = 0;
+//		seed += 345621594 * lhs.TrophyScore;
+//		seed += 98615 * lhs.Team;
+//		seed += 321891373 * rhs.TrophyScore;
+//		seed += 96429789 * rhs.Team;
+//		int randomTieResolution = GC.rand(1, "Winner Tie Resolution", NULL, seed);
+//		return (bool)randomTieResolution;
+//	}
+//	else // higher values go earlier in the array
+//		return lhs.TrophyScore > rhs.TrophyScore;
+//}
 void CvGame::doEndGame()
 {
 	// find first place
-	std::vector<TeamScore> scores;
-	for (int i = 0; i < MAX_TEAMS; ++i)
-	{
-		TeamTypes eTeam = (TeamTypes)i;
-		int trophies = GET_TEAM(eTeam).GetTrophyPoints(NULL);
-		scores.push_back(TeamScore(eTeam, trophies));
-	}
+	//std::vector<TeamScore> scores;
+	//for (int i = 0; i < MAX_TEAMS; ++i)
+	//{
+	//	TeamTypes eTeam = (TeamTypes)i;
+	//	int trophies = GET_TEAM(eTeam).GetTrophyPoints(NULL);
+	//	scores.push_back(TeamScore(eTeam, trophies));
+	//}
 	//sort(scores.begin(), scores.end(), compare);
 	//TeamTypes trueWinnerTeam = scores[0].Team;
 
@@ -258,7 +298,7 @@ void CvGame::doEndGame()
 void CvGame::checkIfGameShouldEnd()
 {
 	updateScore();
-	bool hasGameAlreadyEnded = false; // TODO
+	bool hasGameAlreadyEnded = false; // TODO how do we check this?
 	if (!hasGameAlreadyEnded && shouldGameEnd())
 	{
 		doEndGame();

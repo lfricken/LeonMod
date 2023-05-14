@@ -139,8 +139,8 @@ function OnDisplay(winTypeOriginal, team )
 		Controls.ButtonStack:ReprocessAnchoring();
 	end
 
-	local winType = 3;
-	local didWin = true;
+	local winType = 3; -- Diplomatic
+	local didWin = Game.DidActivePlayerWin();
 	if(didWin) then
     	Controls.EndGameText:SetText( Locale.ConvertTextKey( "TXT_KEY_VICTORY_BANG" ) );
 		local victoryType = nil;

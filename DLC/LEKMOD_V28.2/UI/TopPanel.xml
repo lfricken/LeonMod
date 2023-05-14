@@ -26,6 +26,8 @@
 	    <TextButton Anchor="C,T" String="Tourism!" ColorLayer0="255,255,200,255"  ID="TourismString" ToolTipType="TooltipTypeTopPanel"/>
 
 	    <TextButton Anchor="C,T" String="FAITH!" ColorLayer0="255,255,200,255"  ID="FaithString" ToolTipType="TooltipTypeTopPanel"/>
+
+	    <TextButton Anchor="C,T" String="TROPHYS!" ColorLayer0="255,255,200,255"  ID="TrophysString" ToolTipType="TooltipTypeTopPanel"/>
 		
 		<Stack Anchor="C,T" StackGrowth="Right" Padding="10" ID="ResourceStack">			
 		</Stack>

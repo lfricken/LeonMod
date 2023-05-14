@@ -334,6 +334,7 @@ public:
 	bool isPlayerOptionsSent() const;
 	void sendPlayerOptions(bool bForce = false);
 
+	bool didActivePlayerWin() const;
 	PlayerTypes getActivePlayer() const;
 	void setActivePlayer(PlayerTypes eNewValue, bool bForceHotSeat = false, bool bAutoplaySwitch = false);
 
@@ -554,6 +555,8 @@ public:
 
 	// Victory Stuff
 	void DoTestConquestVictory();
+	// global trophy points every player will get
+	int GetTrophyPoints(string* tooltip) const;
 
 	PlayerTypes GetBestWondersPlayer();
 	void SetBestWondersPlayer(PlayerTypes ePlayer, int iWonderCount);

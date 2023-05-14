@@ -122,6 +122,11 @@ function UpdateData()
 			Controls.CityCapString:SetText(pPlayer:GetTopPanelCityCap());
 			
 			-----------------------------
+			-- Update Trophys
+			-----------------------------
+			Controls.TrophysString:SetText(Locale.ConvertTextKey("[ICON_VICTORY_POINTS]" .. pPlayer:GetTopPanelTrophys()));
+			
+			-----------------------------
 			-- Update Golden Age Info
 			-----------------------------
 			local strGoldenAgeStr;
@@ -414,6 +419,7 @@ function DoInitTooltips()
 	Controls.TourismString:SetToolTipCallback( TourismTipHandler );
 	Controls.FaithString:SetToolTipCallback( FaithTipHandler );
 	Controls.InternationalTradeRoutes:SetToolTipCallback( InternationalTradeRoutesTipHandler );
+	Controls.TrophysString:SetToolTipCallback( TrophysTipHandler );
 end
 
 -- Science Tooltip
@@ -850,6 +856,17 @@ function CityCapTipHandler( control )
 	local pid = Game.GetActivePlayer();
 	local pPlayer = Players[pid];
 	local txt = pPlayer:GetTooltipTopPanelCityCap();
+	
+	tipControlTable.TooltipLabel:SetText(txt);
+	tipControlTable.TopPanelMouseover:SetHide(false);
+    tipControlTable.TopPanelMouseover:DoAutoSize();
+end
+
+-- Trophy Tooltip
+function TrophysTipHandler( control )
+	local pid = Game.GetActivePlayer();
+	local pPlayer = Players[pid];
+	local txt = pPlayer:GetTooltipTopPanelTrophys();
 	
 	tipControlTable.TooltipLabel:SetText(txt);
 	tipControlTable.TopPanelMouseover:SetHide(false);

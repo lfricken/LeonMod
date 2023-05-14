@@ -184,6 +184,7 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 
 	Method(IsFinalInitialized);
 
+	Method(DidActivePlayerWin);
 	Method(GetActivePlayer);
 	Method(SetActivePlayer);
 	Method(GetPausePlayer);
@@ -1179,6 +1180,10 @@ int CvLuaGame::lIsSimultaneousTeamTurns(lua_State* L)
 int CvLuaGame::lIsFinalInitialized(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvGame::isFinalInitialized);
+}
+int CvLuaGame::lDidActivePlayerWin(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvGame::didActivePlayerWin);
 }
 //------------------------------------------------------------------------------
 //PlayerTypes getActivePlayer();

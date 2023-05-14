@@ -259,6 +259,10 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetNumCivsInfluentialOn);
 	Method(GetTopPanelCityCap);
 	Method(GetTooltipTopPanelCityCap);
+	Method(GetTopPanelTrophys);
+	Method(GetTooltipTopPanelTrophys);
+	
+
 	Method(GetTooltipTopPanelTourism);
 	Method(GetNumCivsToBeInfluentialOn);
 	Method(GetInfluenceTradeRouteScienceBonus);
@@ -2551,6 +2555,27 @@ int CvLuaPlayer::lGetTooltipTopPanelCityCap(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const CvString result = pkPlayer->GetCityCap_Tooltip();
 	lua_pushstring(L, result);
+	return 1;
+}
+int CvLuaPlayer::lGetTopPanelTrophys(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int numTrophys = GET_TEAM(pkPlayer->getTeam()).GetTrophyPoints(NULL);
+	stringstream ss;
+
+	ss << numTrophys;
+
+	// localize
+	CvString cvStr = ss.str().c_str();
+	lua_pushstring(L, GetLocalizedText(cvStr));
+	return 1;
+}
+int CvLuaPlayer::lGetTooltipTopPanelTrophys(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	string tooltip = "";
+	GET_TEAM(pkPlayer->getTeam()).GetTrophyPoints(&tooltip);
+	lua_pushstring(L, GetLocalizedText((CvString)tooltip));
 	return 1;
 }
 int CvLuaPlayer::lGetTooltipTopPanelTourism(lua_State* L)
