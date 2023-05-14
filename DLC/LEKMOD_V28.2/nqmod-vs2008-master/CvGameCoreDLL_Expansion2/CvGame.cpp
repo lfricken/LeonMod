@@ -8372,7 +8372,7 @@ void CvGame::doTurn()
 
 #ifndef AUI_YIELDS_APPLIED_AFTER_TURN_NOT_BEFORE
 	// Victory stuff
-	testVictory();
+	checkIfGameShouldEnd();
 
 
 #endif
@@ -10955,6 +10955,8 @@ void CvGame::saveReplay()
 
 void CvGame::showEndGameSequence()
 {
+	GC.GetEngineUserInterface()->setDirty(Cursor_DIRTY_BIT, true);
+	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 
 	GC.GetEngineUserInterface()->OpenEndGameMenu();
 }

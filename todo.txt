@@ -59,7 +59,8 @@ Map/game settings - auto check the good ones, see the default button
 	ai cannot spread religion to humans
 	do NOT allow promotion saving
 
-
+m_bTechsDiscovered needs to be serialized
+roll needs to have randomness
 
 
 
@@ -86,7 +87,7 @@ reorder game options - auto check the good ones, see the default button
 
 auto delete obsolete cards
 
-
+C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization V\Resource\DX9
 
 
 
