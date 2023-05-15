@@ -333,7 +333,8 @@ void CvGame::init(HandicapTypes eHandicap)
 		m_randomBuildingPercentages[i] = randYield;
 	}
 
-
+	m_randomTrophyPointDelta = 0;
+	m_hasEndgameShown = false;
 
 	if(isOption(GAMEOPTION_LOCK_MODS))
 	{
@@ -4873,6 +4874,10 @@ int CvGame::getGameTurn() const
 {
 	return CvPreGame::gameTurn();
 }
+int CvGame::turn() const
+{
+	return getGameTurn();
+}
 
 //	------------------------------------------------------------------------------------------------
 void CvGame::setGameTurn(int iNewValue)
@@ -6220,10 +6225,16 @@ PlayerTypes CvGame::getActivePlayer() const
 {
 	return CvPreGame::activePlayer();
 }
+int CvGame::getActivePlayerWinScreen() const
+{
+	const CvPlayer& player = GET_PLAYER(getActivePlayer());
+
+	return player.getWinScreen();
+}
 bool CvGame::didActivePlayerWin() const
 {
 	const CvPlayer& player = GET_PLAYER(getActivePlayer());
-	
+
 
 	return GET_TEAM(player.getTeam()).HasEnoughTrophysToWin();
 }
@@ -9936,6 +9947,8 @@ void CvGame::Read(FDataStream& kStream)
 	kStream >> randomPolicyRebateT100;
 	kStream >> m_allowedYieldBonuses;
 	kStream >> m_randomBuildingPercentages;
+	kStream >> m_randomTrophyPointDelta;
+	kStream >> m_hasEndgameShown;
 
 
 	kStream >> m_competitions;
@@ -10179,6 +10192,8 @@ void CvGame::Write(FDataStream& kStream) const
 	kStream << randomPolicyRebateT100;
 	kStream << m_allowedYieldBonuses;
 	kStream << m_randomBuildingPercentages;
+	kStream << m_randomTrophyPointDelta;
+	kStream << m_hasEndgameShown;
 
 
 	kStream << m_competitions;
@@ -10324,6 +10339,7 @@ void CvGame::saveReplay()
 
 void CvGame::showEndGameSequence()
 {
+	m_hasEndgameShown = true;
 	GC.GetEngineUserInterface()->setDirty(Cursor_DIRTY_BIT, true);
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 
@@ -10425,17 +10441,18 @@ void CvGame::onPlayerEnteredEra(PlayerTypes, EraTypes eEra)
 	// first player entered
 	if (m_eraNumPlayersEntered[eEra] == 0)
 	{
-		// map genre > cards of that genre
 		std::vector<std::vector<CardsOfGenre>> eras;
+		while ((int)eras.size() < GC.getNumEraInfos()) // ensure capacity for every era
+		{
+			eras.push_back(std::vector<CardsOfGenre>());
+		}
+
+		// map genre > cards of that genre
 		for (int cardId = 0; cardId < GC.getNumPolicyInfos(); ++cardId)
 		{
 			if (TradingCard::IsCard(cardId))
 			{
 				int era = TradingCard::Era(cardId);
-				while ((int)eras.size() < (era + 1)) // ensure capacity
-				{
-					eras.push_back(std::vector<CardsOfGenre>());
-				}
 				std::vector<CardsOfGenre>& genres = eras[era];
 				int genre = TradingCard::Genre(cardId);
 				while ((int)genres.size() < (genre + 1)) // the 0 genre needs 1 entry
@@ -10483,8 +10500,9 @@ void CvGame::onPlayerEnteredEra(PlayerTypes, EraTypes eEra)
 
 		// HUMANS
 		// make sure we hand out enough cards
+		std::vector<CardsOfGenre>& genres = eras[eEra];
+		if (genres.size() > 0)
 		{
-			std::vector<CardsOfGenre>& genres = eras[eEra];
 			const int minCards = 3;
 			const int numHandoutsNeeded = GC.ceilDiv(minCards, (int)genres.size());
 			for (int h = 0; h < numHandoutsNeeded; ++h)

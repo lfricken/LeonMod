@@ -2580,7 +2580,7 @@ unsigned long CvGlobals::getFakeSeed(const unsigned int x, const unsigned int y,
 }
 int CvGlobals::ceilDiv(int numerator, int denominator) const
 {
-	return (((100 * numerator) / denominator) + 99) / 100;
+	return (((100 * numerator) / max(1, denominator)) + 99) / 100;
 }
 int CvGlobals::rand(int maxExclusive, string log, const CvPlot* plot, const unsigned long other)
 {
