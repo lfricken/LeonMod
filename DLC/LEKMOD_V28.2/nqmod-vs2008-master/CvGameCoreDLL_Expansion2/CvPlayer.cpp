@@ -853,6 +853,12 @@ void CvPlayer::uninit()
 #ifdef AUI_GAME_AUTOPAUSE_ON_ACTIVE_DISCONNECT_IF_NOT_SEQUENTIAL
 	m_bIsDisconnected = false;
 #endif
+
+	m_accomplishCount.clear();
+	for (int i = 0; i < ACCOMPLISH_NUM; ++i)
+		m_accomplishCount.push_back(0);
+
+
 	m_iStartingX = INVALID_PLOT_COORD;
 	m_iStartingY = INVALID_PLOT_COORD;
 	m_iTotalPopulation = 0;
@@ -25090,6 +25096,7 @@ void CvPlayer::Read(FDataStream& kStream)
 	uint uiVersion;
 	kStream >> uiVersion;
 
+	kStream >> m_accomplishCount;
 	kStream >> m_iStartingX;
 	kStream >> m_iStartingY;
 	kStream >> m_iTotalPopulation;
@@ -25719,6 +25726,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 	//Save version number.  THIS MUST BE FIRST!!
 	kStream << g_CurrentCvPlayerVersion;
 
+	kStream << m_accomplishCount;
 	kStream << m_iStartingX;
 	kStream << m_iStartingY;
 	kStream << m_iTotalPopulation;

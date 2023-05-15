@@ -391,8 +391,6 @@ public:
 	void SetSmallAwardAchieved(SmallAwardTypes eAward, bool bValue);
 
 
-	// gets the nonchalant version of victory points
-	int GetTrophyPoints(string* tooltip) const;
 	bool HasEnoughTrophysToWin() const;
 
 
@@ -440,6 +438,8 @@ public:
 #endif
 
 	VictoryTypes m_eLastVictoryAchieved;
+	// keeps track of things this team has accomplished
+	std::vector<int> m_accomplishCount;
 protected:
 
 	TeamTypes m_eID;

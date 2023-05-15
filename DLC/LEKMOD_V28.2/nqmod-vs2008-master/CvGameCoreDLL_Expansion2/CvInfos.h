@@ -832,6 +832,7 @@ public:
 	virtual ~CvHandicapInfo();
 
 	int getStartingLocationPercent() const;
+	// Trophy Victory Points the player starts the game with (can be negative)
 	int getAdvancedStartPointsMod() const;
 	int getStartingPolicyPoints() const;
 	int getHappinessDefault() const;

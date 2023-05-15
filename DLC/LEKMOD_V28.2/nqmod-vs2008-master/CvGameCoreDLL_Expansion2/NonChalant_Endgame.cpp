@@ -30,8 +30,11 @@
 #include "CvInfosSerializationHelper.h"
 #include "CvCityManager.h"
 
-const int chanceGameEndsAfterFutureTechIsDiscovered = 100;
-const int chanceGameEndsBeforeThat = 0;
+// across the whole game, how much can points vary by
+const int maxPointDeviation = 6;
+const int chanceGameEndsAfterFutureTechIsDiscovered = 100 * 100;
+const int chanceGameEndsOnTurn0 = 0;
+const int chanceGameEndsAfterIss = 1 * 100;
 
 
 
@@ -55,15 +58,15 @@ void appendTrophyLine(stringstream* ss, int* sumAmount, string desc, int numToAd
 }
 int CvGlobals::getTROPHY_PER_SCIENCE() const
 {
-	return 2;
+	return 3;
 }
 int CvGlobals::getTROPHY_PER_TOURISM() const
 {
-	return 2;
+	return 3;
 }
 int CvGlobals::getTROPHY_PER_DIPLOMATIC() const
 {
-	return 2;
+	return 3;
 }
 int CvGlobals::getTROPHY_PER_UNITED_NATIONS() const
 {
@@ -73,104 +76,42 @@ int CvGlobals::getTROPHY_PER_CAPITAL() const
 {
 	return 1;
 }
-int HasUnitedNationsTrophy(TeamTypes eTeam)
+int HasUnitedNationsTrophy(const CvPlayer& player)
 {
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
+	if (GC.getGame().GetGameLeagues()->GetDiplomaticVictor() == player.GetID())
 	{
-		PlayerTypes ePlayerLoop = (PlayerTypes)iPlayerLoop;
-		if (GET_PLAYER(ePlayerLoop).getTeam() == eTeam)
-		{
-			if (GC.getGame().GetGameLeagues()->GetDiplomaticVictor() == ePlayerLoop)
-			{
-				return 1;
-			}
-		}
+		return GC.getTROPHY_PER_UNITED_NATIONS();
 	}
 	return 0;
 }
 // Has filled diplo track
-int HasDiplomaticTrophy(TeamTypes eTeam)
+int HasDiplomaticTrophy(const CvPlayer& player)
 {
-	int totalTeamPoints = 0;
-	int totalTeamPointsNeeded = 0;
-
-	totalTeamPoints += GET_TEAM(eTeam).GetTotalDiplomaticInfluence();
-	totalTeamPointsNeeded += GET_TEAM(eTeam).GetTotalDiplomaticInfluenceNeeded();
-
-	// check if they won
-	if (totalTeamPoints >= totalTeamPointsNeeded)
+	if (player.GetDiplomaticInfluence() >= player.GetDiplomaticInfluenceNeeded())
 		return GC.getTROPHY_PER_DIPLOMATIC();
 	return 0;
 }
-int HasTourismTrophy(TeamTypes eTeam)
+int HasTourismTrophy(const CvPlayer& player)
 {
-	bool allHaveTourism = true;
-	bool hasTeamMembers = false;
-	// See if all players on this team have influential culture with all other players (still alive)
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
-	{
-		const CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iPlayerLoop);
-		if (kPlayer.isAlive())
-		{
-			if (kPlayer.getTeam() == eTeam)
-			{
-				hasTeamMembers = true;
-				int numNeeded = GC.getGame().GetGameCulture()->GetNumCivsInfluentialForWin();
-				bool hasEnoughInfluenced = kPlayer.GetCulture()->GetNumCivsInfluentialOn() >= numNeeded;
-				if (!hasEnoughInfluenced)
-				{
-					allHaveTourism = false;
-				}
-			}
-		}
-	}
-	if (hasTeamMembers && allHaveTourism)
+	const int numNeeded = GC.getGame().GetGameCulture()->GetNumCivsInfluentialForWin();
+	const bool hasEnoughInfluenced = player.GetCulture()->GetNumCivsInfluentialOn() >= numNeeded;
+
+	if (hasEnoughInfluenced)
 		return GC.getTROPHY_PER_TOURISM();
 	return 0;
 }
-bool HasScientificTrophy(TeamTypes eTeam)
+int HasScientificTrophy(const CvPlayer& player)
 {
-	bool allHaveScience = true;
-	bool hasTeamMembers = false;
-	// every player on team must meet science goal
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
+	if (player.GetScientificInfluence() >= player.GetScientificInfluenceNeeded())
 	{
-		const PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
-		const CvPlayer& player = GET_PLAYER(eLoopPlayer);
-		if (player.isAlive())
-		{
-			if (player.getTeam() == eTeam)
-			{
-				hasTeamMembers = true;
-				if (player.GetScientificInfluence() < player.GetScientificInfluenceNeeded())
-				{
-					allHaveScience = false;
-				}
-			}
-		}
+		return GC.getTROPHY_PER_SCIENCE();
 	}
-	if (hasTeamMembers && allHaveScience)
-		return true;
-	return false;
+	return 0;
 }
 // +1 per capital owned
-int HasConquestTrophy(TeamTypes eTeam)
+int HasConquestTrophy(const CvPlayer& player)
 {
-	int numCapitals = 0;
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
-	{
-		const CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iPlayerLoop);
-		if (kPlayer.isAlive())
-		{
-			if (kPlayer.getTeam() == eTeam)
-			{
-				numCapitals += kPlayer.GetNumCapitals();
-			}
-		}
-	}
-	if (numCapitals > 0)
-		return numCapitals * GC.getTROPHY_PER_CAPITAL();
-	return 0;
+	return player.GetNumCapitals() * GC.getTROPHY_PER_CAPITAL();
 }
 bool IsIssComplete()
 {
@@ -192,9 +133,6 @@ int CvGame::GetTrophyPoints(string* tooltip) const
 	{
 		ss = new stringstream();
 	}
-		// ;
-
-
 	if (ss)
 	{
 		*ss << "[NEWLINE]Global Sources:[NEWLINE]";
@@ -215,7 +153,7 @@ int CvGame::GetTrophyPoints(string* tooltip) const
 	}
 	return points;
 }
-int CvTeam::GetTrophyPoints(string* tooltip) const
+int CvPlayer::GetTrophyPoints(string* tooltip) const
 {
 	int points = 0;
 	stringstream* ss = NULL;
@@ -223,7 +161,6 @@ int CvTeam::GetTrophyPoints(string* tooltip) const
 	{
 		ss = new stringstream();
 	}
-
 	if (ss)
 	{
 		*ss << "The number of {TROPHYS} you have. Earn enough (an unknown amount) before the "
@@ -232,19 +169,20 @@ int CvTeam::GetTrophyPoints(string* tooltip) const
 	}
 
 	// conquest
-	appendTrophyLine(ss, &points, "from 1 per [ICON_CAPITAL] Capital controlled", HasConquestTrophy(GetID()), HasConquestTrophy(GetID()) > 0);
+	appendTrophyLine(ss, &points, "from 1 per [ICON_CAPITAL] Capital controlled", HasConquestTrophy(*this), HasConquestTrophy(*this) > 0);
 	// scientific insight
-	appendTrophyLine(ss, &points, "from obtaining enough {SCIENTIFIC_INSIGHT}", GC.getTROPHY_PER_SCIENCE(), HasScientificTrophy(GetID()) > 0);
+	appendTrophyLine(ss, &points, "from obtaining enough {SCIENTIFIC_INSIGHT}", GC.getTROPHY_PER_SCIENCE(), HasScientificTrophy(*this) > 0);
 	// diplomatic support
-	appendTrophyLine(ss, &points, "from earning enough {DIPLOMATIC_SUPPORT}", GC.getTROPHY_PER_DIPLOMATIC(), HasDiplomaticTrophy(GetID()) > 0);
+	appendTrophyLine(ss, &points, "from earning enough {DIPLOMATIC_SUPPORT}", GC.getTROPHY_PER_DIPLOMATIC(), HasDiplomaticTrophy(*this) > 0);
 	// cultural influence
-	appendTrophyLine(ss, &points, "from exerting enough {CULTURAL_INFLUENCE}", GC.getTROPHY_PER_TOURISM(), HasTourismTrophy(GetID()) > 0);
+	appendTrophyLine(ss, &points, "from exerting enough {CULTURAL_INFLUENCE}", GC.getTROPHY_PER_TOURISM(), HasTourismTrophy(*this) > 0);
+	// space ship launch
+	appendTrophyLine(ss, &points, "from +1 per Interstellar Space Ship launch", m_accomplishCount[ACCOMPLISH_LAUNCH_SPACESHIP], m_accomplishCount[ACCOMPLISH_LAUNCH_SPACESHIP] > 0);
+
+
+	// competitions:
 	// un election
-	appendTrophyLine(ss, &points, "from being elected [ICON_VICTORY_DIPLOMACY] World Leader", GC.getTROPHY_PER_UNITED_NATIONS(), HasUnitedNationsTrophy(GetID()) > 0);
-
-
-
-
+	appendTrophyLine(ss, &points, "from being elected [ICON_VICTORY_DIPLOMACY] World Leader", GC.getTROPHY_PER_UNITED_NATIONS(), HasUnitedNationsTrophy(*this) > 0);
 
 	if (ss)
 	{
@@ -256,16 +194,81 @@ int CvTeam::GetTrophyPoints(string* tooltip) const
 	points += GC.getGame().GetTrophyPoints(tooltip);
 	return points;
 }
+int CvPlayer::getWinScreen() const
+{
+	enum // found experimentally in EndGameMenu.lua
+	{
+		VICTORYSCREEN_SPACE,
+		VICTORYSCREEN_CULTURE,
+		VICTORYSCREEN_DOMINATION,
+		VICTORYSCREEN_DIPLO,
+		VICTORYSCREEN_TIME,
+	};
+	//const CvTeam& team = GET_TEAM(getTeam());
+
+	std::vector<int> possibilities;
+	if (IsIssComplete() || m_accomplishCount[ACCOMPLISH_LAUNCH_SPACESHIP] > 0)
+	{
+		possibilities.push_back(VICTORYSCREEN_SPACE);
+	}
+	if (IsGamesComplete() || HasTourismTrophy(*this))
+	{
+		possibilities.push_back(VICTORYSCREEN_CULTURE);
+	}
+	if (HasConquestTrophy(*this) > 1) // owns at least one other capital
+	{
+		possibilities.push_back(VICTORYSCREEN_DOMINATION);
+	}
+	if (IsFairComplete() || HasDiplomaticTrophy(*this) || HasUnitedNationsTrophy(*this))
+	{
+		possibilities.push_back(VICTORYSCREEN_DIPLO);
+	}
+
+	if (possibilities.size() < 2)
+	{
+		possibilities.push_back(VICTORYSCREEN_TIME);
+	}
+
+
+	const int choice = GC.rand(possibilities.size(), "Victory Screen selection", NULL, GC.getFakeSeed(GC.getGame().turn(), GetTreasury()->GetGold(), 234));
+	return possibilities[choice];
+}
+int pointsFromTurn(long turnPercentT10000)
+{
+	const long effectiveOnlineSpeedTurnT1000 = (turnPercentT10000 + 5) / 10; // 5 to round
+
+	// exactly 20 points when at 100% game done
+	const int basePoints = (effectiveOnlineSpeedTurnT1000 * effectiveOnlineSpeedTurnT1000) / 50000;
+	return basePoints;
+}
+int getPointsToWin(const CvPlayer& player)
+{
+	const int difficultyPoints = player.getHandicapInfo().getAdvancedStartPointsMod();
+	const int turnBased = pointsFromTurn(GC.getPercentTurnsDoneT10000());
+	return turnBased + difficultyPoints + GC.getGame().m_randomTrophyPointDelta;
+}
 bool CvTeam::HasEnoughTrophysToWin() const
 {
-	const int teamTrophies = GetTrophyPoints(NULL);
+	int teamTrophies = 0;
+	for (int i = 0; i < MAX_PLAYERS; ++i)
+	{
+		teamTrophies += (GET_PLAYER((PlayerTypes)i)).GetTrophyPoints(NULL);
+	}
 
-	// TODO dynamic points to win
-	return (teamTrophies) > 10;
+	// every player on team must meet science goal
+	int pointsNeeded = 0;
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
+	{
+		const PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+		const CvPlayer& player = GET_PLAYER(eLoopPlayer);
+		if (player.getTeam() == GetID())
+		{
+			pointsNeeded += getPointsToWin(player);
+		}
+	}
+
+	return (teamTrophies) >= pointsNeeded;
 }
-
-
-
 int chanceGameEndsThisTurnT100()
 {
 	// TODO
@@ -273,11 +276,12 @@ int chanceGameEndsThisTurnT100()
 	// increase if international space station
 	// instead should be based on some non tech stuff as well since last tech could be avoided via cheese
 
-	if (GC.getGame().GetIsTechDiscovered(80)) // TECH_FUTURE_TECH
+	int chanceT10000 = chanceGameEndsOnTurn0;
+	if (GC.getGame().GetIsTechDiscovered(TECH_FUTURE_TECH)) // TECH_FUTURE_TECH
 	{
-		return chanceGameEndsAfterFutureTechIsDiscovered;
+		chanceT10000 += chanceGameEndsAfterFutureTechIsDiscovered;
 	}
-	return chanceGameEndsBeforeThat;
+	return chanceT10000;
 }
 bool shouldGameEnd()
 {
@@ -331,11 +335,22 @@ void CvGame::doEndGame()
 }
 
 
+
 void CvGame::checkIfGameShouldEnd()
 {
+	// on certain turns, randomly adjust necessary points to win
+	const int everyXTurns = GC.getGame().getMaxTurns() / (maxPointDeviation + 1);
+	const bool shouldApplyRandomPointThisTurn = GC.getGame().turn() % everyXTurns == 0;
+	if (shouldApplyRandomPointThisTurn)
+	{
+		const int rand = GC.getGame().getJonRandUnsafe().get(2, CvRandom::MutateSeed, "random trophys");
+		const int points = rand == 0 ? +1 : -1;
+		m_randomTrophyPointDelta += points;
+	}
+
+
 	updateScore();
-	bool hasGameAlreadyEnded = false; // TODO how do we check this?
-	if (!hasGameAlreadyEnded && shouldGameEnd())
+	if (!m_hasEndgameShown && shouldGameEnd())
 	{
 		doEndGame();
 	}

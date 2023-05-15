@@ -138,8 +138,13 @@ function OnDisplay(winTypeOriginal, team )
 		Controls.ButtonStack:CalculateSize();
 		Controls.ButtonStack:ReprocessAnchoring();
 	end
+	-- 0 -- space
+	-- 1 -- cultural
+	-- 2 -- domination
+	-- 3 -- diplo
+	-- 4 -- time
 
-	local winType = 3; -- Diplomatic
+	local winType = Game.GetActivePlayerWinScreen();
 	local didWin = Game.DidActivePlayerWin();
 	if(didWin) then
     	Controls.EndGameText:SetText( Locale.ConvertTextKey( "TXT_KEY_VICTORY_BANG" ) );

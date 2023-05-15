@@ -2560,7 +2560,7 @@ int CvLuaPlayer::lGetTooltipTopPanelCityCap(lua_State* L)
 int CvLuaPlayer::lGetTopPanelTrophys(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	const int numTrophys = GET_TEAM(pkPlayer->getTeam()).GetTrophyPoints(NULL);
+	const int numTrophys = pkPlayer->GetTrophyPoints(NULL);
 	stringstream ss;
 
 	ss << numTrophys;
@@ -2574,7 +2574,7 @@ int CvLuaPlayer::lGetTooltipTopPanelTrophys(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	string tooltip = "";
-	GET_TEAM(pkPlayer->getTeam()).GetTrophyPoints(&tooltip);
+	pkPlayer->GetTrophyPoints(&tooltip);
 	lua_pushstring(L, GetLocalizedText((CvString)tooltip));
 	return 1;
 }

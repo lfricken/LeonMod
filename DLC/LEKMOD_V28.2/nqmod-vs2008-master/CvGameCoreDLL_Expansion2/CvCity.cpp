@@ -1445,70 +1445,71 @@ void CvCity::setupSpaceshipGraphics()
 {
 	VALIDATE_OBJECT
 
-	CvTeam& thisTeam = GET_TEAM(getTeam());
+	UpdateSpaceshipGui();
+	//CvTeam& thisTeam = GET_TEAM(getTeam());
 
-	ProjectTypes ApolloProgram = (ProjectTypes) GC.getSPACE_RACE_TRIGGER_PROJECT();
+	//ProjectTypes ApolloProgram = (ProjectTypes) GC.getSPACE_RACE_TRIGGER_PROJECT();
 
-	int spaceshipState = 0;
+	//int spaceshipState = 0;
 
-	if(isCapital() && thisTeam.getProjectCount((ProjectTypes)ApolloProgram) == 1)
-	{
-		ProjectTypes capsuleID = (ProjectTypes) GC.getSPACESHIP_CAPSULE();
-		ProjectTypes boosterID = (ProjectTypes) GC.getSPACESHIP_BOOSTER();
-		ProjectTypes stasisID = (ProjectTypes) GC.getSPACESHIP_STASIS();
-		ProjectTypes engineID = (ProjectTypes) GC.getSPACESHIP_ENGINE();
+	//if(isCapital() && thisTeam.getProjectCount((ProjectTypes)ApolloProgram) == 1)
+	//{
+	//	ProjectTypes capsuleID = (ProjectTypes) GC.getSPACESHIP_CAPSULE();
+	//	ProjectTypes boosterID = (ProjectTypes) GC.getSPACESHIP_BOOSTER();
+	//	ProjectTypes stasisID = (ProjectTypes) GC.getSPACESHIP_STASIS();
+	//	ProjectTypes engineID = (ProjectTypes) GC.getSPACESHIP_ENGINE();
 
-		enum eSpaceshipState
-		{
-		    eUnderConstruction	= 0x0000,
-		    eFrame				= 0x0001,
-		    eCapsule			= 0x0002,
-		    eStasis_Chamber		= 0x0004,
-		    eEngine				= 0x0008,
-		    eBooster1			= 0x0010,
-		    eBooster2			= 0x0020,
-		    eBooster3			= 0x0040,
-		    eConstructed		= 0x0080,
-		};
+	//	enum eSpaceshipState
+	//	{
+	//	    eUnderConstruction	= 0x0000,
+	//	    eFrame				= 0x0001,
+	//	    eCapsule			= 0x0002,
+	//	    eStasis_Chamber		= 0x0004,
+	//	    eEngine				= 0x0008,
+	//	    eBooster1			= 0x0010,
+	//	    eBooster2			= 0x0020,
+	//	    eBooster3			= 0x0040,
+	//	    eConstructed		= 0x0080,
+	//	};
 
-		auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(plot()));
-		gDLL->GameplaySpaceshipRemoved(pDllPlot.get());
-		gDLL->GameplaySpaceshipCreated(pDllPlot.get(), eUnderConstruction + eFrame);
+	//	auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(plot()));
+	//	gDLL->GameplaySpaceshipRemoved(pDllPlot.get());
+	//	gDLL->GameplaySpaceshipCreated(pDllPlot.get(), eUnderConstruction + eFrame);
 
-		spaceshipState = eFrame;
+	//	spaceshipState = eFrame;
 
-		if((thisTeam.getProjectCount((ProjectTypes)capsuleID)) == 1)
-		{
-			spaceshipState += eCapsule;
-		}
+	//	if((thisTeam.getProjectCount((ProjectTypes)capsuleID)) == 1)
+	//	{
+	//		spaceshipState += eCapsule;
+	//	}
 
-		if((thisTeam.getProjectCount((ProjectTypes)stasisID)) == 1)
-		{
-			spaceshipState += eStasis_Chamber;
-		}
+	//	if((thisTeam.getProjectCount((ProjectTypes)stasisID)) == 1)
+	//	{
+	//		spaceshipState += eStasis_Chamber;
+	//	}
 
-		if((thisTeam.getProjectCount((ProjectTypes)engineID)) == 1)
-		{
-			spaceshipState += eEngine;
-		}
+	//	if((thisTeam.getProjectCount((ProjectTypes)engineID)) == 1)
+	//	{
+	//		spaceshipState += eEngine;
+	//	}
 
-		if((thisTeam.getProjectCount((ProjectTypes)boosterID)) >= 1)
-		{
-			spaceshipState += eBooster1;
-		}
+	//	if((thisTeam.getProjectCount((ProjectTypes)boosterID)) >= 1)
+	//	{
+	//		spaceshipState += eBooster1;
+	//	}
 
-		if((thisTeam.getProjectCount((ProjectTypes)boosterID)) >= 2)
-		{
-			spaceshipState += eBooster2;
-		}
+	//	if((thisTeam.getProjectCount((ProjectTypes)boosterID)) >= 2)
+	//	{
+	//		spaceshipState += eBooster2;
+	//	}
 
-		if((thisTeam.getProjectCount((ProjectTypes)boosterID)) == 3)
-		{
-			spaceshipState += eBooster3;
-		}
+	//	if((thisTeam.getProjectCount((ProjectTypes)boosterID)) == 3)
+	//	{
+	//		spaceshipState += eBooster3;
+	//	}
 
-		gDLL->GameplaySpaceshipEdited(pDllPlot.get(), spaceshipState);
-	}
+	//	gDLL->GameplaySpaceshipEdited(pDllPlot.get(), spaceshipState);
+	//}
 }
 
 //	--------------------------------------------------------------------------------
@@ -14505,10 +14506,21 @@ void CvCity::OnAfterFinishBuild(OrderTypes, int)
 	UpdateFreeBuildings(false);
 }
 
-//	--------------------------------------------------------------------------------
+enum eSpaceshipState
+{
+	eUnderConstruction = 0x0000,
+	eFrame = 0x0001,
+	eCapsule = 0x0002,
+	eStasis_Chamber = 0x0004,
+	eEngine = 0x0008,
+	eBooster1 = 0x0010,
+	eBooster2 = 0x0020,
+	eBooster3 = 0x0040,
+	eConstructed = 0x0080,
+};
 bool CvCity::CreateProject(ProjectTypes eProjectType)
 {
-	const int scientificInfluenceForSpaceShip = 50;
+	const int scientificInfluenceForSpaceShip = 20;
 
 	VALIDATE_OBJECT
 
@@ -14522,28 +14534,15 @@ bool CvCity::CreateProject(ProjectTypes eProjectType)
 	ProjectTypes stasisID = (ProjectTypes) GC.getSPACESHIP_STASIS();
 	ProjectTypes engineID = (ProjectTypes) GC.getSPACESHIP_ENGINE();
 
-	enum eSpaceshipState
-	{
-	    eUnderConstruction	= 0x0000,
-	    eFrame				= 0x0001,
-	    eCapsule			= 0x0002,
-	    eStasis_Chamber		= 0x0004,
-	    eEngine				= 0x0008,
-	    eBooster1			= 0x0010,
-	    eBooster2			= 0x0020,
-	    eBooster3			= 0x0040,
-	    eConstructed		= 0x0080,
-	};
-
 	if(eProjectType == ApolloProgram)
 	{
-		CvCity* theCapital = thisPlayer.getCapitalCity();
-		if(theCapital)
-		{
-			auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(theCapital->plot()));
-			gDLL->GameplaySpaceshipRemoved(pDllPlot.get());
-			gDLL->GameplaySpaceshipCreated(pDllPlot.get(), eUnderConstruction + eFrame);
-		}
+		//CvCity* theCapital = thisPlayer.getCapitalCity();
+		//if(theCapital)
+		//{
+		//	auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(theCapital->plot()));
+		//	gDLL->GameplaySpaceshipRemoved(pDllPlot.get());
+		//	gDLL->GameplaySpaceshipCreated(pDllPlot.get(), eUnderConstruction + eFrame);
+		//}
 	}
 	else if(GC.getProjectInfo(eProjectType)->IsSpaceship())
 	{
@@ -14555,52 +14554,80 @@ bool CvCity::CreateProject(ProjectTypes eProjectType)
 			gDLL->GameplaySpaceshipEdited(pDllPlot.get(), eConstructed);
 			gDLL->sendLaunch(getOwner(), eVictory);
 			changeScientificInfluence(+scientificInfluenceForSpaceShip);
+			thisPlayer.m_accomplishCount[ACCOMPLISH_LAUNCH_SPACESHIP] += 1;
+
+			// remove all project completed to allow relaunching
+			thisTeam.changeProjectCount(capsuleID, -1);
+			thisTeam.changeProjectCount(stasisID, -1);
+			thisTeam.changeProjectCount(engineID, -1);
+			thisTeam.changeProjectCount(boosterID, -3);
 		}
 		else
 		{
-			//show the spaceship progress
-
-			// this section is kind of hard-coded but it is completely hard-coded on the engine-side so I have to give it the numbers it expects
-			int spaceshipState = eFrame;
-
-			if((thisTeam.getProjectCount((ProjectTypes)capsuleID)) == 1)
-			{
-				spaceshipState += eCapsule;
-			}
-
-			if((thisTeam.getProjectCount((ProjectTypes)stasisID)) == 1)
-			{
-				spaceshipState += eStasis_Chamber;
-			}
-
-			if((thisTeam.getProjectCount((ProjectTypes)engineID)) == 1)
-			{
-				spaceshipState += eEngine;
-			}
-
-			if((thisTeam.getProjectCount((ProjectTypes)boosterID)) >= 1)
-			{
-				spaceshipState += eBooster1;
-			}
-
-			if((thisTeam.getProjectCount((ProjectTypes)boosterID)) >= 2)
-			{
-				spaceshipState += eBooster2;
-			}
-
-			if((thisTeam.getProjectCount((ProjectTypes)boosterID)) == 3)
-			{
-				spaceshipState += eBooster3;
-			}
-
-			auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(plot()));
-			gDLL->GameplaySpaceshipEdited(pDllPlot.get(), spaceshipState);
+			UpdateSpaceshipGui();
 		}
 	}
 
 	OnAfterFinishBuild(ORDER_CREATE, eProjectType);
 
 	return true;
+}
+void CvCity::UpdateSpaceshipGui() const
+{
+	if (isCapital()) // need to only do capital since projects are global
+	{
+		ProjectTypes ApolloProgram = (ProjectTypes)GC.getSPACE_RACE_TRIGGER_PROJECT();
+		ProjectTypes capsuleID = (ProjectTypes)GC.getSPACESHIP_CAPSULE();
+		ProjectTypes boosterID = (ProjectTypes)GC.getSPACESHIP_BOOSTER();
+		ProjectTypes stasisID = (ProjectTypes)GC.getSPACESHIP_STASIS();
+		ProjectTypes engineID = (ProjectTypes)GC.getSPACESHIP_ENGINE();
+
+		CvPlayer& thisPlayer = GET_PLAYER(getOwner());
+		CvTeam& thisTeam = GET_TEAM(getTeam());
+
+
+		// show the spaceship progress
+		// this section is kind of hard-coded but it is completely hard-coded on the engine-side so I have to give it the numbers it expects
+		int spaceshipState = eFrame;
+
+		if ((thisTeam.getProjectCount((ProjectTypes)capsuleID)) >= 1)
+		{
+			spaceshipState += eCapsule;
+		}
+		if ((thisTeam.getProjectCount((ProjectTypes)stasisID)) >= 1)
+		{
+			spaceshipState += eStasis_Chamber;
+		}
+		if ((thisTeam.getProjectCount((ProjectTypes)engineID)) >= 1)
+		{
+			spaceshipState += eEngine;
+		}
+		if ((thisTeam.getProjectCount((ProjectTypes)boosterID)) >= 1)
+		{
+			spaceshipState += eBooster1;
+		}
+		if ((thisTeam.getProjectCount((ProjectTypes)boosterID)) >= 2)
+		{
+			spaceshipState += eBooster2;
+		}
+		if ((thisTeam.getProjectCount((ProjectTypes)boosterID)) >= 3)
+		{
+			spaceshipState += eBooster3;
+		}
+
+
+		auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(plot()));
+		if (spaceshipState == eFrame)
+		{
+			gDLL->GameplaySpaceshipRemoved(pDllPlot.get());
+		}
+		else
+		{
+			gDLL->GameplaySpaceshipRemoved(pDllPlot.get());
+			gDLL->GameplaySpaceshipCreated(pDllPlot.get(), eUnderConstruction + eFrame);
+			gDLL->GameplaySpaceshipEdited(pDllPlot.get(), spaceshipState);
+		}
+	}
 }
 
 //	--------------------------------------------------------------------------------

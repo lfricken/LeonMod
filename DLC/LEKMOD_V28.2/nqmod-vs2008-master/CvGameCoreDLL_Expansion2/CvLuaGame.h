@@ -172,6 +172,7 @@ protected:
 
 	static int lIsFinalInitialized(lua_State* L);
 
+	static int lGetActivePlayerWinScreen(lua_State* L);
 	static int lDidActivePlayerWin(lua_State* L);
 	static int lGetActivePlayer(lua_State* L);
 	static int lSetActivePlayer(lua_State* L);

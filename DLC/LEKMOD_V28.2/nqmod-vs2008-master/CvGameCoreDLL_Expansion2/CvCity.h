@@ -872,6 +872,7 @@ public:
 	int CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType = NO_UNITAI, bool bUseToSatisfyOperation=true);
 	bool CreateBuilding(BuildingTypes eBuildType);
 	bool CreateProject(ProjectTypes eProjectType);
+	void UpdateSpaceshipGui() const;
 
 	// called when this city FINISHES anything (building, unit, project (space ship part))
 	void OnAfterFinishBuild(OrderTypes type, int data1);

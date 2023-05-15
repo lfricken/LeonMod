@@ -22,6 +22,14 @@ enum NET_ACTION
 	NET_ACTION_CARD_TOGGLE_VISIBILITY,
 };
 
+enum Accomplishments
+{
+	// +1 for each space ship launched
+	ACCOMPLISH_LAUNCH_SPACESHIP,
+
+	ACCOMPLISH_NUM = 100,
+};
+
 enum MiniCompetitionTypes
 {
 	COMPETITION_CULTURE_START = 0,

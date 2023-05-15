@@ -187,6 +187,11 @@ void CvTeam::uninit()
 	m_bBrokenCityStatePromise = false;
 
 	m_eCurrentEra = ((EraTypes) 0);
+
+	m_accomplishCount.clear();
+	for (int i = 0; i < ACCOMPLISH_NUM; ++i)
+		m_accomplishCount.push_back(0);
+
 	m_eLastVictoryAchieved = (VictoryTypes)0;
 
 	m_eLiberatedByTeam = NO_TEAM;
@@ -7570,6 +7575,7 @@ void CvTeam::Read(FDataStream& kStream)
 	kStream >> m_eID;
 
 	kStream >> m_eCurrentEra;
+	kStream >> m_accomplishCount;
 	kStream >> m_eLastVictoryAchieved;
 	kStream >> m_eLiberatedByTeam;
 	kStream >> m_eKilledByTeam;
@@ -7751,6 +7757,7 @@ void CvTeam::Write(FDataStream& kStream) const
 	kStream << m_eID;
 
 	kStream << m_eCurrentEra;
+	kStream << m_accomplishCount;
 	kStream << m_eLastVictoryAchieved;
 	kStream << m_eLiberatedByTeam;
 	kStream << m_eKilledByTeam;

@@ -48,6 +48,7 @@ int CvPlot::getExtraYield
 {
 	int yieldChange = 0;
 
+	// TODO after turn 10
 	yieldChange += m_extraYields[eYieldType];
 
 

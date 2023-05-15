@@ -362,6 +362,10 @@ public:
 	int GetNumUnitsSuppliedByHandicap() const;
 	int GetNumUnitsSuppliedByCities() const;
 	int GetNumUnitsSuppliedByPopulation() const;
+	// gets the nonchalant version of victory points
+	int GetTrophyPoints(string* tooltip) const;
+	// pick which win screen to show the player
+	int getWinScreen() const;
 
 	int GetNumUnitsOutOfSupply() const;
 
@@ -1889,6 +1893,9 @@ public:
 	bool CardsCanHave() const;
 
 	void SetTechDiffT00(int diffT100);
+
+	// keeps track of things this team has accomplished
+	std::vector<int> m_accomplishCount;
 protected:
 	class ConqueredByBoolField
 	{

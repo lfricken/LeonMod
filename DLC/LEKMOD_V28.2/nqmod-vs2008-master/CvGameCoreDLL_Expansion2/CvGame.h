@@ -159,6 +159,7 @@ public:
 	int getNumSequentialHumans(PlayerTypes ignorePlayer = NO_PLAYER);
 
 	int getGameTurn() const;
+	int turn() const;
 	void setGameTurn(int iNewValue);
 	void incrementGameTurn();
 	int getTurnYear(int iGameTurn);
@@ -334,6 +335,7 @@ public:
 	bool isPlayerOptionsSent() const;
 	void sendPlayerOptions(bool bForce = false);
 
+	int getActivePlayerWinScreen() const;
 	bool didActivePlayerWin() const;
 	PlayerTypes getActivePlayer() const;
 	void setActivePlayer(PlayerTypes eNewValue, bool bForceHotSeat = false, bool bAutoplaySwitch = false);
@@ -492,7 +494,7 @@ public:
 	void addPlayer(PlayerTypes eNewPlayer, LeaderHeadTypes eLeader, CivilizationTypes eCiv);
 	// called when a player enters an era
 	void onPlayerEnteredEra(PlayerTypes ePlayer, EraTypes eEra);
-	// check to see if someone won / the game ended
+	// check to see if someone won / the game ended. Checked once per turn
 	void checkIfGameShouldEnd();
 	void doEndGame();
 
@@ -629,6 +631,9 @@ public:
 	std::vector<int> m_allowedYieldBonuses;
 	// idx > percentageT100 variation for each building
 	std::vector<int> m_randomBuildingPercentages;
+	// points randomly applied to win game
+	int m_randomTrophyPointDelta;
+	bool m_hasEndgameShown;
 	
 #if defined (CAN_PARADROP_HALF_TIMER) || defined (CAN_SET_INTERCEPT_HALF_TIMER)
 	FTimer  m_endTurnTimer;
