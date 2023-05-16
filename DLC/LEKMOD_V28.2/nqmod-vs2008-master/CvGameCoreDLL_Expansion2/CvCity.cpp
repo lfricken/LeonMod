@@ -14576,13 +14576,13 @@ void CvCity::UpdateSpaceshipGui() const
 {
 	if (isCapital()) // need to only do capital since projects are global
 	{
-		ProjectTypes ApolloProgram = (ProjectTypes)GC.getSPACE_RACE_TRIGGER_PROJECT();
+		//ProjectTypes ApolloProgram = (ProjectTypes)GC.getSPACE_RACE_TRIGGER_PROJECT();
 		ProjectTypes capsuleID = (ProjectTypes)GC.getSPACESHIP_CAPSULE();
 		ProjectTypes boosterID = (ProjectTypes)GC.getSPACESHIP_BOOSTER();
 		ProjectTypes stasisID = (ProjectTypes)GC.getSPACESHIP_STASIS();
 		ProjectTypes engineID = (ProjectTypes)GC.getSPACESHIP_ENGINE();
 
-		CvPlayer& thisPlayer = GET_PLAYER(getOwner());
+		//CvPlayer& thisPlayer = GET_PLAYER(getOwner());
 		CvTeam& thisTeam = GET_TEAM(getTeam());
 
 

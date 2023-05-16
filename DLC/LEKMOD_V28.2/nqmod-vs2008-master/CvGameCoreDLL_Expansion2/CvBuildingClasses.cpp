@@ -427,6 +427,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iExtraLeagueVotes = kResults.GetInt("ExtraLeagueVotes");
 	m_iPreferredDisplayPosition = kResults.GetInt("DisplayPosition");
 	m_iPortraitIndex = kResults.GetInt("PortraitIndex");
+	m_iTrophys = kResults.GetInt("Trophys");
 
 	m_bArtInfoCulturalVariation = kResults.GetBool("ArtInfoCulturalVariation");
 	m_bArtInfoEraVariation = kResults.GetBool("ArtInfoEraVariation");
@@ -1609,6 +1610,12 @@ int CvBuildingEntry::GetPortraitIndex() const
 {
 	return m_iPortraitIndex;
 }
+int CvBuildingEntry::GetTrophys() const
+{
+	return m_iTrophys;
+}
+
+
 
 /// Is the presence of this building shared with team allies?
 bool CvBuildingEntry::IsTeamShare() const

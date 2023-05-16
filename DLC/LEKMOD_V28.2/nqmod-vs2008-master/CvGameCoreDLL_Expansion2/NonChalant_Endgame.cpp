@@ -32,9 +32,10 @@
 
 // across the whole game, how much can points vary by
 const int maxPointDeviation = 6;
-const int chanceGameEndsAfterFutureTechIsDiscovered = 100 * 100;
+const int chanceGameEndsAfterFutureTechIsDiscovered = 1 * 100; // 1%
+const int chanceGameEndsEachRocket = 1 * 100; // 1%
+const int chanceGameEndsAfterIss = 1 * 100; // 1%
 const int chanceGameEndsOnTurn0 = 0;
-const int chanceGameEndsAfterIss = 1 * 100;
 
 
 
@@ -176,13 +177,27 @@ int CvPlayer::GetTrophyPoints(string* tooltip) const
 	appendTrophyLine(ss, &points, "from earning enough {DIPLOMATIC_SUPPORT}", GC.getTROPHY_PER_DIPLOMATIC(), HasDiplomaticTrophy(*this) > 0);
 	// cultural influence
 	appendTrophyLine(ss, &points, "from exerting enough {CULTURAL_INFLUENCE}", GC.getTROPHY_PER_TOURISM(), HasTourismTrophy(*this) > 0);
-	// space ship launch
-	appendTrophyLine(ss, &points, "from +1 per Interstellar Space Ship launch", m_accomplishCount[ACCOMPLISH_LAUNCH_SPACESHIP], m_accomplishCount[ACCOMPLISH_LAUNCH_SPACESHIP] > 0);
-
-
-	// competitions:
 	// un election
 	appendTrophyLine(ss, &points, "from being elected [ICON_VICTORY_DIPLOMACY] World Leader", GC.getTROPHY_PER_UNITED_NATIONS(), HasUnitedNationsTrophy(*this) > 0);
+
+	// space ship launch
+	appendTrophyLine(ss, &points, "from launching the Interstellar Space Ship", +2, m_accomplishCount[ACCOMPLISH_LAUNCH_SPACESHIP] > 0);
+
+	// buildings that give trophys
+	for (int i = 0; i < GC.getNumBuildingInfos(); ++i)
+	{
+		const CvBuildingEntry* info = GC.getBuildingInfo((BuildingTypes)i);
+		if (info != NULL)
+		{
+			const int numTrophys = info->GetTrophys();
+			if (numTrophys > 0)
+			{
+				const int amount = countNumBuildings((BuildingTypes)i);
+				appendTrophyLine(ss, &points, "from " + (string)info->GetDescription(), numTrophys, amount > 0);
+			}
+		}
+	}
+
 
 	if (ss)
 	{
@@ -277,10 +292,28 @@ int chanceGameEndsThisTurnT100()
 	// instead should be based on some non tech stuff as well since last tech could be avoided via cheese
 
 	int chanceT10000 = chanceGameEndsOnTurn0;
-	if (GC.getGame().GetIsTechDiscovered(TECH_FUTURE_TECH)) // TECH_FUTURE_TECH
+
+	// TECH_FUTURE_TECH
+	if (GC.getGame().GetIsTechDiscovered(TECH_FUTURE_TECH))
 	{
 		chanceT10000 += chanceGameEndsAfterFutureTechIsDiscovered;
 	}
+
+	// rocket launches
+	int numRocketLaunches = 0;
+	for (int i = 0; i < MAX_PLAYERS; ++i)
+	{
+		const CvPlayer& player = GET_PLAYER((PlayerTypes)i);
+		numRocketLaunches += player.m_accomplishCount[ACCOMPLISH_LAUNCH_SPACESHIP];
+	}
+	chanceT10000 += numRocketLaunches * chanceGameEndsEachRocket;
+
+	// ISS
+	if (IsIssComplete())
+	{
+		chanceT10000 += chanceGameEndsAfterIss;
+	}
+
 	return chanceT10000;
 }
 bool shouldGameEnd()

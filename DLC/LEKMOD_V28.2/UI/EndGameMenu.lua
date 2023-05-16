@@ -146,7 +146,7 @@ function OnDisplay(winTypeOriginal, team )
 
 	local winType = Game.GetActivePlayerWinScreen();
 	local didWin = Game.DidActivePlayerWin();
-	if(didWin) then
+	if(not didWin) then
     	Controls.EndGameText:SetText( Locale.ConvertTextKey( "TXT_KEY_VICTORY_BANG" ) );
 		local victoryType = nil;
 		if(winType == EndGameTypes.Tutorial1 ) then

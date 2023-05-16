@@ -49,7 +49,10 @@ int CvPlot::getExtraYield
 	int yieldChange = 0;
 
 	// TODO after turn 10
-	yieldChange += m_extraYields[eYieldType];
+	if (GC.IsRandomTileBoostsActiveYet())
+	{
+		yieldChange += m_extraYields[eYieldType];
+	}
 
 
 	const CvPlot& plot = *this;

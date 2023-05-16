@@ -7907,6 +7907,8 @@ public:
 	int getTROPHY_PER_DIPLOMATIC() const;
 	int getTROPHY_PER_UNITED_NATIONS() const;
 	int getTROPHY_PER_CAPITAL() const;
+	// which turn should we start giving tiles random bonuses
+	bool IsRandomTileBoostsActiveYet() const;
 
 	////////////// END DEFINES //////////////////
 

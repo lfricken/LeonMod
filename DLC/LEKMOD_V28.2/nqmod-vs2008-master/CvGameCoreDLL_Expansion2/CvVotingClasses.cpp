@@ -7398,7 +7398,7 @@ CvLeague* CvGameLeagues::GetActiveLeague()
 }
 bool CvGameLeagues::IsProjectComplete(LeagueProjectTypes prj) const
 {
-	for (int i = 0; i < m_vActiveLeagues.size(); ++i)
+	for (int i = 0; i < (int)m_vActiveLeagues.size(); ++i)
 	{
 		const CvLeague& league = m_vActiveLeagues[i];
 		if (league.IsProjectComplete(prj))

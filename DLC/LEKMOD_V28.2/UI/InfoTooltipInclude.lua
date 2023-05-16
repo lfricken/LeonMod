@@ -248,7 +248,7 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_GOLD", iGold));
 	end
 	
-	-- Gold Change
+	-- Gold
 	--iGold = Game.GetBuildingYieldChange(iBuildingID, YieldTypes.YIELD_GOLD);
 	iGold = pActivePlayer:GetTotalBuildingYields(pCity, iBuildingID, YieldTypes.YIELD_GOLD, false);
 	if (pCity ~= nil) then
@@ -259,7 +259,7 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_GOLD_CHANGE", iGold));
 	end
 	
-	-- Science
+	-- Science Mod
 	--local iScience = Game.GetBuildingYieldModifier(iBuildingID, YieldTypes.YIELD_SCIENCE);
 	local iScience = pActivePlayer:GetTotalBuildingYields(pCity, iBuildingID, YieldTypes.YIELD_SCIENCE, true);
 	--iScience = iScience + pActivePlayer:GetPolicyBuildingClassYieldModifier(buildingClassID, YieldTypes.YIELD_SCIENCE);
@@ -277,7 +277,7 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_SCIENCE_CHANGE", iScienceChange));
 	end
 	
-	-- Production
+	-- Production Mod
 	--local iProduction = Game.GetBuildingYieldModifier(iBuildingID, YieldTypes.YIELD_PRODUCTION);
 	local iProduction = pActivePlayer:GetTotalBuildingYields(pCity, iBuildingID, YieldTypes.YIELD_PRODUCTION, true);
 	--iProduction = iProduction + pActivePlayer:GetPolicyBuildingClassYieldModifier(buildingClassID, YieldTypes.YIELD_PRODUCTION);
@@ -285,7 +285,7 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_PRODUCTION", iProduction));
 	end
 
-	-- Production Change
+	-- Production
 	local iProd = pActivePlayer:GetTotalBuildingYields(pCity, iBuildingID, YieldTypes.YIELD_PRODUCTION, false);
 	if (pCity ~= nil) then
 		--iProd = iProd + pCity:GetReligionBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_PRODUCTION) + pActivePlayer:GetPlayerBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_PRODUCTION);
@@ -345,6 +345,16 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 		if (val > 0) then sign="+"; end
 		if (val ~= nil and val ~= 0) then
 			table.insert(lines, Locale.ConvertTextKey("{DIPLOMATIC_INFLUENCE}: ") .. sign .. val);
+		end
+	end
+
+	-- TROPHYS
+	if (true) then
+		local val = pBuildingInfo.Trophys;
+		local sign = "";
+		if (val > 0) then sign="+"; end
+		if (val ~= nil and val ~= 0) then
+			table.insert(lines, Locale.ConvertTextKey("{TROPHYS}: ") .. sign .. val);
 		end
 	end
 

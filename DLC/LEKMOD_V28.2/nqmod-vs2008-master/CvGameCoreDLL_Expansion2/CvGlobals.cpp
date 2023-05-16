@@ -7453,6 +7453,10 @@ void CvGlobals::SetGameDatabase(Database::Connection* pGameDatabase)
 }
 //------------------------------------------------------------------------------
 
+bool CvGlobals::IsRandomTileBoostsActiveYet() const
+{
+	return GC.getPercentTurnsDoneT10000() > 500; // 5% done > 12.5 turns given 250 turns
+}
 bool CvGlobals::IsGraphicsInitialized() const
 {
 	return m_bGraphicsInitialized;
