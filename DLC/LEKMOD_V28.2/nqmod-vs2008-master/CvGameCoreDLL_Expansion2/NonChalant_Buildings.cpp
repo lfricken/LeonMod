@@ -395,17 +395,6 @@ int CvPlayer::GetExtraYieldForBuilding
 	}
 	case BUILDINGCLASS_CITY_CENTER:
 	{
-		{// BUILDINGCLASS_STATUE_OF_LIBERTY grants +10% FD to every Granary
-			const bool hasStatueOfLiberty = player.HasWonder(BUILDINGCLASS_STATUE_OF_LIBERTY);
-			if (eYieldType == YIELD_FOOD && isPercentMod && hasStatueOfLiberty)
-				yieldChange += 10;
-		}
-
-		{// BUILDINGCLASS_KREMLIN grants +10% PD to every Workshop
-			const bool hasKremlin = player.HasWonder(BUILDINGCLASS_KREMLIN);
-			if (eYieldType == YIELD_PRODUCTION && isPercentMod && hasKremlin)
-				yieldChange += 10;
-		}
 		break;
 	}
 	case BUILDINGCLASS_PALACE:
