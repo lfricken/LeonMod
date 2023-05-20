@@ -169,6 +169,9 @@ int CvPlayer::GetTrophyPoints(string* tooltip) const
 		*ss << "[NEWLINE]";
 	}
 
+	const int difficultyPoints = getHandicapInfo().getAdvancedStartPointsMod();
+	// free difficulty points
+	appendTrophyLine(ss, &points, "from difficulty level", difficultyPoints, difficultyPoints > 0);
 	// conquest
 	appendTrophyLine(ss, &points, "from 1 per [ICON_CAPITAL] Capital controlled", HasConquestTrophy(*this), HasConquestTrophy(*this) > 0);
 	// scientific insight
@@ -258,9 +261,10 @@ int pointsFromTurn(long turnPercentT10000)
 }
 int getPointsToWin(const CvPlayer& player)
 {
-	const int difficultyPoints = player.getHandicapInfo().getAdvancedStartPointsMod();
+	const HandicapTypes baseDifficulty = (HandicapTypes)4; // King
 	const int turnBased = pointsFromTurn(GC.getPercentTurnsDoneT10000());
-	return turnBased + difficultyPoints + GC.getGame().m_randomTrophyPointDelta;
+	const int difficultyPoints = GC.getHandicapInfo(baseDifficulty)->getAdvancedStartPointsMod();
+	return difficultyPoints + turnBased + GC.getGame().m_randomTrophyPointDelta;
 }
 bool CvTeam::HasEnoughTrophysToWin() const
 {
