@@ -6178,7 +6178,8 @@ void CvPlayer::GetDiplomaticInfluencePerTurn(int* influenceThisTurn, int* iNumMi
 			if (player.isAlive() && player.isMinorCiv() && player.GetMinorCivAI()->IsAllies(GetID()))
 			{
 				controlled++;
-				influenceT100 += 100 * GC.getYIELD_PER_TURN_ALLY(YIELD_DIPLOMATIC_SUPPORT, eMinor, GetID(), false);
+				if (influenceThisTurn != NULL)
+					influenceT100 += 100 * GC.getYIELD_PER_TURN_ALLY(YIELD_DIPLOMATIC_SUPPORT, eMinor, GetID(), false);
 			}
 		}
 	}
@@ -6189,7 +6190,8 @@ void CvPlayer::GetDiplomaticInfluencePerTurn(int* influenceThisTurn, int* iNumMi
 		for (const CvCity* pLoopCity = firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = nextCity(&iCityLoop))
 		{
 			// yield rate checks to see owned if it's a minor capital
-			influenceT100 += pLoopCity->getYieldRateTimes100(YIELD_DIPLOMATIC_SUPPORT, false);
+			if (influenceThisTurn != NULL)
+				influenceT100 += pLoopCity->getYieldRateTimes100(YIELD_DIPLOMATIC_SUPPORT, false);
 			if (pLoopCity->IsOwnedMinorCapital())
 			{
 				controlled++;
@@ -6198,6 +6200,7 @@ void CvPlayer::GetDiplomaticInfluencePerTurn(int* influenceThisTurn, int* iNumMi
 	}
 
 	// check competitions
+	if (influenceThisTurn != NULL)
 	{
 		for (int i = 0; i < NUM_COMPETITIONS; ++i)
 		{
@@ -6205,7 +6208,8 @@ void CvPlayer::GetDiplomaticInfluencePerTurn(int* influenceThisTurn, int* iNumMi
 		}
 	}
 
-	*influenceThisTurn = influenceT100 / 100;
+	if (influenceThisTurn != NULL)
+		*influenceThisTurn = influenceT100 / 100;
 	*iNumMinorCapitalsControlled = controlled;
 }
 //	--------------------------------------------------------------------------------

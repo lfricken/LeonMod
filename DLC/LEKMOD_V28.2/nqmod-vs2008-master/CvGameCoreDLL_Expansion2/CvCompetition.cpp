@@ -89,8 +89,8 @@ struct Allies : CompetitionDelegates
 	}
 	virtual int EvalScore(const CvPlayer& player) const
 	{
-		int perTurn, numControlled;
-		player.GetDiplomaticInfluencePerTurn(&perTurn, &numControlled);
+		int numControlled;
+		player.GetDiplomaticInfluencePerTurn(NULL, &numControlled);
 		return numControlled;
 	}
 	virtual int Reward(const YieldTypes eType) const
@@ -373,7 +373,13 @@ CvCompetition::CvCompetition()
 CvCompetition::CvCompetition(const int iNumPlayers, const MiniCompetitionTypes eCompetition)
 {
 	for (int i = 0; i < iNumPlayers; ++i) // add an entry for each player
-		m_entries.push_back(CvCompetitionEntry((PlayerTypes)i, eCompetition));
+	{
+		const CvPlayer& player = GET_PLAYER((PlayerTypes)i);
+		if (player.isEverAlive() && player.isMajorCiv())
+		{
+			m_entries.push_back(CvCompetitionEntry(player.GetID(), eCompetition));
+		}
+	}
 
 	m_eCompetitionType = eCompetition;
 }
@@ -469,8 +475,12 @@ int CvCompetition::GetReward(const YieldTypes eType, const PlayerTypes ePlayer) 
 void CvCompetition::Update(bool shouldMoveToNextSession, int numTurnsPerSession)
 {
 	// update
-	for (int i = 0; i < (int)m_entries.size(); ++i)
+	const int numEntries = (int)m_entries.size();
+	for (int i = 0; i < numEntries; ++i)
 	{
+		if (m_entries[i].ePlayer == NO_PLAYER)
+			continue;
+
 		const CvPlayer& player = GET_PLAYER(m_entries[i].ePlayer);
 		int score = 0; // no score for dead or minor civs
 		if (player.isAlive() && player.isMajorCiv())

@@ -269,14 +269,6 @@ void CvGame::init(HandicapTypes eHandicap)
 		}
 	}
 
-	// initialize all competitions
-	m_competitions.clear();
-	for (int i = 0; i < NUM_COMPETITIONS; ++i)
-	{
-		m_competitions.push_back(CvCompetition(MAX_MAJOR_CIVS, (MiniCompetitionTypes)i));
-		m_competitions[i].Update(false, 5);
-	}
-
 	// set up pseudorandom barbarian spawn points
 	m_barbSpawnX.clear();
 	m_barbSpawnY.clear();
@@ -890,6 +882,16 @@ void CvGame::InitPlayers()
 		{
 			m_playersEverAlive.push_back((PlayerTypes)i);
 		}
+	}
+
+
+	// initialize all competitions
+	m_competitions.clear();
+	const int numMajorCivs = GC.getGame().getNumMajorCivsStart();
+	for (int i = 0; i < NUM_COMPETITIONS; ++i)
+	{
+		m_competitions.push_back(CvCompetition(numMajorCivs, (MiniCompetitionTypes)i));
+		m_competitions[i].Update(false, 5);
 	}
 }
 
