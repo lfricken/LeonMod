@@ -5515,6 +5515,12 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 				if(kLoopPlayer.isAlive() && kLoopPlayer.getTeam() == GetID())
 				{
 					kLoopPlayer.ChangeScoreFromFutureTech(iScoreChange);
+					kLoopPlayer.ChangeExtraHappinessPerCity(+1);
+					kLoopPlayer.ChangeCityYieldChange(YIELD_FOOD, +1);
+					kLoopPlayer.ChangeCityYieldChange(YIELD_PRODUCTION, +1);
+					kLoopPlayer.ChangeCityYieldChange(YIELD_GOLD, +1);
+					kLoopPlayer.ChangeCityYieldChange(YIELD_SCIENCE, +1);
+					kLoopPlayer.ChangeCityYieldChange(YIELD_CULTURE, +1);
 				}
 			}
 
