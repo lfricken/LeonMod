@@ -3584,6 +3584,7 @@ void CvTeam::makeHasMet(TeamTypes eIndex, bool bSuppressMessages)
 
 	if(!isHasMet(eIndex))
 	{
+		GC.GetEngineUserInterface()->setDirty(GreatWorksScreen_DIRTY_BIT, true); // Rites screen uses this bit to refresh tabs
 		m_abHasMet[eIndex] = true;
 
 		SetTurnTeamMet(eIndex, GC.getGame().getGameTurn());

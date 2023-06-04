@@ -120,7 +120,7 @@ function DisplayData(iPlayerId, includePassive, includeActive)
 				inst.ActivateLabel:SetColorByName("Gray_Black");
 			end
 			inst.Activate:SetHide(not hasActive);
-			inst.Activate:LocalizeAndSetToolTip(activeDesc .. ". {TXT_KEY_CARD_ACTIVATE_CONSUMED}");
+			inst.Activate:LocalizeAndSetToolTip(activeDesc .. " {TXT_KEY_CARD_ACTIVATE_CONSUMED}");
 			inst.Activate:RegisterCallback(Mouse.eLClick, function() OnClickedActivate(iPlayerId, cardIdx); end);
 
 			-- visibility button
@@ -146,13 +146,14 @@ function DisplayData(iPlayerId, includePassive, includeActive)
 end
 -- CREATE TABS
 function RedoTabs()
+	--print("Redo Rites Tabs");
 	Controls.Tabs:DestroyAllChildren();
 	g_Tabs = {};
 	local pid = g_localPlayer;
 	local pLocal = Players[pid];
 	for pid=0,GameDefines.MAX_MAJOR_CIVS do
 		local pPlayer = Players[pid];
-		if (pPlayer:IsAlive()) then
+		if (pPlayer ~= nil and pPlayer:IsAlive() and not pPlayer:IsMinorCiv()) then
 			local instTab = {};
 			ContextPtr:BuildInstanceForControl("PlayerCardTab", instTab, Controls.Tabs);
 			tabObj = {};
