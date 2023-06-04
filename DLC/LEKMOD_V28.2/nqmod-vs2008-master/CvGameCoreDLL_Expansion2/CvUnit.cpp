@@ -16303,7 +16303,7 @@ void CvUnit::setExperience(int iNewValue, int iMax)
 
 
 //	--------------------------------------------------------------------------------
-void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInBorders, bool bUpdateGlobal)
+void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInBorders, bool /*bUpdateGlobal*/)
 {
 	VALIDATE_OBJECT
 	// Barbs don't get XP or Promotions
