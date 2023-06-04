@@ -16369,7 +16369,7 @@ void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInB
 			iUnitExperience += (iChange * kPlayer.getExpInBorderModifier()) / 100;
 		}
 
-		if(bUpdateGlobal)
+		// if(bUpdateGlobal) // ALWAYS update global XP (GreatGeneralPoints)
 		{
 			// Add Unit GG mod
 			if (getDomainType() == DOMAIN_LAND) 
