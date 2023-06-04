@@ -18475,8 +18475,8 @@ bool CvUnit::isOutOfAttacks() const
 {
 	VALIDATE_OBJECT
 
-	// naval units cannot do range attacks after moving half their moves
-	if (getDomainType() == DOMAIN_SEA)
+	// ranged naval units cannot do attacks after moving half their moves
+	if (getDomainType() == DOMAIN_SEA && isRanged())
 	{
 		int halfMax = maxMoves() / 2;
 		if (m_iMoves < halfMax)
