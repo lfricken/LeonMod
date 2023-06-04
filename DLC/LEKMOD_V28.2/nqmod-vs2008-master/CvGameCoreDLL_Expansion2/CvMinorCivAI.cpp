@@ -25,7 +25,7 @@
 //======================================================================================================
 
 // influence gained per turn for having the most local military
-const int baseMilitaryInfluence = 17;
+// 
 const int maxAnchorT100 = 200 * 100;
 const int minAnchorT100 = -200 * 100;
 
@@ -4172,6 +4172,7 @@ int newCappedChange(const int currentT100, const int newT100, const int anchorT1
 /// with this minor, in which case there is no friendship change per turn.
 int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(const PlayerTypes ePlayer)
 {
+	const int baseMilitaryInfluence = GC.getMINOR_STRENGTH_FOR_INFLUENCE();
 	const CvPlayer& kPlayer = GET_PLAYER(ePlayer);
 	if (!kPlayer.isAlive())
 	{

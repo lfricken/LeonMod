@@ -301,7 +301,7 @@ function GetCityStateStatusToolTip(iMajor, iMinor, bFullInfo)
 										    iInfluence - GameDefines["FRIENDSHIP_THRESHOLD_NEUTRAL"], 
 											GameDefines["FRIENDSHIP_THRESHOLD_FRIENDS"] - GameDefines["FRIENDSHIP_THRESHOLD_NEUTRAL"]);
 										    
-		strStatusTT = strStatusTT .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_NEUTRAL_CSTATE_TT");
+		strStatusTT = strStatusTT .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_NEUTRAL_CSTATE_TT", GameDefines["MINOR_STRENGTH_FOR_INFLUENCE"]);
 	end
 	
 	--[[ start NQ_SHOW_BASE_INFLUENCE_WHILE_AT_WAR_IN_CS_TOOLTIP
