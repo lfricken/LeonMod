@@ -345,8 +345,8 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 		end
 
 		local cityHitPointsTip = Locale.ConvertTextKey("TXT_KEY_CITY_HITPOINTS");
+		cityHitPointsTip = cityHitPointsTip .. Locale.ConvertTextKey("TXT_KEY_INFRASTRUCTURE_DAMAGE_DETAIL", GameDefines["MAX_CITY_HIT_POINTS"]);
 		if city:GetIsInfrastructureDamage() then
-			cityHitPointsTip = cityHitPointsTip .. Locale.ConvertTextKey("TXT_KEY_INFRASTRUCTURE_DAMAGE_DETAIL", GameDefines["MAX_CITY_HIT_POINTS"]);
 			cityHealth = "[COLOR_WARNING_TEXT]" .. cityHealth .. "[ENDCOLOR]";
 		end
 		
