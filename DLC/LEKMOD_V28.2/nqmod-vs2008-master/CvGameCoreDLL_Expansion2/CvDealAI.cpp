@@ -1523,6 +1523,11 @@ int CvDealAI::GetEmbassyValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseE
 		iItemValue /= 100;
 	}
 
+	if (bFromMe)
+	{
+		iItemValue *= 2; // embassy benefits humans more than us (because humans are smarter than us)
+	}
+
 	// Are we trying to find the middle point between what we think this item is worth and what another player thinks it's worth?
 	if(bUseEvenValue)
 	{
@@ -1575,6 +1580,7 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 		}
 
 		// Opinion also matters
+		// (reduced open border value since it's hard to exploit open borders in a war situation)
 		switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer))
 		{
 		case MAJOR_CIV_OPINION_ALLY:
@@ -1720,6 +1726,8 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 		iItemValue /= 2;
 	}
 
+	iItemValue /= 3; // reduce open border value so ai will actually trade it
+
 	return iItemValue;
 }
 
@@ -1774,22 +1782,22 @@ int CvDealAI::GetDefensivePactValue(bool bFromMe, PlayerTypes eOtherPlayer, bool
 			iItemValue = 100;
 			break;
 		case MAJOR_CIV_OPINION_FRIEND:
-			iItemValue = 100;
+			iItemValue = 130;
 			break;
 		case MAJOR_CIV_OPINION_FAVORABLE:
-			iItemValue = 100;
+			iItemValue = 180;
 			break;
 		case MAJOR_CIV_OPINION_NEUTRAL:
-			iItemValue = 100000;
+			iItemValue = 300;
 			break;
 		case MAJOR_CIV_OPINION_COMPETITOR:
-			iItemValue = 100000;
+			iItemValue = 500;
 			break;
 		case MAJOR_CIV_OPINION_ENEMY:
-			iItemValue = 100000;
+			iItemValue = 1000;
 			break;
 		case MAJOR_CIV_OPINION_UNFORGIVABLE:
-			iItemValue = 100000;
+			iItemValue = 10000;
 			break;
 		default:
 			CvAssertMsg(false, "DEAL_AI: AI player has no valid Opinion for Defensive Pact valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
@@ -2218,6 +2226,8 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 			iItemValue *= 125;
 			iItemValue /= 100;
 		}
+
+		iItemValue *= 10; // we should demand a high price to declare war on someone
 	}
 
 	// From them
@@ -2257,7 +2267,7 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 		{
 		case CvLeagueAI::DESIRE_NEVER:
 		case CvLeagueAI::DESIRE_STRONG_DISLIKE:
-			iValue += 100000;
+			iValue += 1000;
 			break;
 		case CvLeagueAI::DESIRE_DISLIKE:
 			iValue += 300;
