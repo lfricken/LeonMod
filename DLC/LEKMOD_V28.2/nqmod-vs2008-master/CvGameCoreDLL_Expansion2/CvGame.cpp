@@ -295,7 +295,7 @@ void CvGame::init(HandicapTypes eHandicap)
 	// random plot bonuses
 	int count = 0;
 	const int numTypesOfYields = 3; // also see in CvPlot.cpp
-	const int maxYieldTypeInclusive = YIELD_FAITH;
+	const int maxYieldTypeInclusive = YIELD_GOLD;
 	m_allowedYieldBonuses.clear();
 	while (m_allowedYieldBonuses.size() < numTypesOfYields)
 	{
