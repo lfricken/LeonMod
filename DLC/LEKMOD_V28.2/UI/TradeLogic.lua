@@ -1935,6 +1935,18 @@ function DisplayDeal()
 	if g_iUs == -1 or g_iThem == -1 then
 		return;
 	end
+
+	Controls.TradeValueFrame:LocalizeAndSetToolTip("Value perceived by other player.")
+	if (g_Deal) then
+		g_pThem = Players[ g_iThem ];
+		iDealValue = g_pThem:GetDealValue(g_Deal);
+		if (iDealValue < 0) then
+			iDealValue = "[COLOR_WARNING_TEXT]" .. iDealValue .. "[ENDCOLOR]";
+		else
+			iDealValue = "[COLOR_POSITIVE_TEXT]" .. iDealValue .. "[ENDCOLOR]";
+		end
+		Controls.TradeValue:LocalizeAndSetText(iDealValue);
+	end
 	
 	--print("Displaying Deal");
 	
@@ -2409,6 +2421,8 @@ function ChangeGoldAmount( string, control )
 		local strTooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_CURRENT_GOLD", g_Deal:GetGoldAvailable(g_iThem, iItemToBeChanged) );
 		Controls.ThemTableGold:LocalizeAndSetToolTip( strTooltip );
     end
+    DisplayDeal();
+    DoUIDealChangedByHuman();
 end
 Controls.UsGoldAmount:RegisterCallback( ChangeGoldAmount );
 Controls.UsGoldAmount:SetVoid1( 1 );
@@ -2512,6 +2526,8 @@ function ChangeGoldPerTurnAmount( string, control )
 		Controls.ThemTableGoldPerTurn:LocalizeAndSetToolTip( strTooltip );
 		
     end
+    DisplayDeal();
+    DoUIDealChangedByHuman();
 end
 Controls.UsGoldPerTurnAmount:RegisterCallback( ChangeGoldPerTurnAmount );
 Controls.UsGoldPerTurnAmount:SetVoid1( 1 );

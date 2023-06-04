@@ -8438,7 +8438,7 @@ void CvGame::doTurn()
 		for (iI = 0; iI < MAX_TEAMS; iI++)
 		{
 			CvTeam& p = GET_TEAM((TeamTypes)iI);
-			if (p.isAlive())
+			if (p.isAlive() && p.isMajorCiv())
 			{
 				teams.push_back(&p);
 			}

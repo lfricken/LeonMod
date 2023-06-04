@@ -176,6 +176,11 @@
 				<Image ID="ThemSymbolShadow" Size="48,48" Offset="-1,-1" Anchor="C,C" Texture="CivSymbolsColor512.dds"/>
 			</Image>
 		</Grid>
+
+		<Grid Size="100,30" Anchor="C,T" AnchorSide="O.O" Offset="0,5" Style="GridBlackIndent8" ID="TradeValueFrame">
+			<Grid Anchor="C,C" Offset="0,0" Size="104,26" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="TradeValueFrameBorderFrame"/>
+			<Label Anchor="C,C" Offset="0,0" WrapWidth="200" LeadingOffset="0" Font="TwCenMT18" String="TradeValue" ID="TradeValue"/>
+		</Grid>
 		<!--   UsTable	   -->
 		<Grid Size="225,220" Anchor="R,T" Offset="14,4" Style="GridBlackIndent8">
 			<ScrollPanel Anchor="L,T" Offset="0,4" Size="200,220" Vertical="1" ID="UsTablePanel">
