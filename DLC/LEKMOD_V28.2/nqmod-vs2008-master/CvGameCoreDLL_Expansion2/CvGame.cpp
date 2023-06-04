@@ -8431,6 +8431,31 @@ void CvGame::doTurn()
 		}
 	}
 
+	// meet random teams on this turn
+	if (getGameTurn() == 2)
+	{
+		std::vector<CvTeam*> teams;
+		for (iI = 0; iI < MAX_TEAMS; iI++)
+		{
+			CvTeam& p = GET_TEAM((TeamTypes)iI);
+			if (p.isAlive())
+			{
+				teams.push_back(&p);
+			}
+		}
+
+		// shuffle players
+		shuffleVector(&teams, getJonRandNum(5000, "", NULL, 12345));
+		// have player meet random neighbors
+		for(int i = 0; i < (int)teams.size(); i++)
+		{
+			CvTeam& p = *teams[i];
+			const int rightIdx = (i + 1) % teams.size();
+			CvTeam& right = *teams[rightIdx];
+			p.meet(right.GetID(), false);
+		}
+	}
+
 	LogGameState();
 
 	if(isNetworkMultiPlayer())
