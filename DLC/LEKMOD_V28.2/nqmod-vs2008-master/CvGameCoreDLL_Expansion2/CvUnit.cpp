@@ -12561,8 +12561,13 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	// OTHER UNIT IS KNOWN
 	////////////////////////
 
-	if(NULL != pOtherUnit)
+	if(pOtherUnit != NULL)
 	{
+		// boats cant attack land units very well (because they have a massive move advantage)
+		const bool isLand = !pOtherUnit->plot()->isWater();
+		if (isLand)
+			iModifier -= 50; // penalty for boats shooting at land units
+
 		// Unit Class Mod
 		iModifier += getUnitClassModifier(pOtherUnit->getUnitClassType());
 
@@ -12607,11 +12612,6 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 			{
 				iTempModifier = thisGameHandicap.getAIBarbarianCombatModifier();
 				iModifier += iTempModifier;
-			}
-
-			if(GC.getGame().isOption(GAMEOPTION_RAGING_BARBARIANS))
-			{
-				iModifier += 25;
 			}
 		}
 
