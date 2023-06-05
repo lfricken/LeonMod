@@ -6374,26 +6374,7 @@ int CvCity::getExtraProductionDifference(int iExtra, int iModifier) const
 /// Convert extra food to production if building a unit built partially from food
 int CvCity::GetFoodProduction(int iExcessFood) const
 {
-	int iRtnValue;
-
-	if(iExcessFood <= 0)
-	{
-		iRtnValue = 0;
-	}
-	else if(iExcessFood <= 2)
-	{
-		iRtnValue = iExcessFood * 100;
-	}
-	else if(iExcessFood > 2 && iExcessFood <= 4)
-	{
-		iRtnValue = 200 + (iExcessFood - 2) * 50;
-	}
-	else
-	{
-		iRtnValue = 300 + (iExcessFood - 4) * 25;
-	}
-
-	return (iRtnValue / 100);
+	return std::max(0, iExcessFood / 2);
 }
 
 //	--------------------------------------------------------------------------------
