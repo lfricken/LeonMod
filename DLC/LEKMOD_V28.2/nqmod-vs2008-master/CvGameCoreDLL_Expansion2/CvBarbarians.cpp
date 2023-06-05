@@ -99,18 +99,18 @@ bool CvBarbarians::CanBarbariansSpawn()
 /// Determines when to Spawn a new Barb Unit from a Camp
 bool CvBarbarians::ShouldSpawnBarbFromCamp(CvPlot * pPlot)
 {
-	const int percentOddsOfCampSpawningUnit = 33;
+	const int percentOddsOfCampSpawningUnit = 20;
 	// randomly don't spawn a unit here
 	const int randSeed = GC.getGame().getGameTurn() * 49 + pPlot->getX() * 174 + pPlot->getY() * 335;
 	if (GC.rand(100, "", pPlot, randSeed) < percentOddsOfCampSpawningUnit)
 	{
-		return false;
-	}
-
-	if (m_aiPlotBarbCampSpawnCounter[pPlot->GetPlotIndex()] == 0)
-	{
 		return true;
 	}
+
+	//if (m_aiPlotBarbCampSpawnCounter[pPlot->GetPlotIndex()] == 0)
+	//{
+	//	return true;
+	//}
 
 	return false;
 }
