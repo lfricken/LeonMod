@@ -41,7 +41,7 @@ int CvGlobals::getTOURISM_MODIFIER_HAMMERCOMPETITION(const PlayerTypes) const
 }
 int CvGlobals::getCITIZENS_MIN_FOR_SPECIALIST(const PlayerTypes) const
 {
-	return 8;
+	return 2;
 }
 int CvGlobals::getCITIZENS_PER_SPECIALIST(const PlayerTypes) const
 {
