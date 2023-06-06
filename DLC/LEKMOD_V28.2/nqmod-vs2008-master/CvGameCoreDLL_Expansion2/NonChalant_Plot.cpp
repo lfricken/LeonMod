@@ -44,7 +44,7 @@ int CvPlot::getExtraYield
 	const RouteTypes,
 	// owning player
 	const PlayerTypes tileOwner
-)
+) const
 {
 	int yieldChange = 0;
 

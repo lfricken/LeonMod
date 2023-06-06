@@ -8423,7 +8423,7 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 
 
 //	--------------------------------------------------------------------------------
-int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
+int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay) const
 {
 	CvCity* pCity = 0;
 	CvCity* pWorkingCity = 0;
@@ -11303,339 +11303,344 @@ void CvPlot::getVisibleResourceState(ResourceTypes& eType, bool& bImproved, bool
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUpgrade, PlayerTypes ePlayer) const
+int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUpgrade, PlayerTypes ePlayer)
 {
-	int iYield;
+	int iYield = 0;
 
-	const CvYieldInfo& kYield = *GC.getYieldInfo(eYield);
-	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
-
-	if(getTerrainType() == NO_TERRAIN)
+	if (getTerrainType() == NO_TERRAIN)
 		return 0;
 
-	if(!isPotentialCityWork())
+	if (!isPotentialCityWork())
 		return 0;
 
-#ifdef AUI_PLOT_FIX_GET_YIELD_WITH_BUILD_IGNORE_FEATURE_EXTENDS_TO_CITY
-	CvCity* pCity = getPlotCity();
-	bool bCity = pCity != NULL;
 
-	// Will the build remove the feature?
-	bool bIgnoreFeature = bCity;
-#else
-	bool bCity = false;
-
-	// Will the build remove the feature?
-	bool bIgnoreFeature = false;
-#endif
-	if(getFeatureType() != NO_FEATURE)
+	// removing feature?
+	FeatureTypes newFeature = getFeatureType();
+	int newVariety = getFeatureVariety();
+	if (GC.getBuildInfo(eBuild)->isFeatureRemove(getFeatureType()))
 	{
-		if(GC.getBuildInfo(eBuild)->isFeatureRemove(getFeatureType()))
-			bIgnoreFeature = true;
+		newFeature = NO_FEATURE;
+		newVariety = -1;
 	}
 
-	// Nature yield
-	iYield = calculateNatureYield(eYield, getTeam(), bIgnoreFeature);
-
-	ImprovementTypes eImprovement = (ImprovementTypes)GC.getBuildInfo(eBuild)->getImprovement();
-
-	// If we're not changing the improvement that's here, use the improvement that's here already
-	if(eImprovement == NO_IMPROVEMENT)
+	// changing improvement?
+	ImprovementTypes newImprovement = getImprovementType();
+	if ((ImprovementTypes)GC.getBuildInfo(eBuild)->getImprovement() != NO_IMPROVEMENT)
 	{
-		if(!IsImprovementPillaged() || GC.getBuildInfo(eBuild)->isRepair())
-		{
-			eImprovement = getImprovementType();
-		}
+		//if (!IsImprovementPillaged() || GC.getBuildInfo(eBuild)->isRepair())
+		//{
+			newImprovement = (ImprovementTypes)GC.getBuildInfo(eBuild)->getImprovement();
+		//}
 	}
 
-#ifdef AUI_PLOT_FIX_GET_YIELD_WITH_BUILD_IMPROVEMENT_WITH_ROUTE
-	RouteTypes eRoute = (RouteTypes)GC.getBuildInfo(eBuild)->getRoute();
-
-	// If we're not changing the route that's here, use the route that's here already
-	if (eRoute == NO_ROUTE)
+	// test with new values
+	const bool oldImprovementPillaged = IsImprovementPillaged();
+	const bool oldRoutePillaged = IsImprovementPillaged();
+	const FeatureTypes oldFeature = getFeatureType();
+	const int oldFeatureVariety = getFeatureVariety();
+	const ImprovementTypes oldImprovement = getImprovementType();
+	const PlayerTypes oldBuilder = GetPlayerThatBuiltImprovement();
 	{
-		if (!IsRoutePillaged() || GC.getBuildInfo(eBuild)->isRepair())
-		{
-			eRoute = getRouteType();
-		}
+		// setting feature type and improvement type will clear the pillage flags automatically
+		setFeatureType(newFeature, newVariety);
+		setImprovementType(newImprovement, ePlayer);
+		iYield = calculateYield(eYield);
 	}
+	// restore
+	setFeatureType(oldFeature, oldFeatureVariety);
+	setImprovementType(oldImprovement, oldBuilder);
+	SetImprovementPillaged(oldImprovementPillaged);
+	SetRoutePillaged(oldRoutePillaged);
 
-	if (eRoute != NO_ROUTE)
-	{
-		CvRouteInfo* pRouteInfo = GC.getRouteInfo(eRoute);
-		if (pRouteInfo)
-			iYield += pRouteInfo->getYieldChange(eYield);
-	}
-#endif
-
-	if(eImprovement != NO_IMPROVEMENT)
-	{
-		if(bWithUpgrade)
-		{
-			//in the case that improvements upgrade, use 2 upgrade levels higher for the
-			//yield calculations.
-			ImprovementTypes eUpgradeImprovement = (ImprovementTypes)GC.getImprovementInfo(eImprovement)->GetImprovementUpgrade();
-			if(eUpgradeImprovement != NO_IMPROVEMENT)
-			{
-				//unless it's trade on a low food tile, in which case only use 1 level higher
-				if((eYield != YIELD_GOLD) || (getYield(YIELD_FOOD) >= GC.getFOOD_CONSUMPTION_PER_POPULATION()))
-				{
-					ImprovementTypes eUpgradeImprovement2 = (ImprovementTypes)GC.getImprovementInfo(eUpgradeImprovement)->GetImprovementUpgrade();
-					if(eUpgradeImprovement2 != NO_IMPROVEMENT)
-					{
-						eUpgradeImprovement = eUpgradeImprovement2;
-					}
-				}
-			}
-
-			if((eUpgradeImprovement != NO_IMPROVEMENT) && (eUpgradeImprovement != eImprovement))
-			{
-				eImprovement = eUpgradeImprovement;
-			}
-		}
-
-#ifdef AUI_PLOT_FIX_GET_YIELD_WITH_BUILD_IMPROVEMENT_WITH_ROUTE
-		iYield += calculateImprovementYieldChange(eImprovement, eYield, ePlayer, false, eRoute);
-#else
-		iYield += calculateImprovementYieldChange(eImprovement, eYield, ePlayer, false);
-#endif
-
-		if (eYield == YIELD_CULTURE && getOwner() != NO_PLAYER)
-		{
-			CvImprovementEntry* pImprovement = GC.getImprovementInfo(eImprovement);
-			if(pImprovement && pImprovement->GetYieldChange(YIELD_CULTURE) > 0)
-			{
-				int iAdjacentCulture = pImprovement->GetCultureAdjacentSameType();
-				if(iAdjacentCulture > 0)
-				{
-					iYield += ComputeCultureFromAdjacentImprovement(*pImprovement, eImprovement);
-				}
-			}
-
-			iYield += GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_EXTRA_CULTURE_FROM_IMPROVEMENTS);
-			iYield += GET_PLAYER(getOwner()).GetPlayerPolicies()->GetImprovementCultureChange(eImprovement);
-		}
-	}
-
-#ifndef AUI_PLOT_FIX_GET_YIELD_WITH_BUILD_IMPROVEMENT_WITH_ROUTE
-	RouteTypes eRoute = (RouteTypes)GC.getBuildInfo(eBuild)->getRoute();
-
-	// If we're not changing the route that's here, use the route that's here already
-	if(eRoute == NO_ROUTE)
-	{
-		if(!IsRoutePillaged() || GC.getBuildInfo(eBuild)->isRepair())
-		{
-			eRoute = getRouteType();
-		}
-	}
-
-	if(eRoute != NO_ROUTE)
-	{
-		eImprovement = getImprovementType();
-		if(eImprovement != NO_IMPROVEMENT)
-		{
-			for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-			{
-				iYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(eRoute, iI);
-				if(getRouteType() != NO_ROUTE)
-				{
-					iYield -= GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(getRouteType(), iI);
-				}
-			}
-		}
-	}
-#endif
-
-#ifndef AUI_PLOT_FIX_GET_YIELD_WITH_BUILD_IGNORE_FEATURE_EXTENDS_TO_CITY
-	CvCity* pCity = getPlotCity();
-#endif
-
-	if(ePlayer != NO_PLAYER)
-	{
-		// City plot yield
-		if(pCity != NULL)
-		{
-			if(pCity->isRevealed(eTeam, false))
-			{
-				iYield += kYield.getCityChange();
-
-				if(kYield.getPopulationChangeDivisor() != 0)
-					iYield += (pCity->getPopulation() + kYield.getPopulationChangeOffset()) / kYield.getPopulationChangeDivisor();
-
-				bCity = true;
-			}
-		}
-
-		CvCity* pWorkingCity = getWorkingCity();
-
-		// Water plots
-		if(isWater())
-		{
-			if(!isImpassable() && !isMountain())
-			{
-				// Player sea plot yield
-				iYield += GET_PLAYER(ePlayer).getSeaPlotYield(eYield);
-
-				if(pWorkingCity != NULL)
-				{
-					if(pWorkingCity->isRevealed(eTeam, false))
-					{
-						int iCityYield;
-
-						// Worked lake plot
-						if(pWorkingCity->getLakePlotYield(eYield) > 0 && isLake())
-							iCityYield = pWorkingCity->getLakePlotYield(eYield);
-						// Worked sea plot
-						else
-							iCityYield = pWorkingCity->getSeaPlotYield(eYield);
-
-						iYield += iCityYield;
-					}
-				}
-
-				// Worked water resources
-				if(getResourceType(GET_PLAYER(ePlayer).getTeam()) != NO_RESOURCE)
-				{
-					if(pWorkingCity != NULL)
-					{
-						if(pWorkingCity->isRevealed(eTeam, false))
-							iYield += pWorkingCity->getSeaResourceYield(eYield);
-					}
-				}
-
-			}
-		}
-
-		// Worked river plot
-		if(isRiver())
-		{
-			if(!isImpassable() && !isMountain())
-			{
-				if(NULL != pWorkingCity)
-				{
-					if(pWorkingCity->isRevealed(eTeam, false))
-					{
-						iYield += pWorkingCity->getRiverPlotYield(eYield);
-					}
-				}
-			}
-		}
-
-#ifdef NQ_ALLOW_BUILDING_HILL_YIELD_CHANGES
-		if (isHills())
-		{
-			if (NULL != pWorkingCity)
-			{
-				iYield += pWorkingCity->getHillYieldChangesFromBuildings(eYield);
-			}
-		}
-#endif
-
-		// Worked Feature extra yield (e.g. University bonus)
-#ifdef AUI_PLOT_FIX_GET_YIELD_WITH_BUILD_IGNORE_FEATURE_EXTENDS_TO_CITY
-		if (getFeatureType() != NO_FEATURE && !bIgnoreFeature)
-#else
-		if(getFeatureType() != NO_FEATURE)
-#endif
-		{
-			if(pWorkingCity != NULL)
-				iYield += pWorkingCity->GetFeatureExtraYield(getFeatureType(), eYield);
-		}
-
-
-		// Extra yield for terrain
-		if(getTerrainType() != NO_TERRAIN)
-		{
-			if(pWorkingCity != NULL && !isImpassable() && !isMountain())
-			{
-				iYield += pWorkingCity->GetTerrainExtraYield(getTerrainType(), eYield);
-			}
-		}
-
-		ResourceTypes eResource = getResourceType(GET_PLAYER(ePlayer).getTeam());
-		if(eResource != NO_RESOURCE)
-		{
-			const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-			if(pkResourceInfo != NULL && eTeam != NO_TEAM && GET_TEAM(eTeam).GetTeamTechs()->HasTech((TechTypes) pkResourceInfo->getTechReveal()))
-			{
-				if (pkResourceInfo->getPolicyReveal() == NO_POLICY || GET_PLAYER(ePlayer).GetPlayerPolicies()->HasPolicy((PolicyTypes)pkResourceInfo->getPolicyReveal()))
-				{
-					// Extra yield from resources
-					if(pWorkingCity != NULL)
-						iYield += pWorkingCity->GetResourceExtraYield(eResource, eYield);
-
-					// Extra yield from Resources with Trait
-					if(pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
-						iYield += GET_PLAYER(ePlayer).GetPlayerTraits()->GetYieldChangeStrategicResources(eYield);
-					// NQMP GJS - New Netherlands UA BEGIN
-					else if (pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY)
-					{
-						iYield += GET_PLAYER(ePlayer).GetPlayerTraits()->GetYieldChangeLuxuryResources(eYield);
-					}
-					// NQMP GJS - New Netherlands UA END
-				}
-			}
-		}
-	}
-
-	if(bCity)
-	{
-#ifdef AUI_PLOT_FIX_CITY_YIELD_CHANGE_RELOCATED
-		iYield = MAX(iYield, kYield.getMinCity());
-#else
-		iYield = std::max(iYield, kYield.getMinCity());
-
-		// Mod for Player; used for Policies and such
-		int iTemp = GET_PLAYER(getOwner()).GetCityYieldChange(eYield);	// In hundreds - will be added to capitalYieldChange below
-
-		// Coastal City Mod
-		if(pCity->isCoastal())
-		{
-			iYield += GET_PLAYER(getOwner()).GetCoastalCityYieldChange(eYield);
-		}
-
-		// Capital Mod
-		if(pCity->isCapital())
-		{
-			iTemp += GET_PLAYER(getOwner()).GetCapitalYieldChange(eYield);
-
-			int iPerPopYield = pCity->getPopulation() * GET_PLAYER(getOwner()).GetCapitalYieldPerPopChange(eYield);
-			iPerPopYield /= 100;
-			iYield += iPerPopYield;
-		}
-
-		iYield += (iTemp / 100);
-#endif
-	}
-
-	iYield += GC.getGame().getPlotExtraYield(m_iX, m_iY, eYield);
-
-	if(ePlayer != NO_PLAYER)
-	{
-		if(GET_PLAYER(ePlayer).getExtraYieldThreshold(eYield) > 0)
-		{
-			if(iYield >= GET_PLAYER(ePlayer).getExtraYieldThreshold(eYield))
-			{
-				iYield += GC.getEXTRA_YIELD();
-			}
-		}
-
-		if(GET_PLAYER(ePlayer).isGoldenAge())
-		{
-			if(iYield >= kYield.getGoldenAgeYieldThreshold())
-			{
-				iYield += kYield.getGoldenAgeYield();
-			}
-#ifdef NQ_GOLDEN_PILGRIMAGE
-			// this is super hacky, I am a bad person and I should feel bad...
-			if (eYield == YIELD_FAITH && getYieldWithBuild(eBuild, YIELD_GOLD, bWithUpgrade, ePlayer) > 0)
-			{
-				iYield += GET_PLAYER(ePlayer).GetPlayerTraits()->GetGoldenAgeTileBonusFaith();
-			}
-//int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUpgrade, PlayerTypes ePlayer) const
-#endif
-		}
-	}
+//
+//#ifdef AUI_PLOT_FIX_GET_YIELD_WITH_BUILD_IMPROVEMENT_WITH_ROUTE
+//	RouteTypes eRoute = (RouteTypes)GC.getBuildInfo(eBuild)->getRoute();
+//
+//	// If we're not changing the route that's here, use the route that's here already
+//	if (eRoute == NO_ROUTE)
+//	{
+//		if (!IsRoutePillaged() || GC.getBuildInfo(eBuild)->isRepair())
+//		{
+//			eRoute = getRouteType();
+//		}
+//	}
+//
+//	if (eRoute != NO_ROUTE)
+//	{
+//		CvRouteInfo* pRouteInfo = GC.getRouteInfo(eRoute);
+//		if (pRouteInfo)
+//			iYield += pRouteInfo->getYieldChange(eYield);
+//	}
+//#endif
+//
+//	if(eImprovement != NO_IMPROVEMENT)
+//	{
+//		if(bWithUpgrade)
+//		{
+//			//in the case that improvements upgrade, use 2 upgrade levels higher for the
+//			//yield calculations.
+//			ImprovementTypes eUpgradeImprovement = (ImprovementTypes)GC.getImprovementInfo(eImprovement)->GetImprovementUpgrade();
+//			if(eUpgradeImprovement != NO_IMPROVEMENT)
+//			{
+//				//unless it's trade on a low food tile, in which case only use 1 level higher
+//				if((eYield != YIELD_GOLD) || (getYield(YIELD_FOOD) >= GC.getFOOD_CONSUMPTION_PER_POPULATION()))
+//				{
+//					ImprovementTypes eUpgradeImprovement2 = (ImprovementTypes)GC.getImprovementInfo(eUpgradeImprovement)->GetImprovementUpgrade();
+//					if(eUpgradeImprovement2 != NO_IMPROVEMENT)
+//					{
+//						eUpgradeImprovement = eUpgradeImprovement2;
+//					}
+//				}
+//			}
+//
+//			if((eUpgradeImprovement != NO_IMPROVEMENT) && (eUpgradeImprovement != eImprovement))
+//			{
+//				eImprovement = eUpgradeImprovement;
+//			}
+//		}
+//
+//#ifdef AUI_PLOT_FIX_GET_YIELD_WITH_BUILD_IMPROVEMENT_WITH_ROUTE
+//		iYield += calculateImprovementYieldChange(eImprovement, eYield, ePlayer, false, eRoute);
+//#else
+//		iYield += calculateImprovementYieldChange(eImprovement, eYield, ePlayer, false);
+//#endif
+//
+//		if (eYield == YIELD_CULTURE && getOwner() != NO_PLAYER)
+//		{
+//			CvImprovementEntry* pImprovement = GC.getImprovementInfo(eImprovement);
+//			if(pImprovement && pImprovement->GetYieldChange(YIELD_CULTURE) > 0)
+//			{
+//				int iAdjacentCulture = pImprovement->GetCultureAdjacentSameType();
+//				if(iAdjacentCulture > 0)
+//				{
+//					iYield += ComputeCultureFromAdjacentImprovement(*pImprovement, eImprovement);
+//				}
+//			}
+//
+//			iYield += GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_EXTRA_CULTURE_FROM_IMPROVEMENTS);
+//			iYield += GET_PLAYER(getOwner()).GetPlayerPolicies()->GetImprovementCultureChange(eImprovement);
+//		}
+//	}
+//
+//#ifndef AUI_PLOT_FIX_GET_YIELD_WITH_BUILD_IMPROVEMENT_WITH_ROUTE
+//	RouteTypes eRoute = (RouteTypes)GC.getBuildInfo(eBuild)->getRoute();
+//
+//	// If we're not changing the route that's here, use the route that's here already
+//	if(eRoute == NO_ROUTE)
+//	{
+//		if(!IsRoutePillaged() || GC.getBuildInfo(eBuild)->isRepair())
+//		{
+//			eRoute = getRouteType();
+//		}
+//	}
+//
+//	if(eRoute != NO_ROUTE)
+//	{
+//		eImprovement = getImprovementType();
+//		if(eImprovement != NO_IMPROVEMENT)
+//		{
+//			for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+//			{
+//				iYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(eRoute, iI);
+//				if(getRouteType() != NO_ROUTE)
+//				{
+//					iYield -= GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(getRouteType(), iI);
+//				}
+//			}
+//		}
+//	}
+//#endif
+//
+//#ifndef AUI_PLOT_FIX_GET_YIELD_WITH_BUILD_IGNORE_FEATURE_EXTENDS_TO_CITY
+//	CvCity* pCity = getPlotCity();
+//#endif
+//
+//	if(ePlayer != NO_PLAYER)
+//	{
+//		// City plot yield
+//		if(pCity != NULL)
+//		{
+//			if(pCity->isRevealed(eTeam, false))
+//			{
+//				iYield += kYield.getCityChange();
+//
+//				if(kYield.getPopulationChangeDivisor() != 0)
+//					iYield += (pCity->getPopulation() + kYield.getPopulationChangeOffset()) / kYield.getPopulationChangeDivisor();
+//
+//				bCity = true;
+//			}
+//		}
+//
+//		CvCity* pWorkingCity = getWorkingCity();
+//
+//		// Water plots
+//		if(isWater())
+//		{
+//			if(!isImpassable() && !isMountain())
+//			{
+//				// Player sea plot yield
+//				iYield += GET_PLAYER(ePlayer).getSeaPlotYield(eYield);
+//
+//				if(pWorkingCity != NULL)
+//				{
+//					if(pWorkingCity->isRevealed(eTeam, false))
+//					{
+//						int iCityYield;
+//
+//						// Worked lake plot
+//						if(pWorkingCity->getLakePlotYield(eYield) > 0 && isLake())
+//							iCityYield = pWorkingCity->getLakePlotYield(eYield);
+//						// Worked sea plot
+//						else
+//							iCityYield = pWorkingCity->getSeaPlotYield(eYield);
+//
+//						iYield += iCityYield;
+//					}
+//				}
+//
+//				// Worked water resources
+//				if(getResourceType(GET_PLAYER(ePlayer).getTeam()) != NO_RESOURCE)
+//				{
+//					if(pWorkingCity != NULL)
+//					{
+//						if(pWorkingCity->isRevealed(eTeam, false))
+//							iYield += pWorkingCity->getSeaResourceYield(eYield);
+//					}
+//				}
+//
+//			}
+//		}
+//
+//		// Worked river plot
+//		if(isRiver())
+//		{
+//			if(!isImpassable() && !isMountain())
+//			{
+//				if(NULL != pWorkingCity)
+//				{
+//					if(pWorkingCity->isRevealed(eTeam, false))
+//					{
+//						iYield += pWorkingCity->getRiverPlotYield(eYield);
+//					}
+//				}
+//			}
+//		}
+//
+//#ifdef NQ_ALLOW_BUILDING_HILL_YIELD_CHANGES
+//		if (isHills())
+//		{
+//			if (NULL != pWorkingCity)
+//			{
+//				iYield += pWorkingCity->getHillYieldChangesFromBuildings(eYield);
+//			}
+//		}
+//#endif
+//
+//		// Worked Feature extra yield (e.g. University bonus)
+//#ifdef AUI_PLOT_FIX_GET_YIELD_WITH_BUILD_IGNORE_FEATURE_EXTENDS_TO_CITY
+//		if (getFeatureType() != NO_FEATURE && !bIgnoreFeature)
+//#else
+//		if(getFeatureType() != NO_FEATURE)
+//#endif
+//		{
+//			if(pWorkingCity != NULL)
+//				iYield += pWorkingCity->GetFeatureExtraYield(getFeatureType(), eYield);
+//		}
+//
+//
+//		// Extra yield for terrain
+//		if(getTerrainType() != NO_TERRAIN)
+//		{
+//			if(pWorkingCity != NULL && !isImpassable() && !isMountain())
+//			{
+//				iYield += pWorkingCity->GetTerrainExtraYield(getTerrainType(), eYield);
+//			}
+//		}
+//
+//		ResourceTypes eResource = getResourceType(GET_PLAYER(ePlayer).getTeam());
+//		if(eResource != NO_RESOURCE)
+//		{
+//			const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+//			if(pkResourceInfo != NULL && eTeam != NO_TEAM && GET_TEAM(eTeam).GetTeamTechs()->HasTech((TechTypes) pkResourceInfo->getTechReveal()))
+//			{
+//				if (pkResourceInfo->getPolicyReveal() == NO_POLICY || GET_PLAYER(ePlayer).GetPlayerPolicies()->HasPolicy((PolicyTypes)pkResourceInfo->getPolicyReveal()))
+//				{
+//					// Extra yield from resources
+//					if(pWorkingCity != NULL)
+//						iYield += pWorkingCity->GetResourceExtraYield(eResource, eYield);
+//
+//					// Extra yield from Resources with Trait
+//					if(pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+//						iYield += GET_PLAYER(ePlayer).GetPlayerTraits()->GetYieldChangeStrategicResources(eYield);
+//					// NQMP GJS - New Netherlands UA BEGIN
+//					else if (pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+//					{
+//						iYield += GET_PLAYER(ePlayer).GetPlayerTraits()->GetYieldChangeLuxuryResources(eYield);
+//					}
+//					// NQMP GJS - New Netherlands UA END
+//				}
+//			}
+//		}
+//	}
+//
+//	if(bCity)
+//	{
+//#ifdef AUI_PLOT_FIX_CITY_YIELD_CHANGE_RELOCATED
+//		iYield = MAX(iYield, kYield.getMinCity());
+//#else
+//		iYield = std::max(iYield, kYield.getMinCity());
+//
+//		// Mod for Player; used for Policies and such
+//		int iTemp = GET_PLAYER(getOwner()).GetCityYieldChange(eYield);	// In hundreds - will be added to capitalYieldChange below
+//
+//		// Coastal City Mod
+//		if(pCity->isCoastal())
+//		{
+//			iYield += GET_PLAYER(getOwner()).GetCoastalCityYieldChange(eYield);
+//		}
+//
+//		// Capital Mod
+//		if(pCity->isCapital())
+//		{
+//			iTemp += GET_PLAYER(getOwner()).GetCapitalYieldChange(eYield);
+//
+//			int iPerPopYield = pCity->getPopulation() * GET_PLAYER(getOwner()).GetCapitalYieldPerPopChange(eYield);
+//			iPerPopYield /= 100;
+//			iYield += iPerPopYield;
+//		}
+//
+//		iYield += (iTemp / 100);
+//#endif
+//	}
+//
+//	iYield += GC.getGame().getPlotExtraYield(m_iX, m_iY, eYield);
+//
+//	if(ePlayer != NO_PLAYER)
+//	{
+//		if(GET_PLAYER(ePlayer).getExtraYieldThreshold(eYield) > 0)
+//		{
+//			if(iYield >= GET_PLAYER(ePlayer).getExtraYieldThreshold(eYield))
+//			{
+//				iYield += GC.getEXTRA_YIELD();
+//			}
+//		}
+//
+//		if(GET_PLAYER(ePlayer).isGoldenAge())
+//		{
+//			if(iYield >= kYield.getGoldenAgeYieldThreshold())
+//			{
+//				iYield += kYield.getGoldenAgeYield();
+//			}
+//#ifdef NQ_GOLDEN_PILGRIMAGE
+//			// this is super hacky, I am a bad person and I should feel bad...
+//			if (eYield == YIELD_FAITH && getYieldWithBuild(eBuild, YIELD_GOLD, bWithUpgrade, ePlayer) > 0)
+//			{
+//				iYield += GET_PLAYER(ePlayer).GetPlayerTraits()->GetGoldenAgeTileBonusFaith();
+//			}
+////int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUpgrade, PlayerTypes ePlayer) const
+//#endif
+//		}
+//	}
 
 	return std::max(0, iYield);
 }

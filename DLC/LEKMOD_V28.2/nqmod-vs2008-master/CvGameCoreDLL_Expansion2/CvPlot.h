@@ -647,7 +647,7 @@ public:
 	int calculateBestNatureYield(YieldTypes eIndex, TeamTypes eTeam) const;
 	int calculateTotalBestNatureYield(TeamTypes eTeam) const;
 	int calculateImprovementYieldChange(ImprovementTypes eImprovement, YieldTypes eYield, PlayerTypes ePlayer, bool bOptimal = false, RouteTypes eAssumeThisRoute = NUM_ROUTE_TYPES) const;
-	int calculateYield(YieldTypes eIndex, bool bDisplay = false);
+	int calculateYield(YieldTypes eIndex, bool bDisplay = false) const;
 	// hard coded extra yields
 	int getExtraYield
 	(
@@ -659,12 +659,12 @@ public:
 		const RouteTypes eRouteType,
 		// owning player
 		const PlayerTypes tileOwner
-	);
+	) const;
 
 	bool hasYield() const;
 	void updateYield();
 
-	int getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUpgrade, PlayerTypes ePlayer) const;
+	int getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUpgrade, PlayerTypes ePlayer);
 
 	int countNumNonCargoAirUnits(TeamTypes eTeam) const;
 
