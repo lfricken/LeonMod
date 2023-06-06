@@ -295,6 +295,14 @@
   <GridButton Anchor="C,B" Size="200,45" Offset="38,200" ID="UnrazeCityButton" Style="BaseButton" ToolTip="TXT_KEY_CITYVIEW_UNRAZE_BUTTON_TT" Hidden="1" ConsumeMouse="1">
     <Label Anchor="C,C" Offset="0,-2" String="TXT_KEY_CITYVIEW_UNRAZE_BUTTON_TEXT" Color0="255.255.200.255" Color1="0.0.0.128" Color2="255.255.200.255" Font="TwCenMT24" FontStyle="SoftShadow"/>
   </GridButton>
+  <!-- PUPPET CITY BUTTON -->
+  <GridButton Anchor="C,B" Size="160,45" Offset="38,250" ID="PuppetCityButton" Style="BaseButton" ToolTip="" Hidden="1">
+    <Label Anchor="C,C" Offset="0,-2" String="TXT_KEY_CITYVIEW_PUPPET_BUTTON_TEXT" Color0="255.255.200.255" Color1="0.0.0.128" Color2="255.255.200.255" Font="TwCenMT24" FontStyle="SoftShadow"/>
+  </GridButton>
+  <!-- ANNEX CITY BUTTON -->
+  <GridButton Anchor="C,B" Size="160,45" Offset="38,250" ID="AnnexCityButton" Style="BaseButton" ToolTip="" Hidden="1">
+    <Label Anchor="C,C" Offset="0,-2" String="TXT_KEY_CITYVIEW_ANNEX_BUTTON_TEXT" Color0="255.255.200.255" Color1="0.0.0.128" Color2="255.255.200.255" Font="TwCenMT24" FontStyle="SoftShadow"/>
+  </GridButton>
   <!-- tile buttons -->
   <Instance Name="PlotButtonInstance">
     <WorldAnchor ID="PlotButtonAnchor">
