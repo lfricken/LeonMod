@@ -1936,16 +1936,18 @@ function DisplayDeal()
 		return;
 	end
 
-	Controls.TradeValueFrame:LocalizeAndSetToolTip("Value perceived by other player.")
-	if (g_Deal) then
-		g_pThem = Players[ g_iThem ];
-		iDealValue = g_pThem:GetDealValue(g_Deal);
-		if (iDealValue < 0) then
-			iDealValue = "[COLOR_WARNING_TEXT]" .. iDealValue .. "[ENDCOLOR]";
-		else
-			iDealValue = "[COLOR_POSITIVE_TEXT]" .. iDealValue .. "[ENDCOLOR]";
+	if (Controls.TradeValueFrame) then -- SimpleDiploTrade does not have this (multiplayer)
+		Controls.TradeValueFrame:LocalizeAndSetToolTip("Value perceived by other player.")
+		if (g_Deal) then
+			g_pThem = Players[ g_iThem ];
+			iDealValue = g_pThem:GetDealValue(g_Deal);
+			if (iDealValue < 0) then
+				iDealValue = "[COLOR_WARNING_TEXT]" .. iDealValue .. "[ENDCOLOR]";
+			else
+				iDealValue = "[COLOR_POSITIVE_TEXT]" .. iDealValue .. "[ENDCOLOR]";
+			end
+			Controls.TradeValue:LocalizeAndSetText(iDealValue);
 		end
-		Controls.TradeValue:LocalizeAndSetText(iDealValue);
 	end
 	
 	--print("Displaying Deal");
