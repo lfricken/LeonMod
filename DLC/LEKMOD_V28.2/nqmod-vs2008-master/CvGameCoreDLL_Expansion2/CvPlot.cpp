@@ -11334,6 +11334,7 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 	}
 
 	// test with new values
+	const bool wasDirty = DLLUI->isDirty(PlotData_DIRTY_BIT);
 	const bool oldImprovementPillaged = IsImprovementPillaged();
 	const bool oldRoutePillaged = IsImprovementPillaged();
 	const FeatureTypes oldFeature = getFeatureType();
@@ -11351,6 +11352,8 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 	setImprovementType(oldImprovement, oldBuilder);
 	SetImprovementPillaged(oldImprovementPillaged);
 	SetRoutePillaged(oldRoutePillaged);
+	setLayoutDirty(false);
+	DLLUI->setDirty(PlotData_DIRTY_BIT, wasDirty);
 
 //
 //#ifdef AUI_PLOT_FIX_GET_YIELD_WITH_BUILD_IMPROVEMENT_WITH_ROUTE
