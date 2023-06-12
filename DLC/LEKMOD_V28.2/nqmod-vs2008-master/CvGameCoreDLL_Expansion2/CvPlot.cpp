@@ -11305,55 +11305,57 @@ void CvPlot::getVisibleResourceState(ResourceTypes& eType, bool& bImproved, bool
 //	--------------------------------------------------------------------------------
 int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUpgrade, PlayerTypes ePlayer)
 {
-	int iYield = 0;
+	return getYield(eYield);
 
-	if (getTerrainType() == NO_TERRAIN)
-		return 0;
+	//int iYield = 0;
 
-	if (!isPotentialCityWork())
-		return 0;
+	//if (getTerrainType() == NO_TERRAIN)
+	//	return 0;
+
+	//if (!isPotentialCityWork())
+	//	return 0;
 
 
-	// removing feature?
-	FeatureTypes newFeature = getFeatureType();
-	int newVariety = getFeatureVariety();
-	if (GC.getBuildInfo(eBuild)->isFeatureRemove(getFeatureType()))
-	{
-		newFeature = NO_FEATURE;
-		newVariety = -1;
-	}
+	//// removing feature?
+	//FeatureTypes newFeature = getFeatureType();
+	//int newVariety = getFeatureVariety();
+	//if (GC.getBuildInfo(eBuild)->isFeatureRemove(getFeatureType()))
+	//{
+	//	newFeature = NO_FEATURE;
+	//	newVariety = -1;
+	//}
 
-	// changing improvement?
-	ImprovementTypes newImprovement = getImprovementType();
-	if ((ImprovementTypes)GC.getBuildInfo(eBuild)->getImprovement() != NO_IMPROVEMENT)
-	{
-		//if (!IsImprovementPillaged() || GC.getBuildInfo(eBuild)->isRepair())
-		//{
-			newImprovement = (ImprovementTypes)GC.getBuildInfo(eBuild)->getImprovement();
-		//}
-	}
+	//// changing improvement?
+	//ImprovementTypes newImprovement = getImprovementType();
+	//if ((ImprovementTypes)GC.getBuildInfo(eBuild)->getImprovement() != NO_IMPROVEMENT)
+	//{
+	//	//if (!IsImprovementPillaged() || GC.getBuildInfo(eBuild)->isRepair())
+	//	//{
+	//		newImprovement = (ImprovementTypes)GC.getBuildInfo(eBuild)->getImprovement();
+	//	//}
+	//}
 
-	// test with new values
-	const bool wasDirty = DLLUI->isDirty(PlotData_DIRTY_BIT);
-	const bool oldImprovementPillaged = IsImprovementPillaged();
-	const bool oldRoutePillaged = IsImprovementPillaged();
-	const FeatureTypes oldFeature = getFeatureType();
-	const int oldFeatureVariety = getFeatureVariety();
-	const ImprovementTypes oldImprovement = getImprovementType();
-	const PlayerTypes oldBuilder = GetPlayerThatBuiltImprovement();
-	{
-		// setting feature type and improvement type will clear the pillage flags automatically
-		setFeatureType(newFeature, newVariety);
-		setImprovementType(newImprovement, ePlayer);
-		iYield = calculateYield(eYield);
-	}
-	// restore
-	setFeatureType(oldFeature, oldFeatureVariety);
-	setImprovementType(oldImprovement, oldBuilder);
-	SetImprovementPillaged(oldImprovementPillaged);
-	SetRoutePillaged(oldRoutePillaged);
-	setLayoutDirty(false);
-	DLLUI->setDirty(PlotData_DIRTY_BIT, wasDirty);
+	//// test with new values
+	//const bool wasDirty = DLLUI->isDirty(PlotData_DIRTY_BIT);
+	//const bool oldImprovementPillaged = IsImprovementPillaged();
+	//const bool oldRoutePillaged = IsImprovementPillaged();
+	//const FeatureTypes oldFeature = getFeatureType();
+	//const int oldFeatureVariety = getFeatureVariety();
+	//const ImprovementTypes oldImprovement = getImprovementType();
+	//const PlayerTypes oldBuilder = GetPlayerThatBuiltImprovement();
+	//{
+	//	// setting feature type and improvement type will clear the pillage flags automatically
+	//	setFeatureType(newFeature, newVariety);
+	//	setImprovementType(newImprovement, ePlayer);
+	//	iYield = calculateYield(eYield);
+	//}
+	//// restore
+	//setFeatureType(oldFeature, oldFeatureVariety);
+	//setImprovementType(oldImprovement, oldBuilder);
+	//SetImprovementPillaged(oldImprovementPillaged);
+	//SetRoutePillaged(oldRoutePillaged);
+	//setLayoutDirty(false);
+	//DLLUI->setDirty(PlotData_DIRTY_BIT, wasDirty);
 
 //
 //#ifdef AUI_PLOT_FIX_GET_YIELD_WITH_BUILD_IMPROVEMENT_WITH_ROUTE
@@ -11645,7 +11647,7 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 //		}
 //	}
 
-	return std::max(0, iYield);
+	//return std::max(0, iYield);
 }
 
 //	--------------------------------------------------------------------------------
