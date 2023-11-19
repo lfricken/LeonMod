@@ -1,203 +1,23 @@
 
-prevent too many internal or external routes
-bazaar seems OP
-silversmith is underpowered
-
-ancient ruins appeared on monutains
 
 
-red for description needs to include city thing
-Colonialism OP
-Free Thought OP (remove food, less science, scale a little better, so it isn't something you rush necessarily, so maybe +1% global science per trade route)
-Secularism wording confusing (every other specialist is 1/2? no)
 
-kendall not seeing notification log?
+
+DO NOT USE. See Leon Priorities
 
 
 
 
 
 
-glitches:
-	my walls wouldn't build in that one city last game
-	barbarian spawned on top of my units on turn 33?
-	rome not getting 1 culture per specialist
-	pantheon +2 trade route text update
+-- folders to search
 
-fix melee boats cant attack past half move
-cities -20% all if below max default health
-one AI trade per turn
-double cost and output of cultural influence buildings
-you can still steal workers from city states, just make the penalty higher
-more mixed plains and grassland
-glitch with goodies appearing in lakes
-correctly round up strategic benefit calculation
-ignore interface scaling options
-
-
-
-
-
-Coast 2fd
-Ocean 1fd 1pd
-Mountain 1fd 2 gold
-Snow 2pd
-Snow with forest 1fd 2pd
-Ice 1f 1sc
-
-
-Map/game settings - auto check the good ones, see the default button
-	ancient era
-	online
-	simulatneious
-	private game
-	all players found religions
-	allow policy saving
-	fast combat
-	fast movement
-	random player activation order
-	ai cannot spread religion to humans
-	do NOT allow promotion saving
-
-m_bTechsDiscovered needs to be serialized
-roll needs to have randomness
-
-
-
-policy start % odds
-	guaranteed - diplo influence for killing barbarians
-
-kendall unit limit
-
-add diplomacy overview entry for your player
-
-antiquity card needs to only be activatable after they are revealed?
-do hidden antiquity sites still work at all?
-
-
-deal history screen is busted?
-do combat strength calculation tooltip serverside
-
-
-substantial trade route bonus if connected via roads
-road 1/gold, railroad 1/2 gold (hard because shit programming)
-india has bonuses to cattle, production got reduced (visual glitch where improvement) (hard to fix, need to do generify calculations)
-reorder game options - auto check the good ones, see the default button
-
-
-auto delete obsolete cards
-
-C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization V\Resource\DX9
-
-
-
-usage of strategic resources too low
-no ancient era cards? No good way to hand them out (combine with classical)
-decouple victory point options from engine building
-wonder descriptions need to say whether they have a card
-caravansary harbor mutually exclusive
-no early city state allies somehow?
-
-
-
-antiquity card needs to only be activatable after
-do hidden antiquity sites still work at all? just redo antiquity logic
-
-
-[523689.437] DBG: false CvGame.cpp:5897 Please send Jon this with your last 5 autosaves and what changelist # you're playing. Could not find diplomacy response. Leader - LEADER_MACEDON, Response - RESPONSE_FIRST_GREETING
-
-
-Map
-	goody hut random resource chunk
-
-	natural wonders
-
-	city states
-
-
-	spawn points
-	strategic, more fish?
-
-	flood plains after rivers
-	luxuries
-	bonus goodies and features (avoid water bonuses on lakes)
-
-	
-	redo city state spawns - lock CS area to avoid land growth?
-	randomly conjoin at the end of land
-	5 and 10 player is unfair, people should not spawn in middle
-
-
-	DO
-	get rid of grid point logic
-	extract things to functions
-	balance sea bonus resources
-	balance sea luxuries
-	map gen would join function
-	map gen script fill variable
-	map gen script snake variable
-	carefully control start position and map gen
-		make sure there are variety of sea benefits
-
-
-
-
-
-
-
--- folders to search 
 C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization V\Assets\DLC\LEKMOD_V28.2\UI, C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization V\Assets\DLC\Expansion2\UI, C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization V\Assets\DLC\Expansion\UI, C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization V\Assets\UI
 
 
 
 
 
-
-
-1543
-1633
-
-
-
-Victory Point icon [ICON_TROPHY_GOLD]
-fix city health after AI capture
-
-ship passable makes a city coastal
-coast spawns always?
-fix city state quest
-no city attack for 15 turns after founding
-
-
-uprisings ideology (without unhappiness)
-
-
-health (so it is at risk of getting captured)
-
-
-puppet city buff
-Temple +1 Influence
-City state allies give Global Influence points which are used for voting, rather than allyship. You win the leader victory when you reach ?? Global Influence.
-
-
-
-min island size?
-Production city goody hut build nothing glitch
-
-
-
-victory conditions 300 points
-Influence and gold for city state kill barb
-Reduce notifications that pop up
-
-
-Trade Route Reset If Cannot follow route
-Trade route start at target and make 1 way trip home
-
-More Goody Huts
-More Barbarians/Camps (spawn in vision potentially)
-1 Naval and combat unit per tech level
-gatling and machine gun range
-future tech military advantage
 
 
 
