@@ -2901,34 +2901,34 @@ int CvCityCitizens::GetNumSpecialistsAllowedByBuilding(const CvBuildingEntry& kB
 
 int CvCityCitizens::NeededPopForOneMoreSpecialist() const
 {
-	const PlayerTypes ePlayer = GetCity()->getOwner();
-	const int minBlueCollar = GC.getCITIZENS_MIN_FOR_SPECIALIST(ePlayer);
-	const int divisor = GC.getCITIZENS_PER_SPECIALIST(ePlayer);
+	//const PlayerTypes ePlayer = GetCity()->getOwner();
+	//const int minBlueCollar = GC.getCITIZENS_MIN_FOR_SPECIALIST(ePlayer);
+	//const int divisor = GC.getCITIZENS_PER_SPECIALIST(ePlayer);
 
-	const int start = minBlueCollar + 1;
-	const int pop = GetCity()->getPopulation();
+	//const int start = minBlueCollar + 1;
+	//const int pop = GetCity()->getPopulation();
 
-	if (pop < start)
-		return start - pop;
+	//if (pop < start)
+	//	return start - pop;
 
-	const int remainder = pop - start;
-	int todo = remainder % divisor;
-	todo = divisor - todo;
-	return todo;
+	//const int remainder = pop - start;
+	//int todo = remainder % divisor;
+	//todo = divisor - todo;
+	return 0;
 }
 
 bool CvCityCitizens::CanAddOneMoreSpecialist() const
 {
-	const PlayerTypes ePlayer = GetCity()->getOwner();
-	const int minBlueCollar = GC.getCITIZENS_MIN_FOR_SPECIALIST(ePlayer);
-	const int divisor = GC.getCITIZENS_PER_SPECIALIST(ePlayer);
-	const int currentSpecialists = GetTotalSpecialistCount();
+	//const PlayerTypes ePlayer = GetCity()->getOwner();
+	//const int minBlueCollar = GC.getCITIZENS_MIN_FOR_SPECIALIST(ePlayer);
+	//const int divisor = GC.getCITIZENS_PER_SPECIALIST(ePlayer);
+	//const int currentSpecialists = GetTotalSpecialistCount();
 
-	const int specialistPool = max(0, divisor + GetCity()->getPopulation() - minBlueCollar);
-	const int maxSpecialists = specialistPool / divisor;
+	//const int specialistPool = max(0, divisor + GetCity()->getPopulation() - minBlueCollar);
+	//const int maxSpecialists = specialistPool / divisor;
 
-	const bool result = currentSpecialists < maxSpecialists;
-	return result;
+	//const bool result = currentSpecialists < maxSpecialists;
+	return true;
 }
 
 /// Are we in the position to add another Specialist to eBuilding?

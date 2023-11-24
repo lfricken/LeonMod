@@ -9,7 +9,7 @@ function ResetMultiplayerOptions()
 	PreGame.SetCivilizationAdjective( 0, "");
 	
 		-- Default Map Size
-	local worldSize = GameInfo.Worlds["WORLDSIZE_STANDARD"];
+	local worldSize = GameInfo.Worlds["WORLDSIZE_LARGE"];
 	if(worldSize == nil) then
 		worldSize = GameInfo.Worlds()(); -- Get first world size found.
 	end
@@ -44,7 +44,7 @@ function ResetMultiplayerOptions()
 	PreGame.ResetMapOptions();
 
 	PreGame.SetPrivateGame(true);
-	PreGame.SetPitbossTurnTime( "300" );
+	PreGame.SetPitbossTurnTime( "180" );
 	
 	-- Default Game Options
 	if (PreGame.IsHotSeatGame()) then

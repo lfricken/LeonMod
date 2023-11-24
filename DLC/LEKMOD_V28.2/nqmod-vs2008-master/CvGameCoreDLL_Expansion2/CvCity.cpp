@@ -11077,7 +11077,10 @@ int CvCity::getYieldRate(YieldTypes eIndex, bool bIgnoreTrade) const
 	// puppets do not consume or produce
 	if (IsPuppet())
 	{
-		return 0;
+		if (eIndex == YIELD_DIPLOMATIC_SUPPORT)
+			return +2;
+		else
+			return 0;
 	}
 	VALIDATE_OBJECT
 	return (getYieldRateTimes100(eIndex, bIgnoreTrade) / 100);
