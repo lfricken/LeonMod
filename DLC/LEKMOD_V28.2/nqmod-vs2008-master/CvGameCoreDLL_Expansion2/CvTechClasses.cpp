@@ -1466,7 +1466,7 @@ int CvPlayerTechs::GetResearchTurnsLeftTimes100(TechTypes eTech, bool bOverflow)
 				// If this is us or if the tech matches, then increment totals
 				if((iI == m_pPlayer->GetID()) || kPlayer.GetPlayerTechs()->GetCurrentResearch() == eTech)
 				{
-					iResearchRate += kPlayer.GetScienceTimes100();
+					iResearchRate += 5; // now just 5 per turn kPlayer.GetScienceTimes100();
 #ifdef AUI_PLAYER_FIX_NO_RESEARCH_OVERFLOW_DOUBLE_DIP
 					iOverflow += kPlayer.getOverflowResearch();
 #else
