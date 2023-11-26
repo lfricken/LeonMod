@@ -2543,7 +2543,8 @@ T100 CvGlobals::getSCIENCE_CATCHUP_DIFF_NONET100() const
 }
 T100 CvGlobals::getFIRST_BARB_SPAWNT10000() const
 {
-	return 7 * 100; // 7% (not x10000 because that would be 7 times the game length
+	// 2 is turn 5 in online mode
+	return 2 * 100; // 7% (not x10000 because that would be 7 times the game length
 }
 T100 CvGlobals::getTILES_PER_BARB() const
 {
