@@ -3,6 +3,7 @@
 #include "CvGameCoreDLLPCH.h"
 #include "CvPlayer.h"
 #include "CvGameCoreUtils.h"
+#include "CvGoodyHuts.h"
 
 
 void addColoredValue(stringstream& s, bool isGreen, const long value, const string description)
@@ -623,5 +624,278 @@ void CvPlayer::UpdateFreePolicies()
 	//if (CONDITIONAL)
 	//{
 	//	UpdateHasPolicy(POLICY_NAME", true);
+	//}
+}
+
+
+
+
+const int t100 = (100 * 100);
+// random number
+int rand(int maxExclusive, const CvPlot* pPlot)
+{
+	return (GC.getGame().getJonRandNum(maxExclusive, "generic_rand", pPlot, 1));
+}
+// randomly adjust this value by +/- 10%
+int varyByPercent(int original, const CvPlot* pPlot)
+{
+	const int range = 20; // random value up to this value
+	const int percentageT100 = rand(range, pPlot) - (range / 2); // percentageT100 now in range [-range, +range]
+	const int resultT100 = original * (100 + percentageT100);
+	return resultT100 / 100;
+}
+// Food a goody hut gives
+int hutFood(const CvPlot* pPlot)
+{
+	int value = (2 * (7 * t100 + GC.onePerOnlineSpeedTurnT10000()));
+	value *= GC.adjustForSpeedT100(YIELD_FOOD);
+	value /= 100;
+	return varyByPercent(value, pPlot) / (100 * 100);
+}
+// Production a goody hut gives
+int hutProduction(const CvPlot* pPlot)
+{
+	int valueT10000 = (2 * (7 * t100 + GC.onePerOnlineSpeedTurnT10000()));
+	valueT10000 *= GC.adjustForSpeedT100(YIELD_PRODUCTION);
+	valueT10000 /= 100;
+	return varyByPercent(valueT10000, pPlot) / (100 * 100);
+}
+// Gold a goody hut gives
+int hutGold(const CvPlot* pPlot)
+{
+	T100 valueT10000 = (2 * (60 * t100 + GC.onePerOnlineSpeedTurnT10000()));
+	valueT10000 *= GC.adjustForSpeedT100(YIELD_GOLD);
+	valueT10000 /= 100;
+	return varyByPercent(valueT10000, pPlot) / (100 * 100);
+}
+// Science a goody hut gives
+int hutScience(const CvPlot* pPlot)
+{
+	//T100 valueT10000 = (2 * (20 * t100 + GC.onePerOnlineSpeedTurnT10000()));
+	//valueT10000 *= GC.adjustForSpeedT100(YIELD_SCIENCE);
+	//valueT10000 /= 100;
+	//return varyByPercent(valueT10000, pPlot) / (100 * 100);
+	return 5;
+}
+// Culture a goody hut gives
+int hutCulture(const CvPlot* pPlot)
+{
+	T100 valueT10000 = (2 * (10 * t100 + GC.onePerOnlineSpeedTurnT10000()));
+	valueT10000 *= 2;
+	valueT10000 /= 3;
+	valueT10000 *= GC.adjustForSpeedT100(YIELD_CULTURE);
+	valueT10000 /= 100;
+	return varyByPercent(valueT10000, pPlot) / (100 * 100);
+}
+// Culture a goody hut gives
+int hutFaith(const CvPlot* pPlot)
+{
+	T100 valueT10000 = 2 * (15 * t100 + GC.onePerOnlineSpeedTurnT10000());
+	valueT10000 *= GC.adjustForSpeedT100(YIELD_FAITH);
+	valueT10000 /= 100;
+	return varyByPercent(valueT10000, pPlot) / (100 * 100);
+}
+// Map radius a goody hut gives
+int hutMapRadius(const CvPlot* pPlot)
+{
+	int baseRadius = 9; // starts with this much radius
+	int turnsPerRadius = 12; // on average, will grant 1 more radius every 20 turns on online speed
+	int randValue = GC.getGame().getJonRandNum(turnsPerRadius + 1, "Goody Hut Map", pPlot, 35); // [1-20]
+	int bonusRadius = ((GC.onePerOnlineSpeedTurnT10000() / t100) + randValue) / turnsPerRadius;
+	int value = baseRadius + bonusRadius;
+	return value;
+}
+// random tile offset
+int hutMapOffset()
+{
+	return 2;
+}
+// odds any individual tile will be revealed
+T100 hutMapHexProbabilityT100()
+{
+	return 80;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
+{
+	//////////
+	// Load from database
+	//////////
+	CvAssertMsg(canReceiveGoody(pPlot, eGoody, pUnit), "Instance is expected to be able to recieve goody");
+	Database::SingleResult kResult;
+	CvGoodyInfo kGoodyInfo;
+	const bool bResult = DB.SelectAt(kResult, "GoodyHuts", eGoody);
+	DEBUG_VARIABLE(bResult);
+	CvAssertMsg(bResult, "Cannot find goody info.");
+	kGoodyInfo.CacheResult(kResult);
+	CvGoodyHuts::DoPlayerReceivedGoody(GetID(), eGoody);
+
+	stringstream ss;
+	int iRewardValue = 0; // amount of reward
+	int iNumYieldBonuses = 0; // count plot yield display lines
+
+	//////////
+	// Gold
+	//////////
+	if (kGoodyInfo.isGold())
+	{
+		iRewardValue = hutGold(pPlot);
+		GetTreasury()->ChangeGold(iRewardValue);
+
+		ReportYieldFromKill(YIELD_GOLD, iRewardValue, pPlot->getX(), pPlot->getY(), iNumYieldBonuses);
+		iNumYieldBonuses += 1;
+	}
+	//////////
+	// Food
+	//////////
+	if (kGoodyInfo.isFood())
+	{
+		CvCity* pChosenCity = this->getCapitalCity();
+		if (pChosenCity != NULL)
+		{
+			iRewardValue = hutFood(pPlot);
+			pChosenCity->changeFood(iRewardValue);
+
+			ReportYieldFromKill(YIELD_FOOD, iRewardValue, pPlot->getX(), pPlot->getY(), iNumYieldBonuses);
+			iNumYieldBonuses += 1;
+		}
+	}
+	//////////
+	// Production
+	//////////
+	if (kGoodyInfo.isProduction())
+	{
+		CvCity* pChosenCity = this->getCapitalCity();
+		if (pChosenCity != NULL)
+		{
+			iRewardValue = hutProduction(pPlot);
+			pChosenCity->changeProduction(iRewardValue);
+
+			ReportYieldFromKill(YIELD_PRODUCTION, iRewardValue, pPlot->getX(), pPlot->getY(), iNumYieldBonuses);
+			iNumYieldBonuses += 1;
+		}
+	}
+	//////////
+	// Beakers
+	//////////
+	if (kGoodyInfo.isBeakers())
+	{
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if (pkScriptSystem)
+		{
+			CvLuaArgsHandle args;
+			args->Push(GetID());
+			args->Push(NO_TECH);
+
+			bool bScriptResult;
+			LuaSupport::CallHook(pkScriptSystem, "GoodyHutTechResearched", args.get(), bScriptResult);
+		}
+
+		// give this many beakers to the player
+		iRewardValue = hutScience(pPlot);
+		CvPlayer* pPlayer = this;
+		CvTeam* pTeam = &GET_TEAM(pPlayer->getTeam());
+		TechTypes eCurrentTech = pPlayer->GetPlayerTechs()->GetCurrentResearch();
+		if (eCurrentTech == NO_TECH)
+			this->changeOverflowResearch(iRewardValue);
+		else
+			pTeam->GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iRewardValue, pPlayer->GetID());
+
+		// show on tile
+		ReportYieldFromKill(YIELD_SCIENCE, iRewardValue, pPlot->getX(), pPlot->getY(), iNumYieldBonuses);
+		iNumYieldBonuses += 1;
+	}
+	//////////
+	// Culture
+	//////////
+	if (kGoodyInfo.isCulture())
+	{
+		iRewardValue = hutCulture(pPlot);
+		changeJONSCulture(iRewardValue);
+
+		// show on tile
+		ReportYieldFromKill(YIELD_CULTURE, iRewardValue, pPlot->getX(), pPlot->getY(), iNumYieldBonuses);
+		iNumYieldBonuses += 1;
+	}
+	//////////
+	// Faith
+	//////////
+	if (kGoodyInfo.isFaith())
+	{
+		iRewardValue = hutFaith(pPlot);
+		ChangeFaith(iRewardValue);
+
+		// show on tile
+		ReportYieldFromKill(YIELD_FAITH, iRewardValue, pPlot->getX(), pPlot->getY(), iNumYieldBonuses);
+		iNumYieldBonuses += 1;
+	}
+	//////////
+	// Map
+	//////////
+	if (kGoodyInfo.isMap())
+	{
+		const int iRange = hutMapRadius(pPlot);
+		reveal(getTeam(), pPlot, iRange, hutMapHexProbabilityT100());
+	}
+	//////////
+	// Card
+	//////////
+	if (kGoodyInfo.isCard() > 0)
+	{
+		int numCards = kGoodyInfo.isCard();
+		for (int i = 0; i < numCards; ++i)
+		{
+			TradingCardTypes goodyHutCard = CardsGetRandomValid();
+			CardsAdd(goodyHutCard); // handles the message
+		}
+	}
+	//////////
+	// Units
+	//////////
+	if (kGoodyInfo.isUnit())
+	{
+		UnitTypes eUnit = (UnitTypes)GC.getInfoTypeForString("UNIT_ARCHER");
+		CvCity* pChosenCity = this->getCapitalCity(); // try to put at capital
+		CvPlot* pTargetPlot = pPlot;
+		if (pChosenCity != NULL)
+		{
+			pTargetPlot = pChosenCity->plot();
+		}
+
+		CvUnit* pNewUnit = initUnit(eUnit, pTargetPlot->getX(), pTargetPlot->getY());
+		pNewUnit->setXY(pTargetPlot->getX(), pTargetPlot->getY(), false, true, pTargetPlot->isVisibleToWatchingHuman(), true);
+		pNewUnit->SetPosition(pTargetPlot); // Need this to put the unit in the right spot graphically
+		pNewUnit->finishMoves();
+	}
+
+	if (iRewardValue != 0)
+	{
+		ss << iRewardValue;
+	}
+
+	CvString strBuffer = GetLocalizedText(kGoodyInfo.GetDescriptionKey(), ss.str().c_str());
+	// messages
+	if (!strBuffer.empty())
+	{
+		if (GC.getGame().getActivePlayer() == GetID())
+			GC.messagePlot(0, pPlot->GetPlotIndex(), GetID(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer);
+	}
+
+	/// just remove the default popup
+	// If it's the active player then show the popup
+	//if(GetID() == GC.getGame().getActivePlayer())
+	//{
+	//	GC.getMap().updateDeferredFog();
+
+	//	// Don't show in MP, or if the player has turned it off
+	//	bool bDontShowRewardPopup = GC.GetEngineUserInterface()->IsOptionNoRewardPopups();
+	//	if(!GC.getGame().isNetworkMultiPlayer() && !bDontShowRewardPopup)	// KWG: Candidate for !GC.getGame().isOption(GAMEOPTION_SIMULTANEOUS_TURNS)
+	//	{
+	//		CvPopupInfo kPopupInfo(BUTTONPOPUP_GOODY_HUT_REWARD, eGoody, iRewardValue);
+	//		GC.GetEngineUserInterface()->AddPopup(kPopupInfo);
+	//		// We are adding a popup that the player must make a choice in, make sure they are not in the end-turn phase.
+	//		CancelActivePlayerEndTurn();
+	//	}
 	//}
 }
