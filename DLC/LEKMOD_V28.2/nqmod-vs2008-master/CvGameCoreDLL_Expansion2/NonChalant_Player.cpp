@@ -43,47 +43,49 @@ string CvPlayer::GetCityCapCurrent_WithSourcesTooltip(int* sum) const
 	}	
 	{ // 1 for every other era, first unlock in classical
 		// ancient era is id 0, classical is id 1...
-		appendNewLine(&ss, sum, "from the {TXT_KEY_ERA_1}", +1, player.GetCurrentEra() >= 1); // {} evaluates to Classical Era
-		appendNewLine(&ss, sum, "from the {TXT_KEY_ERA_3}", +1, player.GetCurrentEra() >= 3);
-		appendNewLine(&ss, sum, "from the {TXT_KEY_ERA_5}", +1, player.GetCurrentEra() >= 5);
-		appendNewLine(&ss, sum, "from the {TXT_KEY_ERA_7}", +1, player.GetCurrentEra() >= 7);
+		appendNewLine(&ss, sum, "from the {TXT_KEY_ERA_1}", +1, player.GetCurrentEra() >= 1); // evaluates to Classical Era
+		appendNewLine(&ss, sum, "from the {TXT_KEY_ERA_2}", +1, player.GetCurrentEra() >= 2); // medieval
+		appendNewLine(&ss, sum, "from the {TXT_KEY_ERA_3}", +1, player.GetCurrentEra() >= 3); // renaissance
+		appendNewLine(&ss, sum, "from the {TXT_KEY_ERA_4}", +1, player.GetCurrentEra() >= 4); // industrial
 		// last era is 8 (future)
 	}
-	{ // 1 for 8 policies (free policies included)
-		appendNewLine(&ss, sum, "from 8 or more Social Policies", +1, player.GetNumPoliciesTotal() >= 8);
-	}
-	{ // 1 per courthouse
-		const int numConquered = CountNumCities(ConqueredCities);
-		int maxConqueredBonus = 2;
-		// iron curtain +1
-		if (player.HasPolicy(POLICY_NEW_ORDER))
-			maxConqueredBonus += 2;
-		if (player.HasPolicy(POLICY_HONOR_CLOSER_4))
-			maxConqueredBonus += 1;
+	//{ // 1 for 8 policies (free policies included)
+	//	appendNewLine(&ss, sum, "from 8 or more Social Policies", +1, player.GetNumPoliciesTotal() >= 8);
+	//}
+	//{ // 1 per courthouse
+	//	const int numConquered = CountNumCities(ConqueredCities);
+	//	int maxConqueredBonus = 2;
+	//	// iron curtain +1
+	//	if (player.HasPolicy(POLICY_NEW_ORDER))
+	//		maxConqueredBonus += 2;
+	//	if (player.HasPolicy(POLICY_HONOR_CLOSER_4))
+	//		maxConqueredBonus += 1;
 
-		stringstream desc;
-		desc << "from 1 per Conquered City (max bonus of " << maxConqueredBonus << ")";
-		appendNewLine(&ss, sum, desc.str(), min(maxConqueredBonus, numConquered), numConquered > 0);
-	}
-	{ // liberty finisher
-		appendNewLine(&ss, sum, "from adopting 4 policies in the Liberty branch", +1, player.HasPolicy(POLICY_LIBERTY_CLOSER_4));
-	}
-	{ // expansive card
-		appendNewLine(&ss, sum, "from the Expansive Rite", +1, player.HasPolicy(POLICY_CARD_ANCIENT_POLITICAL_EXPANSIVE_ACTIVE));
-	}
-	{ // colonialism +1
-		appendNewLine(&ss, sum, "from the Colonialism Policy", +1, player.HasPolicy(POLICY_MERCHANT_NAVY));
-	}	
-	{ 
-		appendNewLine(&ss, sum, "from the Red Fort", +1, player.HasWonder(BUILDINGCLASS_RED_FORT));
-	}
-	{ // iron curtain +2
-		appendNewLine(&ss, sum, "from the Iron Curtain Tenet", +2, player.HasPolicy(POLICY_IRON_CURTAIN));
-	}
+	//	stringstream desc;
+	//	desc << "from 1 per Conquered City (max bonus of " << maxConqueredBonus << ")";
+	//	appendNewLine(&ss, sum, desc.str(), min(maxConqueredBonus, numConquered), numConquered > 0);
+	//}
+	//{ // liberty finisher
+	//	appendNewLine(&ss, sum, "from adopting 4 policies in the Liberty branch", +1, player.HasPolicy(POLICY_LIBERTY_CLOSER_4));
+	//}
+	//{ // expansive card
+	//	appendNewLine(&ss, sum, "from the Expansive Rite", +1, player.HasPolicy(POLICY_CARD_ANCIENT_POLITICAL_EXPANSIVE_ACTIVE));
+	//}
+	//{ // colonialism +1
+	//	appendNewLine(&ss, sum, "from the Colonialism Policy", +1, player.HasPolicy(POLICY_MERCHANT_NAVY));
+	//}	
+	//{ 
+	//	appendNewLine(&ss, sum, "from the Red Fort", +1, player.HasWonder(BUILDINGCLASS_RED_FORT));
+	//}
+	//{ // iron curtain +2
+	//	appendNewLine(&ss, sum, "from the Iron Curtain Tenet", +2, player.HasPolicy(POLICY_IRON_CURTAIN));
+	//}
 
 	// ai get to build as many as they want
 	if (!isHuman())
-		*sum += 999;
+	{
+		appendNewLine(&ss, sum, "Artifical Intelligence", +999, true); // industrial
+	}
 
 	return ss.str();
 }

@@ -341,6 +341,7 @@ CvUnit::CvUnit() :
 	, m_pReligion(FNEW(CvUnitReligion, c_eCiv5GameplayDLL, 0))
 	, m_iMapLayer(DEFAULT_UNIT_MAP_LAYER)
 	, m_iNumGoodyHutsPopped(0)
+	, m_iActionPoints("CvUnit::m_iActionPoints", m_syncArchive)
 	, m_eGiveDomain("CvUnit::m_eGiveDomain", m_syncArchive)
 	, m_eConvertDomain("CvUnit::m_eConvertDomain", m_syncArchive)
 	, m_eConvertDomainUnit("CvUnit::m_eConvertDomainUnit", m_syncArchive)
@@ -665,6 +666,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	}
 
 	setMoves(maxMoves());
+	m_iActionPoints = getUnitInfo().GetActionPoints();
 
 	// Religious unit? If so takes religion from city
 	if (getUnitInfo().IsSpreadReligion() || getUnitInfo().IsRemoveHeresy())
@@ -1123,6 +1125,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 
 	m_iMapLayer = DEFAULT_UNIT_MAP_LAYER;
 	m_iNumGoodyHutsPopped = 0;
+	m_iActionPoints = 0;
 	m_iLastGameTurnAtFullHealth = -1;
 
 	if(!bConstructorCall)
@@ -10252,6 +10255,13 @@ bool CvUnit::build(BuildTypes eBuild)
 				kill(true);
 			}
 
+			// handle action points, which can expend workers
+			m_iActionPoints -= 1;
+			if (m_iActionPoints == 0) // if it was already 0 (and is now negative 1), that means the value was never set so it shouldn't count
+			{
+				kill(true);
+			}
+
 			// Add to player's Improvement count, which will increase cost of future Improvements
 			if(pkBuildInfo->getImprovement() != NO_IMPROVEMENT || pkBuildInfo->getRoute() != NO_ROUTE)	// Prevents chopping Forest or Jungle from counting
 			{
@@ -13448,6 +13458,14 @@ int CvUnit::fortifyModifier() const
 	return iValue;
 }
 
+int CvUnit::GetActionPoints() const
+{
+	return m_iActionPoints;
+}
+int CvUnit::GetActionPointsMax() const
+{
+	return getUnitInfo().GetActionPoints();
+}
 
 //	--------------------------------------------------------------------------------
 int CvUnit::experienceNeeded() const
@@ -20205,7 +20223,7 @@ void CvUnit::read(FDataStream& kStream)
 	{
 		m_iNumGoodyHutsPopped = 0;
 	}
-
+	kStream >> m_iActionPoints;
 	kStream >> m_bIgnoreDangerWakeup;
 
 	kStream >> m_iEmbarkedAllWaterCount;
@@ -20393,6 +20411,7 @@ void CvUnit::write(FDataStream& kStream) const
 	kStream << m_iEverSelectedCount;
 	kStream << m_iMapLayer;
 	kStream << m_iNumGoodyHutsPopped;
+	kStream << m_iActionPoints;
 
 	// slewis - move to autovariable when saves are broken
 	kStream << m_bIgnoreDangerWakeup;
@@ -23924,7 +23943,7 @@ bool CvUnit::IsHigherTechThan(UnitTypes otherUnit) const
 		CvTechEntry* pEntry = GC.GetGameTechs()->GetEntry(eMyTech);
 		if(pEntry)
 		{
-			iMyTechCost = pEntry->GetResearchCost();
+			iMyTechCost = pEntry->GetResearchCost(GC.getGamePointer());
 		}
 	}
 
@@ -23937,7 +23956,7 @@ bool CvUnit::IsHigherTechThan(UnitTypes otherUnit) const
 			CvTechEntry* pEntry = GC.GetGameTechs()->GetEntry(eOtherTech);
 			if(pEntry)
 			{
-				iOtherTechCost = pEntry->GetResearchCost();
+				iOtherTechCost = pEntry->GetResearchCost(GC.getGamePointer());
 			}
 		}
 	}

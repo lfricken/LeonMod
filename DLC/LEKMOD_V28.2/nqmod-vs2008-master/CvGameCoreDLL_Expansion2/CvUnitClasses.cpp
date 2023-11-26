@@ -39,6 +39,7 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_iHurryMultiplier(0),
 	m_bRushBuilding(false),
 	m_iBaseGold(0),
+	m_iActionPoints(0),
 	m_iNumGoldPerEra(0),
 	m_bSpreadReligion(false),
 	m_bRemoveHeresy(false),
@@ -191,6 +192,7 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_iBaseHurry = kResults.GetInt("BaseHurry");
 	m_iHurryMultiplier = kResults.GetInt("HurryMultiplier");
 	m_bRushBuilding= kResults.GetInt("RushBuilding");
+	m_iActionPoints = kResults.GetInt("ActionPoints");
 	m_iBaseGold = kResults.GetInt("BaseGold");
 	m_iNumGoldPerEra = kResults.GetInt("NumGoldPerEra");
 	m_bSpreadReligion = kResults.GetBool("SpreadReligion");
@@ -584,6 +586,12 @@ bool CvUnitEntry::IsRushBuilding() const
 int CvUnitEntry::GetBaseGold() const
 {
 	return m_iBaseGold;
+}
+
+/// Base boost to gold (for great people)
+int CvUnitEntry::GetActionPoints() const
+{
+	return m_iActionPoints;
 }
 
 /// Era boost to gold (for great people)

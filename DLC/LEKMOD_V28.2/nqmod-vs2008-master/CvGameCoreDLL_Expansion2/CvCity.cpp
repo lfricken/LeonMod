@@ -11074,14 +11074,6 @@ int CvCity::getHappinessModifier(YieldTypes eIndex) const
 //	--------------------------------------------------------------------------------
 int CvCity::getYieldRate(YieldTypes eIndex, bool bIgnoreTrade) const
 {
-	// puppets do not consume or produce
-	if (IsPuppet())
-	{
-		if (eIndex == YIELD_DIPLOMATIC_SUPPORT)
-			return +2;
-		else
-			return 0;
-	}
 	VALIDATE_OBJECT
 	return (getYieldRateTimes100(eIndex, bIgnoreTrade) / 100);
 }
@@ -11090,6 +11082,17 @@ int CvCity::getYieldRate(YieldTypes eIndex, bool bIgnoreTrade) const
 int CvCity::getYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade) const
 {
 	VALIDATE_OBJECT
+
+	// puppets do not consume or produce
+	if (IsPuppet())
+	{
+		// puppets give diplomatic support for each citizen
+		if (eIndex == YIELD_DIPLOMATIC_SUPPORT)
+			return +100 * getPopulation();
+		else
+			return 0;
+	}
+
 	int iBaseYield = 0;
 
 	// Resistance - no Science, Gold or Production (Prod handled in ProductionDifference)
@@ -12187,7 +12190,7 @@ void CvCity::updateStrengthValue()
 int CvCity::getStrengthValueT100(bool bForRangeStrike) const
 {
 	VALIDATE_OBJECT
-	// Strike strikes are weaker
+	// Ranged strikes are weaker
 	if(bForRangeStrike)
 	{
 		int iValue = m_iStrengthValueT100;
@@ -12233,7 +12236,6 @@ int CvCity::getStrengthValueT100(bool bForRangeStrike) const
 
 		return iValue;
 	}
-
 	return m_iStrengthValueT100;
 }
 

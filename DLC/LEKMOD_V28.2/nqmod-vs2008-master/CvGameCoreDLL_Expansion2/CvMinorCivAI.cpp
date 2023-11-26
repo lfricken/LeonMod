@@ -8572,7 +8572,7 @@ TechTypes CvMinorCivAI::GetGoodTechPlayerDoesntHave(PlayerTypes ePlayer, int iRo
 			// Player can research this Tech
 			if(kPlayer.GetPlayerTechs()->CanResearch(eTech))
 			{
-				iValue = pkTechInfo->GetResearchCost();
+				iValue = pkTechInfo->GetResearchCost(GC.getGamePointer());
 
 				// Reduce value of a Tech if it's already in progress
 				iProgress = kTeam.GetTeamTechs()->GetResearchProgress(eTech);

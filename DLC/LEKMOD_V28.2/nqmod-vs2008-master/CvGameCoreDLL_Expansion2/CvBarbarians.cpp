@@ -1014,7 +1014,8 @@ bool shouldAttackPlot(CvUnit * pLoopUnit, CvPlot * plot, bool isRangeAttack)
 		}
 		else
 		{
-			const bool couldMoveThereThisTurn = TurnsToReachTarget(pLoopUnit, plot, false, false, false) <= 1;
+			const int turnsTillTarget = TurnsToReachTarget(pLoopUnit, plot, false, false, false);
+			const bool couldMoveThereThisTurn = turnsTillTarget <= 1;
 			shouldAttack = couldMoveThereThisTurn;
 		}
 	}

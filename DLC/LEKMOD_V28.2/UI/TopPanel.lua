@@ -457,7 +457,7 @@ function ScienceTipHandler( control )
 		local bFirstEntry = true;
 	
 		-- Science LOSS from Budget Deficits
-		local iScienceFromBudgetDeficit = pPlayer:GetScienceFromBudgetDeficitTimes100();
+		local iScienceFromBudgetDeficit = 0;--pPlayer:GetScienceFromBudgetDeficitTimes100();
 		if (iScienceFromBudgetDeficit ~= 0) then
 		
 			-- Add separator for non-initial entries
@@ -1082,7 +1082,7 @@ function CultureTipHandler( control )
 			end
 
 			strText = strText .. "[NEWLINE]";
-			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_CULTURE_FROM_GOLDEN_AGE", iCultureFromGoldenAge);
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_CULTURE_FROM_BUDGET", iCultureFromGoldenAge);
 		end
 
 		-- Let people know that building more cities makes policies harder to get

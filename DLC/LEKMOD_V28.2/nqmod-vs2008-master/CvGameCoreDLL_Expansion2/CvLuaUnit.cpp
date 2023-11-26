@@ -228,6 +228,10 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(IsFortifyable);
 	Method(IsEverFortifyable);
 	Method(FortifyModifier);
+
+	Method(GetActionPoints);
+	Method(GetActionPointsMax);
+
 	Method(ExperienceNeeded);
 	Method(AttackXPValue);
 	Method(DefenseXPValue);
@@ -2389,6 +2393,23 @@ int CvLuaUnit::lFortifyModifier(lua_State* L)
 	CvUnit* pkUnit = GetInstance(L);
 
 	const int iResult = pkUnit->fortifyModifier();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+
+int CvLuaUnit::lGetActionPoints(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+
+	const int iResult = pkUnit->GetActionPoints();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+int CvLuaUnit::lGetActionPointsMax(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+
+	const int iResult = pkUnit->GetActionPointsMax();
 	lua_pushinteger(L, iResult);
 	return 1;
 }

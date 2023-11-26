@@ -471,7 +471,20 @@ function UpdateUnitPortrait( unit )
    end
 	
 	Controls.UnitPortrait:SetToolTipString(strToolTip);
+
+	-- Action Points
+	local aps = unit:GetActionPoints();
+	local maxAps = unit:GetActionPointsMax();
+	if (aps > 0) then
+		local apString = Locale.ConvertTextKey("TXT_KEY_UNIT_ACTION_POINTS", aps, maxAps);
+		Controls.ActionPoints:SetToolTipString( apString );
+		Controls.ActionPoints:SetPercent( aps / maxAps );
+ 		Controls.ActionPointsFrame:SetHide( false );
+	else
+ 		Controls.ActionPointsFrame:SetHide( true );
+	end -- ]]
     
+
     local thisUnitInfo = GameInfo.Units[unit:GetUnitType()];
 
 	local flagOffset, flagAtlas = UI.GetUnitFlagIcon(unit);	    

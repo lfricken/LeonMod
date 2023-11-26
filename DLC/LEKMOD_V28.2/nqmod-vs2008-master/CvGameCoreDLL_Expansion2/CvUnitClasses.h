@@ -55,6 +55,8 @@ public:
 	int GetHurryMultiplier() const;
 	bool IsRushBuilding() const;
 	int GetBaseGold() const;
+	// number of actions a unit can take before being expended
+	int GetActionPoints() const;
 	int GetNumGoldPerEra() const;
 	bool IsSpreadReligion() const;
 	int GetReligionSpreads() const;
@@ -190,6 +192,7 @@ private:
 	int m_iHurryMultiplier;
 	bool m_bRushBuilding;
 	int m_iBaseGold;
+	int m_iActionPoints;
 	int m_iNumGoldPerEra;
 	bool m_bSpreadReligion;
 	int m_iReligionSpreads;

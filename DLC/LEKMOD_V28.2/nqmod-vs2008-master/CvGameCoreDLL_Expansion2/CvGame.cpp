@@ -292,6 +292,48 @@ void CvGame::init(HandicapTypes eHandicap)
 		randomPolicyRebateT100.push_back(rand);
 	}
 
+	// random tech cost
+	{
+		randomTechFactorT100.clear();
+
+		// declare function
+		class AnonFunc
+		{
+		public:
+			static std::vector<int> GenerateFactors()
+			{
+				std::vector<int> possible;
+				possible.push_back(50);
+				possible.push_back(50);
+				possible.push_back(50);
+				possible.push_back(50);
+
+				possible.push_back(100);
+				possible.push_back(100);
+				possible.push_back(150);
+				possible.push_back(150);
+
+				possible.push_back(200);
+				return possible;
+			}
+		};
+
+		std::vector<int> factors;
+
+		// give each tech a fraction
+		for (int i = 0; i < GC.getNumTechInfos(); ++i)
+		{
+			if (factors.size() == 0)
+			{
+				factors = AnonFunc::GenerateFactors();
+			}
+			// randomly assign it
+			const int randIdx = GC.getGame().getJonRandUnsafe().get((unsigned short)factors.size(), CvRandom::MutateSeed, "tech cost");
+			randomTechFactorT100.push_back(factors[randIdx]);
+			factors.erase(factors.begin() + randIdx);
+		}
+	}
+
 	// random plot bonuses
 	int count = 0;
 	const int numTypesOfYields = 3; // also see in CvPlot.cpp
@@ -1179,6 +1221,7 @@ void CvGame::uninit()
 	m_barbSpawnCounter = 0;
 	m_eraNumPlayersEntered.clear();
 	randomPolicyRebateT100.clear();
+	randomTechFactorT100.clear();
 
 	m_mapRand.uninit();
 	m_jonRand.uninit();
@@ -4872,6 +4915,10 @@ int CvGame::getNumSequentialHumans(PlayerTypes ignorePlayer)
 }
 
 //	------------------------------------------------------------------------------------------------
+int CvGame::getTurn() const
+{
+	return turn();
+}
 int CvGame::getGameTurn() const
 {
 	return CvPreGame::gameTurn();
@@ -7548,7 +7595,7 @@ int CvGame::GetResearchLeftToTech(TeamTypes eTeam, TechTypes eTech)
 	// Base Case - first Prereq AND Tech does not exist
 	if(pkTechInfo->GetPrereqAndTechs(0) == NO_TECH)
 	{
-		return pkTechInfo->GetResearchCost();
+		return pkTechInfo->GetResearchCost(this);
 	}
 
 	// Another base case! - Team already has tech
@@ -7570,7 +7617,7 @@ int CvGame::GetResearchLeftToTech(TeamTypes eTeam, TechTypes eTech)
 		}
 	}
 
-	return pkTechInfo->GetResearchCost() + iPrereqTechCost;
+	return pkTechInfo->GetResearchCost(this) + iPrereqTechCost;
 }
 
 //	--------------------------------------------------------------------------------
@@ -9972,6 +10019,7 @@ void CvGame::Read(FDataStream& kStream)
 	kStream >> m_voteSelections;
 	kStream >> m_votesTriggered;
 	kStream >> randomPolicyRebateT100;
+	kStream >> randomTechFactorT100;
 	kStream >> m_allowedYieldBonuses;
 	kStream >> m_randomBuildingPercentages;
 	kStream >> m_randomTrophyPointDelta;
@@ -10217,6 +10265,7 @@ void CvGame::Write(FDataStream& kStream) const
 	kStream << m_voteSelections;
 	kStream << m_votesTriggered;
 	kStream << randomPolicyRebateT100;
+	kStream << randomTechFactorT100;
 	kStream << m_allowedYieldBonuses;
 	kStream << m_randomBuildingPercentages;
 	kStream << m_randomTrophyPointDelta;

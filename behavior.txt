@@ -15,6 +15,9 @@ replace floats:
 [e,E][+,-][0-9]
 
 
+unit cost
+CvPlayer::getProductionNeeded(UnitTypes eUnit)
+
 icon atlas and images (contains readme with more info)
 \Mods\[BNW] Colonialist Legacies - Malaysia (v 3)\Art\IconAtlas
 
@@ -66,13 +69,8 @@ How fast do units heal
 CvUnit::healRate
 
 
-found settle city
+found settle city city found tiles distance (minimum tiles between)
 CvCitySiteEvaluator::CanFound
-MIN_CITY_RANGE
-
-
-
-city found tiles distance (minimum tiles between)
 MIN_CITY_RANGE
 
 spy vision reveal radius

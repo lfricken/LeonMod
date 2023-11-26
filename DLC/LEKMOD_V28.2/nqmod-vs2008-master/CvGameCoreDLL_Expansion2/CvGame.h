@@ -158,6 +158,7 @@ public:
 #endif
 	int getNumSequentialHumans(PlayerTypes ignorePlayer = NO_PLAYER);
 
+	int getTurn() const;
 	int getGameTurn() const;
 	int turn() const;
 	void setGameTurn(int iNewValue);
@@ -627,6 +628,8 @@ public:
 	int GetNumHiddenArchaeologySites() const;
 	// idx > policy value
 	std::vector<int> randomPolicyRebateT100;
+	// idx > policy value
+	std::vector<int> randomTechFactorT100;
 	// idx > eg. YIELD_SCIENCE
 	std::vector<int> m_allowedYieldBonuses;
 	// idx > percentageT100 variation for each building

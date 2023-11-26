@@ -7295,14 +7295,14 @@ int CvLuaPlayer::lGetScienceTopPanelTooltip(lua_State* L)
 
 
 		stringstream s;
-		s << "[NEWLINE][ICON_BULLET]" + color + "+";
-		s << percentFromOthers;
-		s << "%[ENDCOLOR][ICON_RESEARCH] from more advanced civs.";
-		s << "[NEWLINE]Each City or [ICON_PUPPET] Puppeted City you own will increase Technology costs by ";
-		s << increasePer;
-		s << "%. You currently have [COLOR_NEGATIVE_TEXT]+";
-		s << increase;
-		s << "%[ENDCOLOR] increased Technology costs.";
+		//s << "[NEWLINE][ICON_BULLET]" + color + "+";
+		//s << percentFromOthers;
+		//s << "%[ENDCOLOR][ICON_RESEARCH] from more advanced civs.";
+		//s << "[NEWLINE]Each City or [ICON_PUPPET] Puppeted City you own will increase Technology costs by ";
+		//s << increasePer;
+		//s << "%. You currently have [COLOR_NEGATIVE_TEXT]+";
+		//s << increase;
+		//s << "%[ENDCOLOR] increased Technology costs.";
 
 		lua_pushstring(L, s.str().c_str());
 		return 1;

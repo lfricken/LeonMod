@@ -36,7 +36,7 @@ public:
 	// Accessor Functions (Non-Arrays)
 	int GetAIWeight() const;
 	int GetAITradeModifier() const;
-	int GetResearchCost() const;
+	int GetResearchCost(const CvGame* game) const;
 	int GetAdvancedStartCost() const;
 	int GetEra() const;
 	int GetFeatureProductionModifier() const;

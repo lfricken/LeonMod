@@ -235,6 +235,10 @@ protected:
 	static int lIsFortifyable(lua_State* L);
 	static int lIsEverFortifyable(lua_State* L);
 	static int lFortifyModifier(lua_State* L);
+
+	static int lGetActionPoints(lua_State* L);
+	static int lGetActionPointsMax(lua_State* L);
+
 	static int lExperienceNeeded(lua_State* L);
 	static int lAttackXPValue(lua_State* L);
 	static int lDefenseXPValue(lua_State* L);

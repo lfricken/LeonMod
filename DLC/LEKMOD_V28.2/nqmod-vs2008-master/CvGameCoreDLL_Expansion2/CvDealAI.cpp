@@ -1525,7 +1525,7 @@ int CvDealAI::GetEmbassyValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseE
 
 	if (bFromMe)
 	{
-		iItemValue *= 2; // embassy benefits humans more than us (because humans are smarter than us)
+		iItemValue *= 5; // embassy benefits humans more than us (because humans are smarter than us)
 	}
 
 	// Are we trying to find the middle point between what we think this item is worth and what another player thinks it's worth?

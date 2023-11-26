@@ -9,7 +9,7 @@ function ResetMultiplayerOptions()
 	PreGame.SetCivilizationAdjective( 0, "");
 	
 		-- Default Map Size
-	local worldSize = GameInfo.Worlds["WORLDSIZE_LARGE"];
+	local worldSize = GameInfo.Worlds["WORLDSIZE_STANDARD"];
 	if(worldSize == nil) then
 		worldSize = GameInfo.Worlds()(); -- Get first world size found.
 	end

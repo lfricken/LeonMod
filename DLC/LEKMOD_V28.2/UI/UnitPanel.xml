@@ -86,6 +86,11 @@
             <Stack Anchor="R,T" Offset="-2,-4" Padding="-7" StackGrowth="Left" ID="EarnedPromotionStack" />
           </Box>
 
+
+          <!-- Action Points -->
+          <Grid Anchor="R,C" Offset="0,0" Size="275,12" Padding="0,0" Style="Grid9FrameTurns" ID="ActionPointsFrame">
+            <TextureBar Anchor="L,T"  Offset="3,2"  Texture="assets/UI/Art/UnitPanel/XPmeter.dds" Size="269,7" ID="ActionPoints"/>
+          </Grid>
           <!-- XP METER -->
           <Grid Anchor="R,C" Offset="0,0" Size="275,12" Padding="0,0" Style="Grid9FrameTurns" ID="XPFrame">
             <TextureBar Anchor="L,T"  Offset="3,2"  Texture="assets/UI/Art/UnitPanel/XPmeter.dds" Size="269,7" ID="XPMeter"/>

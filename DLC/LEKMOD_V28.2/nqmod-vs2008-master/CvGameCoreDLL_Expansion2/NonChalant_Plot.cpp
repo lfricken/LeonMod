@@ -48,7 +48,7 @@ int CvPlot::getExtraYield
 {
 	int yieldChange = 0;
 
-	// TODO after turn 10
+	// give random yields to random tiles
 	if (GC.IsRandomTileBoostsActiveYet())
 	{
 		yieldChange += m_extraYields[eYieldType];
@@ -151,6 +151,9 @@ int CvPlot::getExtraYield
 
 			if (isCityCenter)
 			{ // BEGIN isCityCenter
+				if (eYieldType == YIELD_PRODUCTION)
+					yieldChange += 1;
+
 
 				{// POLICY_CONSULATES - gives +2C to the Palace for each City-State Ally
 					const bool hasConsulates = player.HasPolicy(POLICY_CONSULATES);

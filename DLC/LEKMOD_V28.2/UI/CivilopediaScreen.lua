@@ -2214,6 +2214,7 @@ CivilopediaCategory[CategoryTech].SelectArticle = function( techID, shouldAddToL
 		else
 			Controls.CostLabel:SetText( Locale.ConvertTextKey( "TXT_KEY_FREE" ) );
 		end
+		Controls.CostFrame:SetHide(true);
 		
  		local contentSize;
  		local frameSize = {};

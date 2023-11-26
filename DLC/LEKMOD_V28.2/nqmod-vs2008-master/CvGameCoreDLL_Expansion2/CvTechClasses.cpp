@@ -219,20 +219,27 @@ int CvTechEntry::GetAITradeModifier() const
 }
 
 /// Research/science points required to obtain tech
-int CvTechEntry::GetResearchCost() const
+int CvTechEntry::GetResearchCost(const CvGame* game) const
 {
-	//return m_iResearchCost;
+	int cost = m_iResearchCost;
+	// adjust randomly
+	if (game != NULL)
+	{
+		cost *= game->randomTechFactorT100[GetID()];
+		cost /= 100;
+	}
+	return cost;
 
-	// increase cost based on era
-	const T100 percentPerEraT100 = 10;
-	const int offset = -30;
-	const int era = GetEra();
+	//// increase cost based on era
+	//const T100 percentPerEraT100 = 10;
+	//const int offset = -30;
+	//const int era = GetEra();
 
-	const T100 percentT100 = (max(0, era) * percentPerEraT100) + offset;
-	const T100 beakersFactorT100 = 100 + percentT100;
-	int adjustedCost = m_iResearchCost * beakersFactorT100;
-	adjustedCost /= 100;
-	return max(1, adjustedCost);
+	//const T100 percentT100 = (max(0, era) * percentPerEraT100) + offset;
+	//const T100 beakersFactorT100 = 100 + percentT100;
+	//int adjustedCost = m_iResearchCost * beakersFactorT100;
+	//adjustedCost /= 100;
+	//return max(1, adjustedCost);
 }
 
 /// Cost if starting midway through game
@@ -1466,7 +1473,7 @@ int CvPlayerTechs::GetResearchTurnsLeftTimes100(TechTypes eTech, bool bOverflow)
 				// If this is us or if the tech matches, then increment totals
 				if((iI == m_pPlayer->GetID()) || kPlayer.GetPlayerTechs()->GetCurrentResearch() == eTech)
 				{
-					iResearchRate += 5; // now just 5 per turn kPlayer.GetScienceTimes100();
+					iResearchRate += kPlayer.GetScienceTimes100();
 #ifdef AUI_PLAYER_FIX_NO_RESEARCH_OVERFLOW_DOUBLE_DIP
 					iOverflow += kPlayer.getOverflowResearch();
 #else
@@ -1541,24 +1548,24 @@ int CvPlayerTechs::GetResearchCost(TechTypes eTech) const
 	return GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetResearchCost(eTech);
 #else
 	// Get the research cost for the team
-	int iResearchCost = GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetResearchCost(eTech);
+	int iResearchCostT100 = 100 * GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetResearchCost(eTech);
 	
 	// Adjust to the player's research modifier
-	int iResearchMod = std::max(1, m_pPlayer->calculateResearchModifier(eTech));
-	iResearchCost = ((iResearchCost * 10000) / iResearchMod);
+	//int iResearchMod = std::max(1, m_pPlayer->calculateResearchModifier(eTech));
+	//iResearchCost = ((iResearchCost * 10000) / iResearchMod);
 
-	int iMod = GetResearchCostIncreasePercentT100();
+	//int iMod = GetResearchCostIncreasePercentT100();
 
-	iResearchCost = iResearchCost * (100 + iMod) / 100;
+	//iResearchCost = iResearchCost * (100 + iMod) / 100;
 
 	// We're going to round up so that the user wont get confused when the research progress seems to be equal to the research cost, but it is not acutally done.
 	// This is because the 'real' calculations use the GameCore's fixed point math where things are multiplied by 100
-	if((iResearchCost % 100) != 0)
-		iResearchCost = (iResearchCost / 100) + 1;
+	if((iResearchCostT100 % 100) != 0)
+		iResearchCostT100 = (iResearchCostT100 / 100) + 1;
 	else
-		iResearchCost = (iResearchCost / 100);
+		iResearchCostT100 = (iResearchCostT100 / 100);
 
-	return iResearchCost;
+	return iResearchCostT100;
 #endif
 }
 
@@ -2224,7 +2231,7 @@ int CvTeamTechs::GetResearchCost(TechTypes eTech) const
 		return 0;
 	}
 
-	int iCost = pkTechInfo->GetResearchCost();
+	int iCost = pkTechInfo->GetResearchCost(GC.getGamePointer());
 
 	CvHandicapInfo* pkHandicapInfo = GC.getHandicapInfo(m_pTeam->getHandicapType());
 	if(pkHandicapInfo)
@@ -2368,7 +2375,7 @@ int CvTeamTechs::GetTreeProgressBeakers() const
 	for (TechTypes t = (TechTypes)0; t < numTechs; t = (TechTypes)((int)t + 1))
 	{
 		CvTechEntry* info = GC.getTechInfo(t);
-		const int cost = info->GetResearchCost(); // cost in beakers
+		const int cost = info->GetResearchCost(GC.getGamePointer()); // cost in beakers
 
 		haveBeakers += (cost * GetResearchPercentT100(t)) / 100;
 	}
@@ -2392,7 +2399,7 @@ int CvTeamTechs::GetMaxResearchOverflow(TechTypes eTech, PlayerTypes ePlayer) co
 		return 0;
 	}
 
-	int iCost = pkTechInfo->GetResearchCost() * 100;
+	int iCost = pkTechInfo->GetResearchCost(GC.getGamePointer()) * 100;
 
 	iReturnValue = max(iCost, iReturnValue);
 

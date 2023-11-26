@@ -104,7 +104,7 @@ UnitClassTypes CvGameQueries::GetLeastAdvancedUnitClassNobodyHas(bool bUseRandom
 			iWeight = pkUnitInfo->GetPower();
 
 			// Add a Tech factor, since we want something in the near future, not too far off
-			iWeight += (pkTechInfo->GetResearchCost() / 8);
+			iWeight += (pkTechInfo->GetResearchCost(GC.getGamePointer()) / 8);
 
 			// Add a random bit so that the same Unit isn't ALWAYS picked
 			if (bUseRandom)

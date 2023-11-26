@@ -4728,6 +4728,24 @@ void CvPlayer::DoTurn()
 		}
 	}
 
+	// meet every other team on a certain turn
+	if (GC.getGame().getTurn() == 10)
+	{
+		CvTeam& ourTeam = GET_TEAM(getTeam());
+		for (int iI = 0; iI < MAX_TEAMS; iI++)
+		{
+			const TeamTypes otherTeamE = static_cast<TeamTypes>(iI);
+			CvTeam& otherTeam = GET_TEAM(otherTeamE);
+			// do not meet minors or barbs again
+			if (ourTeam.isMinorCiv() || ourTeam.isBarbarian() ||
+				otherTeam.isMinorCiv() || otherTeam.isBarbarian())
+			{
+				continue;
+			}
+			ourTeam.meet(otherTeamE, false);
+		}
+	}
+
 	TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
 	stringstream s;
 	s << "Player:doTurn " << GetID() << " " << eCurrentTech << " " << GetNonLeaderBoostT100() << " " << m_iOverflowResearch << " " << GetScienceTimes100(true);
@@ -10878,6 +10896,9 @@ int CvPlayer::GetTotalJONSCulturePerTurnTimes100() const
 
 	// Temporary boost from bonus turns
 	iCulturePerTurn += GetCulturePerTurnFromBonusTurnsTimes100();
+
+	// Temporary boost from bonus turns
+	iCulturePerTurn += GetScienceFromBudgetDeficitTimes100();
 #else
 	iCulturePerTurn += GetJONSCulturePerTurnFromCities();
 
@@ -10900,12 +10921,13 @@ int CvPlayer::GetTotalJONSCulturePerTurnTimes100() const
 	iCulturePerTurn += GetCulturePerTurnFromBonusTurns();
 #endif
 
-	// Golden Age bonus
-	if (isGoldenAge() && !IsGoldenAgeCultureBonusDisabled())
-	{
-		iCulturePerTurn += ((iCulturePerTurn * GC.getGOLDEN_AGE_CULTURE_MODIFIER()) / 100);
-	}
+	//// Golden Age bonus
+	//if (isGoldenAge() && !IsGoldenAgeCultureBonusDisabled())
+	//{
+	//	iCulturePerTurn += ((iCulturePerTurn * GC.getGOLDEN_AGE_CULTURE_MODIFIER()) / 100);
+	//}
 
+	iCulturePerTurn = max(iCulturePerTurn, 0);
 	return iCulturePerTurn;
 }
 
@@ -12055,13 +12077,13 @@ void CvPlayer::DoTechFromCityConquer(CvCity* pConqueredCity)
 					// But we could
 					if (GetPlayerTechs()->CanResearch(e))
 					{
-						if (pInfo->GetResearchCost() < iCheapestTechCost)
+						if (pInfo->GetResearchCost(GC.getGamePointer()) < iCheapestTechCost)
 						{
-							iCheapestTechCost = pInfo->GetResearchCost();
+							iCheapestTechCost = pInfo->GetResearchCost(GC.getGamePointer());
 							vePossibleTechs.clear();
 							vePossibleTechs.push_back(e);
 						}
-						else if (pInfo->GetResearchCost() == iCheapestTechCost)
+						else if (pInfo->GetResearchCost(GC.getGamePointer()) == iCheapestTechCost)
 						{
 							vePossibleTechs.push_back(e);
 						}
@@ -13375,14 +13397,13 @@ int CvPlayer::GetUnhappinessFromCityForUI(CvCity* pCity) const
 int CvPlayer::GetUnhappinessFromCityCount(CvCity* pAssumeCityAnnexed, CvCity* pAssumeCityPuppeted) const
 {
 	int iUnhappiness = 0;
-	int iUnhappinessPerCity = /*2*/ GC.getUNHAPPINESS_PER_CITY() * 100;
+	int iUnhappinessPerCity = /*1*/ GC.getUNHAPPINESS_PER_CITY() * 100;
 
-	bool bCityValid;
 
-	int iLoop;
+	int iLoop = 0;
 	for(const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		bCityValid = false;
+		bool bCityValid = false;
 
 		// Assume city is puppeted, and counts
 		if(pLoopCity == pAssumeCityPuppeted)
@@ -13414,8 +13435,9 @@ int CvPlayer::GetUnhappinessFromCityCount(CvCity* pAssumeCityAnnexed, CvCity* pA
 	iUnhappiness /= 100;
 
 	// Map size mod
-	iUnhappiness *= GC.getMap().getWorldInfo().getNumCitiesUnhappinessPercent();
-	iUnhappiness /= 100;
+	// remove map size happiness modifier
+	//iUnhappiness *= GC.getMap().getWorldInfo().getNumCitiesUnhappinessPercent();
+	//iUnhappiness /= 100;
 
 	return iUnhappiness;
 }
@@ -13511,7 +13533,7 @@ int CvPlayer::GetUnhappinessFromCityPopulation(CvCity* pAssumeCityAnnexed, CvCit
 #endif
 
 			// No Unhappiness from Specialist Pop? (Policies, etc.)
-			if(isHalfSpecialistUnhappiness())
+			if(isHalfSpecialistUnhappiness() && !pLoopCity->IsPuppet())
 			{
 				iSpecialistCount = pLoopCity->GetCityCitizens()->GetTotalSpecialistCount();
 				iSpecialistCount++; // Round up
@@ -19566,39 +19588,41 @@ int CvPlayer::GetScience() const
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetScienceTimes100(bool includeBoost) const
 {
-	// If we're in anarchy, then no Research is done!
-	if(IsAnarchy())
-		return 0;
+	return 500;
 
-	int iValue = 0;
-
-	// Science from our Cities
-	iValue += GetScienceFromCitiesTimes100(false);
-
-	// Science from other players!
-	iValue += GetScienceFromOtherPlayersTimes100();
-
-	// Happiness converted to Science? (Policies, etc.)
-	iValue += GetScienceFromHappinessTimes100();
-
-#ifdef NQ_GOLD_TO_SCIENCE_FROM_POLICIES
-	// Gold output of empire converted to Science? (Ideology tenet Free Market)
-	iValue += GetScienceFromGoldTimes100();
-#endif
-
-	// Research Agreement bonuses
-	iValue += GetScienceFromResearchAgreementsTimes100();
-
-	// If we have a negative Treasury + GPT then it gets removed from Science
-	iValue += GetScienceFromBudgetDeficitTimes100();
-
-	if (includeBoost)
-	{
-		iValue *= 100 + GetNonLeaderBoostT100();
-		iValue /= 100;
-	}
-
-	return max(iValue, 0);
+//	// If we're in anarchy, then no Research is done!
+//	if(IsAnarchy())
+//		return 0;
+//
+//	int iValue = 0;
+//
+//	// Science from our Cities
+//	iValue += GetScienceFromCitiesTimes100(false);
+//
+//	// Science from other players!
+//	iValue += GetScienceFromOtherPlayersTimes100();
+//
+//	// Happiness converted to Science? (Policies, etc.)
+//	iValue += GetScienceFromHappinessTimes100();
+//
+//#ifdef NQ_GOLD_TO_SCIENCE_FROM_POLICIES
+//	// Gold output of empire converted to Science? (Ideology tenet Free Market)
+//	iValue += GetScienceFromGoldTimes100();
+//#endif
+//
+//	// Research Agreement bonuses
+//	iValue += GetScienceFromResearchAgreementsTimes100();
+//
+//	// If we have a negative Treasury + GPT then it gets removed from Science
+//	iValue += GetScienceFromBudgetDeficitTimes100();
+//
+//	if (includeBoost)
+//	{
+//		iValue *= 100 + GetNonLeaderBoostT100();
+//		iValue /= 100;
+//	}
+//
+//	return max(iValue, 0);
 }
 
 
@@ -26529,11 +26553,6 @@ bool CvPlayer::canSpyDestroyProject(PlayerTypes eTarget, ProjectTypes eProject) 
 //	--------------------------------------------------------------------------------
 int CvPlayer::getNewCityProductionValue() const
 {
-	if(GC.getSETTLER_PRODUCTION_SPEED() != 0)
-	{
-		return GC.getSETTLER_PRODUCTION_SPEED();
-	}
-
 	int iValue = 0;
 #ifdef AUI_WARNING_FIXES
 	for (uint iJ = 0; iJ < GC.getNumBuildingClassInfos(); iJ++)
@@ -26574,6 +26593,12 @@ int CvPlayer::getNewCityProductionValue() const
 	for(int i = 1; i <= iPopulation; ++i)
 	{
 		iValue += (getGrowthThreshold(i) * GC.getADVANCED_START_POPULATION_COST()) / 100;
+	}
+
+	if (GC.getSETTLER_PRODUCTION_SPEED() > 0)
+	{
+		iValue *= 100;
+		iValue /= GC.getSETTLER_PRODUCTION_SPEED();
 	}
 
 	return iValue;

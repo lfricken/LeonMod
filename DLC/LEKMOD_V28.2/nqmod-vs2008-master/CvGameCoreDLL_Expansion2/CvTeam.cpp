@@ -4156,7 +4156,7 @@ bool CvTeam::IsAllowsOpenBordersToTeam(TeamTypes eIndex) const
 {
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
-
+	return true;// always open borders
 	if(GetLiberatedByTeam() == eIndex && !isAtWar(eIndex))
 	{
 		return true;
@@ -4419,7 +4419,7 @@ void CvTeam::DoUpdateBestRoute()
 				{
 					if(GetTeamTechs()->HasTech(eTech))
 					{
-						iRouteValue = pkTechInfo->GetResearchCost();
+						iRouteValue = pkTechInfo->GetResearchCost(GC.getGamePointer());
 					}
 				}
 				// Route requires no tech, so it's value is simply 1

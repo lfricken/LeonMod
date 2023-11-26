@@ -560,6 +560,11 @@ public:
 	bool IsEverFortifyable() const;
 	int fortifyModifier() const;
 
+	// how many action points this unit currently has
+	int GetActionPoints() const;
+	// how many action points this unit starts with
+	int GetActionPointsMax() const;
+
 	int experienceNeeded() const;
 	int attackXPValue() const;
 	int defenseXPValue() const;
@@ -1670,6 +1675,8 @@ protected:
 	int m_iTradeMissionGoldModifier;
 	int m_iMapLayer;		// Which layer does the unit reside on for pathing/stacking/etc.
 	int m_iNumGoodyHutsPopped;
+	// how many actions this unit can take before it expires
+	FAutoVariable<int, CvUnit> m_iActionPoints;
 	int m_iLastGameTurnAtFullHealth;
 		
 	CvString m_strName;
