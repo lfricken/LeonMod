@@ -759,8 +759,9 @@ function RefreshDisplayOfSpecificTech( tech )
   		thisTechButton.FreeTech:SetHide( true );
  		-- update number of turns to research
  		if 	player:GetScience() > 0 then
-  			thisTechButton.UnavailableTurns:SetText( turnText );
+  			thisTechButton.UnavailableTurns:SetText( "??? Turns" );
   			thisTechButton.UnavailableTurns:SetHide( false );
+ 			thisTechButton.TechButton:SetToolTipString( GetHelpTextForTech(techID, true) );
   		else
   			thisTechButton.UnavailableTurns:SetHide( true );
   		end

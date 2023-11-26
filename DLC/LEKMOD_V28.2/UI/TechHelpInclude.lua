@@ -2,7 +2,7 @@
 -- Help text for techs
 -------------------------------------------------
 
-function GetHelpTextForTech( iTechID )
+function GetHelpTextForTech( iTechID, isUnknownCost )
 	local pTechInfo = GameInfo.Technologies[iTechID];
 	
 	local pActiveTeam = Teams[Game.GetActiveTeam()];
@@ -31,6 +31,10 @@ function GetHelpTextForTech( iTechID )
 		bShowProgress = false;
 	end
 	
+	if (isUnknownCost == true) then
+		iTechCost = "???";
+	end
+
 	if (bShowProgress) then
 		strHelpText = strHelpText .. Locale.ConvertTextKey("TXT_KEY_TECH_HELP_COST_WITH_PROGRESS", iProgress, iTechCost);
 	else
